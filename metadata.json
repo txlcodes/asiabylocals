@@ -1,0 +1,8 @@
+
+{
+  "name": "AsiaByLocals - Premium Travel Marketplace",
+  "description": "Authentic, expert-led cultural experiences across 5 major Asian hubs.",
+  "requestFramePermissions": [
+    "geolocation"
+  ]
+}
