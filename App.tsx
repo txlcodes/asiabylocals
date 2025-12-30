@@ -15,7 +15,7 @@ import {
   ShieldCheck
 } from 'lucide-react';
 import { CITIES, EXPERIENCES, ATTRACTIONS } from './constants';
-import SupplierRegistration from './SupplierRegistration';
+import SupplierPage from './SupplierPage';
 
 interface ExploreItem {
   name: string;
@@ -151,7 +151,7 @@ const App: React.FC = () => {
   const [showPlacesDropdown, setShowPlacesDropdown] = useState(false);
   const [showThingsDropdown, setShowThingsDropdown] = useState(false);
   const [showInspirationDropdown, setShowInspirationDropdown] = useState(false);
-  const [showSupplierRegistration, setShowSupplierRegistration] = useState(false);
+  const [showSupplierPage, setShowSupplierPage] = useState(false);
 
   useEffect(() => {
     const checkScroll = () => {
@@ -198,8 +198,8 @@ const App: React.FC = () => {
     return () => clearInterval(interval);
   }, [heroImages.length]);
 
-  if (showSupplierRegistration) {
-    return <SupplierRegistration onClose={() => setShowSupplierRegistration(false)} />;
+  if (showSupplierPage) {
+    return <SupplierPage onClose={() => setShowSupplierPage(false)} />;
   }
 
   return (
@@ -404,7 +404,7 @@ const App: React.FC = () => {
 
           <div className="flex items-center gap-6 text-[13px] font-semibold text-[#001A33]">
             <button 
-              onClick={() => setShowSupplierRegistration(true)}
+              onClick={() => setShowSupplierPage(true)}
               className="hidden md:block hover:text-[#FF5A00]"
             >
               Become a supplier
@@ -689,7 +689,7 @@ const App: React.FC = () => {
               <ul className="space-y-4 text-sm font-bold text-gray-400">
                 <li className="hover:text-white cursor-pointer">Our Vetting Process</li>
                 <li 
-                  onClick={() => setShowSupplierRegistration(true)}
+                  onClick={() => setShowSupplierPage(true)}
                   className="hover:text-white cursor-pointer"
                 >
                   Become a Supplier
