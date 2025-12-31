@@ -12,24 +12,54 @@ import {
   User,
   CheckCircle2,
   X,
-  Loader2
+  Loader2,
+  Users,
+  FileText,
+  Info
 } from 'lucide-react';
 
 interface SupplierRegistrationProps {
   onClose: () => void;
 }
 
+const BUSINESS_TYPES = [
+  {
+    id: 'company',
+    title: 'As a registered company',
+    description: 'Legally incorporated entities operating under formal business registration.',
+    icon: Building2
+  },
+  {
+    id: 'individual',
+    title: 'As a registered individual',
+    description: 'Single person businesses operating under personal name.',
+    icon: Users
+  },
+  {
+    id: 'other',
+    title: 'Other business type',
+    description: 'Entities operating outside standard business registries.',
+    icon: FileText
+  }
+];
+
 const SupplierRegistration: React.FC<SupplierRegistrationProps> = ({ onClose }) => {
   const [step, setStep] = useState(1);
+  const [selectedBusinessType, setSelectedBusinessType] = useState<string>('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
 
-  const nextStep = () => setStep(prev => Math.min(prev + 1, 3));
+  const nextStep = () => setStep(prev => Math.min(prev + 1, 4));
   const prevStep = () => setStep(prev => Math.max(prev - 1, 1));
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (step < 3) {
+    if (step === 1) {
+      // Business type selection - require selection before proceeding
+      if (selectedBusinessType) {
+        nextStep();
+      }
+    } else if (step < 4) {
       nextStep();
     } else {
       setIsSubmitting(true);
@@ -88,17 +118,17 @@ const SupplierRegistration: React.FC<SupplierRegistrationProps> = ({ onClose }) 
       {/* Progress Bar */}
       <div className="bg-white border-b border-gray-200">
         <div className="max-w-4xl mx-auto px-8 py-4 flex items-center gap-4">
-          {[1, 2, 3].map((s) => (
+          {[1, 2, 3, 4].map((s) => (
             <React.Fragment key={s}>
               <div className="flex items-center gap-2">
                 <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-black transition-colors ${step >= s ? 'bg-[#FF5A00] text-white' : 'bg-gray-100 text-gray-400'}`}>
                   {step > s ? <Check size={14} /> : s}
                 </div>
                 <span className={`text-[11px] font-black uppercase tracking-widest hidden sm:block ${step >= s ? 'text-[#001A33]' : 'text-gray-300'}`}>
-                  {s === 1 ? 'Account' : s === 2 ? 'Business' : 'Verification'}
+                  {s === 1 ? 'Business Type' : s === 2 ? 'Account' : s === 3 ? 'Business' : 'Verification'}
                 </span>
               </div>
-              {s < 3 && <div className={`flex-1 h-px ${step > s ? 'bg-[#FF5A00]' : 'bg-gray-100'}`} />}
+              {s < 4 && <div className={`flex-1 h-px ${step > s ? 'bg-[#FF5A00]' : 'bg-gray-100'}`} />}
             </React.Fragment>
           ))}
         </div>
@@ -111,6 +141,56 @@ const SupplierRegistration: React.FC<SupplierRegistrationProps> = ({ onClose }) 
             {step === 1 && (
               <div className="space-y-6">
                 <div>
+                  <h3 className="text-2xl font-black text-[#001A33] mb-2 flex items-center gap-2">
+                    How do you run your business?
+                    <div className="relative group">
+                      <Info size={18} className="text-gray-400 cursor-help" />
+                    </div>
+                  </h3>
+                </div>
+                
+                <div className="grid gap-4">
+                  {BUSINESS_TYPES.map((type) => {
+                    const Icon = type.icon;
+                    return (
+                      <button
+                        key={type.id}
+                        type="button"
+                        onClick={() => setSelectedBusinessType(type.id)}
+                        className={`p-6 rounded-2xl border-2 text-left transition-all ${
+                          selectedBusinessType === type.id
+                            ? 'border-[#FF5A00] bg-[#FF5A00]/5'
+                            : 'border-gray-100 hover:border-gray-200 bg-white'
+                        }`}
+                      >
+                        <div className="flex items-start gap-4">
+                          <div className={`p-3 rounded-xl ${
+                            selectedBusinessType === type.id
+                              ? 'bg-[#FF5A00] text-white'
+                              : 'bg-gray-100 text-gray-400'
+                          }`}>
+                            <Icon size={24} />
+                          </div>
+                          <div className="flex-1">
+                            <h4 className="font-black text-[#001A33] mb-2 text-[16px]">{type.title}</h4>
+                            <p className="text-[13px] text-gray-500 font-medium leading-relaxed">{type.description}</p>
+                          </div>
+                          {selectedBusinessType === type.id && (
+                            <div className="w-6 h-6 rounded-full bg-[#FF5A00] flex items-center justify-center">
+                              <Check size={14} className="text-white" />
+                            </div>
+                          )}
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            {step === 2 && (
+              <div className="space-y-6">
+                <div>
                   <h3 className="text-2xl font-black text-[#001A33] mb-2">Create your account</h3>
                   <p className="text-[14px] text-gray-400 font-semibold">Use your business email for faster verification.</p>
                 </div>
@@ -121,7 +201,7 @@ const SupplierRegistration: React.FC<SupplierRegistrationProps> = ({ onClose }) 
                     <input 
                       type="text" required
                       placeholder="Full Name"
-                      className="w-full bg-gray-50 border-none rounded-2xl py-4 pl-12 pr-4 font-bold text-[#001A33] text-[14px] focus:ring-2 focus:ring-[#0071EB] transition-all outline-none"
+                      className="w-full bg-gray-50 border-none rounded-2xl py-4 pl-12 pr-4 font-bold text-[#001A33] text-[14px] focus:ring-2 focus:ring-[#FF5A00] transition-all outline-none"
                     />
                   </div>
                   <div className="relative">
@@ -129,7 +209,7 @@ const SupplierRegistration: React.FC<SupplierRegistrationProps> = ({ onClose }) 
                     <input 
                       type="email" required
                       placeholder="Business Email"
-                      className="w-full bg-gray-50 border-none rounded-2xl py-4 pl-12 pr-4 font-bold text-[#001A33] text-[14px] focus:ring-2 focus:ring-[#0071EB] transition-all outline-none"
+                      className="w-full bg-gray-50 border-none rounded-2xl py-4 pl-12 pr-4 font-bold text-[#001A33] text-[14px] focus:ring-2 focus:ring-[#FF5A00] transition-all outline-none"
                     />
                   </div>
                   <div className="relative">
@@ -137,14 +217,14 @@ const SupplierRegistration: React.FC<SupplierRegistrationProps> = ({ onClose }) 
                     <input 
                       type="password" required
                       placeholder="Create Password"
-                      className="w-full bg-gray-50 border-none rounded-2xl py-4 pl-12 pr-4 font-bold text-[#001A33] text-[14px] focus:ring-2 focus:ring-[#0071EB] transition-all outline-none"
+                      className="w-full bg-gray-50 border-none rounded-2xl py-4 pl-12 pr-4 font-bold text-[#001A33] text-[14px] focus:ring-2 focus:ring-[#FF5A00] transition-all outline-none"
                     />
                   </div>
                 </div>
               </div>
             )}
 
-            {step === 2 && (
+            {step === 3 && (
               <div className="space-y-6">
                 <div>
                   <h3 className="text-2xl font-black text-[#001A33] mb-2">Business details</h3>
@@ -157,11 +237,11 @@ const SupplierRegistration: React.FC<SupplierRegistrationProps> = ({ onClose }) 
                     <input 
                       type="text" required
                       placeholder="Company Name (or Legal Name)"
-                      className="w-full bg-gray-50 border-none rounded-2xl py-4 pl-12 pr-4 font-bold text-[#001A33] text-[14px] focus:ring-2 focus:ring-[#0071EB] transition-all outline-none"
+                      className="w-full bg-gray-50 border-none rounded-2xl py-4 pl-12 pr-4 font-bold text-[#001A33] text-[14px] focus:ring-2 focus:ring-[#FF5A00] transition-all outline-none"
                     />
                   </div>
                   <div className="grid grid-cols-2 gap-4">
-                    <select className="bg-gray-50 border-none rounded-2xl py-4 px-4 font-bold text-[#001A33] text-[14px] focus:ring-2 focus:ring-[#0071EB] outline-none cursor-pointer">
+                    <select className="bg-gray-50 border-none rounded-2xl py-4 px-4 font-bold text-[#001A33] text-[14px] focus:ring-2 focus:ring-[#FF5A00] outline-none cursor-pointer">
                       <option value="">Main Hub</option>
                       <option>India</option>
                       <option>Japan</option>
@@ -171,18 +251,18 @@ const SupplierRegistration: React.FC<SupplierRegistrationProps> = ({ onClose }) 
                     </select>
                     <input 
                       type="text" placeholder="City" required
-                      className="bg-gray-50 border-none rounded-2xl py-4 px-4 font-bold text-[#001A33] text-[14px] focus:ring-2 focus:ring-[#0071EB] outline-none"
+                      className="bg-gray-50 border-none rounded-2xl py-4 px-4 font-bold text-[#001A33] text-[14px] focus:ring-2 focus:ring-[#FF5A00] outline-none"
                     />
                   </div>
                   <input 
                     type="text" placeholder="Tour Languages (e.g. English, Hindi)" required
-                    className="w-full bg-gray-50 border-none rounded-2xl py-4 px-4 font-bold text-[#001A33] text-[14px] focus:ring-2 focus:ring-[#0071EB] outline-none"
+                    className="w-full bg-gray-50 border-none rounded-2xl py-4 px-4 font-bold text-[#001A33] text-[14px] focus:ring-2 focus:ring-[#FF5A00] outline-none"
                   />
                 </div>
               </div>
             )}
 
-            {step === 3 && (
+            {step === 4 && (
               <div className="space-y-6">
                 <div className="flex items-center gap-3 text-[#FF5A00] mb-2">
                   <ShieldCheck size={24} />
@@ -192,16 +272,16 @@ const SupplierRegistration: React.FC<SupplierRegistrationProps> = ({ onClose }) 
                   To protect our marketplace, we require proof of business registration or a valid tour guide license.
                 </p>
                 
-                <div className="border-2 border-dashed border-gray-100 rounded-2xl p-12 text-center group hover:border-[#0071EB] transition-colors cursor-pointer bg-gray-50/50">
+                <div className="border-2 border-dashed border-gray-100 rounded-2xl p-12 text-center group hover:border-[#FF5A00] transition-colors cursor-pointer bg-gray-50/50">
                   <div className="w-16 h-16 bg-white rounded-2xl shadow-sm flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
-                    <Upload className="text-[#0071EB]" size={24} />
+                    <Upload className="text-[#FF5A00]" size={24} />
                   </div>
                   <div className="font-black text-[#001A33] text-[14px] mb-1">Upload License / ID</div>
                   <div className="text-[11px] text-gray-400 font-semibold uppercase">PDF, JPG, or PNG (Max 10MB)</div>
                 </div>
 
-                <div className="bg-blue-50/50 rounded-2xl p-4 flex gap-3">
-                  <div className="bg-blue-500/10 p-2 rounded-lg h-fit text-[#0071EB]">
+                <div className="bg-orange-50/50 rounded-2xl p-4 flex gap-3">
+                  <div className="bg-orange-500/10 p-2 rounded-lg h-fit text-[#FF5A00]">
                     <ShieldCheck size={16} />
                   </div>
                   <p className="text-[13px] font-semibold text-[#001A33] opacity-60 leading-relaxed">
@@ -223,15 +303,15 @@ const SupplierRegistration: React.FC<SupplierRegistrationProps> = ({ onClose }) 
               )}
               <button 
                 type="submit"
-                disabled={isSubmitting}
-                className="flex-1 bg-[#0071EB] hover:bg-[#005bb8] text-white font-black py-5 rounded-full shadow-lg shadow-blue-200 transition-all active:scale-95 flex items-center justify-center gap-2 group disabled:opacity-50 text-[14px]"
+                disabled={isSubmitting || (step === 1 && !selectedBusinessType)}
+                className="flex-1 bg-[#FF5A00] hover:bg-[#e04d00] text-white font-black py-5 rounded-full shadow-lg shadow-orange-200 transition-all active:scale-95 flex items-center justify-center gap-2 group disabled:opacity-50 text-[14px]"
               >
                 {isSubmitting ? (
                   <Loader2 className="animate-spin" size={20} />
                 ) : (
                   <>
-                    {step === 3 ? 'Submit Application' : 'Continue'}
-                    {step < 3 && <ChevronRight size={18} className="group-hover:translate-x-1 transition-transform" />}
+                    {step === 4 ? 'Submit Application' : 'Continue'}
+                    {step < 4 && <ChevronRight size={18} className="group-hover:translate-x-1 transition-transform" />}
                   </>
                 )}
               </button>
