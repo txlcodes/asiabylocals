@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Component } from 'react';
 import { 
   Globe, 
   Search, 
@@ -16,6 +16,54 @@ import {
 } from 'lucide-react';
 import { CITIES, EXPERIENCES, ATTRACTIONS } from './constants';
 import SupplierPage from './SupplierPage';
+import VerifyEmail from './VerifyEmail';
+import EmailVerificationWaiting from './EmailVerificationWaiting';
+import TourDetailPage from './TourDetailPage';
+import CityPage from './CityPage';
+import AdminDashboard from './AdminDashboard';
+
+// Error Boundary Component
+class ErrorBoundary extends Component<
+  { children: React.ReactNode },
+  { hasError: boolean; error: Error | null }
+> {
+  constructor(props: { children: React.ReactNode }) {
+    super(props);
+    this.state = { hasError: false, error: null };
+  }
+
+  static getDerivedStateFromError(error: Error) {
+    return { hasError: true, error };
+  }
+
+  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
+    console.error('ErrorBoundary caught an error:', error, errorInfo);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="min-h-screen bg-white flex items-center justify-center">
+          <div className="text-center">
+            <h2 className="text-2xl font-black text-[#001A33] mb-4">Error loading tour</h2>
+            <p className="text-gray-500 font-semibold mb-6">{this.state.error?.message || 'Please try again later.'}</p>
+            <button
+              onClick={() => {
+                this.setState({ hasError: false, error: null });
+                window.location.reload();
+              }}
+              className="px-6 py-2 bg-[#10B981] text-white font-bold rounded-lg hover:bg-[#059669] transition-colors"
+            >
+              Reload Page
+            </button>
+          </div>
+        </div>
+      );
+    }
+
+    return this.props.children;
+  }
+}
 
 interface ExploreItem {
   name: string;
@@ -144,6 +192,77 @@ const ExplorationFooter: React.FC = () => {
 };
 
 const App: React.FC = () => {
+  // Search state - Focus on Agra, Delhi, Jaipur
+  const [searchQuery, setSearchQuery] = useState('');
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  
+  // Focus cities: Agra, Delhi, Jaipur (India)
+  const focusCities = [
+    { name: 'Agra', country: 'India', slug: 'agra' },
+    { name: 'Delhi', country: 'India', slug: 'delhi' },
+    { name: 'Jaipur', country: 'India', slug: 'jaipur' }
+  ];
+
+  // Filter suggestions based on search query
+  const filteredSuggestions = focusCities.filter(city =>
+    city.name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  // Handle search - redirects to city page
+  const handleSearch = (cityName?: string) => {
+    const query = cityName || searchQuery.trim();
+    if (!query) return;
+
+    // Find matching city (case-insensitive)
+    const matchedCity = focusCities.find(city =>
+      city.name.toLowerCase() === query.toLowerCase()
+    );
+
+    if (matchedCity) {
+      window.location.href = `/india/${matchedCity.slug}`;
+    } else {
+      // If no exact match, try fuzzy match
+      const fuzzyMatch = focusCities.find(city =>
+        city.name.toLowerCase().includes(query.toLowerCase())
+      );
+      if (fuzzyMatch) {
+        window.location.href = `/india/${fuzzyMatch.slug}`;
+      }
+    }
+    setShowSuggestions(false);
+  };
+
+  // Check if we're on the verify-email page
+  const isVerifyEmailPage = window.location.pathname === '/verify-email' || window.location.search.includes('token=');
+  // Check if we're on the email verification waiting page
+  const isEmailVerificationWaitingPage = window.location.pathname === '/email-verification-waiting';
+  // Check if we're on the supplier page (from URL)
+  const isSupplierPageFromUrl = window.location.pathname === '/supplier';
+  // Check if we're on the admin dashboard (secure route - not easily guessable)
+  const isAdminPage = window.location.pathname === '/secure-panel-zubia';
+  
+  // Check for city page: /india/agra, /thailand/bangkok, etc.
+  const cityPageMatch = window.location.pathname.match(/^\/([^\/]+)\/([^\/]+)$/);
+  const countrySlug = cityPageMatch ? cityPageMatch[1] : null;
+  const citySlug = cityPageMatch ? cityPageMatch[2] : null;
+  
+  // Check for tour page: /india/agra/tour-slug
+  const tourPageMatch = window.location.pathname.match(/^\/([^\/]+)\/([^\/]+)\/(.+)$/);
+  const tourCountrySlug = tourPageMatch ? tourPageMatch[1] : null;
+  const tourCitySlug = tourPageMatch ? tourPageMatch[2] : null;
+  const tourSlug = tourPageMatch ? tourPageMatch[3] : null;
+  
+  // Legacy tour ID route: /tour/:id
+  const tourDetailMatch = window.location.pathname.match(/^\/tour\/(.+)$/);
+  const tourId = tourDetailMatch ? tourDetailMatch[1] : null;
+  
+  // Convert slugs to proper case for display
+  const slugToTitle = (slug: string) => {
+    return slug.split('-').map(word => 
+      word.charAt(0).toUpperCase() + word.slice(1)
+    ).join(' ');
+  };
+  
   const [activeTab, setActiveTab] = useState('worldwide');
   const [citiesScrollPosition, setCitiesScrollPosition] = useState(0);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
@@ -151,7 +270,7 @@ const App: React.FC = () => {
   const [showPlacesDropdown, setShowPlacesDropdown] = useState(false);
   const [showThingsDropdown, setShowThingsDropdown] = useState(false);
   const [showInspirationDropdown, setShowInspirationDropdown] = useState(false);
-  const [showSupplierPage, setShowSupplierPage] = useState(false);
+  const [showSupplierPage, setShowSupplierPage] = useState(isSupplierPageFromUrl);
 
   useEffect(() => {
     const checkScroll = () => {
@@ -198,25 +317,84 @@ const App: React.FC = () => {
     return () => clearInterval(interval);
   }, [heroImages.length]);
 
-  if (showSupplierPage) {
-    return <SupplierPage onClose={() => setShowSupplierPage(false)} />;
+  // Show verify email page if on verification route
+  if (isVerifyEmailPage) {
+    return <VerifyEmail />;
+  }
+
+  // Show email verification waiting page
+  if (isEmailVerificationWaitingPage) {
+    return <EmailVerificationWaiting />;
+  }
+
+  // Show admin dashboard
+  if (isAdminPage) {
+    return <AdminDashboard />;
+  }
+
+  // Show tour detail page (SEO-friendly URL: /country/city/slug)
+  if (tourPageMatch && tourSlug) {
+    console.log('App.tsx - Routing to TourDetailPage', { 
+      pathname: window.location.pathname,
+      tourPageMatch: !!tourPageMatch, 
+      tourSlug, 
+      tourCountrySlug, 
+      tourCitySlug 
+    });
+    
+    return (
+      <ErrorBoundary>
+        <TourDetailPage 
+          tourSlug={tourSlug}
+          country={slugToTitle(tourCountrySlug || '')}
+          city={slugToTitle(tourCitySlug || '')}
+          onClose={() => window.history.back()} 
+        />
+      </ErrorBoundary>
+    );
+  }
+  
+  // Show tour detail page (legacy ID route: /tour/:id)
+  if (tourId) {
+    return <TourDetailPage tourId={tourId} onClose={() => window.history.back()} />;
+  }
+  
+  // Show city page (SEO-friendly URL: /country/city)
+  if (cityPageMatch && countrySlug && citySlug) {
+    return (
+      <CityPage 
+        country={slugToTitle(countrySlug)} 
+        city={slugToTitle(citySlug)} 
+      />
+    );
+  }
+
+  // Show supplier page if URL is /supplier or if showSupplierPage is true
+  if (showSupplierPage || isSupplierPageFromUrl) {
+    return <SupplierPage onClose={() => {
+      setShowSupplierPage(false);
+      // If coming from URL, redirect to homepage
+      if (isSupplierPageFromUrl) {
+        window.location.href = '/';
+      }
+    }} />;
   }
 
   return (
     <div className="flex flex-col min-h-screen">
       {/* Header Navigation */}
       <header className="sticky top-0 z-50 bg-white border-b border-gray-100 shadow-sm">
-        <div className="max-w-[1200px] mx-auto px-6 h-18 py-4 flex items-center justify-between">
+        <div className="max-w-[1200px] mx-auto px-6 py-2 flex items-center justify-between">
           <div className="flex items-center gap-10">
             {/* Logo */}
             <div className="flex items-center cursor-pointer">
-              <img src="/logo.png" alt="Asia By Locals" className="h-14 md:h-16 lg:h-20 w-auto" />
+              <img src="/logo.png" alt="Asia By Locals" className="h-16 md:h-18 lg:h-20 w-auto" />
             </div>
 
             {/* Nav Links */}
             <nav className="hidden lg:flex items-center gap-6 text-[14px] font-semibold text-[#001A33]">
               <div 
-                className="relative flex items-center gap-1 cursor-pointer hover:text-[#FF5A00]"
+                className="relative flex items-center gap-1 cursor-pointer hover:text-[#10B981]"
                 onMouseEnter={() => setShowPlacesDropdown(true)}
                 onMouseLeave={() => setShowPlacesDropdown(false)}
               >
@@ -274,7 +452,7 @@ const App: React.FC = () => {
                 )}
               </div>
               <div 
-                className="relative flex items-center gap-1 cursor-pointer hover:text-[#FF5A00]"
+                className="relative flex items-center gap-1 cursor-pointer hover:text-[#10B981]"
                 onMouseEnter={() => setShowThingsDropdown(true)}
                 onMouseLeave={() => setShowThingsDropdown(false)}
               >
@@ -322,7 +500,7 @@ const App: React.FC = () => {
                       ))}
                     </div>
                     <div className="mt-4 pt-3 border-t border-gray-200">
-                      <div className="flex items-center gap-2 text-[#001A33] font-semibold cursor-pointer hover:text-[#FF5A00] text-xs">
+                      <div className="flex items-center gap-2 text-[#001A33] font-semibold cursor-pointer hover:text-[#10B981] text-xs">
                         Explore all 100+ cities <ChevronRight size={14} />
                       </div>
                     </div>
@@ -330,7 +508,7 @@ const App: React.FC = () => {
                 )}
               </div>
               <div 
-                className="relative flex items-center gap-1 cursor-pointer hover:text-[#FF5A00]"
+                className="relative flex items-center gap-1 cursor-pointer hover:text-[#10B981]"
                 onMouseEnter={() => setShowInspirationDropdown(true)}
                 onMouseLeave={() => setShowInspirationDropdown(false)}
               >
@@ -345,7 +523,7 @@ const App: React.FC = () => {
                       {/* Left Sidebar */}
                       <div className="flex-shrink-0 w-[140px]">
                         <div className="flex items-center gap-2 mb-1">
-                          <div className="w-1.5 h-1.5 rounded-full bg-[#FF5A00]"></div>
+                          <div className="w-1.5 h-1.5 rounded-full bg-[#10B981]"></div>
                           <h3 className="font-bold text-[#001A33] text-sm">City guides</h3>
                         </div>
                         <p className="text-gray-500 text-xs mb-4">Explore all</p>
@@ -392,7 +570,7 @@ const App: React.FC = () => {
                       </div>
                     </div>
                     <div className="mt-4 pt-3 border-t border-gray-200">
-                      <div className="flex items-center gap-2 text-[#001A33] font-semibold cursor-pointer hover:text-[#FF5A00] text-xs underline">
+                      <div className="flex items-center gap-2 text-[#001A33] font-semibold cursor-pointer hover:text-[#10B981] text-xs underline">
                         Explore all <ChevronRight size={14} />
                       </div>
                     </div>
@@ -405,24 +583,24 @@ const App: React.FC = () => {
           <div className="flex items-center gap-6 text-[13px] font-semibold text-[#001A33]">
             <button 
               onClick={() => setShowSupplierPage(true)}
-              className="hidden md:block hover:text-[#FF5A00]"
+              className="hidden md:block hover:text-[#10B981]"
             >
               Become a supplier
             </button>
             <div className="flex items-center gap-5">
-              <button className="flex flex-col items-center gap-1 hover:text-[#FF5A00]">
+              <button className="flex flex-col items-center gap-1 hover:text-[#10B981]">
                 <Heart size={20} />
                 <span className="hidden lg:block text-[11px]">Wishlist</span>
               </button>
-              <button className="flex flex-col items-center gap-1 hover:text-[#FF5A00]">
+              <button className="flex flex-col items-center gap-1 hover:text-[#10B981]">
                 <ShoppingCart size={20} />
                 <span className="hidden lg:block text-[11px]">Cart</span>
               </button>
-              <button className="flex flex-col items-center gap-1 hover:text-[#FF5A00]">
+              <button className="flex flex-col items-center gap-1 hover:text-[#10B981]">
                 <Globe size={20} />
                 <span className="hidden lg:block text-[11px]">EN/USD</span>
               </button>
-              <button className="flex flex-col items-center gap-1 hover:text-[#FF5A00]">
+              <button className="flex flex-col items-center gap-1 hover:text-[#10B981]">
                 <User size={20} />
                 <span className="hidden lg:block text-[11px]">Profile</span>
               </button>
@@ -437,7 +615,7 @@ const App: React.FC = () => {
           <img 
             key={index}
             src={hero.url} 
-            alt={hero.city} 
+            alt={`${hero.city} - Authentic local tours and cultural experiences in ${hero.city}, Asia`} 
             className={`absolute inset-0 w-full h-full object-cover brightness-[0.7] transition-opacity duration-1000 ${
               index === currentImageIndex ? 'opacity-100 z-0' : 'opacity-0 z-0'
             }`}
@@ -448,19 +626,52 @@ const App: React.FC = () => {
         
         <div className="relative z-10 w-full max-w-[800px] px-6 text-center">
           <h1 className="text-4xl md:text-6xl font-black text-white mb-10 tracking-tight">
-            Discover & book local Asia
+            Discover Authentic Local Tours & Cultural Experiences Across Asia
           </h1>
           
-          <div className="bg-white p-2 rounded-full shadow-2xl flex flex-col md:flex-row items-center gap-2">
-            <div className="flex-1 flex items-center gap-4 px-6 py-3 w-full">
+          <div className="bg-white p-2 rounded-full shadow-2xl flex flex-col md:flex-row items-center gap-2 relative">
+            <div className="flex-1 flex items-center gap-4 px-6 py-3 w-full relative">
               <Search size={20} className="text-gray-400 shrink-0" />
               <input 
                 type="text" 
-                placeholder="Find places and things to do across Asia..." 
+                value={searchQuery}
+                onChange={(e) => {
+                  setSearchQuery(e.target.value);
+                  setShowSuggestions(e.target.value.length > 0);
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    handleSearch();
+                  }
+                }}
+                onFocus={() => setShowSuggestions(searchQuery.length > 0)}
+                placeholder="Search Agra, Delhi, Jaipur..." 
                 className="w-full outline-none border-none ring-0 focus:ring-0 focus:border-none bg-transparent text-[#001A33] font-bold text-lg placeholder:text-gray-400 placeholder:font-medium"
               />
+              
+              {/* Search Suggestions Dropdown */}
+              {showSuggestions && filteredSuggestions.length > 0 && (
+                <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-xl shadow-2xl border border-gray-200 overflow-hidden z-50">
+                  {filteredSuggestions.map((city) => (
+                    <button
+                      key={city.slug}
+                      onClick={() => handleSearch(city.name)}
+                      className="w-full px-6 py-4 text-left hover:bg-gray-50 transition-colors flex items-center gap-3"
+                    >
+                      <MapPin size={18} className="text-[#10B981]" />
+                      <div>
+                        <div className="font-black text-[#001A33] text-[16px]">{city.name}</div>
+                        <div className="text-[12px] text-gray-500 font-semibold">{city.country}</div>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
-            <button className="bg-[#0071EB] hover:bg-[#005bb8] text-white font-black px-12 py-4 rounded-full text-lg w-full md:w-auto transition-all shadow-lg active:scale-95">
+            <button 
+              onClick={() => handleSearch()}
+              className="bg-[#10B981] hover:bg-[#059669] text-white font-black px-12 py-4 rounded-full text-lg w-full md:w-auto transition-all shadow-lg active:scale-95"
+            >
               Search
             </button>
           </div>
@@ -512,7 +723,7 @@ const App: React.FC = () => {
                     className="flex-shrink-0 w-36 md:w-[185px] cursor-pointer"
                   >
                     <div className="relative aspect-square rounded-2xl overflow-hidden mb-3 shadow-sm hover:shadow-md transition-all">
-                      <img src={city.image} alt={city.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+                      <img src={city.image} alt={`${city.name} tours and cultural experiences - Book local guides in ${city.name}`} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
                       <div className="absolute inset-0 bg-black/5 hover:bg-black/20 transition-colors pointer-events-none"></div>
                     </div>
                     <h3 className="text-[#001A33] font-bold text-[16px]">{city.name}</h3>
@@ -549,12 +760,12 @@ const App: React.FC = () => {
             {EXPERIENCES.map((exp) => (
               <div key={exp.id} className="group bg-white rounded-xl overflow-hidden border border-gray-100 hover:shadow-xl transition-all cursor-pointer flex flex-col h-full">
                 <div className="relative h-48 overflow-hidden">
-                  <img src={exp.image} alt={exp.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
-                  <button className="absolute top-3 right-3 p-2 bg-white/40 backdrop-blur-md rounded-full text-white hover:bg-white hover:text-[#FF5A00] transition-all">
+                  <img src={exp.image} alt={`${exp.title} - ${exp.location} - Authentic cultural experience in Asia`} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+                  <button className="absolute top-3 right-3 p-2 bg-white/40 backdrop-blur-md rounded-full text-white hover:bg-white hover:text-[#10B981] transition-all">
                     <Heart size={18} />
                   </button>
                   {exp.isOriginal && (
-                    <div className="absolute top-3 left-3 bg-[#FF5A00] text-white px-2 py-1 rounded text-[11px] font-black uppercase tracking-wider flex items-center gap-1 shadow-lg">
+                    <div className="absolute top-3 left-3 bg-[#10B981] text-white px-2 py-1 rounded text-[11px] font-black uppercase tracking-wider flex items-center gap-1 shadow-lg">
                       <Award size={12} /> Locals Original
                     </div>
                   )}
@@ -563,7 +774,7 @@ const App: React.FC = () => {
                   <span className="text-[11px] font-black text-gray-400 uppercase tracking-widest mb-1">
                     {exp.category}
                   </span>
-                  <h4 className="text-[15px] font-bold text-[#001A33] leading-tight mb-2 group-hover:text-[#FF5A00] transition-colors line-clamp-2 h-[42px]">
+                  <h4 className="text-[15px] font-bold text-[#001A33] leading-tight mb-2 group-hover:text-[#10B981] transition-colors line-clamp-2 h-[42px]">
                     {exp.title}
                   </h4>
                   <p className="text-gray-500 text-[13px] mb-3">{exp.duration}</p>
@@ -573,7 +784,7 @@ const App: React.FC = () => {
                       <span className="text-[13px] font-bold text-[#001A33]">{exp.rating}</span>
                       <div className="flex items-center">
                         {[...Array(5)].map((_, i) => (
-                          <Star key={i} size={12} className={i < Math.floor(exp.rating) ? "text-[#FF5A00] fill-current" : "text-gray-200"} />
+                          <Star key={i} size={12} className={i < Math.floor(exp.rating) ? "text-[#10B981] fill-current" : "text-gray-200"} />
                         ))}
                       </div>
                       <span className="text-[12px] text-gray-400">({exp.reviews})</span>
@@ -585,7 +796,7 @@ const App: React.FC = () => {
                   </div>
                 </div>
                 {/* Visual Strip like GYG */}
-                <div className="h-1.5 bg-[#FF5A00] w-full transform origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></div>
+                <div className="h-1.5 bg-[#10B981] w-full transform origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></div>
               </div>
             ))}
           </div>
@@ -599,11 +810,11 @@ const App: React.FC = () => {
           <div className="flex gap-4 overflow-x-auto no-scrollbar pb-4">
             {ATTRACTIONS.map((attr) => (
               <div key={attr.id} className="group flex-shrink-0 w-72 md:w-[380px] h-48 rounded-2xl overflow-hidden relative cursor-pointer shadow-sm hover:shadow-lg transition-all">
-                <img src={attr.image} alt={attr.title} className="absolute inset-0 w-full h-full object-cover brightness-75 group-hover:scale-105 transition-transform duration-700" />
+                <img src={attr.image} alt={`${attr.title} - Top attraction in ${attr.location} - Book tours and experiences`} className="absolute inset-0 w-full h-full object-cover brightness-75 group-hover:scale-105 transition-transform duration-700" />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent"></div>
                 <div className="absolute bottom-4 left-4 right-4">
                   <h4 className="text-white font-black text-xl leading-tight mb-1">{attr.title}</h4>
-                  <p className="text-orange-400 text-[11px] font-black uppercase tracking-widest italic mb-2">
+                  <p className="text-green-400 text-[11px] font-black uppercase tracking-widest italic mb-2">
                     {attr.whyLocal}
                   </p>
                   <p className="text-white/70 text-[12px] font-bold uppercase">{attr.experts} verified local experts</p>
@@ -625,21 +836,21 @@ const App: React.FC = () => {
             </p>
             <div className="grid md:grid-cols-3 gap-10">
               <div className="flex flex-col items-center">
-                <div className="w-16 h-16 bg-[#FF5A00]/10 text-[#FF5A00] rounded-full flex items-center justify-center mb-4">
+                <div className="w-16 h-16 bg-[#10B981]/10 text-[#10B981] rounded-full flex items-center justify-center mb-4">
                   <ShieldCheck size={32} />
                 </div>
                 <h4 className="font-black text-lg mb-2">100% Verified</h4>
                 <p className="text-sm text-gray-500">Every guide is personally interviewed and verified on-ground.</p>
               </div>
               <div className="flex flex-col items-center">
-                <div className="w-16 h-16 bg-[#FF5A00]/10 text-[#FF5A00] rounded-full flex items-center justify-center mb-4">
+                <div className="w-16 h-16 bg-[#10B981]/10 text-[#10B981] rounded-full flex items-center justify-center mb-4">
                   <Award size={32} />
                 </div>
                 <h4 className="font-black text-lg mb-2">Quality First</h4>
                 <p className="text-sm text-gray-500">We prioritize storytelling and depth over mass-market tourism.</p>
               </div>
               <div className="flex flex-col items-center">
-                <div className="w-16 h-16 bg-[#FF5A00]/10 text-[#FF5A00] rounded-full flex items-center justify-center mb-4">
+                <div className="w-16 h-16 bg-[#10B981]/10 text-[#10B981] rounded-full flex items-center justify-center mb-4">
                   <MapPin size={32} />
                 </div>
                 <h4 className="font-black text-lg mb-2">Direct Impact</h4>
@@ -656,7 +867,7 @@ const App: React.FC = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-16 mb-20">
             <div className="col-span-1 lg:col-span-1">
               <div className="flex items-center mb-8">
-                <img src="/logo.png" alt="Asia By Locals" className="h-10 w-auto brightness-0 invert" />
+                <img src="/logo.png" alt="AsiaByLocals - Authentic Local Tours and Cultural Experiences in Asia" className="h-20 md:h-24 lg:h-28 w-auto" />
               </div>
               <p className="text-gray-400 text-[14px] leading-relaxed">
                 Empowering local experts across Asia to share their heritage directly with curious travelers.

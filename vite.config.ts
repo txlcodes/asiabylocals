@@ -18,6 +18,12 @@ export default defineConfig(({ mode }) => {
         alias: {
           '@': path.resolve(__dirname, '.'),
         }
+      },
+      // Ensure all routes serve index.html for client-side routing
+      build: {
+        rollupOptions: {
+          input: './index.html'
+        }
       }
     };
 });

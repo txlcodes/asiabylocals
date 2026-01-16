@@ -4,27 +4,77 @@ import {
   Lock,
   X,
   Loader2,
-  Globe
+  Globe,
+  Eye,
+  EyeOff
 } from 'lucide-react';
 
 interface SupplierLoginProps {
   onClose: () => void;
   onLoginSuccess: () => void;
+  onCreateAccount?: () => void;
 }
 
-const SupplierLogin: React.FC<SupplierLoginProps> = ({ onClose, onLoginSuccess }) => {
+const SupplierLogin: React.FC<SupplierLoginProps> = ({ onClose, onLoginSuccess, onCreateAccount }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!email || !password) {
+      alert('Please enter both email and password');
+      return;
+    }
+
     setIsSubmitting(true);
-    // Simulate API call
-    setTimeout(() => {
+    setErrorMessage('');
+
+    try {
+      const response = await fetch('http://localhost:3001/api/suppliers/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
+      });
+
+      let data;
+      try {
+        data = await response.json();
+      } catch (jsonError) {
+        setErrorMessage('Server error. Please try again later.');
+        setIsSubmitting(false);
+        return;
+      }
+
+      if (!response.ok) {
+        // Handle HTTP error status codes
+        setErrorMessage(data.message || data.error || 'Login failed. Please check your credentials.');
+        setIsSubmitting(false);
+        return;
+      }
+
+      if (data.success) {
+        // Store supplier info in localStorage or context
+        localStorage.setItem('supplier', JSON.stringify(data.supplier));
+        onLoginSuccess();
+      } else {
+        setErrorMessage(data.error || data.message || 'Login failed. Please check your credentials.');
+        setIsSubmitting(false);
+      }
+    } catch (error: any) {
+      console.error('Login error:', error);
+      if (error.message?.includes('fetch') || error.message?.includes('Failed to fetch')) {
+        setErrorMessage('Cannot connect to server. Please make sure the backend server is running.');
+      } else {
+        setErrorMessage('Failed to login. Please check your connection and try again.');
+      }
       setIsSubmitting(false);
-      onLoginSuccess();
-    }, 1000);
+    }
   };
 
   return (
@@ -36,7 +86,7 @@ const SupplierLogin: React.FC<SupplierLoginProps> = ({ onClose, onLoginSuccess }
             <img 
               src="/logo.png" 
               alt="AsiaByLocals" 
-              className="h-8 w-8 object-contain"
+              className="h-10 w-10 object-contain"
             />
             <span className="font-black tracking-tight text-lg">Partner Login</span>
           </div>
@@ -72,14 +122,28 @@ const SupplierLogin: React.FC<SupplierLoginProps> = ({ onClose, onLoginSuccess }
               <div className="relative">
                 <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
                 <input 
-                  type="password" 
+                  type={showPassword ? "text" : "password"}
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="Password"
-                  className="w-full bg-gray-50 border-none rounded-2xl py-4 pl-12 pr-4 font-bold text-[#001A33] text-[14px] focus:ring-2 focus:ring-[#0071EB] transition-all outline-none"
+                  className="w-full bg-gray-50 border-none rounded-2xl py-4 pl-12 pr-12 font-bold text-[#001A33] text-[14px] focus:ring-2 focus:ring-[#0071EB] transition-all outline-none"
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                  tabIndex={-1}
+                >
+                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
               </div>
+              
+              {errorMessage && (
+                <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl text-sm font-semibold">
+                  {errorMessage}
+                </div>
+              )}
               
               <div className="flex items-center justify-between text-[13px]">
                 <label className="flex items-center gap-2 cursor-pointer">
@@ -117,7 +181,13 @@ const SupplierLogin: React.FC<SupplierLoginProps> = ({ onClose, onLoginSuccess }
             </div>
 
             <button 
-              onClick={onLoginSuccess}
+              onClick={() => {
+                if (onCreateAccount) {
+                  onCreateAccount();
+                } else {
+                  onClose();
+                }
+              }}
               className="w-full border-2 border-[#001A33] text-[#001A33] font-black py-5 rounded-full hover:bg-[#001A33] hover:text-white transition-all text-[14px]"
             >
               Create New Account

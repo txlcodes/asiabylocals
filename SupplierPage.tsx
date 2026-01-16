@@ -16,6 +16,8 @@ import {
   Star
 } from 'lucide-react';
 import SupplierRegistration from './SupplierRegistration';
+import SupplierLogin from './SupplierLogin';
+import SupplierDashboard from './SupplierDashboard';
 
 const NAV_LINKS = [
   { label: 'Why partner with us', id: 'why' },
@@ -45,8 +47,39 @@ const ASIAN_COUNTRIES = [
 const SupplierPage: React.FC<SupplierPageProps> = ({ onClose }) => {
   const [activeNav, setActiveNav] = useState('why');
   const [showRegistration, setShowRegistration] = useState(false);
+  const [showLogin, setShowLogin] = useState(false);
+  const [showDashboard, setShowDashboard] = useState(false);
+  const [loggedInSupplier, setLoggedInSupplier] = useState<any>(null);
   const [currentCountryIndex, setCurrentCountryIndex] = useState(0);
   const [isVisible, setIsVisible] = useState(true);
+
+  // Check if supplier is already logged in
+  useEffect(() => {
+    const storedSupplier = localStorage.getItem('supplier');
+    if (storedSupplier) {
+      try {
+        const supplier = JSON.parse(storedSupplier);
+        setLoggedInSupplier(supplier);
+        setShowDashboard(true);
+      } catch (error) {
+        console.error('Error parsing stored supplier:', error);
+      }
+    }
+  }, []);
+
+  // Check if returning from email verification
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const verified = urlParams.get('verified');
+    const openRegistration = urlParams.get('openRegistration');
+    
+    if (verified === 'true' && openRegistration === 'true') {
+      // User just verified email, open registration form
+      setShowRegistration(true);
+      // Clear URL params
+      window.history.replaceState({}, '', window.location.pathname);
+    }
+  }, []);
 
   // Country rotation effect with fade animation
   useEffect(() => {
@@ -94,6 +127,48 @@ const SupplierPage: React.FC<SupplierPageProps> = ({ onClose }) => {
     window.scrollTo(0, 0);
   };
 
+  // Show dashboard if logged in
+  if (showDashboard && loggedInSupplier) {
+    return (
+      <SupplierDashboard 
+        supplier={loggedInSupplier}
+        onLogout={() => {
+          localStorage.removeItem('supplier');
+          setLoggedInSupplier(null);
+          setShowDashboard(false);
+        }}
+      />
+    );
+  }
+
+  // Show login page
+  if (showLogin) {
+    return (
+      <SupplierLogin 
+        onClose={() => setShowLogin(false)}
+        onLoginSuccess={() => {
+          const storedSupplier = localStorage.getItem('supplier');
+          if (storedSupplier) {
+            try {
+              const supplier = JSON.parse(storedSupplier);
+              setLoggedInSupplier(supplier);
+              setShowLogin(false);
+              setShowDashboard(true);
+            } catch (error) {
+              console.error('Error parsing stored supplier:', error);
+            }
+          }
+        }}
+        onCreateAccount={() => {
+          setShowLogin(false);
+          setShowRegistration(true);
+          window.scrollTo(0, 0);
+        }}
+      />
+    );
+  }
+
+  // Show registration form
   if (showRegistration) {
     return <SupplierRegistration onClose={() => setShowRegistration(false)} />;
   }
@@ -101,24 +176,32 @@ const SupplierPage: React.FC<SupplierPageProps> = ({ onClose }) => {
   return (
     <div className="bg-white min-h-screen relative font-['Plus_Jakarta_Sans']">
       {/* Header with Back Button */}
-      {onClose && (
-        <header className="sticky top-0 z-50 bg-white border-b border-gray-100 shadow-sm">
-          <div className="max-w-[1280px] mx-auto px-8 py-4 flex items-center justify-between">
+      <header className="sticky top-0 z-50 bg-white border-b border-gray-100 shadow-sm">
+        <div className="max-w-[1280px] mx-auto px-8 py-4 flex items-center justify-between">
+          {onClose ? (
             <button 
               onClick={onClose}
-              className="flex items-center gap-2 text-[#001A33] font-semibold hover:text-[#FF5A00] text-[14px] transition-colors"
+              className="flex items-center gap-2 text-[#001A33] font-semibold hover:text-[#10B981] text-[14px] transition-colors"
             >
               <ChevronRight size={18} className="rotate-180" />
               Back to Home
             </button>
-            <img 
-              src="/logo.png" 
-              alt="AsiaByLocals" 
-              className="h-12 w-auto"
-            />
-          </div>
-        </header>
-      )}
+          ) : (
+            <div></div>
+          )}
+          <img 
+            src="/logo.png" 
+            alt="AsiaByLocals" 
+            className="h-16 w-auto"
+          />
+          <button
+            onClick={() => setShowLogin(true)}
+            className="px-6 py-2 border-2 border-[#10B981] text-[#10B981] font-black rounded-full text-[14px] hover:bg-[#10B981] hover:text-white transition-all"
+          >
+            Sign In
+          </button>
+        </div>
+      </header>
       
       {/* Hero Section */}
       <section className="pt-16 pb-24 max-w-[1280px] mx-auto px-8 grid lg:grid-cols-2 gap-12 items-center reveal">
@@ -126,7 +209,7 @@ const SupplierPage: React.FC<SupplierPageProps> = ({ onClose }) => {
           <h1 className="text-5xl md:text-[68px] font-extrabold text-[#001A33] leading-[1.05] mb-6 tracking-tighter">
             You could earn <br />
             <span 
-              className={`text-[#FF5A00] transition-opacity duration-700 ease-in-out ${isVisible ? 'opacity-100' : 'opacity-0'}`}
+              className={`text-[#10B981] transition-opacity duration-700 ease-in-out ${isVisible ? 'opacity-100' : 'opacity-0'}`}
             >
               {currentCountry.currency}{currentCountry.amount} per month
             </span><br />
@@ -141,12 +224,18 @@ const SupplierPage: React.FC<SupplierPageProps> = ({ onClose }) => {
             Create your activity on AsiaByLocals for free under 30 minutes.
           </p>
 
-          <div className="mb-16">
+          <div className="mb-16 flex items-center gap-4">
             <button 
               onClick={toggleRegistration}
-              className="bg-[#FF5A00] hover:bg-[#e04d00] text-white font-black px-10 py-5 rounded-full text-lg shadow-2xl shadow-orange-200 flex items-center gap-3 transition-all active:scale-95 group"
+              className="bg-[#10B981] hover:bg-[#059669] text-white font-black px-10 py-5 rounded-full text-lg shadow-2xl shadow-green-200 flex items-center gap-3 transition-all active:scale-95 group"
             >
               Get Started <ChevronRight size={20} className="group-hover:translate-x-1 transition-transform" />
+            </button>
+            <button 
+              onClick={() => setShowLogin(true)}
+              className="border-2 border-[#10B981] text-[#10B981] hover:bg-[#10B981] hover:text-white font-black px-8 py-5 rounded-full text-lg transition-all active:scale-95"
+            >
+              Sign In
             </button>
           </div>
           
@@ -158,7 +247,7 @@ const SupplierPage: React.FC<SupplierPageProps> = ({ onClose }) => {
             ].map((step, i) => (
               <div key={i} className="flex flex-col gap-2">
                 <div className="flex items-center gap-3">
-                  <span className="w-10 h-10 rounded-full bg-[#FF5A00] flex items-center justify-center font-black text-sm text-white">
+                  <span className="w-10 h-10 rounded-full bg-[#10B981] flex items-center justify-center font-black text-sm text-white">
                     {step.n}
                   </span>
                   <span className="text-[13px] font-black text-[#001A33]">{step.t}</span>
@@ -212,10 +301,10 @@ const SupplierPage: React.FC<SupplierPageProps> = ({ onClose }) => {
                         className="w-full h-32 object-cover"
                         alt="Tokyo Tour"
                       />
-                      <div className="absolute top-2 left-2 bg-[#FF5A00] text-white text-[9px] font-black px-2 py-1 rounded">TOP PICK</div>
+                      <div className="absolute top-2 left-2 bg-[#10B981] text-white text-[9px] font-black px-2 py-1 rounded">TOP PICK</div>
                     </div>
                     <div className="p-3">
-                      <div className="text-[9px] font-black text-[#FF5A00] uppercase mb-1">CULTURAL TOUR</div>
+                      <div className="text-[9px] font-black text-[#10B981] uppercase mb-1">CULTURAL TOUR</div>
                       <h4 className="text-xs font-black text-[#001A33] mb-2 leading-tight">Tokyo: Gion District Evening Cultural Walk with Local Scholar</h4>
                       <div className="flex items-center gap-2 mb-2">
                         <div className="flex items-center gap-1">
@@ -232,8 +321,8 @@ const SupplierPage: React.FC<SupplierPageProps> = ({ onClose }) => {
                 {/* Mobile Bottom Nav */}
                 <div className="absolute bottom-0 left-0 right-0 bg-white border-t border-gray-100 px-4 py-3 flex items-center justify-around">
                   <div className="flex flex-col items-center gap-1">
-                    <div className="w-1 h-1 bg-[#FF5A00] rounded-full"></div>
-                    <span className="text-[8px] font-bold text-[#FF5A00]">Discover</span>
+                    <div className="w-1 h-1 bg-[#10B981] rounded-full"></div>
+                    <span className="text-[8px] font-bold text-[#10B981]">Discover</span>
                   </div>
                   <div className="w-4 h-4 border border-gray-300 rounded"></div>
                   <div className="w-4 h-4 border border-gray-300 rounded"></div>
@@ -266,23 +355,23 @@ const SupplierPage: React.FC<SupplierPageProps> = ({ onClose }) => {
             <div className="bg-white rounded-[40px] p-8 md:p-12 shadow-xl">
               <div className="grid lg:grid-cols-2 gap-8 items-center">
                 <div>
-                  <div className="w-16 h-16 bg-[#FF5A00]/10 rounded-2xl flex items-center justify-center mb-6">
-                    <HeartHandshake size={32} className="text-[#FF5A00]" />
+                  <div className="w-16 h-16 bg-[#10B981]/10 rounded-2xl flex items-center justify-center mb-6">
+                    <HeartHandshake size={32} className="text-[#10B981]" />
                   </div>
                   <h2 className="text-4xl md:text-5xl font-extrabold text-[#001A33] mb-6 leading-tight">
-                    Meet kind and <span className="text-[#FF5A00] italic font-normal">curious travellers</span>
+                    Meet kind and <span className="text-[#10B981] italic font-normal">curious travellers</span>
                   </h2>
                   <ul className="space-y-3 text-gray-600 font-medium leading-relaxed">
                     <li className="flex items-start gap-3">
-                      <CheckCircle size={20} className="text-[#FF5A00] shrink-0 mt-0.5" />
+                      <CheckCircle size={20} className="text-[#10B981] shrink-0 mt-0.5" />
                       <span>The travellers who use AsiaByLocals are passionate about exploring the world and are eager to learn more about you and the places you love.</span>
                     </li>
                     <li className="flex items-start gap-3">
-                      <CheckCircle size={20} className="text-[#FF5A00] shrink-0 mt-0.5" />
+                      <CheckCircle size={20} className="text-[#10B981] shrink-0 mt-0.5" />
                       <span>The travellers on our platform are value-oriented rather than price-oriented; they get energized by authentic, unique experiences.</span>
                     </li>
                     <li className="flex items-start gap-3">
-                      <CheckCircle size={20} className="text-[#FF5A00] shrink-0 mt-0.5" />
+                      <CheckCircle size={20} className="text-[#10B981] shrink-0 mt-0.5" />
                       <span>By being a part of AsiaByLocals, you can get to know other friendly and inspiring guides in your city and around the globe.</span>
                     </li>
                   </ul>
@@ -362,11 +451,11 @@ const SupplierPage: React.FC<SupplierPageProps> = ({ onClose }) => {
               {/* Stats Row */}
               <div className="grid grid-cols-2 gap-6 py-8 border-t border-b border-gray-100">
                 <div>
-                  <div className="text-5xl font-extrabold text-[#FF5A00] mb-2">35,000+</div>
+                  <div className="text-5xl font-extrabold text-[#10B981] mb-2">35,000+</div>
                   <div className="text-base font-bold text-gray-500">Active Suppliers</div>
                 </div>
                 <div>
-                  <div className="text-5xl font-extrabold text-[#FF5A00] mb-2">$5,614</div>
+                  <div className="text-5xl font-extrabold text-[#10B981] mb-2">$5,614</div>
                   <div className="text-base font-bold text-gray-500">Avg. Monthly Earnings</div>
                 </div>
               </div>
@@ -380,7 +469,7 @@ const SupplierPage: React.FC<SupplierPageProps> = ({ onClose }) => {
                 { icon: <CheckCircle />, title: "Brand integrity", desc: "Our vetting process ensures you are listed alongside the top 5% of local experts in Asia." }
               ].map((item, idx) => (
                 <div key={idx} className="flex gap-6 group stagger-item" style={{animationDelay: `${idx * 100}ms`}}>
-                  <div className="shrink-0 text-[#FF5A00] w-14 h-14 flex items-center justify-center bg-[#FF5A00]/10 rounded-[20px] transition-all group-hover:bg-[#FF5A00] group-hover:text-white">
+                  <div className="shrink-0 text-[#10B981] w-14 h-14 flex items-center justify-center bg-[#10B981]/10 rounded-[20px] transition-all group-hover:bg-[#10B981] group-hover:text-white">
                     {React.cloneElement(item.icon as React.ReactElement<{ size?: number | string }>, { size: 28 })}
                   </div>
                   <div>
@@ -417,13 +506,13 @@ const SupplierPage: React.FC<SupplierPageProps> = ({ onClose }) => {
       {/* Final CTA */}
       <section className="bg-white py-12 reveal">
         <div className="max-w-[1280px] mx-auto px-8">
-          <div className="bg-[#FF5A00] rounded-[60px] py-12 px-12 md:px-20 text-center text-white relative overflow-hidden shadow-[0_40px_100px_-30px_rgba(255,90,0,0.4)]">
+          <div className="bg-[#10B981] rounded-[60px] py-12 px-12 md:px-20 text-center text-white relative overflow-hidden shadow-[0_40px_100px_-30px_rgba(255,90,0,0.4)]">
             <div className="relative z-10">
               <h2 className="text-5xl md:text-7xl font-extrabold mb-6 leading-none tracking-tighter">Start listing your <br />activities today</h2>
               <p className="text-white/80 text-xl font-medium mb-8 max-w-2xl mx-auto">Join the leading network of Asian local experts and start reaching a global audience.</p>
               <button 
                 onClick={toggleRegistration}
-                className="bg-[#FF5A00] hover:bg-[#e04d00] text-white font-black px-16 py-7 rounded-full text-2xl shadow-3xl transition-all active:scale-95 flex items-center gap-4 mx-auto group"
+                className="bg-[#10B981] hover:bg-[#059669] text-white font-black px-16 py-7 rounded-full text-2xl shadow-3xl transition-all active:scale-95 flex items-center gap-4 mx-auto group"
               >
                 Create Account <ChevronRight size={32} className="group-hover:translate-x-1 transition-transform" />
               </button>

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { 
   ChevronRight, 
   ChevronLeft, 
@@ -15,7 +15,10 @@ import {
   Loader2,
   Users,
   FileText,
-  Info
+  Info,
+  Eye,
+  EyeOff,
+  RefreshCw
 } from 'lucide-react';
 
 interface SupplierRegistrationProps {
@@ -46,10 +49,42 @@ const BUSINESS_TYPES = [
 const SupplierRegistration: React.FC<SupplierRegistrationProps> = ({ onClose }) => {
   const [step, setStep] = useState(1);
   const [selectedBusinessType, setSelectedBusinessType] = useState<string>('');
+  const [companyEmployees, setCompanyEmployees] = useState<string>('');
+  const [companyActivities, setCompanyActivities] = useState<string>('');
+  const [individualActivities, setIndividualActivities] = useState<string>('');
+  const [otherActivities, setOtherActivities] = useState<string>('');
+  
+  // Account form fields (GetYourGuide-style)
+  const [firstName, setFirstName] = useState<string>('');
+  const [lastName, setLastName] = useState<string>('');
+  const [email, setEmail] = useState<string>('');
+  const [password, setPassword] = useState<string>('');
+  const [companyBrandName, setCompanyBrandName] = useState<string>('');
+  const [website, setWebsite] = useState<string>('');
+  const [companyRegisteredCountry, setCompanyRegisteredCountry] = useState<string>('');
+  const [preferredCurrency, setPreferredCurrency] = useState<string>('');
+  const [acceptedTerms, setAcceptedTerms] = useState<boolean>(false);
+  const [showPassword, setShowPassword] = useState<boolean>(false);
+  
+  // Business details form fields
+  const [companyName, setCompanyName] = useState<string>('');
+  const [mainHub, setMainHub] = useState<string>('');
+  const [city, setCity] = useState<string>('');
+  const [tourLanguages, setTourLanguages] = useState<string>('');
+  const [phone, setPhone] = useState<string>('');
+  const [whatsapp, setWhatsapp] = useState<string>('');
+  
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+  const [emailVerified, setEmailVerified] = useState(false);
+  const [isCheckingVerification, setIsCheckingVerification] = useState(false);
+  const [supplierId, setSupplierId] = useState<string | null>(null);
+  const [verificationDocument, setVerificationDocument] = useState<File | null>(null);
+  const [documentPreview, setDocumentPreview] = useState<string | null>(null);
+  const pollingIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
-  const nextStep = () => setStep(prev => Math.min(prev + 1, 4));
+  const maxSteps = (selectedBusinessType === 'company' || selectedBusinessType === 'individual' || selectedBusinessType === 'other') ? 5 : 4;
+  const nextStep = () => setStep(prev => Math.min(prev + 1, maxSteps));
   const prevStep = () => setStep(prev => Math.max(prev - 1, 1));
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -59,32 +94,357 @@ const SupplierRegistration: React.FC<SupplierRegistrationProps> = ({ onClose }) 
       if (selectedBusinessType) {
         nextStep();
       }
-    } else if (step < 4) {
+    } else if (step === 2 && selectedBusinessType === 'company') {
+      // Company details step - require employees and activities only
+      if (companyEmployees && companyActivities) {
+        nextStep();
+      }
+    } else if (step === 2 && selectedBusinessType === 'individual') {
+      // Individual details step - require activities only
+      if (individualActivities) {
+        nextStep();
+      }
+    } else if (step === 2 && selectedBusinessType === 'other') {
+      // Other business type details step - require activities only
+      if (otherActivities) {
+        nextStep();
+      }
+    } else if (step === ((selectedBusinessType === 'company' || selectedBusinessType === 'individual' || selectedBusinessType === 'other') ? 3 : 2)) {
+      // Business details step - validate required fields
+      if (companyName && mainHub && city && tourLanguages && phone && whatsapp) {
+        nextStep();
+      }
+    } else if (step === ((selectedBusinessType === 'company' || selectedBusinessType === 'individual' || selectedBusinessType === 'other') ? 4 : 3)) {
+      // Account creation step - submit registration and wait for email verification
+      const fullName = `${firstName} ${lastName}`.trim();
+      // Password validation - allow common special characters
+      const hasSpecialChar = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password);
+      const isValidPassword = password.length >= 8 && 
+        password.length <= 30 &&
+        /[A-Z]/.test(password) && 
+        /[a-z]/.test(password) && 
+        /[0-9]/.test(password) && 
+        hasSpecialChar &&
+        !password.includes(' ') &&
+        !email.toLowerCase().split('@')[0].split('.').some(part => part.length > 2 && password.toLowerCase().includes(part));
+      
+      if (firstName && lastName && email && isValidPassword && acceptedTerms) {
+        // Submit registration at this step
+        setIsSubmitting(true);
+        submitRegistration();
+      }
+    } else if (step < maxSteps) {
       nextStep();
     } else {
+      // Final step - submit license document only (registration already done)
       setIsSubmitting(true);
-      // Simulate API call
-      setTimeout(() => {
+      
+      // Upload license document and update supplier
+      if (verificationDocument && supplierId) {
+        console.log('📄 Uploading document:', verificationDocument.name, 'Size:', verificationDocument.size);
+        
+        const reader = new FileReader();
+        reader.onloadend = async () => {
+          try {
+            const documentUrl = reader.result as string;
+            
+            // Check if base64 data is too large (warn if > 5MB)
+            if (documentUrl.length > 5 * 1024 * 1024) {
+              console.warn('⚠️ Document is large:', documentUrl.length, 'bytes');
+            }
+            
+            console.log('📤 Sending document to server...');
+            
+            // Update supplier with license document
+            const response = await fetch(`http://localhost:3001/api/suppliers/${supplierId}/update-document`, {
+              method: 'PATCH',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({ verificationDocumentUrl: documentUrl }),
+            });
+            
+            const data = await response.json();
+            console.log('📥 Server response:', data);
+            
+            setIsSubmitting(false);
+            
+            if (data.success) {
+              console.log('✅ Document uploaded successfully!');
+              setIsSuccess(true);
+            } else {
+              console.error('❌ Upload failed:', data);
+              alert(data.error || data.message || 'Failed to upload document. Please try again.');
+            }
+          } catch (error) {
+            console.error('❌ Document upload error:', error);
+            setIsSubmitting(false);
+            alert('Failed to upload document. Please check your connection and try again.');
+          }
+        };
+        
+        reader.onerror = () => {
+          console.error('❌ FileReader error');
+          setIsSubmitting(false);
+          alert('Failed to read document. Please try again.');
+        };
+        
+        reader.readAsDataURL(verificationDocument);
+      } else {
+        // No document, just mark as complete
+        console.log('⚠️ No document provided, marking as complete');
         setIsSubmitting(false);
         setIsSuccess(true);
-      }, 1500);
+      }
     }
   };
+
+  // Function to submit registration (called from step 4)
+  const submitRegistration = () => {
+    const registrationData = {
+      businessType: selectedBusinessType,
+      companyEmployees: selectedBusinessType === 'company' ? companyEmployees : null,
+      companyActivities: selectedBusinessType === 'company' ? companyActivities : null,
+      individualActivities: selectedBusinessType === 'individual' ? individualActivities : null,
+      otherActivities: selectedBusinessType === 'other' ? otherActivities : null,
+      fullName: `${firstName} ${lastName}`.trim(),
+      email,
+      password,
+      companyName,
+      mainHub,
+      city,
+      tourLanguages,
+      phone: phone || null,
+      whatsapp: whatsapp || null,
+      verificationDocumentUrl: null // No document at registration
+    };
+
+    // Call API
+    fetch('http://localhost:3001/api/suppliers/register', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(registrationData),
+    })
+    .then(response => {
+      // Handle both 200 (existing account) and 201 (new account) as success
+      if (response.status === 200 || response.status === 201) {
+        return response.json();
+      } else {
+        return response.json().then(data => {
+          throw new Error(data.error || data.message || 'Registration failed');
+        });
+      }
+    })
+    .then(data => {
+      setIsSubmitting(false);
+      if (data.success) {
+        console.log('✅ Registration successful:', data);
+        console.log('   Email verified:', data.supplier.emailVerified);
+        console.log('   Supplier ID:', data.supplier.id);
+        
+        setSupplierId(data.supplier.id);
+        // Store supplier ID and email in localStorage for verification redirect
+        localStorage.setItem('pendingSupplierId', data.supplier.id);
+        localStorage.setItem('pendingSupplierEmail', email);
+        
+        // ALWAYS redirect to email verification waiting page (unless already verified)
+        // This ensures users see the verification step
+        if (data.supplier.emailVerified === true) {
+          console.log('   ✅ Email already verified, going directly to step 5');
+          setEmailVerified(true);
+          setIsCheckingVerification(false);
+          // Move directly to step 5 (license upload)
+          const targetStep = (selectedBusinessType === 'company' || selectedBusinessType === 'individual' || selectedBusinessType === 'other') ? 5 : 4;
+          setStep(targetStep);
+        } else {
+          console.log('   📧 Email NOT verified, redirecting to verification waiting page...');
+          console.log('   Redirect URL:', `/email-verification-waiting?email=${encodeURIComponent(email)}&supplierId=${data.supplier.id}`);
+          // IMPORTANT: Use window.location.replace to ensure redirect happens
+          window.location.replace(`/email-verification-waiting?email=${encodeURIComponent(email)}&supplierId=${data.supplier.id}`);
+        }
+      } else {
+        alert(data.error || data.message || 'Registration failed. Please try again.');
+      }
+    })
+    .catch(error => {
+      console.error('Registration error:', error);
+      setIsSubmitting(false);
+      
+      // Better error message based on error type
+      let errorMessage = 'Failed to submit registration. ';
+      if (error.message?.includes('Failed to fetch') || error.message?.includes('NetworkError')) {
+        errorMessage += 'The server is not responding. Please make sure the server is running.';
+      } else {
+        errorMessage += 'Please check your connection and try again.';
+      }
+      
+      alert(errorMessage);
+    });
+  };
+
+  // Poll for email verification status
+  const startVerificationPolling = (supplierId: string) => {
+    const checkVerification = async () => {
+      try {
+        const response = await fetch(`http://localhost:3001/api/suppliers/${supplierId}/verification-status`);
+        const data = await response.json();
+        
+        if (data.success && data.emailVerified) {
+          setEmailVerified(true);
+          setIsCheckingVerification(false);
+          // Clear polling
+          if (pollingIntervalRef.current) {
+            clearInterval(pollingIntervalRef.current);
+            pollingIntervalRef.current = null;
+          }
+          // Move to step 5 (license upload)
+          nextStep();
+        }
+      } catch (error) {
+        console.error('Verification check error:', error);
+      }
+    };
+
+    // Check immediately
+    checkVerification();
+    
+    // Then check every 3 seconds
+    pollingIntervalRef.current = setInterval(() => {
+      checkVerification();
+    }, 3000);
+  };
+
+  // Check if returning from email verification - THIS MUST RUN FIRST
+  useEffect(() => {
+    // Check URL parameters first (from redirect)
+    const urlParams = new URLSearchParams(window.location.search);
+    const urlVerified = urlParams.get('verified');
+    const urlSupplierId = urlParams.get('supplierId');
+    
+    // PRIORITY: If coming from email verification redirect, proceed immediately
+    if (urlVerified === 'true' && urlSupplierId) {
+      console.log('✅ Email verified via URL, proceeding directly to PDF upload');
+      console.log('   Supplier ID:', urlSupplierId);
+      
+      // Immediately set state - don't wait for server check
+      setSupplierId(String(urlSupplierId));
+      setEmailVerified(true);
+      setIsCheckingVerification(false);
+      
+      // Clear polling if running
+      if (pollingIntervalRef.current) {
+        clearInterval(pollingIntervalRef.current);
+        pollingIntervalRef.current = null;
+      }
+      
+      // Store in localStorage for persistence
+      localStorage.setItem('pendingSupplierId', String(urlSupplierId));
+      localStorage.setItem('emailVerified', 'true');
+      
+      // Always go to step 5 when verified=true in URL
+      setStep(5);
+      
+      // Clean up URL immediately
+      window.history.replaceState({}, '', window.location.pathname);
+      
+      // Optional: Verify with server in background (non-blocking)
+      fetch(`http://localhost:3001/api/suppliers/${urlSupplierId}/verification-status`)
+        .then(res => res.json())
+        .then(data => {
+          console.log('   Server verification check:', data);
+          if (!data.success || !data.emailVerified) {
+            console.warn('⚠️ Server says not verified, but trusting URL param');
+          }
+        })
+        .catch(error => {
+          console.error('Error checking verification status (non-blocking):', error);
+        });
+      
+      return; // Exit early, don't check anything else
+    }
+    
+    // Check localStorage for verified email (fallback)
+    const emailVerifiedFlag = localStorage.getItem('emailVerified');
+    const verifiedSupplierId = localStorage.getItem('verifiedSupplierId');
+    const pendingSupplierId = localStorage.getItem('pendingSupplierId');
+    
+    // If verified via localStorage (but not URL)
+    if (emailVerifiedFlag === 'true' && verifiedSupplierId && !urlVerified) {
+      const finalSupplierId = verifiedSupplierId || pendingSupplierId;
+      
+      if (finalSupplierId) {
+        // Verify with server
+        fetch(`http://localhost:3001/api/suppliers/${finalSupplierId}/verification-status`)
+          .then(res => {
+            if (!res.ok) {
+              throw new Error(`HTTP error! status: ${res.status}`);
+            }
+            return res.json();
+          })
+          .then(data => {
+            if (data.success && data.emailVerified) {
+              setSupplierId(String(finalSupplierId));
+              setEmailVerified(true);
+              setIsCheckingVerification(false);
+              if (pollingIntervalRef.current) {
+                clearInterval(pollingIntervalRef.current);
+                pollingIntervalRef.current = null;
+              }
+              const targetStep = (selectedBusinessType === 'company' || selectedBusinessType === 'individual' || selectedBusinessType === 'other') ? 5 : 4;
+              setStep(targetStep);
+              localStorage.removeItem('emailVerified');
+              localStorage.removeItem('verifiedSupplierId');
+            }
+          })
+          .catch(error => {
+            console.error('Error verifying supplier ID:', error);
+          });
+      }
+    }
+    
+    // Also check if we have a pending registration on mount (for polling)
+    // BUT ONLY if we're NOT coming from a verification redirect
+    if (pendingSupplierId && !emailVerified && !urlVerified && urlVerified !== 'true') {
+      const pendingEmail = localStorage.getItem('pendingSupplierEmail');
+      if (!supplierId) {
+        setSupplierId(pendingSupplierId);
+      }
+      if (email && email === pendingEmail && !isCheckingVerification) {
+        // Check verification status
+        setIsCheckingVerification(true);
+        startVerificationPolling(pendingSupplierId);
+      }
+    }
+  }, [email, selectedBusinessType, supplierId, emailVerified, isCheckingVerification]);
+
+  // Cleanup polling on unmount
+  useEffect(() => {
+    return () => {
+      if (pollingIntervalRef.current) {
+        clearInterval(pollingIntervalRef.current);
+      }
+    };
+  }, []);
 
   if (isSuccess) {
     return (
       <div className="min-h-screen bg-white flex items-center justify-center p-6 text-center">
         <div className="max-w-md w-full">
-          <div className="w-24 h-24 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-8">
-            <CheckCircle2 className="text-green-500" size={48} />
+          <div className="w-24 h-24 bg-[#10B981]/10 rounded-full flex items-center justify-center mx-auto mb-8">
+            <CheckCircle2 className="text-[#10B981]" size={48} />
           </div>
-          <h2 className="text-3xl font-black text-[#001A33] mb-4">Application Received</h2>
-          <p className="text-gray-500 font-semibold mb-10 leading-relaxed text-[14px]">
-            Thank you for joining AsiaByLocals. Our partner success team will review your business details and contact you within 48 hours to activate your account.
+          <h2 className="text-3xl font-black text-[#001A33] mb-6">Registration Successful!</h2>
+          <p className="text-gray-600 font-semibold mb-4 leading-relaxed text-[14px]">
+            Thank you for joining AsiaByLocals! We've sent a verification email to your registered email address.
+          </p>
+          <p className="text-gray-600 font-semibold mb-10 leading-relaxed text-[14px]">
+            Please check your inbox and click the verification link to activate your account. Our partner success team will review your business details and contact you within 48 hours.
           </p>
           <button 
             onClick={onClose}
-            className="w-full bg-[#001A33] text-white font-black py-5 rounded-full hover:bg-black transition-all text-[14px]"
+            className="w-full bg-[#001A33] hover:bg-black text-white font-black py-5 rounded-full transition-all text-[14px]"
           >
             Back to Hub
           </button>
@@ -102,7 +462,7 @@ const SupplierRegistration: React.FC<SupplierRegistrationProps> = ({ onClose }) 
             <img 
               src="/logo.png" 
               alt="AsiaByLocals" 
-              className="h-8 w-8 object-contain"
+              className="h-10 w-10 object-contain"
             />
             <span className="font-black tracking-tight text-lg">Partner Registration</span>
           </div>
@@ -118,24 +478,44 @@ const SupplierRegistration: React.FC<SupplierRegistrationProps> = ({ onClose }) 
       {/* Progress Bar */}
       <div className="bg-white border-b border-gray-200">
         <div className="max-w-4xl mx-auto px-8 py-4 flex items-center gap-4">
-          {[1, 2, 3, 4].map((s) => (
-            <React.Fragment key={s}>
-              <div className="flex items-center gap-2">
-                <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-black transition-colors ${step >= s ? 'bg-[#FF5A00] text-white' : 'bg-gray-100 text-gray-400'}`}>
-                  {step > s ? <Check size={14} /> : s}
+          {((selectedBusinessType === 'company' || selectedBusinessType === 'individual' || selectedBusinessType === 'other') ? [1, 2, 3, 4, 5] : [1, 2, 3, 4]).map((s) => {
+            const totalSteps = (selectedBusinessType === 'company' || selectedBusinessType === 'individual' || selectedBusinessType === 'other') ? 5 : 4;
+            const getStepLabel = (stepNum: number) => {
+              if (selectedBusinessType === 'company') {
+                return stepNum === 1 ? 'Business Type' : stepNum === 2 ? 'Company Details' : stepNum === 3 ? 'Business' : stepNum === 4 ? 'Account' : 'Verification';
+              } else if (selectedBusinessType === 'individual') {
+                return stepNum === 1 ? 'Business Type' : stepNum === 2 ? 'Individual Details' : stepNum === 3 ? 'Business' : stepNum === 4 ? 'Account' : 'Verification';
+              } else if (selectedBusinessType === 'other') {
+                return stepNum === 1 ? 'Business Type' : stepNum === 2 ? 'Business Details' : stepNum === 3 ? 'Business' : stepNum === 4 ? 'Account' : 'Verification';
+              } else {
+                return stepNum === 1 ? 'Business Type' : stepNum === 2 ? 'Business' : stepNum === 3 ? 'Account' : 'Verification';
+              }
+            };
+            return (
+              <React.Fragment key={s}>
+                <div className="flex items-center gap-2">
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-black transition-colors ${step >= s ? 'bg-[#10B981] text-white' : 'bg-gray-100 text-gray-400'}`}>
+                    {step > s ? <Check size={14} /> : s}
+                  </div>
+                  <span className={`text-[11px] font-black uppercase tracking-widest hidden sm:block ${step >= s ? 'text-[#001A33]' : 'text-gray-300'}`}>
+                    {getStepLabel(s)}
+                  </span>
                 </div>
-                <span className={`text-[11px] font-black uppercase tracking-widest hidden sm:block ${step >= s ? 'text-[#001A33]' : 'text-gray-300'}`}>
-                  {s === 1 ? 'Business Type' : s === 2 ? 'Account' : s === 3 ? 'Business' : 'Verification'}
-                </span>
-              </div>
-              {s < 4 && <div className={`flex-1 h-px ${step > s ? 'bg-[#FF5A00]' : 'bg-gray-100'}`} />}
-            </React.Fragment>
-          ))}
+                {s < totalSteps && <div className={`flex-1 h-px ${step > s ? 'bg-[#10B981]' : 'bg-gray-100'}`} />}
+              </React.Fragment>
+            );
+          })}
         </div>
       </div>
 
       <main className="flex-1 flex items-center justify-center p-8 bg-[#F8FAFC]">
         <div className="max-w-lg w-full bg-white rounded-2xl shadow-xl shadow-slate-200/50 p-10 md:p-14 border border-gray-100">
+          {/* Step Header */}
+          <div className="flex items-center justify-between mb-8">
+            <h2 className="text-xl font-black text-[#001A33]">Join us as a supply partner</h2>
+            <span className="text-sm font-bold text-gray-500">Step {step} of {maxSteps}</span>
+          </div>
+          
           <form onSubmit={handleSubmit} className="space-y-8">
             
             {step === 1 && (
@@ -159,14 +539,14 @@ const SupplierRegistration: React.FC<SupplierRegistrationProps> = ({ onClose }) 
                         onClick={() => setSelectedBusinessType(type.id)}
                         className={`p-6 rounded-2xl border-2 text-left transition-all ${
                           selectedBusinessType === type.id
-                            ? 'border-[#FF5A00] bg-[#FF5A00]/5'
+                            ? 'border-[#10B981] bg-[#10B981]/5'
                             : 'border-gray-100 hover:border-gray-200 bg-white'
                         }`}
                       >
                         <div className="flex items-start gap-4">
                           <div className={`p-3 rounded-xl ${
                             selectedBusinessType === type.id
-                              ? 'bg-[#FF5A00] text-white'
+                              ? 'bg-[#10B981] text-white'
                               : 'bg-gray-100 text-gray-400'
                           }`}>
                             <Icon size={24} />
@@ -176,7 +556,7 @@ const SupplierRegistration: React.FC<SupplierRegistrationProps> = ({ onClose }) 
                             <p className="text-[13px] text-gray-500 font-medium leading-relaxed">{type.description}</p>
                           </div>
                           {selectedBusinessType === type.id && (
-                            <div className="w-6 h-6 rounded-full bg-[#FF5A00] flex items-center justify-center">
+                            <div className="w-6 h-6 rounded-full bg-[#10B981] flex items-center justify-center">
                               <Check size={14} className="text-white" />
                             </div>
                           )}
@@ -188,43 +568,120 @@ const SupplierRegistration: React.FC<SupplierRegistrationProps> = ({ onClose }) 
               </div>
             )}
 
-            {step === 2 && (
-              <div className="space-y-6">
+            {step === 2 && selectedBusinessType === 'company' && (
+              <div className="space-y-8">
                 <div>
-                  <h3 className="text-2xl font-black text-[#001A33] mb-2">Create your account</h3>
-                  <p className="text-[14px] text-gray-400 font-semibold">Use your business email for faster verification.</p>
+                  <h3 className="text-2xl font-black text-[#001A33] mb-2">Company Information</h3>
+                  <p className="text-[14px] text-gray-400 font-semibold">Tell us more about your company.</p>
                 </div>
-                
-                <div className="space-y-4">
-                  <div className="relative">
-                    <User className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
-                    <input 
-                      type="text" required
-                      placeholder="Full Name"
-                      className="w-full bg-gray-50 border-none rounded-2xl py-4 pl-12 pr-4 font-bold text-[#001A33] text-[14px] focus:ring-2 focus:ring-[#FF5A00] transition-all outline-none"
-                    />
+
+                <div className="space-y-6">
+                  <div>
+                    <label className="block text-[14px] font-black text-[#001A33] mb-3">How many employees does your company have?</label>
+                    <div className="grid grid-cols-5 gap-2">
+                      {['Up to 2', '3 - 10', '11 - 20', '21 - 50', '+50'].map((option) => (
+                        <button
+                          key={option}
+                          type="button"
+                          onClick={() => setCompanyEmployees(option)}
+                          className={`py-3 px-2 rounded-xl text-[12px] font-bold transition-all ${
+                            companyEmployees === option
+                              ? 'bg-[#10B981] text-white'
+                              : 'bg-gray-50 text-[#001A33] hover:bg-gray-100 border border-gray-100'
+                          }`}
+                        >
+                          {option}
+                        </button>
+                      ))}
+                    </div>
                   </div>
-                  <div className="relative">
-                    <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
-                    <input 
-                      type="email" required
-                      placeholder="Business Email"
-                      className="w-full bg-gray-50 border-none rounded-2xl py-4 pl-12 pr-4 font-bold text-[#001A33] text-[14px] focus:ring-2 focus:ring-[#FF5A00] transition-all outline-none"
-                    />
-                  </div>
-                  <div className="relative">
-                    <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
-                    <input 
-                      type="password" required
-                      placeholder="Create Password"
-                      className="w-full bg-gray-50 border-none rounded-2xl py-4 pl-12 pr-4 font-bold text-[#001A33] text-[14px] focus:ring-2 focus:ring-[#FF5A00] transition-all outline-none"
-                    />
+
+                  <div>
+                    <label className="block text-[14px] font-black text-[#001A33] mb-3">How many activities of any type do you offer?</label>
+                    <div className="grid grid-cols-5 gap-2">
+                      {['Up to 2', '3 - 6', '7 - 15', '16 - 35', '+35'].map((option) => (
+                        <button
+                          key={option}
+                          type="button"
+                          onClick={() => setCompanyActivities(option)}
+                          className={`py-3 px-2 rounded-xl text-[12px] font-bold transition-all ${
+                            companyActivities === option
+                              ? 'bg-[#10B981] text-white'
+                              : 'bg-gray-50 text-[#001A33] hover:bg-gray-100 border border-gray-100'
+                          }`}
+                        >
+                          {option}
+                        </button>
+                      ))}
+                    </div>
                   </div>
                 </div>
               </div>
             )}
 
-            {step === 3 && (
+            {step === 2 && selectedBusinessType === 'individual' && (
+              <div className="space-y-8">
+                <div>
+                  <h3 className="text-2xl font-black text-[#001A33] mb-2">Individual Information</h3>
+                  <p className="text-[14px] text-gray-400 font-semibold">Tell us more about your business.</p>
+                </div>
+
+                <div className="space-y-6">
+                  <div>
+                    <label className="block text-[14px] font-black text-[#001A33] mb-3">How many activities of any type do you offer?</label>
+                    <div className="grid grid-cols-5 gap-2">
+                      {['Up to 2', '3 - 6', '7 - 15', '16 - 35', '+35'].map((option) => (
+                        <button
+                          key={option}
+                          type="button"
+                          onClick={() => setIndividualActivities(option)}
+                          className={`py-3 px-2 rounded-xl text-[12px] font-bold transition-all ${
+                            individualActivities === option
+                              ? 'bg-[#10B981] text-white'
+                              : 'bg-gray-50 text-[#001A33] hover:bg-gray-100 border border-gray-100'
+                          }`}
+                        >
+                          {option}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {step === 2 && selectedBusinessType === 'other' && (
+              <div className="space-y-8">
+                <div>
+                  <h3 className="text-2xl font-black text-[#001A33] mb-2">Business Information</h3>
+                  <p className="text-[14px] text-gray-400 font-semibold">Tell us more about your business.</p>
+                </div>
+
+                <div className="space-y-6">
+                  <div>
+                    <label className="block text-[14px] font-black text-[#001A33] mb-3">How many activities of any type do you offer?</label>
+                    <div className="grid grid-cols-5 gap-2">
+                      {['Up to 2', '3 - 6', '7 - 15', '16 - 35', '+35'].map((option) => (
+                        <button
+                          key={option}
+                          type="button"
+                          onClick={() => setOtherActivities(option)}
+                          className={`py-3 px-2 rounded-xl text-[12px] font-bold transition-all ${
+                            otherActivities === option
+                              ? 'bg-[#10B981] text-white'
+                              : 'bg-gray-50 text-[#001A33] hover:bg-gray-100 border border-gray-100'
+                          }`}
+                        >
+                          {option}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {step === ((selectedBusinessType === 'company' || selectedBusinessType === 'individual' || selectedBusinessType === 'other') ? 3 : 2) && (
               <div className="space-y-6">
                 <div>
                   <h3 className="text-2xl font-black text-[#001A33] mb-2">Business details</h3>
@@ -235,53 +692,451 @@ const SupplierRegistration: React.FC<SupplierRegistrationProps> = ({ onClose }) 
                   <div className="relative">
                     <Building2 className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
                     <input 
-                      type="text" required
+                      type="text" 
+                      required
+                      value={companyName}
+                      onChange={(e) => setCompanyName(e.target.value)}
                       placeholder="Company Name (or Legal Name)"
-                      className="w-full bg-gray-50 border-none rounded-2xl py-4 pl-12 pr-4 font-bold text-[#001A33] text-[14px] focus:ring-2 focus:ring-[#FF5A00] transition-all outline-none"
+                      className="w-full bg-gray-50 border-none rounded-2xl py-4 pl-12 pr-4 font-bold text-[#001A33] text-[14px] focus:ring-2 focus:ring-[#10B981] transition-all outline-none"
                     />
                   </div>
                   <div className="grid grid-cols-2 gap-4">
-                    <select className="bg-gray-50 border-none rounded-2xl py-4 px-4 font-bold text-[#001A33] text-[14px] focus:ring-2 focus:ring-[#FF5A00] outline-none cursor-pointer">
-                      <option value="">Main Hub</option>
-                      <option>India</option>
-                      <option>Japan</option>
-                      <option>Thailand</option>
-                      <option>Vietnam</option>
-                      <option>Indonesia</option>
+                    <select 
+                      value={mainHub}
+                      onChange={(e) => {
+                        setMainHub(e.target.value);
+                        setCity(''); // Reset city when country changes
+                      }}
+                      required
+                      className="bg-gray-50 border-none rounded-2xl py-4 px-4 font-bold text-[#001A33] text-[14px] focus:ring-2 focus:ring-[#10B981] outline-none cursor-pointer"
+                    >
+                      <option value="">Select Country</option>
+                      <option value="India">India</option>
+                      <option value="Japan">Japan</option>
+                      <option value="Thailand">Thailand</option>
+                      <option value="Vietnam">Vietnam</option>
+                      <option value="Indonesia">Indonesia</option>
+                      <option value="Singapore">Singapore</option>
+                      <option value="Malaysia">Malaysia</option>
+                      <option value="South Korea">South Korea</option>
+                      <option value="Philippines">Philippines</option>
+                      <option value="China">China</option>
+                      <option value="Taiwan">Taiwan</option>
+                      <option value="Hong Kong">Hong Kong</option>
                     </select>
-                    <input 
-                      type="text" placeholder="City" required
-                      className="bg-gray-50 border-none rounded-2xl py-4 px-4 font-bold text-[#001A33] text-[14px] focus:ring-2 focus:ring-[#FF5A00] outline-none"
-                    />
+                    {mainHub === 'India' ? (
+                      <select 
+                        value={city}
+                        onChange={(e) => setCity(e.target.value)}
+                        required
+                        className="bg-gray-50 border-none rounded-2xl py-4 px-4 font-bold text-[#001A33] text-[14px] focus:ring-2 focus:ring-[#10B981] outline-none cursor-pointer"
+                      >
+                        <option value="">City</option>
+                        <option value="Agra">Agra</option>
+                        <option value="Jaipur">Jaipur</option>
+                        <option value="Udaipur">Udaipur</option>
+                        <option value="Varanasi">Varanasi</option>
+                        <option value="Goa">Goa</option>
+                        <option value="Kochi">Kochi</option>
+                        <option value="Darjeeling">Darjeeling</option>
+                        <option value="Rishikesh">Rishikesh</option>
+                        <option value="Mysore">Mysore</option>
+                        <option value="Amritsar">Amritsar</option>
+                      </select>
+                    ) : (
+                      <input 
+                        type="text" 
+                        required
+                        value={city}
+                        onChange={(e) => setCity(e.target.value)}
+                        placeholder="City"
+                        className="bg-gray-50 border-none rounded-2xl py-4 px-4 font-bold text-[#001A33] text-[14px] focus:ring-2 focus:ring-[#10B981] outline-none"
+                      />
+                    )}
                   </div>
                   <input 
-                    type="text" placeholder="Tour Languages (e.g. English, Hindi)" required
-                    className="w-full bg-gray-50 border-none rounded-2xl py-4 px-4 font-bold text-[#001A33] text-[14px] focus:ring-2 focus:ring-[#FF5A00] outline-none"
+                    type="text" 
+                    required
+                    value={tourLanguages}
+                    onChange={(e) => setTourLanguages(e.target.value)}
+                    placeholder="Tour Languages (e.g. English, Hindi)"
+                    className="w-full bg-gray-50 border-none rounded-2xl py-4 px-4 font-bold text-[#001A33] text-[14px] focus:ring-2 focus:ring-[#10B981] outline-none"
                   />
+                  
+                  {/* Contact Information */}
+                  <div className="pt-4 border-t border-gray-200">
+                    <h4 className="text-[16px] font-black text-[#001A33] mb-4">Contact Information</h4>
+                    <p className="text-[12px] text-gray-500 font-semibold mb-4">
+                      This information will be shared with customers when they book your tours. Make sure your WhatsApp number is linked to your WhatsApp account.
+                    </p>
+                    
+                    <div className="space-y-4">
+                      <div>
+                        <label className="block text-[14px] font-black text-[#001A33] mb-2">
+                          Phone Number *
+                        </label>
+                        <input 
+                          type="tel" 
+                          required
+                          value={phone}
+                          onChange={(e) => setPhone(e.target.value)}
+                          placeholder="+91 9876543210"
+                          className="w-full bg-gray-50 border-none rounded-2xl py-4 px-4 font-bold text-[#001A33] text-[14px] focus:ring-2 focus:ring-[#10B981] outline-none"
+                        />
+                        <p className="text-[11px] text-gray-400 mt-1">
+                          This phone number will be shared with customers for bookings.
+                        </p>
+                      </div>
+                      
+                      <div>
+                        <label className="block text-[14px] font-black text-[#001A33] mb-2">
+                          WhatsApp Number * <span className="text-[12px] font-normal text-gray-500">(Must be linked to WhatsApp)</span>
+                        </label>
+                        <input 
+                          type="tel" 
+                          required
+                          value={whatsapp}
+                          onChange={(e) => setWhatsapp(e.target.value)}
+                          placeholder="+91 9876543210"
+                          className="w-full bg-gray-50 border-none rounded-2xl py-4 px-4 font-bold text-[#001A33] text-[14px] focus:ring-2 focus:ring-[#10B981] outline-none"
+                        />
+                        <p className="text-[11px] text-gray-400 mt-1">
+                          Make sure this number is linked to your WhatsApp account. Customers will contact you via WhatsApp.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
             )}
 
-            {step === 4 && (
+            {step === ((selectedBusinessType === 'company' || selectedBusinessType === 'individual' || selectedBusinessType === 'other') ? 4 : 3) && (
               <div className="space-y-6">
-                <div className="flex items-center gap-3 text-[#FF5A00] mb-2">
+                <div>
+                  <h3 className="text-2xl font-black text-[#001A33] mb-2">Create your account</h3>
+                  <p className="text-[14px] text-gray-400 font-semibold">Use your business email for faster verification.</p>
+                </div>
+
+                {/* Company Information Section */}
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-[14px] font-black text-[#001A33] mb-2">Company's brand/public name</label>
+                    <input 
+                      type="text" 
+                      value={companyBrandName}
+                      onChange={(e) => setCompanyBrandName(e.target.value)}
+                      placeholder="Company's brand/public name"
+                      className="w-full bg-gray-50 border-none rounded-2xl py-4 px-4 font-bold text-[#001A33] text-[14px] focus:ring-2 focus:ring-[#10B981] outline-none"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-[14px] font-black text-[#001A33] mb-2">
+                      Website <span className="text-gray-400 font-normal text-[12px]">(Optional)</span>
+                    </label>
+                    <p className="text-[12px] text-gray-500 mb-2">
+                      You can add a website where your business has already been rated (e.g., Google Maps, or your own website)
+                    </p>
+                    <input 
+                      type="text" 
+                      value={website}
+                      onChange={(e) => setWebsite(e.target.value)}
+                      placeholder="www.website.com or website.com"
+                      className="w-full bg-gray-50 border-none rounded-2xl py-4 px-4 font-bold text-[#001A33] text-[14px] focus:ring-2 focus:ring-[#10B981] outline-none"
+                    />
+                    <p className="text-[11px] text-gray-400 mt-1">
+                      We may use this website for verification of your business activities.
+                    </p>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-[14px] font-black text-[#001A33] mb-2">Where's the company registered?</label>
+                      <select 
+                        value={companyRegisteredCountry}
+                        onChange={(e) => setCompanyRegisteredCountry(e.target.value)}
+                        className="w-full bg-gray-50 border-none rounded-2xl py-4 px-4 font-bold text-[#001A33] text-[14px] focus:ring-2 focus:ring-[#10B981] outline-none cursor-pointer"
+                      >
+                        <option value="">Country</option>
+                        <option value="India">India</option>
+                        <option value="Japan">Japan</option>
+                        <option value="Thailand">Thailand</option>
+                        <option value="Vietnam">Vietnam</option>
+                        <option value="Indonesia">Indonesia</option>
+                        <option value="Singapore">Singapore</option>
+                        <option value="Malaysia">Malaysia</option>
+                        <option value="South Korea">South Korea</option>
+                        <option value="Philippines">Philippines</option>
+                        <option value="China">China</option>
+                        <option value="Taiwan">Taiwan</option>
+                        <option value="Hong Kong">Hong Kong</option>
+                        <option value="United Arab Emirates">United Arab Emirates</option>
+                        <option value="Other">Other</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-[14px] font-black text-[#001A33] mb-2">Preferred currency to be paid in</label>
+                      <select 
+                        value={preferredCurrency}
+                        onChange={(e) => setPreferredCurrency(e.target.value)}
+                        className="w-full bg-gray-50 border-none rounded-2xl py-4 px-4 font-bold text-[#001A33] text-[14px] focus:ring-2 focus:ring-[#10B981] outline-none cursor-pointer"
+                      >
+                        <option value="">Select one</option>
+                        <option value="USD">USD - US Dollar</option>
+                        <option value="EUR">EUR - Euro</option>
+                        <option value="GBP">GBP - British Pound</option>
+                        <option value="INR">INR - Indian Rupee</option>
+                        <option value="JPY">JPY - Japanese Yen</option>
+                        <option value="THB">THB - Thai Baht</option>
+                        <option value="SGD">SGD - Singapore Dollar</option>
+                        <option value="MYR">MYR - Malaysian Ringgit</option>
+                        <option value="CNY">CNY - Chinese Yuan</option>
+                        <option value="HKD">HKD - Hong Kong Dollar</option>
+                        <option value="AED">AED - UAE Dirham</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Personal Information Section */}
+                <div className="space-y-4 pt-4 border-t border-gray-100">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="relative">
+                      <User className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+                      <input 
+                        type="text" 
+                        required
+                        value={firstName}
+                        onChange={(e) => setFirstName(e.target.value)}
+                        placeholder="First name"
+                        className="w-full bg-gray-50 border-none rounded-2xl py-4 pl-12 pr-4 font-bold text-[#001A33] text-[14px] focus:ring-2 focus:ring-[#10B981] transition-all outline-none"
+                      />
+                    </div>
+                    <div className="relative">
+                      <User className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+                      <input 
+                        type="text" 
+                        required
+                        value={lastName}
+                        onChange={(e) => setLastName(e.target.value)}
+                        placeholder="Last name"
+                        className="w-full bg-gray-50 border-none rounded-2xl py-4 pl-12 pr-4 font-bold text-[#001A33] text-[14px] focus:ring-2 focus:ring-[#10B981] transition-all outline-none"
+                      />
+                    </div>
+                  </div>
+                  <div className="relative">
+                    <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+                    <input 
+                      type="email" 
+                      required
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      placeholder="Email"
+                      className="w-full bg-gray-50 border-none rounded-2xl py-4 pl-12 pr-4 font-bold text-[#001A33] text-[14px] focus:ring-2 focus:ring-[#10B981] transition-all outline-none"
+                    />
+                    <p className="text-[11px] text-gray-400 mt-1 ml-4">
+                      You will use this to log in to your account.
+                    </p>
+                  </div>
+                </div>
+
+                {/* Password Section */}
+                <div className="space-y-4 pt-4 border-t border-gray-100">
+                  <div className="relative">
+                    <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+                    <input 
+                      type={showPassword ? "text" : "password"}
+                      required
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      placeholder="Password"
+                      className="w-full bg-gray-50 border-none rounded-2xl py-4 pl-12 pr-12 font-bold text-[#001A33] text-[14px] focus:ring-2 focus:ring-[#10B981] transition-all outline-none"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-[#10B981] transition-colors"
+                    >
+                      {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                    </button>
+                  </div>
+                  
+                  {/* Password Requirements */}
+                  <div className="space-y-2 pl-4">
+                    {[
+                      { text: 'Between 8 and 30 characters', check: password.length >= 8 && password.length <= 30 },
+                      { text: 'Include a number (1234) and one special character (!@#$%^&*)', check: /[0-9]/.test(password) && /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password) },
+                      { text: 'Uppercase (ABC) and lowercase (abc) letters', check: /[A-Z]/.test(password) && /[a-z]/.test(password) },
+                      { text: 'It cannot contain any part of your email address', check: !email || !email.toLowerCase().split('@')[0].split('.').some(part => part.length > 2 && password.toLowerCase().includes(part)) },
+                      { text: 'No blank spaces', check: !password.includes(' ') }
+                    ].map((req, idx) => {
+                      const isValid = req.check;
+                      return (
+                        <div key={idx} className="flex items-center gap-2 text-[12px]">
+                          {isValid ? (
+                            <CheckCircle2 size={14} className="text-green-500 shrink-0" />
+                          ) : (
+                            <div className="w-3.5 h-3.5 rounded-full border-2 border-gray-300 shrink-0" />
+                          )}
+                          <span className={isValid ? 'text-gray-600' : 'text-gray-400'}>{req.text}</span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                  
+                </div>
+
+                {/* Terms and Conditions */}
+                <div className="pt-4 border-t border-gray-100">
+                  <label className={`flex items-start gap-3 cursor-pointer ${!acceptedTerms ? 'opacity-60' : ''}`}>
+                    <input 
+                      type="checkbox" 
+                      checked={acceptedTerms}
+                      onChange={(e) => setAcceptedTerms(e.target.checked)}
+                      className="mt-1 w-5 h-5 rounded border-gray-300 text-[#10B981] focus:ring-[#10B981] cursor-pointer"
+                    />
+                    <span className="text-[13px] text-gray-700">
+                      I have read and agree to the{' '}
+                      <a href="#" className="text-[#10B981] underline font-semibold">Supplier Terms and Conditions</a>
+                      {' '}and the{' '}
+                      <a href="#" className="text-[#10B981] underline font-semibold">Privacy Policy</a>.
+                      {!acceptedTerms && <span className="text-red-500 ml-2">* Required</span>}
+                    </span>
+                  </label>
+                </div>
+
+                {/* Information Banner */}
+                <div className="bg-blue-50 rounded-xl p-4 flex gap-3">
+                  <Info className="text-blue-500 shrink-0 mt-0.5" size={18} />
+                  <p className="text-[13px] text-gray-700">
+                    You'll receive an email to verify your account after registering.
+                  </p>
+                </div>
+
+                {/* reCAPTCHA Placeholder */}
+                <div className="border border-gray-200 rounded-lg p-4 flex items-center gap-3 bg-gray-50">
+                  <input type="checkbox" className="w-5 h-5 rounded border-gray-300 cursor-pointer" />
+                  <span className="text-[13px] text-gray-700">I'm not a robot</span>
+                  <div className="ml-auto flex items-center gap-2">
+                    <div className="w-6 h-6 bg-blue-500 rounded flex items-center justify-center">
+                      <span className="text-white text-[10px] font-bold">re</span>
+                    </div>
+                    <span className="text-[10px] text-gray-500">reCAPTCHA</span>
+                    <span className="text-[10px] text-gray-400">Privacy - Terms</span>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Email Verification Waiting Step - REMOVED - Now on separate page at /email-verification-waiting */}
+
+            {/* License Upload Step - Only shown after email verification */}
+            {emailVerified && step === ((selectedBusinessType === 'company' || selectedBusinessType === 'individual' || selectedBusinessType === 'other') ? 5 : 4) && (
+              <div className="space-y-6">
+                <div className="flex items-center gap-3 text-[#10B981] mb-2">
                   <ShieldCheck size={24} />
                   <h3 className="text-2xl font-black text-[#001A33]">Verification</h3>
                 </div>
                 <p className="text-[14px] text-gray-400 font-semibold leading-relaxed">
-                  To protect our marketplace, we require proof of business registration or a valid tour guide license.
+                  To protect our marketplace, we require proof of business registration or a valid tour guide license. <span className="text-red-500 font-black">This is mandatory.</span>
+                </p>
+                <p className="text-[12px] text-gray-500 font-semibold mt-2">
+                  Your application will be reviewed by our admin team. You will receive an email notification once your account is approved, and then you can start creating tours.
                 </p>
                 
-                <div className="border-2 border-dashed border-gray-100 rounded-2xl p-12 text-center group hover:border-[#FF5A00] transition-colors cursor-pointer bg-gray-50/50">
-                  <div className="w-16 h-16 bg-white rounded-2xl shadow-sm flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
-                    <Upload className="text-[#FF5A00]" size={24} />
-                  </div>
-                  <div className="font-black text-[#001A33] text-[14px] mb-1">Upload License / ID</div>
-                  <div className="text-[11px] text-gray-400 font-semibold uppercase">PDF, JPG, or PNG (Max 10MB)</div>
+                <div className="block">
+                  <input
+                    type="file"
+                    accept=".pdf,.jpg,.jpeg,.png"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) {
+                        // Check file size (10MB max)
+                        if (file.size > 10 * 1024 * 1024) {
+                          alert('File size must be less than 10MB');
+                          return;
+                        }
+                        // Check file type
+                        const validTypes = ['application/pdf', 'image/jpeg', 'image/jpg', 'image/png'];
+                        if (!validTypes.includes(file.type)) {
+                          alert('Please upload a PDF, JPG, or PNG file');
+                          return;
+                        }
+                        setVerificationDocument(file);
+                        // Create preview for images
+                        if (file.type.startsWith('image/')) {
+                          const reader = new FileReader();
+                          reader.onload = (e) => {
+                            setDocumentPreview(e.target?.result as string);
+                          };
+                          reader.readAsDataURL(file);
+                        } else {
+                          setDocumentPreview(null);
+                        }
+                      }
+                    }}
+                    className="hidden"
+                    id="document-upload"
+                  />
+                  {verificationDocument ? (
+                    <div className="border-2 border-dashed border-[#10B981] rounded-2xl p-12 text-center bg-green-50/50">
+                      <div className="space-y-2">
+                        <div className="font-black text-[#10B981] text-[14px] flex items-center justify-center gap-2">
+                          <CheckCircle2 size={16} className="text-[#10B981]" />
+                          {verificationDocument.name}
+                        </div>
+                        <div className="text-[11px] text-gray-400 font-semibold">
+                          {(verificationDocument.size / 1024 / 1024).toFixed(2)} MB
+                        </div>
+                        {documentPreview && (
+                          <img src={documentPreview} alt="Preview" className="max-w-full max-h-48 mx-auto mt-4 rounded-lg" />
+                        )}
+                        <div className="flex items-center justify-center gap-4 mt-4">
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              document.getElementById('document-upload')?.click();
+                            }}
+                            className="text-[#10B981] text-[12px] font-semibold underline hover:text-[#059669]"
+                          >
+                            Change file
+                          </button>
+                          <span className="text-gray-300">|</span>
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              setVerificationDocument(null);
+                              setDocumentPreview(null);
+                              const input = document.getElementById('document-upload') as HTMLInputElement;
+                              if (input) input.value = '';
+                            }}
+                            className="text-red-500 text-[12px] font-semibold underline hover:text-red-600"
+                          >
+                            Remove file
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    <label htmlFor="document-upload" className="block cursor-pointer">
+                      <div className="border-2 border-dashed border-gray-100 rounded-2xl p-12 text-center group hover:border-[#10B981] transition-colors cursor-pointer bg-gray-50/50">
+                        <div className="w-16 h-16 bg-white rounded-2xl shadow-sm flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
+                          <Upload className="text-[#10B981]" size={24} />
+                        </div>
+                        <div className="font-black text-[#001A33] text-[14px] mb-1">Upload License / ID</div>
+                        <div className="text-[11px] text-gray-400 font-semibold uppercase">PDF, JPG, or PNG (Max 10MB)</div>
+                        <div className="text-[12px] text-gray-500 font-semibold mt-2">Click to browse files</div>
+                      </div>
+                    </label>
+                  )}
                 </div>
 
-                <div className="bg-orange-50/50 rounded-2xl p-4 flex gap-3">
-                  <div className="bg-orange-500/10 p-2 rounded-lg h-fit text-[#FF5A00]">
+                <div className="bg-green-50/50 rounded-2xl p-4 flex gap-3">
+                  <div className="bg-green-500/10 p-2 rounded-lg h-fit text-[#10B981]">
                     <ShieldCheck size={16} />
                   </div>
                   <p className="text-[13px] font-semibold text-[#001A33] opacity-60 leading-relaxed">
@@ -303,15 +1158,32 @@ const SupplierRegistration: React.FC<SupplierRegistrationProps> = ({ onClose }) 
               )}
               <button 
                 type="submit"
-                disabled={isSubmitting || (step === 1 && !selectedBusinessType)}
-                className="flex-1 bg-[#FF5A00] hover:bg-[#e04d00] text-white font-black py-5 rounded-full shadow-lg shadow-orange-200 transition-all active:scale-95 flex items-center justify-center gap-2 group disabled:opacity-50 text-[14px]"
+                disabled={
+                  isSubmitting || 
+                  (step === 1 && !selectedBusinessType) || 
+                  (step === 2 && selectedBusinessType === 'company' && (!companyEmployees || !companyActivities)) || 
+                  (step === 2 && selectedBusinessType === 'individual' && !individualActivities) || 
+                  (step === 2 && selectedBusinessType === 'other' && !otherActivities) ||
+                  (step === ((selectedBusinessType === 'company' || selectedBusinessType === 'individual' || selectedBusinessType === 'other') ? 3 : 2) && (!companyName || !mainHub || !city || !tourLanguages)) ||
+                  (step === ((selectedBusinessType === 'company' || selectedBusinessType === 'individual' || selectedBusinessType === 'other') ? 4 : 3) && (
+                    !firstName || !lastName || !email || !password || !acceptedTerms ||
+                    password.length < 8 || password.length > 30 ||
+                    !/[A-Z]/.test(password) || !/[a-z]/.test(password) ||
+                    !/[0-9]/.test(password) || !/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password) ||
+                    password.includes(' ') ||
+                    email.toLowerCase().split('@')[0].split('.').some(part => part.length > 2 && password.toLowerCase().includes(part))
+                  )) ||
+                  (emailVerified && step === ((selectedBusinessType === 'company' || selectedBusinessType === 'individual' || selectedBusinessType === 'other') ? 5 : 4) && !verificationDocument) ||
+                  (emailVerified && step === ((selectedBusinessType === 'company' || selectedBusinessType === 'individual' || selectedBusinessType === 'other') ? 5 : 4) && !supplierId)
+                }
+                className="flex-1 bg-[#10B981] hover:bg-[#059669] text-white font-black py-5 rounded-full shadow-lg shadow-green-200 transition-all active:scale-95 flex items-center justify-center gap-2 group disabled:opacity-50 text-[14px]"
               >
                 {isSubmitting ? (
                   <Loader2 className="animate-spin" size={20} />
                 ) : (
                   <>
-                    {step === 4 ? 'Submit Application' : 'Continue'}
-                    {step < 4 && <ChevronRight size={18} className="group-hover:translate-x-1 transition-transform" />}
+                    {step === maxSteps ? 'Submit Application' : 'Continue'}
+                    {step < maxSteps && <ChevronRight size={18} className="group-hover:translate-x-1 transition-transform" />}
                   </>
                 )}
               </button>

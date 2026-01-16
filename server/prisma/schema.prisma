@@ -1,0 +1,148 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model Supplier {
+  id                       Int       @id @default(autoincrement())
+  businessType             String    @map("business_type")
+  companyEmployees         String?   @map("company_employees")
+  companyActivities        String?   @map("company_activities")
+  individualActivities     String?   @map("individual_activities")
+  otherActivities          String?   @map("other_activities")
+  fullName                 String    @map("full_name")
+  email                    String    @unique
+  passwordHash             String    @map("password_hash")
+  companyName              String?   @map("company_name")
+  mainHub                  String?   @map("main_hub")
+  city                     String?
+  tourLanguages            String?   @map("tour_languages")
+  phone                    String?   // Guide's phone number
+  whatsapp                 String?   // Guide's WhatsApp number
+  verificationDocumentUrl  String?   @map("verification_document_url")
+  emailVerified            Boolean   @default(false) @map("email_verified")
+  emailVerificationToken   String?   @map("email_verification_token")
+  emailVerificationExpires DateTime? @map("email_verification_expires")
+  status                   String    @default("pending")
+  createdAt                DateTime  @default(now()) @map("created_at")
+  updatedAt                DateTime  @updatedAt @map("updated_at")
+  tours                    Tour[]
+  bookings                 Booking[]
+
+  @@index([email])
+  @@index([emailVerificationToken])
+  @@map("suppliers")
+}
+
+model Tour {
+  id               Int       @id @default(autoincrement())
+  supplierId       Int       @map("supplier_id")
+  title            String
+  slug             String    @unique
+  country          String
+  city             String
+  category         String
+  locations        String
+  duration         String
+  pricePerPerson   Float     @map("price_per_person") // Legacy field - use tour_options for pricing
+  currency         String    @default("INR")
+  shortDescription String?   @map("short_description")
+  fullDescription  String    @map("full_description")
+  highlights       String?   @map("highlights")
+  included         String
+  notIncluded      String?   @map("not_included")
+  meetingPoint     String?   @map("meeting_point")
+  guideType        String?   @map("guide_type")
+  images           String
+  languages        String
+  reviews          String?   // JSON array of fake reviews
+  status           String    @default("draft")
+  rejectionReason  String?   @map("rejection_reason")
+  createdAt        DateTime  @default(now()) @map("created_at")
+  updatedAt        DateTime  @updatedAt @map("updated_at")
+  approvedAt       DateTime? @map("approved_at")
+  supplier         Supplier  @relation(fields: [supplierId], references: [id], onDelete: Cascade)
+  bookings         Booking[]
+  options          TourOption[]
+
+  @@index([supplierId])
+  @@index([status])
+  @@index([city])
+  @@map("tours")
+}
+
+model TourOption {
+  id                  Int       @id @default(autoincrement())
+  tourId              Int       @map("tour_id")
+  tour                Tour      @relation(fields: [tourId], references: [id], onDelete: Cascade)
+  optionTitle         String    @map("option_title")
+  optionDescription   String    @map("option_description")
+  durationHours       Float     @map("duration_hours")
+  price               Float
+  currency            String    @default("INR")
+  language            String    @default("English")
+  pickupIncluded      Boolean   @default(false) @map("pickup_included")
+  entryTicketIncluded Boolean   @default(false) @map("entry_ticket_included")
+  guideIncluded       Boolean   @default(true) @map("guide_included")
+  carIncluded         Boolean   @default(false) @map("car_included")
+  sortOrder           Int       @default(0) @map("sort_order")
+  createdAt           DateTime  @default(now()) @map("created_at")
+  updatedAt           DateTime  @updatedAt @map("updated_at")
+  bookings            Booking[]
+
+  @@index([tourId])
+  @@map("tour_options")
+}
+
+model Booking {
+  id               Int       @id @default(autoincrement())
+  tourId           Int       @map("tour_id")
+  tour             Tour      @relation(fields: [tourId], references: [id], onDelete: Cascade)
+  tourOptionId     Int?      @map("tour_option_id") // Optional - for option-based bookings
+  tourOption       TourOption? @relation(fields: [tourOptionId], references: [id], onDelete: SetNull)
+  supplierId       Int       @map("supplier_id")
+  supplier         Supplier  @relation(fields: [supplierId], references: [id], onDelete: Cascade)
+  customerName     String    @map("customer_name")
+  customerEmail    String    @map("customer_email")
+  customerPhone    String?   @map("customer_phone")
+  bookingDate      String    @map("booking_date") // Store as ISO string
+  numberOfGuests   Int       @map("number_of_guests")
+  totalAmount      Float     @map("total_amount")
+  currency         String    @default("INR")
+  specialRequests  String?   @map("special_requests")
+  status           String    @default("pending") // pending, confirmed, completed, cancelled
+  paymentStatus    String    @default("pending") @map("payment_status") // pending, paid, refunded
+  razorpayOrderId  String?   @map("razorpay_order_id")
+  razorpayPaymentId String? @map("razorpay_payment_id")
+  razorpaySignature String?  @map("razorpay_signature")
+  createdAt        DateTime  @default(now()) @map("created_at")
+  updatedAt        DateTime  @updatedAt @map("updated_at")
+
+  messages                Message[]
+
+  @@index([tourId])
+  @@index([tourOptionId])
+  @@index([supplierId])
+  @@index([customerEmail])
+  @@map("bookings")
+}
+
+model Message {
+  id               Int       @id @default(autoincrement())
+  bookingId        Int       @map("booking_id")
+  booking          Booking   @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  senderType       String    @map("sender_type") // 'customer' or 'supplier'
+  senderEmail      String    @map("sender_email") // Customer email or supplier email
+  message          String
+  read             Boolean   @default(false)
+  createdAt        DateTime  @default(now()) @map("created_at")
+  updatedAt        DateTime  @updatedAt @map("updated_at")
+
+  @@index([bookingId])
+  @@index([senderEmail])
+  @@map("messages")
+}
