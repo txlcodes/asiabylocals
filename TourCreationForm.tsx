@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { X, ChevronRight, ChevronLeft, Upload, ArrowUp, ArrowDown, Trash2, CheckCircle2, AlertCircle, Phone, Mail } from 'lucide-react';
+import { X, ChevronRight, ChevronLeft, Upload, ArrowUp, ArrowDown, Trash2, CheckCircle2, AlertCircle, Phone, Mail, Plus, MapPin } from 'lucide-react';
+import { CITY_LOCATIONS } from './constants';
 
 interface TourCreationFormProps {
   supplierId: string;
@@ -175,51 +176,7 @@ const COUNTRY_CITIES: Record<string, string[]> = {
   ]
 };
 
-// Predefined locations per city (expanded for major cities)
-const CITY_LOCATIONS: Record<string, string[]> = {
-  // India
-  'Delhi': [
-    'India Gate', 'Jama Masjid', 'Qutb Minar', 'Red Fort', "Humayun's Tomb",
-    'Lotus Temple', 'Chandni Chowk', 'Connaught Place', 'Rashtrapati Bhavan', 'Old Delhi'
-  ],
-  'Mumbai': [
-    'Gateway of India', 'Marine Drive', 'Elephanta Caves', 'Chhatrapati Shivaji Terminus',
-    'Haji Ali Dargah', 'Juhu Beach', 'Colaba Causeway', 'Bandra-Worli Sea Link'
-  ],
-  'Agra': [
-    'Taj Mahal', 'Agra Fort', 'Baby Taj', 'Mehtab Bagh', 'Fatehpur Sikri',
-    'Tomb of Akbar the Great', 'Itmad-ud-Daulah', 'Jama Masjid'
-  ],
-  'Jaipur': [
-    'Hawa Mahal', 'City Palace', 'Jantar Mantar', 'Amber Fort', 'Jal Mahal',
-    'Nahargarh Fort', 'Albert Hall Museum', 'Bapu Bazaar'
-  ],
-  'Goa': [
-    'Calangute Beach', 'Baga Beach', 'Anjuna Beach', 'Dudhsagar Falls',
-    'Basilica of Bom Jesus', 'Fort Aguada', 'Spice Plantations'
-  ],
-  'Kerala': [
-    'Backwaters', 'Munnar', 'Alleppey', 'Kochi', 'Wayanad',
-    'Thekkady', 'Kovalam Beach', 'Varkala'
-  ],
-  'Varanasi': [
-    'Ganges River', 'Kashi Vishwanath Temple', 'Sarnath', 'Dashashwamedh Ghat',
-    'Manikarnika Ghat', 'Assi Ghat', 'Banaras Hindu University'
-  ],
-  'Udaipur': [
-    'City Palace', 'Lake Pichola', 'Jag Mandir', 'Jagdish Temple',
-    'Monsoon Palace', 'Fateh Sagar Lake', 'Saheliyon Ki Bari'
-  ],
-  'Rishikesh': [
-    'Laxman Jhula', 'Ram Jhula', 'Triveni Ghat', 'Neelkanth Mahadev Temple',
-    'Beatles Ashram', 'Ganga Aarti', 'Adventure Activities'
-  ],
-  'Darjeeling': [
-    'Tiger Hill', 'Darjeeling Himalayan Railway', 'Batasia Loop', 'Peace Pagoda',
-    'Tea Gardens', 'Observatory Hill', 'Padmaja Naidu Himalayan Zoological Park'
-  ],
-  // Add more cities as needed - keeping existing ones for now
-};
+// CITY_LOCATIONS is now imported from constants.tsx to keep it in sync with CityPage
 
 const DURATION_OPTIONS = [
   '2 hours',
@@ -242,6 +199,14 @@ const TourCreationForm: React.FC<TourCreationFormProps> = ({
   onSuccess,
   onProfileRequired
 }) => {
+  // Validate required props
+  if (!supplierId) {
+    console.error('TourCreationForm: supplierId is required but not provided');
+    alert('Error: Supplier information is missing. Please log in again.');
+    if (onClose) onClose();
+    return null;
+  }
+
   const [step, setStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
   
@@ -263,10 +228,24 @@ const TourCreationForm: React.FC<TourCreationFormProps> = ({
     meetingPoint: '',
     guideType: '',
     images: [] as string[],
-    languages: [] as string[]
+    languages: [] as string[],
+    tourOptions: [] as Array<{
+      optionTitle: string;
+      optionDescription: string;
+      durationHours: string;
+      price: string;
+      currency: string;
+      language: string;
+      pickupIncluded: boolean;
+      carIncluded: boolean;
+      entryTicketIncluded: boolean;
+      guideIncluded: boolean;
+    }>
   });
 
-  const totalSteps = 7; // Added country step
+  const [editingOptionIndex, setEditingOptionIndex] = useState<number | null>(null);
+
+  const totalSteps = 8; // Tour options step, removed mini tours step
 
   // Check if supplier has required contact information
   const hasRequiredContactInfo = !!(supplierEmail && (supplierPhone || supplierWhatsApp));
@@ -360,9 +339,15 @@ const TourCreationForm: React.FC<TourCreationFormProps> = ({
       case 4:
         return formData.duration && formData.pricePerPerson;
       case 5:
-        return formData.fullDescription && formData.included && formData.highlights.filter(h => h.trim()).length >= 3;
+        return formData.tourOptions.length > 0 && formData.tourOptions.every(opt => 
+          opt.optionTitle.trim() && opt.optionDescription.trim() && opt.price && opt.durationHours
+        );
       case 6:
+        return formData.fullDescription && formData.included && formData.highlights.filter(h => h.trim()).length >= 3;
+      case 7:
         return formData.images.length >= 4 && formData.languages.length > 0;
+      case 8:
+        return true; // Mini tours selection is optional
       default:
         return true;
     }
@@ -424,13 +409,26 @@ const TourCreationForm: React.FC<TourCreationFormProps> = ({
         currency: formData.currency,
         shortDescription: formData.shortDescription?.trim() || null,
         fullDescription: formData.fullDescription.trim(),
-        highlights: JSON.stringify(formData.highlights.filter(h => h.trim())),
+        highlights: JSON.stringify(formData.highlights.filter(h => h.trim()).map(h => h.trim())), // Filter empty and trim each highlight
         included: formData.included.trim(),
         notIncluded: formData.notIncluded?.trim() || null,
         meetingPoint: formData.meetingPoint?.trim() || null,
         guideType: formData.guideType?.trim() || null,
         images: JSON.stringify(formData.images),
-        languages: JSON.stringify(formData.languages)
+        languages: JSON.stringify(formData.languages),
+        tourOptions: formData.tourOptions.map((opt, idx) => ({
+          optionTitle: opt.optionTitle.trim(),
+          optionDescription: opt.optionDescription.trim(),
+          durationHours: parseFloat(opt.durationHours) || 3,
+          price: parseFloat(opt.price) || 0,
+          currency: opt.currency,
+          language: opt.language,
+          pickupIncluded: opt.pickupIncluded,
+          carIncluded: opt.carIncluded,
+          entryTicketIncluded: opt.entryTicketIncluded,
+          guideIncluded: opt.guideIncluded,
+          sortOrder: idx
+        }))
       };
 
       // Debug: Log what we're sending
@@ -445,7 +443,13 @@ const TourCreationForm: React.FC<TourCreationFormProps> = ({
         languagesCount: formData.languages.length,
         hasFullDescription: !!formData.fullDescription,
         hasIncluded: !!formData.included,
-        highlightsCount: formData.highlights.filter(h => h.trim()).length
+        highlightsCount: formData.highlights.filter(h => h.trim()).length,
+        tourOptionsCount: formData.tourOptions.length,
+        tourOptions: formData.tourOptions.map(opt => ({
+          title: opt.optionTitle,
+          price: opt.price,
+          duration: opt.durationHours
+        }))
       });
 
       const response = await fetch('http://localhost:3001/api/tours', {
@@ -455,15 +459,37 @@ const TourCreationForm: React.FC<TourCreationFormProps> = ({
       });
 
       if (!response.ok) {
-        const errorData = await response.json().catch(() => ({ message: 'Network error occurred' }));
+        let errorData;
+        try {
+          errorData = await response.json();
+        } catch (jsonError) {
+          // If JSON parsing fails, try to get text response
+          const textResponse = await response.text().catch(() => 'Unknown error');
+          errorData = { 
+            message: `Server error: ${response.status} ${response.statusText}. ${textResponse}`,
+            error: 'Network error occurred'
+          };
+        }
+        
         // Debug: Log the error response
         console.error('❌ Server error response:', {
           status: response.status,
           statusText: response.statusText,
-          error: errorData
+          error: errorData,
+          fullResponse: errorData
         });
-        // Use server's error message directly
-        throw new Error(errorData.message || errorData.error || `Server error: ${response.status}`);
+        
+        // Use server's error message directly - prioritize message field
+        const errorMessage = errorData.message || errorData.error || `Server error: ${response.status}`;
+        const commonIssues = errorData.commonIssues || [];
+        
+        // Create error object with message and commonIssues
+        const error = new Error(errorMessage) as any;
+        error.commonIssues = commonIssues;
+        error.errorData = errorData;
+        
+        console.error('❌ Throwing error:', errorMessage);
+        throw error;
       }
 
       const data = await response.json();
@@ -500,22 +526,43 @@ const TourCreationForm: React.FC<TourCreationFormProps> = ({
       }
     } catch (error: any) {
       console.error('Tour creation error:', error);
+      console.error('Error details:', {
+        message: error.message,
+        stack: error.stack,
+        name: error.name,
+        error: error
+      });
       
       // Use the error message directly from the server or provide a clear default
       let errorMessage: string;
       
-      if (error.message?.includes('fetch') || error.message?.includes('Failed to fetch')) {
-        errorMessage = 'Cannot connect to server. Please make sure the server is running on http://localhost:3001';
-      } else if (error.message?.includes('Network')) {
-        errorMessage = 'Network error. Please check your internet connection and try again.';
-      } else if (error.message) {
-        // Use server's error message as-is (it already has proper formatting)
-        errorMessage = error.message;
+      // Prioritize showing the actual server error message
+      if (error.message) {
+        // Check if it's a ReferenceError (frontend issue)
+        if (error.name === 'ReferenceError' && error.message.includes('supplier is not defined')) {
+          errorMessage = 'An error occurred while processing your request. Please refresh the page and try again. If the problem persists, please log out and log back in.';
+          console.error('ReferenceError detected - this might be a frontend issue');
+        } else if (error.message.includes('fetch') || error.message.includes('Failed to fetch')) {
+          errorMessage = 'Cannot connect to server. Please make sure the server is running on http://localhost:3001';
+        } else if (error.message.includes('Network')) {
+          errorMessage = 'Network error. Please check your internet connection and try again.';
+        } else {
+          // Use server's error message as-is (it already has proper formatting)
+          errorMessage = error.message;
+        }
       } else {
         errorMessage = 'Failed to create tour. Please check your connection and try again.';
       }
       
-      alert(errorMessage);
+      // Show error in alert with helpful information
+      const commonIssues = (error as any).commonIssues || [
+        'Your supplier account needs admin approval',
+        'Check all required fields are filled',
+        'Ensure you have at least 4 images uploaded'
+      ];
+      
+      const issuesText = commonIssues.map(issue => `• ${issue}`).join('\n');
+      alert(`❌ ${errorMessage}\n\nCommon issues:\n${issuesText}`);
     } finally {
       setIsSubmitting(false);
     }
@@ -678,6 +725,11 @@ const TourCreationForm: React.FC<TourCreationFormProps> = ({
                     </div>
                   </button>
                 </div>
+                <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 mt-4">
+                  <p className="text-[13px] text-blue-800 font-semibold">
+                    💡 After creating your tour, you can add multiple pricing options (variations) in Step 5. These options will appear on the same tour page for customers to choose from.
+                  </p>
+                </div>
               </div>
 
               <div>
@@ -730,29 +782,61 @@ const TourCreationForm: React.FC<TourCreationFormProps> = ({
 
               <div>
                 <label className="block text-[14px] font-bold text-[#001A33] mb-3">
-                  Select Locations/Attractions * (Select all that apply)
+                  Select Places to See * (Click to select up to 10 places)
                 </label>
                 {formData.city && CITY_LOCATIONS[formData.city] ? (
                   <>
-                    <div className="grid grid-cols-2 gap-3 max-h-96 overflow-y-auto p-4 bg-gray-50 rounded-2xl">
-                      {CITY_LOCATIONS[formData.city].map((location) => (
-                        <label
-                          key={location}
-                          className="flex items-center gap-3 p-3 bg-white rounded-xl cursor-pointer hover:bg-gray-50 transition-colors"
-                        >
-                          <input
-                            type="checkbox"
-                            checked={formData.locations.includes(location)}
-                            onChange={() => handleLocationToggle(location)}
-                            className="w-5 h-5 text-[#10B981] rounded border-gray-300 focus:ring-[#10B981]"
-                          />
-                          <span className="text-[14px] font-semibold text-[#001A33]">{location}</span>
-                        </label>
-                      ))}
+                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
+                      {CITY_LOCATIONS[formData.city].slice(0, 10).map((location) => {
+                        const isSelected = formData.locations.includes(location);
+                        return (
+                          <div
+                            key={location}
+                            onClick={() => handleLocationToggle(location)}
+                            className={`relative p-4 bg-white rounded-xl border-2 cursor-pointer transition-all hover:shadow-md ${
+                              isSelected
+                                ? 'border-[#10B981] bg-[#10B981]/5'
+                                : 'border-gray-200 hover:border-[#10B981]/50'
+                            }`}
+                          >
+                            {isSelected && (
+                              <div className="absolute top-2 right-2 w-6 h-6 bg-[#10B981] rounded-full flex items-center justify-center">
+                                <CheckCircle2 size={16} className="text-white" />
+                              </div>
+                            )}
+                            <div className="flex flex-col items-center text-center">
+                              <MapPin 
+                                size={24} 
+                                className={`mb-2 ${isSelected ? 'text-[#10B981]' : 'text-gray-400'}`} 
+                              />
+                              <span className={`text-[13px] font-bold ${isSelected ? 'text-[#10B981]' : 'text-[#001A33]'}`}>
+                                {location}
+                              </span>
+                            </div>
+                          </div>
+                        );
+                      })}
                     </div>
                     {formData.locations.length > 0 && (
-                      <p className="text-[12px] text-[#10B981] font-bold mt-2">
-                        {formData.locations.length} location(s) selected
+                      <div className="mt-4 p-4 bg-[#10B981]/10 rounded-xl border border-[#10B981]/20">
+                        <p className="text-[14px] font-bold text-[#10B981] mb-2">
+                          ✓ {formData.locations.length} place{formData.locations.length > 1 ? 's' : ''} selected
+                        </p>
+                        <div className="flex flex-wrap gap-2">
+                          {formData.locations.map((loc) => (
+                            <span
+                              key={loc}
+                              className="px-3 py-1 bg-[#10B981] text-white text-[12px] font-bold rounded-full"
+                            >
+                              {loc}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                    {formData.locations.length === 0 && (
+                      <p className="text-[12px] text-gray-500 font-semibold mt-3 text-center">
+                        Click on places above to add them to your tour
                       </p>
                     )}
                   </>
@@ -843,8 +927,318 @@ const TourCreationForm: React.FC<TourCreationFormProps> = ({
           </div>
         )}
 
-        {/* Step 5: Description */}
+        {/* Step 5: Tour Options */}
         {step === 5 && (
+          <div className="bg-white rounded-2xl p-8 border border-gray-200">
+            <h2 className="text-xl font-black text-[#001A33] mb-2">Add Pricing Options</h2>
+            <p className="text-[14px] text-gray-600 font-semibold mb-4">
+              Create multiple pricing options for <span className="font-black text-[#001A33]">"{formData.title || 'this tour'}"</span>. All options belong to the same tour - customers will see one tour page and choose which option they prefer (like GetYourGuide).
+            </p>
+            <div className="bg-green-50 border border-green-200 rounded-xl p-4 mb-6">
+              <p className="text-[13px] font-bold text-green-800">
+                💡 Example: For "Taj Mahal Tour", you can add options like "Basic Tour", "Tour with Pickup", and "Premium Tour" - all within the same tour!
+              </p>
+            </div>
+            
+            {formData.tourOptions.length === 0 ? (
+              <div className="bg-blue-50 border border-blue-200 rounded-xl p-6 text-center">
+                <p className="text-[14px] text-blue-800 font-semibold mb-4">
+                  Add at least one pricing option for this tour. You can add multiple options with different prices and features.
+                </p>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const newOption = {
+                      optionTitle: '',
+                      optionDescription: '',
+                      durationHours: formData.duration.replace(/[^\d.]/g, '') || '3',
+                      price: formData.pricePerPerson || '',
+                      currency: formData.currency,
+                      language: formData.languages[0] || 'English',
+                      pickupIncluded: false,
+                      carIncluded: false,
+                      entryTicketIncluded: false,
+                      guideIncluded: true
+                    };
+                    setFormData(prev => ({
+                      ...prev,
+                      tourOptions: [...prev.tourOptions, newOption]
+                    }));
+                    setEditingOptionIndex(formData.tourOptions.length);
+                  }}
+                  className="bg-[#10B981] hover:bg-[#059669] text-white font-black py-3 px-6 rounded-xl text-[14px] transition-all flex items-center gap-2 mx-auto"
+                >
+                  <Plus size={18} />
+                  Add First Tour Option
+                </button>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {formData.tourOptions.map((option, index) => (
+                  <div key={index} className="border-2 border-gray-200 rounded-2xl p-6">
+                    <div className="flex items-center justify-between mb-4">
+                      <h3 className="font-black text-[#001A33] text-[16px]">
+                        Option {index + 1}
+                      </h3>
+                      <div className="flex items-center gap-2">
+                        {index > 0 && (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const newOptions = [...formData.tourOptions];
+                              [newOptions[index], newOptions[index - 1]] = [newOptions[index - 1], newOptions[index]];
+                              setFormData(prev => ({ ...prev, tourOptions: newOptions }));
+                            }}
+                            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                            title="Move up"
+                          >
+                            <ArrowUp size={16} className="text-gray-600" />
+                          </button>
+                        )}
+                        {index < formData.tourOptions.length - 1 && (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const newOptions = [...formData.tourOptions];
+                              [newOptions[index], newOptions[index + 1]] = [newOptions[index + 1], newOptions[index]];
+                              setFormData(prev => ({ ...prev, tourOptions: newOptions }));
+                            }}
+                            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                            title="Move down"
+                          >
+                            <ArrowDown size={16} className="text-gray-600" />
+                          </button>
+                        )}
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const newOptions = formData.tourOptions.filter((_, i) => i !== index);
+                            setFormData(prev => ({ ...prev, tourOptions: newOptions }));
+                            if (editingOptionIndex === index) setEditingOptionIndex(null);
+                          }}
+                          className="p-2 hover:bg-red-100 rounded-lg transition-colors"
+                          title="Delete option"
+                        >
+                          <Trash2 size={16} className="text-red-600" />
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="space-y-4">
+                      <div>
+                        <label className="block text-[14px] font-bold text-[#001A33] mb-2">
+                          Option Title *
+                        </label>
+                        <input
+                          type="text"
+                          value={option.optionTitle}
+                          onChange={(e) => {
+                            const newOptions = [...formData.tourOptions];
+                            newOptions[index].optionTitle = e.target.value;
+                            setFormData(prev => ({ ...prev, tourOptions: newOptions }));
+                          }}
+                          placeholder="e.g., Sunrise Tour with Car & Guide"
+                          className="w-full bg-gray-50 border-none rounded-xl py-3 px-4 font-semibold text-[#001A33] text-[14px] focus:ring-2 focus:ring-[#10B981] outline-none"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-[14px] font-bold text-[#001A33] mb-2">
+                          Option Description *
+                        </label>
+                        <textarea
+                          value={option.optionDescription}
+                          onChange={(e) => {
+                            const newOptions = [...formData.tourOptions];
+                            newOptions[index].optionDescription = e.target.value;
+                            setFormData(prev => ({ ...prev, tourOptions: newOptions }));
+                          }}
+                          placeholder="Describe what's included in this option..."
+                          rows={3}
+                          className="w-full bg-gray-50 border-none rounded-xl py-3 px-4 font-semibold text-[#001A33] text-[14px] focus:ring-2 focus:ring-[#10B981] outline-none resize-none"
+                        />
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-[14px] font-bold text-[#001A33] mb-2">
+                            Duration (hours) *
+                          </label>
+                          <input
+                            type="number"
+                            value={option.durationHours}
+                            onChange={(e) => {
+                              const newOptions = [...formData.tourOptions];
+                              newOptions[index].durationHours = e.target.value;
+                              setFormData(prev => ({ ...prev, tourOptions: newOptions }));
+                            }}
+                            placeholder="e.g., 4"
+                            min="0.5"
+                            step="0.5"
+                            className="w-full bg-gray-50 border-none rounded-xl py-3 px-4 font-semibold text-[#001A33] text-[14px] focus:ring-2 focus:ring-[#10B981] outline-none"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-[14px] font-bold text-[#001A33] mb-2">
+                            Price per person *
+                          </label>
+                          <input
+                            type="number"
+                            value={option.price}
+                            onChange={(e) => {
+                              const newOptions = [...formData.tourOptions];
+                              newOptions[index].price = e.target.value;
+                              setFormData(prev => ({ ...prev, tourOptions: newOptions }));
+                            }}
+                            placeholder="e.g., 595"
+                            min="0"
+                            className="w-full bg-gray-50 border-none rounded-xl py-3 px-4 font-semibold text-[#001A33] text-[14px] focus:ring-2 focus:ring-[#10B981] outline-none"
+                          />
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-[14px] font-bold text-[#001A33] mb-2">
+                            Currency *
+                          </label>
+                          <select
+                            value={option.currency}
+                            onChange={(e) => {
+                              const newOptions = [...formData.tourOptions];
+                              newOptions[index].currency = e.target.value;
+                              setFormData(prev => ({ ...prev, tourOptions: newOptions }));
+                            }}
+                            className="w-full bg-gray-50 border-none rounded-xl py-3 px-4 font-bold text-[#001A33] text-[14px] focus:ring-2 focus:ring-[#10B981] outline-none"
+                          >
+                            <option value="INR">INR (₹)</option>
+                            <option value="USD">USD ($)</option>
+                            <option value="EUR">EUR (€)</option>
+                          </select>
+                        </div>
+                        <div>
+                          <label className="block text-[14px] font-bold text-[#001A33] mb-2">
+                            Language *
+                          </label>
+                          <select
+                            value={option.language}
+                            onChange={(e) => {
+                              const newOptions = [...formData.tourOptions];
+                              newOptions[index].language = e.target.value;
+                              setFormData(prev => ({ ...prev, tourOptions: newOptions }));
+                            }}
+                            className="w-full bg-gray-50 border-none rounded-xl py-3 px-4 font-bold text-[#001A33] text-[14px] focus:ring-2 focus:ring-[#10B981] outline-none"
+                          >
+                            {LANGUAGE_OPTIONS.map(lang => (
+                              <option key={lang} value={lang}>{lang}</option>
+                            ))}
+                          </select>
+                        </div>
+                      </div>
+
+                      <div>
+                        <label className="block text-[14px] font-bold text-[#001A33] mb-3">
+                          What's Included in this Option:
+                        </label>
+                        <div className="grid grid-cols-2 gap-3">
+                          <label className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl cursor-pointer hover:bg-gray-100 transition-colors">
+                            <input
+                              type="checkbox"
+                              checked={option.guideIncluded}
+                              onChange={(e) => {
+                                const newOptions = [...formData.tourOptions];
+                                newOptions[index].guideIncluded = e.target.checked;
+                                setFormData(prev => ({ ...prev, tourOptions: newOptions }));
+                              }}
+                              className="w-5 h-5 text-[#10B981] rounded border-gray-300 focus:ring-[#10B981]"
+                            />
+                            <span className="text-[14px] font-semibold text-[#001A33]">Guide Included</span>
+                          </label>
+                          <label className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl cursor-pointer hover:bg-gray-100 transition-colors">
+                            <input
+                              type="checkbox"
+                              checked={option.pickupIncluded}
+                              onChange={(e) => {
+                                const newOptions = [...formData.tourOptions];
+                                newOptions[index].pickupIncluded = e.target.checked;
+                                setFormData(prev => ({ ...prev, tourOptions: newOptions }));
+                              }}
+                              className="w-5 h-5 text-[#10B981] rounded border-gray-300 focus:ring-[#10B981]"
+                            />
+                            <span className="text-[14px] font-semibold text-[#001A33]">Hotel Pickup</span>
+                          </label>
+                          <label className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl cursor-pointer hover:bg-gray-100 transition-colors">
+                            <input
+                              type="checkbox"
+                              checked={option.carIncluded}
+                              onChange={(e) => {
+                                const newOptions = [...formData.tourOptions];
+                                newOptions[index].carIncluded = e.target.checked;
+                                setFormData(prev => ({ ...prev, tourOptions: newOptions }));
+                              }}
+                              className="w-5 h-5 text-[#10B981] rounded border-gray-300 focus:ring-[#10B981]"
+                            />
+                            <span className="text-[14px] font-semibold text-[#001A33]">Private Car</span>
+                          </label>
+                          <label className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl cursor-pointer hover:bg-gray-100 transition-colors">
+                            <input
+                              type="checkbox"
+                              checked={option.entryTicketIncluded}
+                              onChange={(e) => {
+                                const newOptions = [...formData.tourOptions];
+                                newOptions[index].entryTicketIncluded = e.target.checked;
+                                setFormData(prev => ({ ...prev, tourOptions: newOptions }));
+                              }}
+                              className="w-5 h-5 text-[#10B981] rounded border-gray-300 focus:ring-[#10B981]"
+                            />
+                            <span className="text-[14px] font-semibold text-[#001A33]">Entry Ticket</span>
+                          </label>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    const newOption = {
+                      optionTitle: '',
+                      optionDescription: '',
+                      durationHours: formData.duration.replace(/[^\d.]/g, '') || '3',
+                      price: formData.pricePerPerson || '',
+                      currency: formData.currency,
+                      language: formData.languages[0] || 'English',
+                      pickupIncluded: false,
+                      carIncluded: false,
+                      entryTicketIncluded: false,
+                      guideIncluded: true
+                    };
+                    setFormData(prev => ({
+                      ...prev,
+                      tourOptions: [...prev.tourOptions, newOption]
+                    }));
+                  }}
+                  className="w-full border-2 border-dashed border-gray-300 rounded-xl p-4 hover:border-[#10B981] hover:bg-[#10B981]/5 transition-all flex items-center justify-center gap-2 text-[#10B981] font-black text-[14px]"
+                >
+                  <Plus size={18} />
+                  Add Another Option
+                </button>
+
+                {formData.tourOptions.length > 0 && (
+                  <div className="bg-green-50 border border-green-200 rounded-xl p-4">
+                    <p className="text-[14px] font-bold text-green-800">
+                      ✓ {formData.tourOptions.length} option{formData.tourOptions.length > 1 ? 's' : ''} added to <span className="font-black">"{formData.title || 'this tour'}"</span>. Customers will see one tour page with {formData.tourOptions.length} option{formData.tourOptions.length > 1 ? 's' : ''} to choose from.
+                    </p>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Step 6: Description */}
+        {step === 6 && (
           <div className="bg-white rounded-2xl p-8 border border-gray-200">
             <h2 className="text-xl font-black text-[#001A33] mb-6">Description & Details</h2>
             
@@ -984,8 +1378,8 @@ const TourCreationForm: React.FC<TourCreationFormProps> = ({
           </div>
         )}
 
-        {/* Step 6: Images & Languages */}
-        {step === 6 && (
+        {/* Step 7: Images & Languages */}
+        {step === 7 && (
           <div className="bg-white rounded-2xl p-8 border border-gray-200">
             <h2 className="text-xl font-black text-[#001A33] mb-6">Photos & Languages</h2>
             
@@ -1107,8 +1501,8 @@ const TourCreationForm: React.FC<TourCreationFormProps> = ({
           </div>
         )}
 
-        {/* Step 7: Review */}
-        {step === 7 && (
+        {/* Step 8: Review */}
+        {step === 8 && (
           <div className="bg-white rounded-2xl p-8 border border-gray-200">
             <h2 className="text-2xl font-black text-[#001A33] mb-8">Review & Submit</h2>
             
@@ -1243,7 +1637,7 @@ const TourCreationForm: React.FC<TourCreationFormProps> = ({
 
         {/* Navigation Buttons */}
         <div className="flex items-center justify-between mt-8">
-          {step === totalSteps ? (
+          {(step === totalSteps) ? (
             <>
               <button
                 onClick={() => setStep(prev => Math.max(1, prev - 1))}
@@ -1278,7 +1672,9 @@ const TourCreationForm: React.FC<TourCreationFormProps> = ({
           ) : (
             <>
               <button
-                onClick={() => setStep(prev => Math.max(1, prev - 1))}
+                onClick={() => {
+                  setStep(Math.max(1, step - 1));
+                }}
                 disabled={step === 1}
                 className="flex items-center gap-2 px-6 py-3 bg-gray-100 text-gray-600 font-black rounded-full text-[14px] hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
               >
@@ -1286,7 +1682,9 @@ const TourCreationForm: React.FC<TourCreationFormProps> = ({
                 Previous
               </button>
               <button
-                onClick={() => setStep(prev => Math.min(totalSteps, prev + 1))}
+                onClick={() => {
+                  setStep(Math.min(totalSteps, step + 1));
+                }}
                 disabled={!canProceed()}
                 className="flex items-center gap-2 px-6 py-3 bg-[#10B981] hover:bg-[#059669] text-white font-black rounded-full text-[14px] disabled:opacity-50 disabled:cursor-not-allowed transition-all"
               >

@@ -4,10 +4,12 @@ import AdminLogin from './AdminLogin';
 
 const AdminDashboard: React.FC = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [activeTab, setActiveTab] = useState<'tours' | 'suppliers'>('suppliers');
+  const [activeTab, setActiveTab] = useState<'tours' | 'suppliers' | 'bookings'>('suppliers');
   const [pendingTours, setPendingTours] = useState<any[]>([]);
   const [pendingSuppliers, setPendingSuppliers] = useState<any[]>([]);
+  const [bookings, setBookings] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadingBookings, setLoadingBookings] = useState(false);
   const [selectedTour, setSelectedTour] = useState<any>(null);
   const [selectedSupplier, setSelectedSupplier] = useState<any>(null);
   const [rejectionReason, setRejectionReason] = useState('');
@@ -44,19 +46,6 @@ const AdminDashboard: React.FC = () => {
     setIsAuthenticated(false);
   };
 
-  // Show login if not authenticated
-  if (!isAuthenticated) {
-    return <AdminLogin onLoginSuccess={() => setIsAuthenticated(true)} />;
-  }
-
-  useEffect(() => {
-    if (activeTab === 'tours') {
-      fetchPendingTours();
-    } else {
-      fetchPendingSuppliers();
-    }
-  }, [activeTab]);
-
   const fetchPendingTours = async () => {
     setLoading(true);
     try {
@@ -87,6 +76,71 @@ const AdminDashboard: React.FC = () => {
     }
   };
 
+  const fetchBookings = async () => {
+    setLoadingBookings(true);
+    try {
+      const response = await fetch('http://localhost:3001/api/admin/bookings', {
+        headers: getAuthHeaders()
+      });
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+      if (data.success && Array.isArray(data.bookings)) {
+        setBookings(data.bookings);
+      } else {
+        setBookings([]);
+      }
+    } catch (error) {
+      console.error('Error fetching bookings:', error);
+      setBookings([]);
+    } finally {
+      setLoadingBookings(false);
+    }
+  };
+
+  const fetchPendingSuppliers = async () => {
+    setLoading(true);
+    try {
+      const response = await fetch('http://localhost:3001/api/admin/suppliers/pending', {
+        headers: getAuthHeaders()
+      });
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+      if (data.success && Array.isArray(data.suppliers)) {
+        setPendingSuppliers(data.suppliers);
+      } else {
+        setPendingSuppliers([]);
+      }
+    } catch (error) {
+      console.error('Error fetching pending suppliers:', error);
+      alert('Failed to load pending suppliers');
+      setPendingSuppliers([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Fetch data when authenticated and tab changes
+  useEffect(() => {
+    if (isAuthenticated) {
+      if (activeTab === 'tours') {
+        fetchPendingTours();
+      } else if (activeTab === 'suppliers') {
+        fetchPendingSuppliers();
+      } else if (activeTab === 'bookings') {
+        fetchBookings();
+      }
+    }
+  }, [activeTab, isAuthenticated]);
+
+  // Show login if not authenticated
+  if (!isAuthenticated) {
+    return <AdminLogin onLoginSuccess={() => setIsAuthenticated(true)} />;
+  }
+
   const handleApprove = async (tourId: string) => {
     if (!confirm('Are you sure you want to approve this tour? It will go live on the site.')) {
       return;
@@ -112,30 +166,6 @@ const AdminDashboard: React.FC = () => {
       alert('Failed to approve tour. Please try again.');
     } finally {
       setIsProcessing(false);
-    }
-  };
-
-  const fetchPendingSuppliers = async () => {
-    setLoading(true);
-    try {
-      const response = await fetch('http://localhost:3001/api/admin/suppliers/pending', {
-        headers: getAuthHeaders()
-      });
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-      if (data.success && Array.isArray(data.suppliers)) {
-        setPendingSuppliers(data.suppliers);
-      } else {
-        setPendingSuppliers([]);
-      }
-    } catch (error) {
-      console.error('Error fetching pending suppliers:', error);
-      alert('Failed to load pending suppliers');
-      setPendingSuppliers([]);
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -306,6 +336,20 @@ const AdminDashboard: React.FC = () => {
               }`}
             >
               Tours ({pendingTours.length})
+            </button>
+            <button
+              onClick={() => {
+                setActiveTab('bookings');
+                setSelectedTour(null);
+                setSelectedSupplier(null);
+              }}
+              className={`px-6 py-3 font-black text-[14px] border-b-2 transition-colors ${
+                activeTab === 'bookings'
+                  ? 'border-[#10B981] text-[#10B981]'
+                  : 'border-transparent text-gray-500 hover:text-[#001A33]'
+              }`}
+            >
+              Bookings ({bookings.filter(b => b.paymentStatus === 'paid').length})
             </button>
           </div>
         </div>
@@ -545,8 +589,8 @@ const AdminDashboard: React.FC = () => {
               </div>
             </div>
           )
-        ) : (
-          // Tours Tab (existing code)
+        ) : activeTab === 'tours' ? (
+          // Tours Tab
           pendingTours.length === 0 ? (
           <div className="bg-white rounded-2xl p-12 text-center border border-gray-200">
             <CheckCircle2 className="mx-auto text-gray-300 mb-4" size={64} />
@@ -816,8 +860,135 @@ const AdminDashboard: React.FC = () => {
               )}
             </div>
           </div>
-        )
-        )}
+          )
+        ) : activeTab === 'bookings' ? (
+          // Bookings Tab
+          <div className="space-y-6">
+            <div className="bg-white rounded-2xl p-6 border border-gray-200">
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-2xl font-black text-[#001A33]">All Bookings</h2>
+                <div className="flex items-center gap-4 text-[14px]">
+                  <div className="px-4 py-2 bg-green-50 rounded-lg">
+                    <span className="text-gray-600 font-semibold">Paid: </span>
+                    <span className="font-black text-[#10B981]">{bookings.filter(b => b.paymentStatus === 'paid').length}</span>
+                  </div>
+                  <div className="px-4 py-2 bg-yellow-50 rounded-lg">
+                    <span className="text-gray-600 font-semibold">Pending: </span>
+                    <span className="font-black text-yellow-700">{bookings.filter(b => b.paymentStatus === 'pending').length}</span>
+                  </div>
+                </div>
+              </div>
+
+              {loadingBookings ? (
+                <div className="text-center py-12">
+                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#10B981] mx-auto"></div>
+                  <p className="text-[14px] text-gray-500 font-semibold mt-4">Loading bookings...</p>
+                </div>
+              ) : bookings.length === 0 ? (
+                <div className="text-center py-12">
+                  <Calendar className="mx-auto text-gray-300 mb-4" size={48} />
+                  <h3 className="text-lg font-black text-[#001A33] mb-2">No bookings yet</h3>
+                  <p className="text-[14px] text-gray-500 font-semibold">
+                    Bookings will appear here once customers start booking tours.
+                  </p>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {bookings.map((booking) => {
+                    const bookingDate = new Date(booking.bookingDate);
+                    const formattedDate = bookingDate.toLocaleDateString('en-US', { 
+                      weekday: 'long', 
+                      year: 'numeric', 
+                      month: 'long', 
+                      day: 'numeric' 
+                    });
+                    
+                    return (
+                      <div key={booking.id} className={`border-2 rounded-xl p-5 transition-all ${
+                        booking.paymentStatus === 'paid' 
+                          ? 'border-[#10B981] bg-[#10B981]/5' 
+                          : 'border-yellow-200 bg-yellow-50'
+                      }`}>
+                        <div className="flex items-start justify-between mb-4">
+                          <div className="flex-1">
+                            <div className="flex items-center gap-3 mb-2">
+                              <h3 className="text-lg font-black text-[#001A33]">{booking.tour?.title || 'Tour'}</h3>
+                              <span className={`px-3 py-1 rounded-full text-[11px] font-black ${
+                                booking.paymentStatus === 'paid' 
+                                  ? 'bg-[#10B981] text-white' 
+                                  : 'bg-yellow-500 text-white'
+                              }`}>
+                                {booking.paymentStatus === 'paid' ? '✅ PAID' : '⏳ PENDING'}
+                              </span>
+                              <span className={`px-3 py-1 rounded-full text-[11px] font-black ${
+                                booking.status === 'confirmed' ? 'bg-blue-500/10 text-blue-700 border border-blue-500/20' :
+                                booking.status === 'completed' ? 'bg-green-500/10 text-green-700 border border-green-500/20' :
+                                'bg-gray-500/10 text-gray-700 border border-gray-500/20'
+                              }`}>
+                                {booking.status?.toUpperCase() || 'PENDING'}
+                              </span>
+                            </div>
+                            {booking.bookingReference && (
+                              <p className="text-[12px] text-gray-500 font-semibold mb-3">
+                                Booking Reference: <span className="font-black text-[#001A33]">{booking.bookingReference}</span>
+                              </p>
+                            )}
+                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-[14px] mb-4">
+                              <div>
+                                <p className="text-gray-500 font-semibold mb-1">Date</p>
+                                <p className="font-black text-[#001A33]">{formattedDate}</p>
+                              </div>
+                              <div>
+                                <p className="text-gray-500 font-semibold mb-1">Guests</p>
+                                <p className="font-black text-[#001A33]">{booking.numberOfGuests} {booking.numberOfGuests === 1 ? 'person' : 'people'}</p>
+                              </div>
+                              <div>
+                                <p className="text-gray-500 font-semibold mb-1">Customer</p>
+                                <p className="font-black text-[#001A33]">{booking.customerName}</p>
+                                <p className="text-[12px] text-gray-500">{booking.customerEmail}</p>
+                              </div>
+                              <div>
+                                <p className="text-gray-500 font-semibold mb-1">Amount</p>
+                                <p className={`font-black text-lg ${
+                                  booking.paymentStatus === 'paid' ? 'text-[#10B981]' : 'text-[#001A33]'
+                                }`}>
+                                  {booking.currency === 'INR' ? '₹' : '$'}{booking.totalAmount.toLocaleString()}
+                                </p>
+                              </div>
+                            </div>
+                            <div className="grid grid-cols-2 gap-4 text-[14px]">
+                              <div>
+                                <p className="text-gray-500 font-semibold mb-1">Supplier/Guide</p>
+                                <p className="font-black text-[#001A33]">{booking.supplier?.fullName || booking.supplier?.companyName || 'Unknown'}</p>
+                                <p className="text-[12px] text-gray-500">{booking.supplier?.email}</p>
+                              </div>
+                              <div>
+                                <p className="text-gray-500 font-semibold mb-1">Location</p>
+                                <p className="font-black text-[#001A33]">{booking.tour?.city}, {booking.tour?.country}</p>
+                              </div>
+                            </div>
+                            {booking.razorpayPaymentId && (
+                              <div className="mt-3 p-3 bg-gray-50 rounded-lg">
+                                <p className="text-[12px] text-gray-500 font-semibold mb-1">Payment ID:</p>
+                                <p className="text-[12px] font-mono text-[#001A33]">{booking.razorpayPaymentId}</p>
+                              </div>
+                            )}
+                            {booking.specialRequests && (
+                              <div className="mt-3 p-3 bg-blue-50 rounded-lg">
+                                <p className="text-[12px] text-gray-500 font-semibold mb-1">Special Requests:</p>
+                                <p className="text-[14px] text-[#001A33]">{booking.specialRequests}</p>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          </div>
+        ) : null}
       </div>
 
       {/* License Document Modal */}

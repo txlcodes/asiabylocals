@@ -239,7 +239,7 @@ const App: React.FC = () => {
   // Check if we're on the supplier page (from URL)
   const isSupplierPageFromUrl = window.location.pathname === '/supplier';
   // Check if we're on the admin dashboard (secure route - not easily guessable)
-  const isAdminPage = window.location.pathname === '/secure-panel-zubia';
+  const isAdminPage = window.location.pathname === '/secure-panel-abl';
   
   // Check for city page: /india/agra, /thailand/bangkok, etc.
   const cityPageMatch = window.location.pathname.match(/^\/([^\/]+)\/([^\/]+)$/);
@@ -268,9 +268,53 @@ const App: React.FC = () => {
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(true);
   const [showPlacesDropdown, setShowPlacesDropdown] = useState(false);
-  const [showThingsDropdown, setShowThingsDropdown] = useState(false);
   const [showInspirationDropdown, setShowInspirationDropdown] = useState(false);
   const [showSupplierPage, setShowSupplierPage] = useState(isSupplierPageFromUrl);
+
+  // Map city names to their country and city slugs for navigation
+  const getCityUrl = (cityName: string, cityId: string): string => {
+    const cityMap: Record<string, { country: string; city: string }> = {
+      'agra': { country: 'india', city: 'agra' },
+      'delhi': { country: 'india', city: 'delhi' },
+      'jaipur': { country: 'india', city: 'jaipur' },
+      'mumbai': { country: 'india', city: 'mumbai' },
+      'tokyo': { country: 'japan', city: 'tokyo' },
+      'kyoto': { country: 'japan', city: 'kyoto' },
+      'osaka': { country: 'japan', city: 'osaka' },
+      'bali': { country: 'indonesia', city: 'ubud' },
+      'yogyakarta': { country: 'indonesia', city: 'yogyakarta' },
+      'bangkok': { country: 'thailand', city: 'bangkok' },
+      'phuket': { country: 'thailand', city: 'phuket' },
+      'chiang-mai': { country: 'thailand', city: 'chiang-mai' },
+      'hanoi': { country: 'vietnam', city: 'hanoi' },
+      'ho-chi-minh-city': { country: 'vietnam', city: 'ho-chi-minh-city' },
+      'beijing': { country: 'china', city: 'beijing' },
+      'shanghai': { country: 'china', city: 'shanghai' },
+      'manila': { country: 'philippines', city: 'manila' },
+      'cebu': { country: 'philippines', city: 'cebu' },
+      'siem-reap': { country: 'cambodia', city: 'siem-reap' },
+      'kathmandu': { country: 'nepal', city: 'kathmandu' },
+      'yangon': { country: 'myanmar', city: 'yangon' },
+      'colombo': { country: 'sri-lanka', city: 'colombo' },
+      'penang': { country: 'malaysia', city: 'penang' },
+      'kuala-lumpur': { country: 'malaysia', city: 'kuala-lumpur' },
+      'busan': { country: 'south-korea', city: 'busan' },
+      'seoul': { country: 'south-korea', city: 'seoul' },
+      'dubai': { country: 'uae', city: 'dubai' },
+      'singapore': { country: 'singapore', city: 'singapore' },
+      'hongkong': { country: 'hong-kong', city: 'hong-kong' },
+      'taipei': { country: 'taiwan', city: 'taipei' }
+    };
+    
+    const mapping = cityMap[cityId.toLowerCase()];
+    if (mapping) {
+      return `/${mapping.country}/${mapping.city}`;
+    }
+    
+    // Fallback: use city name as slug
+    const citySlug = cityName.toLowerCase().replace(/\s+/g, '-');
+    return `/india/${citySlug}`; // Default to India for now
+  };
 
   useEffect(() => {
     const checkScroll = () => {
@@ -451,61 +495,8 @@ const App: React.FC = () => {
                   </div>
                 )}
               </div>
-              <div 
-                className="relative flex items-center gap-1 cursor-pointer hover:text-[#10B981]"
-                onMouseEnter={() => setShowThingsDropdown(true)}
-                onMouseLeave={() => setShowThingsDropdown(false)}
-              >
-                Things to do <ChevronRight size={14} className="rotate-90" />
-                {showThingsDropdown && (
-                  <div 
-                    className="absolute top-full left-0 mt-2 bg-white rounded-lg shadow-2xl border border-gray-100 p-4 w-[600px] z-50"
-                    onMouseEnter={() => setShowThingsDropdown(true)}
-                    onMouseLeave={() => setShowThingsDropdown(false)}
-                  >
-                    <div className="space-y-2 max-h-[500px] overflow-y-auto no-scrollbar">
-                      {[
-                        { name: 'Dubai', location: 'City in United Arab Emirates', image: '/dubai-hero.jpg' },
-                        { name: 'Bangkok', location: 'City in Thailand', image: 'https://images.unsplash.com/photo-1528127269322-539801943592?auto=format&fit=crop&q=80&w=200' },
-                        { name: 'Chiang Mai', location: 'City in Thailand', image: 'https://images.unsplash.com/photo-1552465011-b4e21bf6e79a?auto=format&fit=crop&q=80&w=200' },
-                        { name: 'Abu Dhabi', location: 'City in United Arab Emirates', image: 'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?auto=format&fit=crop&q=80&w=200' },
-                        { name: 'Tokyo', location: 'City in Japan', image: '/tokyo-hero.jpg' },
-                        { name: 'Krabi', location: 'City in Thailand', image: 'https://images.unsplash.com/photo-1559827260-dc66d52bef19?auto=format&fit=crop&q=80&w=200' },
-                        { name: 'Kyoto', location: 'City in Japan', image: '/kyoto-hero.jpg' },
-                        { name: 'Singapore', location: 'City in Singapore', image: 'https://images.unsplash.com/photo-1525625293386-3f8f99389edd?auto=format&fit=crop&q=80&w=200' },
-                        { name: 'Seoul', location: 'City in South Korea', image: 'https://images.unsplash.com/photo-1517154421773-0529f29ea451?auto=format&fit=crop&q=80&w=200' },
-                        { name: 'Hong Kong', location: 'City in Hong Kong', image: 'https://images.unsplash.com/photo-1536599018102-9f803c140fc1?auto=format&fit=crop&q=80&w=200' },
-                        { name: 'Kuala Lumpur', location: 'City in Malaysia', image: '/kuala-lumpur-hero.jpg' },
-                        { name: 'Taipei', location: 'City in Taiwan', image: '/taipei-hero.jpg' },
-                        { name: 'Osaka', location: 'City in Japan', image: '/osaka-hero.jpg' },
-                        { name: 'Bali', location: 'Region in Indonesia', image: 'https://images.unsplash.com/photo-1537996194471-e657df975ab4?auto=format&fit=crop&q=80&w=200' },
-                        { name: 'Phuket', location: 'Region in Thailand', image: 'https://images.unsplash.com/photo-1559827260-dc66d52bef19?auto=format&fit=crop&q=80&w=200' },
-                        { name: 'Agra', location: 'City in India', image: '/agra-hero.jpg' },
-                        { name: 'Mumbai', location: 'City in India', image: 'https://images.unsplash.com/photo-1529253355930-ddbe423a2ac7?auto=format&fit=crop&q=80&w=200' },
-                        { name: 'Delhi', location: 'City in India', image: 'https://images.unsplash.com/photo-1587474260584-136574528ed5?auto=format&fit=crop&q=80&w=200' },
-                        { name: 'Ho Chi Minh City', location: 'City in Vietnam', image: 'https://images.unsplash.com/photo-1583417319070-4a69db38a482?auto=format&fit=crop&q=80&w=200' },
-                        { name: 'Hanoi', location: 'City in Vietnam', image: '/hanoi-hero.jpg' }
-                      ].map((place, idx) => (
-                        <div key={idx} className="flex items-center gap-3 cursor-pointer hover:bg-gray-50 p-2 rounded-lg -m-2 transition-colors">
-                          <img 
-                            src={place.image} 
-                            alt={place.name}
-                            className="w-12 h-12 rounded-lg object-cover flex-shrink-0"
-                          />
-                          <div className="flex-1 min-w-0">
-                            <div className="font-bold text-[#001A33] text-xs mb-0.5">Things to do in {place.name}</div>
-                            <div className="text-gray-500 text-[10px]">{place.location}</div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                    <div className="mt-4 pt-3 border-t border-gray-200">
-                      <div className="flex items-center gap-2 text-[#001A33] font-semibold cursor-pointer hover:text-[#10B981] text-xs">
-                        Explore all 100+ cities <ChevronRight size={14} />
-                      </div>
-                    </div>
-                  </div>
-                )}
+              <div className="flex items-center gap-1 cursor-pointer hover:text-[#10B981]">
+                Places to see <ChevronRight size={14} className="rotate-90" />
               </div>
               <div 
                 className="relative flex items-center gap-1 cursor-pointer hover:text-[#10B981]"
@@ -689,12 +680,12 @@ const App: React.FC = () => {
             {canScrollLeft && (
               <button
                 onClick={() => {
-                  const scrollContainer = document.getElementById('cities-scroll');
-                  if (scrollContainer) {
-                    const cardWidth = 185 + 16; // card width + gap
-                    const newPosition = Math.max(0, scrollContainer.scrollLeft - (cardWidth * 5));
-                    scrollContainer.scrollTo({ left: newPosition, behavior: 'smooth' });
-                  }
+                    const scrollContainer = document.getElementById('cities-scroll');
+                    if (scrollContainer) {
+                      const cardWidth = 200 + 20; // card width + gap
+                      const newPosition = Math.max(0, scrollContainer.scrollLeft - (cardWidth * 5));
+                      scrollContainer.scrollTo({ left: newPosition, behavior: 'smooth' });
+                    }
                 }}
                 className="absolute left-0 top-[40%] -translate-y-1/2 z-10 bg-white rounded-full p-3 shadow-lg hover:bg-gray-50 transition-all border border-gray-200"
               >
@@ -703,10 +694,10 @@ const App: React.FC = () => {
             )}
             
             {/* Cards Container */}
-            <div className="relative overflow-hidden px-12 mx-auto" style={{ maxWidth: 'calc(185px * 5 + 16px * 4 + 96px)' }}>
+            <div className="relative overflow-hidden px-12 mx-auto" style={{ maxWidth: 'calc(200px * 5 + 20px * 4 + 96px)' }}>
               <div 
                 id="cities-scroll" 
-                className="flex gap-4 overflow-x-auto no-scrollbar pb-4 group scroll-smooth"
+                className="flex gap-5 overflow-x-auto no-scrollbar pb-4 group scroll-smooth"
                 onScroll={(e) => {
                   const container = e.currentTarget;
                   const scrollLeft = container.scrollLeft;
@@ -717,18 +708,39 @@ const App: React.FC = () => {
                   setCanScrollRight(scrollLeft < scrollWidth - clientWidth - 10);
                 }}
               >
-                {CITIES.map((city) => (
-                  <div 
-                    key={city.id} 
-                    className="flex-shrink-0 w-36 md:w-[185px] cursor-pointer"
-                  >
-                    <div className="relative aspect-square rounded-2xl overflow-hidden mb-3 shadow-sm hover:shadow-md transition-all">
-                      <img src={city.image} alt={`${city.name} tours and cultural experiences - Book local guides in ${city.name}`} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
-                      <div className="absolute inset-0 bg-black/5 hover:bg-black/20 transition-colors pointer-events-none"></div>
+                {CITIES.map((city) => {
+                  const isLiveCity = ['agra', 'delhi', 'jaipur'].includes(city.id);
+                  return (
+                    <div 
+                      key={city.id} 
+                      className="flex-shrink-0 w-40 md:w-[200px] cursor-pointer group"
+                      onClick={() => {
+                        const url = getCityUrl(city.name, city.id);
+                        window.location.href = url;
+                      }}
+                    >
+                      <div className="relative aspect-[4/5] rounded-3xl overflow-hidden mb-3 shadow-md hover:shadow-xl transition-all duration-300 bg-white border border-gray-100">
+                        <div className="relative w-full h-full">
+                          <img 
+                            src={city.image} 
+                            alt={`${city.name} tours and cultural experiences - Book local guides in ${city.name}`} 
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
+                          />
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent"></div>
+                          {isLiveCity && (
+                            <div className="absolute top-3 right-3 bg-[#10B981] text-white text-[10px] font-black px-2 py-1 rounded-full uppercase tracking-wide">
+                              Live
+                            </div>
+                          )}
+                          <div className="absolute bottom-0 left-0 right-0 p-4">
+                            <h3 className="text-white font-black text-[18px] mb-1 drop-shadow-lg">{city.name}</h3>
+                            <p className="text-white/90 text-[11px] font-semibold drop-shadow-md">{city.localAngle}</p>
+                          </div>
+                        </div>
+                      </div>
                     </div>
-                    <h3 className="text-[#001A33] font-bold text-[16px]">{city.name}</h3>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
 
@@ -736,12 +748,12 @@ const App: React.FC = () => {
             {canScrollRight && (
               <button
                 onClick={() => {
-                  const scrollContainer = document.getElementById('cities-scroll');
-                  if (scrollContainer) {
-                    const cardWidth = 185 + 16; // card width + gap
-                    const newPosition = scrollContainer.scrollLeft + (cardWidth * 5);
-                    scrollContainer.scrollTo({ left: newPosition, behavior: 'smooth' });
-                  }
+                    const scrollContainer = document.getElementById('cities-scroll');
+                    if (scrollContainer) {
+                      const cardWidth = 200 + 20; // card width + gap
+                      const newPosition = scrollContainer.scrollLeft + (cardWidth * 5);
+                      scrollContainer.scrollTo({ left: newPosition, behavior: 'smooth' });
+                    }
                 }}
                 className="absolute right-0 top-[40%] -translate-y-1/2 z-10 bg-white rounded-full p-3 shadow-lg hover:bg-gray-50 transition-all border border-gray-200"
               >
@@ -751,56 +763,6 @@ const App: React.FC = () => {
           </div>
         </section>
 
-        {/* Row 2: Unforgettable travel experiences (Grid) */}
-        <section className="max-w-[1200px] mx-auto px-6 py-8">
-          <h2 className="text-2xl md:text-[28px] font-black text-[#001A33] mb-8">
-            Unforgettable travel experiences
-          </h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {EXPERIENCES.map((exp) => (
-              <div key={exp.id} className="group bg-white rounded-xl overflow-hidden border border-gray-100 hover:shadow-xl transition-all cursor-pointer flex flex-col h-full">
-                <div className="relative h-48 overflow-hidden">
-                  <img src={exp.image} alt={`${exp.title} - ${exp.location} - Authentic cultural experience in Asia`} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
-                  <button className="absolute top-3 right-3 p-2 bg-white/40 backdrop-blur-md rounded-full text-white hover:bg-white hover:text-[#10B981] transition-all">
-                    <Heart size={18} />
-                  </button>
-                  {exp.isOriginal && (
-                    <div className="absolute top-3 left-3 bg-[#10B981] text-white px-2 py-1 rounded text-[11px] font-black uppercase tracking-wider flex items-center gap-1 shadow-lg">
-                      <Award size={12} /> Locals Original
-                    </div>
-                  )}
-                </div>
-                <div className="p-4 flex flex-col flex-1">
-                  <span className="text-[11px] font-black text-gray-400 uppercase tracking-widest mb-1">
-                    {exp.category}
-                  </span>
-                  <h4 className="text-[15px] font-bold text-[#001A33] leading-tight mb-2 group-hover:text-[#10B981] transition-colors line-clamp-2 h-[42px]">
-                    {exp.title}
-                  </h4>
-                  <p className="text-gray-500 text-[13px] mb-3">{exp.duration}</p>
-                  
-                  <div className="mt-auto flex flex-col gap-2">
-                    <div className="flex items-center gap-1.5">
-                      <span className="text-[13px] font-bold text-[#001A33]">{exp.rating}</span>
-                      <div className="flex items-center">
-                        {[...Array(5)].map((_, i) => (
-                          <Star key={i} size={12} className={i < Math.floor(exp.rating) ? "text-[#10B981] fill-current" : "text-gray-200"} />
-                        ))}
-                      </div>
-                      <span className="text-[12px] text-gray-400">({exp.reviews})</span>
-                    </div>
-                    <div className="flex items-baseline gap-1">
-                      <span className="text-[11px] font-bold text-gray-400">From</span>
-                      <span className="text-lg font-black text-[#001A33]">${exp.price}</span>
-                    </div>
-                  </div>
-                </div>
-                {/* Visual Strip like GYG */}
-                <div className="h-1.5 bg-[#10B981] w-full transform origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></div>
-              </div>
-            ))}
-          </div>
-        </section>
 
         {/* Section 3: Attractions you can't miss (Wide Cards) */}
         <section className="max-w-[1200px] mx-auto px-6 py-16">

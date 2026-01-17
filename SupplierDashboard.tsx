@@ -36,25 +36,83 @@ interface SupplierDashboardProps {
 }
 
 const SupplierDashboard: React.FC<SupplierDashboardProps> = ({ supplier, onLogout }) => {
+  // Guard: Check if supplier exists BEFORE any state initialization
+  if (!supplier || !supplier.id) {
+    console.error('SupplierDashboard: supplier is not defined or missing id');
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <h2 className="text-2xl font-black text-[#001A33] mb-4">Error Loading Dashboard</h2>
+          <p className="text-gray-500 font-semibold mb-6">Supplier information is missing. Please log in again.</p>
+          <button
+            onClick={() => {
+              localStorage.removeItem('supplier');
+              window.location.href = '/supplier';
+            }}
+            className="px-6 py-2 bg-[#10B981] text-white font-bold rounded-lg hover:bg-[#059669] transition-colors"
+          >
+            Go to Login
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   const [activeTab, setActiveTab] = useState<'overview' | 'activities' | 'bookings' | 'earnings' | 'profile'>('overview');
   const [tours, setTours] = useState<any[]>([]);
+  const [bookings, setBookings] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [isLoadingBookings, setIsLoadingBookings] = useState(false);
   const [showTourForm, setShowTourForm] = useState(false);
   const [filterStatus, setFilterStatus] = useState<string>('all');
+  // Now supplier is guaranteed to exist, safe to access
   const [profileData, setProfileData] = useState({
-    phone: '',
-    whatsapp: ''
+    phone: supplier?.phone || '',
+    whatsapp: supplier?.whatsapp || ''
   });
   const [isSavingProfile, setIsSavingProfile] = useState(false);
 
   // Fetch tours
   useEffect(() => {
-    if (supplier.id && !showTourForm) {
+    if (supplier && supplier.id && !showTourForm) {
       fetchTours();
     }
-  }, [supplier.id, showTourForm]);
+  }, [supplier?.id, showTourForm]);
+
+  // Fetch bookings when bookings tab is active
+  useEffect(() => {
+    if (supplier && supplier.id && activeTab === 'bookings') {
+      fetchBookings();
+    }
+  }, [supplier?.id, activeTab]);
+
+  const fetchBookings = async () => {
+    if (!supplier?.id) return;
+    
+    setIsLoadingBookings(true);
+    try {
+      const response = await fetch(`http://localhost:3001/api/suppliers/${supplier.id}/bookings`);
+      const data = await response.json();
+      if (data.success) {
+        setBookings(data.bookings || []);
+      } else {
+        console.error('Error fetching bookings:', data.error);
+        setBookings([]);
+      }
+    } catch (error) {
+      console.error('Error fetching bookings:', error);
+      setBookings([]);
+    } finally {
+      setIsLoadingBookings(false);
+    }
+  };
 
   const fetchTours = async () => {
+    if (!supplier || !supplier.id) {
+      console.error('Cannot fetch tours: supplier or supplier.id is missing');
+      return;
+    }
+    
     setIsLoading(true);
     try {
       const response = await fetch(`http://localhost:3001/api/tours?supplierId=${supplier.id}`);
@@ -88,6 +146,37 @@ const SupplierDashboard: React.FC<SupplierDashboardProps> = ({ supplier, onLogou
     } catch (error) {
       console.error('Error deleting tour:', error);
       alert('Failed to delete tour. Please try again.');
+    }
+  };
+
+  const handleSaveProfile = async () => {
+    if (!supplier?.id) return;
+    
+    setIsSavingProfile(true);
+    try {
+      const response = await fetch(`http://localhost:3001/api/suppliers/${supplier.id}/profile`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          phone: profileData.phone,
+          whatsapp: profileData.whatsapp
+        })
+      });
+      
+      const data = await response.json();
+      if (data.success) {
+        alert('Contact information saved successfully!');
+        // Update supplier in localStorage
+        const updatedSupplier = { ...supplier, phone: profileData.phone, whatsapp: profileData.whatsapp };
+        localStorage.setItem('supplier', JSON.stringify(updatedSupplier));
+      } else {
+        alert(data.message || 'Failed to save contact information');
+      }
+    } catch (error) {
+      console.error('Error saving profile:', error);
+      alert('Failed to save contact information');
+    } finally {
+      setIsSavingProfile(false);
     }
   };
 
@@ -153,12 +242,18 @@ const SupplierDashboard: React.FC<SupplierDashboardProps> = ({ supplier, onLogou
 
   // Show tour creation form
   if (showTourForm) {
+    if (!supplier || !supplier.id) {
+      alert('Error: Supplier information not available. Please log in again.');
+      setShowTourForm(false);
+      return null;
+    }
+    
     return (
       <TourCreationForm
         supplierId={supplier.id}
-        supplierEmail={supplier.email}
-        supplierPhone={supplier.phone}
-        supplierWhatsApp={supplier.whatsapp}
+        supplierEmail={supplier.email || ''}
+        supplierPhone={supplier.phone || ''}
+        supplierWhatsApp={supplier.whatsapp || ''}
         onClose={() => setShowTourForm(false)}
         onSuccess={() => {
           setShowTourForm(false);
@@ -487,13 +582,92 @@ const SupplierDashboard: React.FC<SupplierDashboardProps> = ({ supplier, onLogou
           {activeTab === 'bookings' && (
             <div className="bg-white rounded-2xl p-6 border border-gray-200">
               <h2 className="text-2xl font-black text-[#001A33] mb-6">Bookings</h2>
-              <div className="text-center py-12">
-                <Calendar className="mx-auto text-gray-300 mb-4" size={48} />
-                <h3 className="text-lg font-black text-[#001A33] mb-2">No bookings yet</h3>
-                <p className="text-[14px] text-gray-500 font-semibold">
-                  Bookings will appear here once travelers start booking your activities.
-                </p>
-              </div>
+              {isLoadingBookings ? (
+                <div className="text-center py-12">
+                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#10B981] mx-auto"></div>
+                  <p className="text-[14px] text-gray-500 font-semibold mt-4">Loading bookings...</p>
+                </div>
+              ) : bookings.length === 0 ? (
+                <div className="text-center py-12">
+                  <Calendar className="mx-auto text-gray-300 mb-4" size={48} />
+                  <h3 className="text-lg font-black text-[#001A33] mb-2">No bookings yet</h3>
+                  <p className="text-[14px] text-gray-500 font-semibold">
+                    Bookings will appear here once travelers start booking your activities.
+                  </p>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {bookings.map((booking) => {
+                    const bookingDate = new Date(booking.bookingDate);
+                    const formattedDate = bookingDate.toLocaleDateString('en-US', { 
+                      weekday: 'long', 
+                      year: 'numeric', 
+                      month: 'long', 
+                      day: 'numeric' 
+                    });
+                    
+                    return (
+                      <div key={booking.id} className="border-2 border-gray-200 rounded-xl p-5 hover:border-[#10B981]/50 transition-all">
+                        <div className="flex items-start justify-between mb-4">
+                          <div className="flex-1">
+                            <div className="flex items-center gap-3 mb-2">
+                              <h3 className="text-lg font-black text-[#001A33]">{booking.tour?.title || 'Tour'}</h3>
+                              <span className={`px-3 py-1 rounded-full text-[11px] font-black ${
+                                booking.status === 'confirmed' ? 'bg-[#10B981]/10 text-[#10B981] border border-[#10B981]/20' :
+                                booking.status === 'pending' ? 'bg-yellow-500/10 text-yellow-700 border border-yellow-500/20' :
+                                booking.status === 'completed' ? 'bg-blue-500/10 text-blue-700 border border-blue-500/20' :
+                                'bg-gray-500/10 text-gray-700 border border-gray-500/20'
+                              }`}>
+                                {booking.status?.toUpperCase() || 'PENDING'}
+                              </span>
+                            </div>
+                            {booking.bookingReference && (
+                              <p className="text-[12px] text-gray-500 font-semibold mb-2">
+                                Booking Reference: <span className="font-black text-[#001A33]">{booking.bookingReference}</span>
+                              </p>
+                            )}
+                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-[14px]">
+                              <div>
+                                <p className="text-gray-500 font-semibold mb-1">Date</p>
+                                <p className="font-black text-[#001A33]">{formattedDate}</p>
+                              </div>
+                              <div>
+                                <p className="text-gray-500 font-semibold mb-1">Guests</p>
+                                <p className="font-black text-[#001A33]">{booking.numberOfGuests} {booking.numberOfGuests === 1 ? 'person' : 'people'}</p>
+                              </div>
+                              <div>
+                                <p className="text-gray-500 font-semibold mb-1">Customer</p>
+                                <p className="font-black text-[#001A33]">{booking.customerName}</p>
+                              </div>
+                              <div>
+                                <p className="text-gray-500 font-semibold mb-1">Total Amount</p>
+                                <p className="font-black text-[#10B981] text-lg">
+                                  {booking.currency === 'INR' ? '₹' : '$'}{booking.totalAmount.toLocaleString()}
+                                </p>
+                              </div>
+                            </div>
+                            {booking.specialRequests && (
+                              <div className="mt-3 p-3 bg-gray-50 rounded-lg">
+                                <p className="text-[12px] text-gray-500 font-semibold mb-1">Special Requests:</p>
+                                <p className="text-[14px] text-[#001A33]">{booking.specialRequests}</p>
+                              </div>
+                            )}
+                            <div className="mt-3 flex items-center gap-2 text-[12px] text-gray-500">
+                              <span>Customer Email: <a href={`mailto:${booking.customerEmail}`} className="text-[#0071EB] hover:underline">{booking.customerEmail}</a></span>
+                              {booking.customerPhone && (
+                                <>
+                                  <span>•</span>
+                                  <span>Phone: <a href={`tel:${booking.customerPhone}`} className="text-[#0071EB] hover:underline">{booking.customerPhone}</a></span>
+                                </>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
             </div>
           )}
 

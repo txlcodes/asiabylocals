@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { MapPin, Star, Clock, Users, Search, Filter, Heart, ShoppingCart, User, Globe, ChevronDown, Calendar } from 'lucide-react';
+import { MapPin, Star, Clock, Users, Search, Filter, Heart, ShoppingCart, User, Globe, ChevronDown, Calendar, ChevronUp } from 'lucide-react';
+import { CITY_LOCATIONS } from './constants';
 
 interface CityPageProps {
   country: string;
@@ -29,13 +30,17 @@ const CITY_DESCRIPTIONS: Record<string, {
       'Ethical, small-group experiences',
       'Direct support to local communities'
     ],
-    topAttractions: [
+    topAttractions: CITY_LOCATIONS['Agra'] || [
       'Taj Mahal',
       'Agra Fort',
+      'Baby Taj',
       'Mehtab Bagh',
-      'Itmad-ud-Daulah',
       'Fatehpur Sikri',
-      'Local markets & food streets'
+      'Tomb of Akbar the Great',
+      'Itmad-ud-Daulah',
+      'Jama Masjid',
+      'Kinari Bazaar',
+      'Chini Ka Rauza'
     ],
     bestTime: 'The best time to visit Agra is from October to March when the weather is pleasant. Early mornings are highly recommended, especially for sunrise Taj Mahal tours when the monument glows in golden light and crowds are minimal.',
     faqs: [
@@ -223,8 +228,221 @@ const CITY_DESCRIPTIONS: Record<string, {
   }
 };
 
+// Things to Do Section Component (GetYourGuide style)
+interface ThingsToDoSectionProps {
+  city: string;
+}
+
+const ThingsToDoSection: React.FC<ThingsToDoSectionProps> = ({ city }) => {
+  const [expandedCards, setExpandedCards] = useState<Set<number>>(new Set());
+
+  const toggleCard = (index: number) => {
+    const newExpanded = new Set(expandedCards);
+    if (newExpanded.has(index)) {
+      newExpanded.delete(index);
+    } else {
+      newExpanded.add(index);
+    }
+    setExpandedCards(newExpanded);
+  };
+
+  // Things to do data for all cities (SEO-optimized) - Based on actual tour offerings
+  const thingsToDoData: Record<string, Array<{
+    title: string;
+    image: string;
+    shortDescription: string;
+    fullDescription: string;
+    seoKeywords: string[];
+  }>> = {
+    'Agra': [
+    {
+      title: 'From Delhi: Taj Mahal & Agra Private Day Trip with Transfers',
+      image: '/things-to-do/agra-taj-mahal-sunrise.jpg', // .avif file with .jpg extension
+      shortDescription: 'Begins your tour with the pickup from your hotel/airport in Delhi/Noida/Gurugram and depart to Agra. Meet your private guide when you arrive in Agra and proceed to the Taj Mahal, a UNESCO World Heritage Site and a living monument, which silently whispers the love of legendary Mughal emperor Shah Jahan for his beloved wife Mumtaz Mahal.',
+      fullDescription: 'Begins your tour with the pickup from your hotel/airport in Delhi/Noida/Gurugram and depart to Agra. Meet your private guide when you arrive in Agra and proceed to the Taj Mahal, a UNESCO World Heritage Site and a living monument, which silently whispers the love of legendary Mughal emperor Shah Jahan for his beloved wife Mumtaz Mahal. Continue onto the second UNESCO World Heritage Site Agra Fort. The imposing red sandstone fort was built by Emperor Akbar in 1565 AD, it combines both Hindu and Central Asian architectural styles. Then take a break for lunch at a 5-star Hotel and enjoy a mouth-watering meal of local and international flavor. After lunch, head towards the marvelous Tomb of Itmad-Ud-Daulah also known as Baby Taj. This pure marble structure was constructed by Noor Jahan for her father. Your tour ends with a return journey back to your hotel/airport or desired location in Delhi/Noida/Gurugram.',
+      seoKeywords: ['Taj Mahal', 'Agra Fort', 'Delhi to Agra', 'private day trip', 'Baby Taj']
+    },
+    {
+      title: 'From Delhi: Private Taj Mahal and Agra Day Tour with 5* Meal',
+      image: '/things-to-do/agra-fort.jpg',
+      shortDescription: 'Experience a premium Private Taj Mahal and Agra Day Tour from Delhi, thoughtfully designed for comfort, flexibility, and unforgettable experiences. Includes a private chauffeur pick-up from Delhi in an air-conditioned car.',
+      fullDescription: 'Experience a premium Private Taj Mahal and Agra Day Tour from Delhi, thoughtfully designed for comfort, flexibility, and unforgettable experiences. Includes a private chauffeur pick-up from Delhi in an air-conditioned car. Visit the world-famous Taj Mahal, one of the Seven Wonders of the World. For early risers, an optional sunrise visit offers fewer crowds, and exceptional photo opportunities. Explore the majestic Agra Fort (a UNESCO World Heritage Site), this site used to be the home to Mughal emperors before Delhi became the capital of India. If time permits, visit Itimad-ud-Daulah, often called the Baby Taj, known for its intricate marble inlay work. Enjoy a delicious 5-star breakfast or lunch at a premium restaurant. Experience personalized service, flexible timing, expert guidance, and a stress-free return to Delhi the same day.',
+      seoKeywords: ['Taj Mahal sunrise', 'Agra Fort', '5-star meal', 'premium tour', 'private tour']
+    },
+    {
+      title: 'From Delhi: Private Taj Mahal & Agra Tour with 5* Lunch',
+      image: '/things-to-do/agra-baby-taj.jpg',
+      shortDescription: 'Start your journey with an early pickup from your hotel in Delhi, Gurgaon, Noida, or the airport. Sit back in a private, air-conditioned car for a 3-hour drive to Agra. Upon arrival, meet your expert guide and proceed to the Taj Mahal to explore its beauty at sunrise for 2-3 hours.',
+      fullDescription: 'Start your journey with an early pickup from your hotel in Delhi, Gurgaon, Noida, or the airport. Sit back in a private, air-conditioned car for a 3-hour drive to Agra. Upon arrival, meet your expert guide and proceed to the Taj Mahal to explore its beauty at sunrise for 2-3 hours. Continue to the Agra Fort, an impressive red sandstone fortress built by Emperor Akbar in 1565 AD, it combines both Hindu and Central Asian architectural styles. After the fort visit, enjoy a breakfast or lunch at a 5-star hotel (if included in the package). Next, explore the elegant Baby Taj (Itmad-ud-Daulah), a pure marble structure constructed by Noor Jahan for her father. Your tour concludes with a comfortable return drive to Delhi in a private car, with drop-off at your chosen location.',
+      seoKeywords: ['Taj Mahal sunrise', 'Agra Fort', 'Baby Taj', '5-star lunch', 'private transfer']
+    },
+      {
+        title: 'Agra: Skip-the-Line Taj Mahal & Agra Fort Private Tour',
+        image: '/things-to-do/agra-fatehpur-sikri.jpg',
+        shortDescription: 'Tour begins with a pick up from hotel/airport or any requested location in Agra city, meet with tour guide and proceed to visit Taj Mahal with an express entry ticket and discover the marble mausoleum of the Taj Mahal in Agra at your own pace.',
+        fullDescription: 'Tour begins with a pick up from hotel/airport or any requested location in Agra city, meet with tour guide and proceed to visit Taj Mahal with an express entry ticket and discover the marble mausoleum of the Taj Mahal in Agra at your own pace. After visiting Taj Mahal, take a break for breakfast at a multi cuisine restaurant (pay by your own). Later, visit the historic Agra Fort, another UNESCO World Heritage Site, this site used to be the home to Mughal emperors before Delhi became the capital of India. Be transferred back to your hotel/airport or any desired location in Agra after the tour ends.',
+        seoKeywords: ['Skip the line', 'Taj Mahal express entry', 'Agra Fort', 'private tour', 'Agra city tour']
+      },
+      {
+        title: 'Delhi/Jaipur/Agra: Private One-Way Transfer',
+        image: '/things-to-do/shared-private-transfer.jpg', // Shared image for all cities
+        shortDescription: 'Enjoy a private transfer from Delhi, Agra, or Jaipur with driver in a private air-conditioned car. Be picked up from your preferred location and taken to your destination hassle-free.',
+        fullDescription: 'Enjoy a private transfer from Delhi, Agra, or Jaipur with driver in a private air-conditioned car. Be picked up from your preferred location, whether it\'s the airport or your hotel, and be taken to your hotel or the airport in Delhi, Jaipur, or Agra. Don\'t waste your time trying to find a taxi and haggling over prices, pre-book your convenient transfer and have a more relaxing vacation. Sit back and relax knowing you\'re in safe hands and will end up exactly where you want to be. Sip on free water during the drive. The vehicle used depends on the number of people being transported: 1 to 3 people - AC Sedan, Toyota Etios, or Maruti Swift Dzire; 4 to 6 people - A/C Kia Carens or Innova; 12 to 26 people - Tempo Traveller or Mini Bus. Professional drivers ensure safe and comfortable journeys between these major tourist destinations.',
+        seoKeywords: ['private transfer', 'Delhi Jaipur Agra', 'airport transfer', 'private car', 'Golden Triangle transfer']
+      }
+    ],
+    'Delhi': [
+      {
+        title: 'Old Delhi Heritage Walk & Street Food Tour',
+        image: '/things-to-do/delhi-old-delhi-heritage.jpg',
+        shortDescription: 'Explore the historic lanes of Old Delhi, visit the magnificent Jama Masjid, and discover authentic street food in Chandni Chowk. Experience the vibrant culture and rich history of Delhi\'s oldest neighborhood with a local guide.',
+        fullDescription: 'Explore the historic lanes of Old Delhi, visit the magnificent Jama Masjid, and discover authentic street food in Chandni Chowk. Experience the vibrant culture and rich history of Delhi\'s oldest neighborhood with a local guide. Your tour begins in the narrow, bustling streets of Old Delhi, where history comes alive. Visit the Jama Masjid, one of India\'s largest mosques, built by Emperor Shah Jahan in 1656. Walk through the colorful spice market of Khari Baoli, the largest wholesale spice market in Asia. Discover hidden gems like the Paranthe Wali Gali, famous for its traditional Indian flatbreads. Your guide will take you to trusted street food vendors where you can sample authentic Delhi delicacies like chaat, jalebi, and parathas. Learn about the Mughal history, colonial influences, and modern-day life in this fascinating part of Delhi.',
+        seoKeywords: ['Old Delhi', 'heritage walk', 'street food tour', 'Jama Masjid', 'Chandni Chowk']
+      },
+      {
+        title: 'Red Fort & India Gate Private Tour',
+        image: '/things-to-do/delhi-red-fort-india-gate.jpg',
+        shortDescription: 'Visit the iconic Red Fort, a UNESCO World Heritage Site, and the majestic India Gate. Explore the rich history of Mughal Delhi and modern India\'s capital with an expert local guide.',
+        fullDescription: 'Visit the iconic Red Fort, a UNESCO World Heritage Site, and the majestic India Gate. Explore the rich history of Mughal Delhi and modern India\'s capital with an expert local guide. The Red Fort, built by Emperor Shah Jahan in 1639, served as the main residence of Mughal emperors for nearly 200 years. Your guide will take you through the fort\'s impressive structures including the Diwan-i-Am (Hall of Public Audience), Diwan-i-Khas (Hall of Private Audience), and the beautiful gardens. Learn about the fort\'s significance during India\'s independence movement. Then, visit India Gate, a war memorial dedicated to Indian soldiers who died in World War I. The monument stands as a symbol of national pride and is surrounded by beautiful gardens. Your guide will share stories of Delhi\'s transformation from Mughal capital to modern India\'s political center.',
+        seoKeywords: ['Red Fort', 'India Gate', 'UNESCO World Heritage', 'Mughal Delhi', 'Delhi monuments']
+      },
+      {
+        title: 'Qutub Minar & Humayun\'s Tomb Heritage Tour',
+        image: '/things-to-do/delhi-qutub-minar.jpg',
+        shortDescription: 'Discover two UNESCO World Heritage Sites: the towering Qutub Minar and the beautiful Humayun\'s Tomb. Explore Delhi\'s ancient Islamic architecture and learn about the city\'s rich historical legacy.',
+        fullDescription: 'Discover two UNESCO World Heritage Sites: the towering Qutub Minar and the beautiful Humayun\'s Tomb. Explore Delhi\'s ancient Islamic architecture and learn about the city\'s rich historical legacy. Qutub Minar, built in the 12th century, is the world\'s tallest brick minaret at 73 meters. The complex includes ancient ruins, the Iron Pillar that has stood rust-free for over 1,600 years, and beautiful Indo-Islamic architecture. Your guide will explain the minaret\'s history and the Qutub Complex\'s significance. Then, visit Humayun\'s Tomb, a masterpiece of Mughal architecture that inspired the Taj Mahal\'s design. Built in 1570, this magnificent mausoleum is set in beautiful gardens and represents the first garden-tomb on the Indian subcontinent. Your guide will share stories of the Mughal dynasty and explain how this tomb influenced later Mughal architecture.',
+        seoKeywords: ['Qutub Minar', 'Humayun\'s Tomb', 'UNESCO World Heritage', 'Islamic architecture', 'Delhi heritage']
+      },
+      {
+        title: 'Delhi City Tour: Old & New Delhi Full Day Experience',
+        image: '/things-to-do/delhi-city-tour.jpg',
+        shortDescription: 'Experience the best of both worlds with a comprehensive tour covering Old Delhi\'s historic sites and New Delhi\'s modern landmarks. Visit Red Fort, India Gate, Lotus Temple, and more in one day.',
+        fullDescription: 'Experience the best of both worlds with a comprehensive tour covering Old Delhi\'s historic sites and New Delhi\'s modern landmarks. Visit Red Fort, India Gate, Lotus Temple, and more in one day. This full-day tour takes you through Delhi\'s fascinating history, from ancient monuments to modern architecture. Start with Old Delhi, visiting the Red Fort and Jama Masjid. Then explore New Delhi, including India Gate, the Parliament House area, and the beautiful Lotus Temple, a Bahá\'í House of Worship known for its unique flower-like architecture. Drive past the Rashtrapati Bhavan (Presidential Palace) and other government buildings. Your guide will explain Delhi\'s role as India\'s capital, its diverse cultures, and how the city has evolved over centuries. This tour offers a complete overview of Delhi\'s most important sites and is perfect for first-time visitors.',
+        seoKeywords: ['Delhi city tour', 'Old Delhi', 'New Delhi', 'full day tour', 'Delhi landmarks']
+      },
+      {
+        title: 'Delhi/Jaipur/Agra: Private One-Way Transfer',
+        image: '/things-to-do/shared-private-transfer.jpg', // Shared image for all cities
+        shortDescription: 'Enjoy a private transfer from Delhi, Agra, or Jaipur with driver in a private air-conditioned car. Be picked up from your preferred location and taken to your destination hassle-free.',
+        fullDescription: 'Enjoy a private transfer from Delhi, Agra, or Jaipur with driver in a private air-conditioned car. Be picked up from your preferred location, whether it\'s the airport or your hotel, and be taken to your hotel or the airport in Delhi, Jaipur, or Agra. Don\'t waste your time trying to find a taxi and haggling over prices, pre-book your convenient transfer and have a more relaxing vacation. Sit back and relax knowing you\'re in safe hands and will end up exactly where you want to be. Sip on free water during the drive. The vehicle used depends on the number of people being transported: 1 to 3 people - AC Sedan, Toyota Etios, or Maruti Swift Dzire; 4 to 6 people - A/C Kia Carens or Innova; 12 to 26 people - Tempo Traveller or Mini Bus. Professional drivers ensure safe and comfortable journeys between these major tourist destinations.',
+        seoKeywords: ['private transfer', 'Delhi Jaipur Agra', 'airport transfer', 'private car', 'Golden Triangle transfer']
+      }
+    ],
+    'Jaipur': [
+      {
+        title: 'Jaipur: Private Sightseeing Day Tour with Guide by Car',
+        image: '/things-to-do/jaipur-sightseeing-tour.jpg',
+        shortDescription: 'Experience the rich culture and heritage of Jaipur on this full-day sightseeing tour. Visit Hawa Mahal, Amber Fort, City Palace, Jantar Mantar, and more with an expert local guide.',
+        fullDescription: 'Experience the rich culture and heritage of Jaipur on this full-day sightseeing tour. Visit Hawa Mahal, Amber Fort, City Palace, Jantar Mantar, and more with an expert local guide. 1. Hawa Mahal - See the famous Hawa Mahal, or Palace of Winds, built by Maharaja Sawai Pratap Singh. Its many small windows and arches let royal women observe the city unseen. Duration: 1 hour. 2. Amber Fort and Palace - Explore this 16th-century fortress of red sandstone and white marble on the Aravalli hills, showcasing Rajput and Mughal design, symbolizing royal grandeur. Duration: 2 hours. 3. Panna Meena Ka Kund - Visit this ancient stepwell near Amber Fort, noted for its symmetrical stairways and water-harvesting system. Duration: 30 minutes. 4. Jal Mahal - See the Water Palace floating on Man Sagar Lake, an 18th-century structure with an elegant red sandstone façade reflecting Rajput architecture. Duration: 30 minutes. 5. City Palace - Explore the former royal residence of Jaipur\'s Maharajas, commissioned by Maharaja Jai Singh II, featuring ornate courtyards, regal halls, and museums. Duration: 1 hour. 6. Jantar Mantar - Visit this 18th-century astronomical observatory and UNESCO World Heritage site, with nineteen colossal instruments, including the world\'s largest stone sundial. Duration: 1 hour. 7. Royal Gaitor Tumbas - Discover this site at the base of the Nahargarh hills with beautifully carved marble memorials honoring Jaipur\'s old rulers. Duration: 1 hour. Enjoy this full-day journey through Jaipur\'s rich history, royal culture, and beautiful buildings with the help of your expert guide.',
+        seoKeywords: ['Jaipur sightseeing', 'Hawa Mahal', 'Amber Fort', 'City Palace', 'Jantar Mantar', 'full day tour']
+      },
+      {
+        title: 'Private Full Day Sightseeing Tour By Car with Guide',
+        image: '/things-to-do/jaipur-full-day-sightseeing.jpg',
+        shortDescription: 'Comprehensive full-day tour covering Amber Fort, Panna Meena Ka Kund, Jal Mahal, Hawa Mahal, City Palace, Jantar Mantar, and Royal Gaitor Tumbas. Includes comfortable hotel pick-up and drop-off.',
+        fullDescription: 'Comprehensive full-day tour covering Amber Fort, Panna Meena Ka Kund, Jal Mahal, Hawa Mahal, City Palace, Jantar Mantar, and Royal Gaitor Tumbas. Includes comfortable hotel pick-up and drop-off. Start with Amber Fort and Palace, an exemplary blend of Hindu and Muslim architecture, constructed of red sandstone and white marble. Explore grand courtyards, the stunning Sheesh Mahal, Ganesh Pol, and royal chambers as your expert guide shares fascinating Rajput history and architectural secrets. Visit Panna Meena Ka Kund, a historic 16th-century stepwell with symmetrical stairways and an efficient rainwater catchment system, located near Amber Fort. See Jal Mahal, a captivating 18th-century water palace amidst Man Sagar Lake, showcasing Rajput culture with its red sandstone structure. After lunch, visit Hawa Mahal (Palace of Winds), envisioned by Sawai Pratap Singh, featuring tiered arches and intricate latticework screens. Explore City Palace, the Maharaja\'s City Palace built by Maharaja Jai Singh, housing the erstwhile royal family. Discover Jantar Mantar, a UNESCO World Heritage site with nineteen astronomical instruments built by Rajput king Sawai Jai Singh, including the world\'s largest stone sundial. End with Royal Gaitor Tumbas, an 18th-century complex adorned with intricate carvings and dedicated temples. Includes a 10-15 minute visit to a workshop for traditional crafts like hand block printing and stone cutting - an educational experience with no pressure to buy.',
+        seoKeywords: ['Jaipur full day tour', 'Amber Fort', 'City Palace', 'Hawa Mahal', 'Jantar Mantar', 'private tour']
+      },
+      {
+        title: 'From Jaipur: Ranthambore National Park Day Trip with Safari',
+        image: '/things-to-do/jaipur-ranthambore-safari.jpg', // Tiger image
+        shortDescription: 'Embark on an exciting day trip from Jaipur to Ranthambore National Park for a thrilling wildlife safari. Spot Bengal tigers, leopards, crocodiles, and diverse birdlife in their natural habitat.',
+        fullDescription: 'Embark on an exciting day trip from Jaipur to Ranthambore National Park for a thrilling wildlife safari. Spot Bengal tigers, leopards, crocodiles, and diverse birdlife in their natural habitat. Be picked up from your Jaipur hotel or airport for a 3 to 4-hour scenic drive to Ranthambore National Park, admiring views of the Aravalli Hills, villages, and greenery along the way. Arrive in Sawai Madhopur for an afternoon safari led by a naturalist guide. Explore the park in an open 6-seater Jeep or 20-seater canter, encountering wildlife such as majestic Bengal tigers lounging in the shade, crocodiles basking in the sun, and leopards prowling through the undergrowth. Spot colorful birds flitting among the trees. Your guide will share insights into the park\'s ecology, animal behavior, and conservation efforts. Ranthambore is one of India\'s best tiger reserves, known for its high tiger density and beautiful landscapes. The park also features the historic Ranthambore Fort, adding to its scenic beauty. After the safari, enjoy a comfortable return drive to Jaipur with drop-off at your hotel or airport.',
+        seoKeywords: ['Ranthambore National Park', 'tiger safari', 'wildlife tour', 'Bengal tiger', 'Jaipur day trip']
+      },
+      {
+        title: 'Delhi/Jaipur/Agra: Private One-Way Transfer',
+        image: '/things-to-do/shared-private-transfer.jpg', // Shared image for all cities
+        shortDescription: 'Enjoy a private transfer from Delhi, Agra, or Jaipur with driver in a private air-conditioned car. Be picked up from your preferred location and taken to your destination hassle-free.',
+        fullDescription: 'Enjoy a private transfer from Delhi, Agra, or Jaipur with driver in a private air-conditioned car. Be picked up from your preferred location, whether it\'s the airport or your hotel, and be taken to your hotel or the airport in Delhi, Jaipur, or Agra. Don\'t waste your time trying to find a taxi and haggling over prices, pre-book your convenient transfer and have a more relaxing vacation. Sit back and relax knowing you\'re in safe hands and will end up exactly where you want to be. Sip on free water during the drive. The vehicle used depends on the number of people being transported: 1 to 3 people - AC Sedan, Toyota Etios, or Maruti Swift Dzire; 4 to 6 people - A/C Kia Carens or Innova; 12 to 26 people - Tempo Traveller or Mini Bus. Professional drivers ensure safe and comfortable journeys between these major tourist destinations.',
+        seoKeywords: ['private transfer', 'Delhi Jaipur Agra', 'airport transfer', 'private car', 'Golden Triangle transfer']
+      }
+    ]
+  };
+
+  const thingsToDo = thingsToDoData[city] || [];
+
+  return (
+    <section className="mb-16">
+      <h2 className="text-3xl font-black text-[#001A33] mb-8">
+        Our Most Recommended Things to Do in {city}
+      </h2>
+      <div className="space-y-6">
+        {thingsToDo.map((item, index) => {
+          const isExpanded = expandedCards.has(index);
+          return (
+            <div
+              key={index}
+              className="bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-sm hover:shadow-md transition-shadow"
+            >
+              <div className="flex flex-col md:flex-row gap-0">
+                {/* Image Section - Smaller, less distracting */}
+                <div className="md:w-1/4 lg:w-1/5 shrink-0 self-start">
+                  <img
+                    src={item.image}
+                    alt={`${item.title} in ${city}`}
+                    className="w-full h-40 md:h-40 object-cover"
+                    style={{ objectFit: 'cover', objectPosition: 'center' }}
+                    onError={(e) => {
+                      // Fallback to placeholder if image not found
+                      const target = e.target as HTMLImageElement;
+                      // Try .avif extension if .jpg fails
+                      if (target.src.endsWith('.jpg')) {
+                        target.src = target.src.replace('.jpg', '.avif');
+                      } else {
+                        target.src = 'https://via.placeholder.com/600x400?text=' + encodeURIComponent(item.title);
+                      }
+                    }}
+                  />
+                </div>
+
+                {/* Content Section - Expands/contracts independently */}
+                <div className="md:w-3/4 lg:w-4/5 p-6 flex flex-col">
+                  <h3 className="text-2xl font-black text-[#001A33] mb-3">
+                    {item.title}
+                  </h3>
+                  
+                  <div className="text-[16px] text-gray-700 font-semibold leading-relaxed mb-4">
+                    {isExpanded ? (
+                      <div>
+                        <p className="mb-3">{item.shortDescription}</p>
+                        <p className="text-gray-600">{item.fullDescription}</p>
+                      </div>
+                    ) : (
+                      <p>{item.shortDescription}</p>
+                    )}
+                  </div>
+
+                  {/* See More/Less Button */}
+                  <button
+                    onClick={() => toggleCard(index)}
+                    className="text-[#10B981] font-bold text-[14px] hover:text-[#059669] transition-colors flex items-center gap-1 self-start mt-auto"
+                  >
+                    {isExpanded ? (
+                      <>
+                        <ChevronUp size={16} />
+                        See less
+                      </>
+                    ) : (
+                      <>
+                        <ChevronDown size={16} />
+                        See more
+                      </>
+                    )}
+                  </button>
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </section>
+  );
+};
+
 const CityPage: React.FC<CityPageProps> = ({ country, city }) => {
   const [tours, setTours] = useState<any[]>([]);
+  const [showPlacesDropdown, setShowPlacesDropdown] = useState(false);
   const [loading, setLoading] = useState(true);
   const [filterCategory, setFilterCategory] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState('');
@@ -306,25 +524,13 @@ const CityPage: React.FC<CityPageProps> = ({ country, city }) => {
     return 4.0 + (normalized * 1.0); // Range: 4.0 to 5.0
   };
 
-  // Helper function to get review count
-  const getReviewCount = (tour: any) => {
-    if (!tour.reviews) return 0;
-    try {
-      const reviews = typeof tour.reviews === 'string' ? JSON.parse(tour.reviews) : tour.reviews;
-      return Array.isArray(reviews) ? reviews.length : 0;
-    } catch (e) {
-      return 0;
-    }
-  };
-
   // Sort tours
   const sortedTours = [...filteredTours].sort((a, b) => {
     if (sortBy === 'recommended') {
-      // Sort by rating (descending), then by review count
+      // Sort by rating (descending)
       const ratingA = calculateRating(a) || 0;
       const ratingB = calculateRating(b) || 0;
-      if (ratingB !== ratingA) return ratingB - ratingA;
-      return getReviewCount(b) - getReviewCount(a);
+      return ratingB - ratingA;
     } else if (sortBy === 'price-low') {
       return a.pricePerPerson - b.pricePerPerson;
     } else if (sortBy === 'price-high') {
@@ -480,12 +686,36 @@ const CityPage: React.FC<CityPageProps> = ({ country, city }) => {
           {/* Navigation Links */}
           <nav className="flex items-center gap-6 text-[14px] font-semibold text-[#001A33]">
             <a href="#" className="hover:text-[#10B981] transition-colors">Explore {city}</a>
-            <a href="#" className="flex items-center gap-1 hover:text-[#10B981] transition-colors">
+            <div 
+              className="relative flex items-center gap-1 cursor-pointer hover:text-[#10B981] transition-colors"
+              onMouseEnter={() => setShowPlacesDropdown(true)}
+              onMouseLeave={() => setShowPlacesDropdown(false)}
+            >
               Places to see <ChevronDown size={14} />
-            </a>
-            <a href="#" className="flex items-center gap-1 hover:text-[#10B981] transition-colors">
-              Things to do <ChevronDown size={14} />
-            </a>
+              {showPlacesDropdown && (() => {
+                const places = CITY_LOCATIONS[city] || cityInfo.topAttractions || [];
+                return places.length > 0 && (
+                  <div 
+                    className="absolute top-full left-0 mt-2 bg-white rounded-lg shadow-2xl border border-gray-100 p-4 w-[400px] z-50"
+                    onMouseEnter={() => setShowPlacesDropdown(true)}
+                    onMouseLeave={() => setShowPlacesDropdown(false)}
+                  >
+                    <div className="space-y-2">
+                      <h4 className="font-black text-[#001A33] text-xs mb-3 uppercase tracking-wider">Places to See in {city}</h4>
+                      {places.map((place, index) => (
+                        <div 
+                          key={index} 
+                          className="flex items-center gap-3 cursor-pointer hover:bg-gray-50 p-2 rounded-lg -m-2 transition-colors"
+                        >
+                          <MapPin size={16} className="text-[#10B981] shrink-0" />
+                          <span className="font-semibold text-[#001A33] text-sm">{place}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                );
+              })()}
+            </div>
           </nav>
         </div>
       </header>
@@ -509,7 +739,7 @@ const CityPage: React.FC<CityPageProps> = ({ country, city }) => {
             <h2 className="text-3xl font-black text-[#001A33] mb-6">
               Popular Tours & Experiences in {city}
             </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
               {sortedTours.map((tour) => {
                 const tourSlug = tour.slug || `tour-${tour.id}`;
                 const hasSkipLine = tour.included && tour.included.toLowerCase().includes('skip');
@@ -625,6 +855,11 @@ const CityPage: React.FC<CityPageProps> = ({ country, city }) => {
               })}
             </div>
           </section>
+        )}
+
+        {/* H2 #1: Things to Do Section */}
+        {(city === 'Agra' || city === 'Delhi' || city === 'Jaipur') && (
+          <ThingsToDoSection city={city} />
         )}
 
         {/* H2 #2: Why Book with Local Guides */}

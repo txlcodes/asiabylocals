@@ -59,10 +59,17 @@ const SupplierPage: React.FC<SupplierPageProps> = ({ onClose }) => {
     if (storedSupplier) {
       try {
         const supplier = JSON.parse(storedSupplier);
-        setLoggedInSupplier(supplier);
-        setShowDashboard(true);
+        // Validate supplier object has required fields
+        if (supplier && supplier.id && supplier.email) {
+          setLoggedInSupplier(supplier);
+          setShowDashboard(true);
+        } else {
+          console.error('Invalid supplier data in localStorage:', supplier);
+          localStorage.removeItem('supplier');
+        }
       } catch (error) {
         console.error('Error parsing stored supplier:', error);
+        localStorage.removeItem('supplier');
       }
     }
   }, []);
@@ -129,6 +136,15 @@ const SupplierPage: React.FC<SupplierPageProps> = ({ onClose }) => {
 
   // Show dashboard if logged in
   if (showDashboard && loggedInSupplier) {
+    // Validate supplier before passing to dashboard
+    if (!loggedInSupplier.id || !loggedInSupplier.email) {
+      console.error('Invalid supplier data:', loggedInSupplier);
+      localStorage.removeItem('supplier');
+      setLoggedInSupplier(null);
+      setShowDashboard(false);
+      return null;
+    }
+    
     return (
       <SupplierDashboard 
         supplier={loggedInSupplier}

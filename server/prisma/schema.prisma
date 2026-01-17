@@ -3,8 +3,8 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
-  url      = "file:./dev.db"
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 model Supplier {
@@ -41,6 +41,7 @@ model Supplier {
 model Tour {
   id               Int       @id @default(autoincrement())
   supplierId       Int       @map("supplier_id")
+  parentTourId     Int?      @map("parent_tour_id") // For mini tours linked to parent tours
   title            String
   slug             String    @unique
   country          String
@@ -66,12 +67,15 @@ model Tour {
   updatedAt        DateTime  @updatedAt @map("updated_at")
   approvedAt       DateTime? @map("approved_at")
   supplier         Supplier  @relation(fields: [supplierId], references: [id], onDelete: Cascade)
+  parentTour       Tour?     @relation("TourMiniTours", fields: [parentTourId], references: [id], onDelete: SetNull)
+  miniTours        Tour[]    @relation("TourMiniTours")
   bookings         Booking[]
   options          TourOption[]
 
   @@index([supplierId])
   @@index([status])
   @@index([city])
+  @@index([parentTourId])
   @@map("tours")
 }
 

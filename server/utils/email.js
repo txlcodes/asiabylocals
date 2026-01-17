@@ -366,7 +366,7 @@ export const sendBookingNotificationEmail = async (supplierEmail, supplierName, 
 
   console.log(`📧 Sending booking notification email to supplier: ${supplierEmail}`);
   
-  const { tourTitle, customerName, customerEmail, customerPhone, bookingDate, numberOfGuests, totalAmount, currency, specialRequests } = bookingDetails;
+  const { bookingReference, tourTitle, customerName, customerEmail, customerPhone, bookingDate, numberOfGuests, totalAmount, currency, specialRequests } = bookingDetails;
   
   const formattedDate = new Date(bookingDate).toLocaleDateString('en-US', { 
     weekday: 'long', 
@@ -416,6 +416,12 @@ export const sendBookingNotificationEmail = async (supplierEmail, supplierName, 
                         <h2 style="margin: 0 0 20px 0; font-size: 20px; font-weight: 700; color: #001A33;">Booking Details</h2>
                         
                         <table style="width: 100%; border-collapse: collapse;">
+                          ${bookingReference ? `
+                          <tr>
+                            <td style="padding: 8px 0; font-weight: 600; color: #666; width: 40%;">Booking Reference:</td>
+                            <td style="padding: 8px 0; color: #001A33; font-weight: 700; font-size: 16px;">${bookingReference}</td>
+                          </tr>
+                          ` : ''}
                           <tr>
                             <td style="padding: 8px 0; font-weight: 600; color: #666; width: 40%;">Tour:</td>
                             <td style="padding: 8px 0; color: #001A33; font-weight: 600;">${tourTitle}</td>
@@ -543,6 +549,553 @@ export const sendBookingNotificationEmail = async (supplierEmail, supplierName, 
     return { success: true, messageId: info.messageId };
   } catch (error) {
     console.error(`❌ Error sending booking notification email to ${supplierEmail}:`, error.message);
+    throw error;
+  }
+};
+
+/**
+ * Send booking confirmation email to customer with invoice
+ * @param {string} customerEmail - Customer's email address
+ * @param {string} customerName - Customer's name
+ * @param {object} bookingDetails - Booking information
+ * @returns {Promise<Object>}
+ */
+export const sendBookingConfirmationEmail = async (customerEmail, customerName, bookingDetails) => {
+  if (!customerEmail || typeof customerEmail !== 'string' || !customerEmail.includes('@')) {
+    console.error('❌ Invalid email address provided:', customerEmail);
+    throw new Error('Invalid email address');
+  }
+
+  console.log(`📧 Sending booking confirmation email to customer: ${customerEmail}`);
+  
+  const { 
+    bookingReference,
+    bookingId,
+    tourTitle, 
+    tourSlug,
+    city,
+    country,
+    customerPhone, 
+    bookingDate, 
+    numberOfGuests, 
+    totalAmount, 
+    currency, 
+    specialRequests,
+    supplierName,
+    supplierEmail,
+    supplierPhone,
+    supplierWhatsApp
+  } = bookingDetails;
+  
+  const formattedDate = new Date(bookingDate).toLocaleDateString('en-US', { 
+    weekday: 'long', 
+    month: 'long', 
+    day: 'numeric', 
+    year: 'numeric' 
+  });
+
+  const bookingConfirmationUrl = `${process.env.FRONTEND_URL || 'http://localhost:3000'}/booking-confirmation/${bookingId}`;
+
+  // Generate WhatsApp link for guide contact
+  let whatsappContactLink = null;
+  if (supplierWhatsApp) {
+    const cleanWhatsApp = supplierWhatsApp.replace(/[^\d+]/g, '');
+    whatsappContactLink = `https://wa.me/${cleanWhatsApp}`;
+  }
+
+  const mailOptions = {
+    from: `"AsiaByLocals Bookings" <${process.env.EMAIL_USER || 'asiabylocals@gmail.com'}>`,
+    to: customerEmail,
+    subject: `Booking Confirmation: ${tourTitle} - ${bookingReference}`,
+    html: `
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <meta charset="utf-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        </head>
+        <body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #f5f5f5;">
+          <table role="presentation" style="width: 100%; border-collapse: collapse; background-color: #f5f5f5;">
+            <tr>
+              <td align="center" style="padding: 40px 20px;">
+                <table role="presentation" style="width: 100%; max-width: 600px; background-color: #ffffff; border-collapse: collapse;">
+                  <!-- Header -->
+                  <tr>
+                    <td style="padding: 40px 40px 30px 40px; text-align: center; background-color: #10B981;">
+                      <h1 style="margin: 0; font-size: 32px; font-weight: 800; color: #ffffff; letter-spacing: -0.5px;">
+                        ✅ Booking Confirmed!
+                      </h1>
+                      <p style="margin: 10px 0 0 0; font-size: 16px; color: #ffffff; opacity: 0.9;">
+                        Your booking reference: ${bookingReference}
+                      </p>
+                    </td>
+                  </tr>
+                  
+                  <!-- Body Content -->
+                  <tr>
+                    <td style="padding: 40px;">
+                      <p style="margin: 0 0 20px 0; font-size: 16px; line-height: 1.6; color: #001A33;">
+                        Dear ${customerName},
+                      </p>
+                      
+                      <p style="margin: 0 0 30px 0; font-size: 16px; line-height: 1.6; color: #001A33;">
+                        Thank you for booking with AsiaByLocals! Your booking has been confirmed. Please keep this email as your booking confirmation and invoice.
+                      </p>
+                      
+                      <!-- Booking Details Card -->
+                      <div style="background-color: #f8f9fa; border-radius: 8px; padding: 24px; margin: 30px 0; border-left: 4px solid #10B981;">
+                        <h2 style="margin: 0 0 20px 0; font-size: 20px; font-weight: 700; color: #001A33;">Booking Details</h2>
+                        
+                        <table style="width: 100%; border-collapse: collapse;">
+                          <tr>
+                            <td style="padding: 8px 0; font-weight: 600; color: #666; width: 40%;">Booking Reference:</td>
+                            <td style="padding: 8px 0; color: #001A33; font-weight: 700; font-size: 16px;">${bookingReference}</td>
+                          </tr>
+                          <tr>
+                            <td style="padding: 8px 0; font-weight: 600; color: #666;">Tour:</td>
+                            <td style="padding: 8px 0; color: #001A33; font-weight: 600;">${tourTitle}</td>
+                          </tr>
+                          <tr>
+                            <td style="padding: 8px 0; font-weight: 600; color: #666;">Location:</td>
+                            <td style="padding: 8px 0; color: #001A33;">${city}, ${country}</td>
+                          </tr>
+                          <tr>
+                            <td style="padding: 8px 0; font-weight: 600; color: #666;">Date:</td>
+                            <td style="padding: 8px 0; color: #001A33; font-weight: 600;">${formattedDate}</td>
+                          </tr>
+                          <tr>
+                            <td style="padding: 8px 0; font-weight: 600; color: #666;">Number of Guests:</td>
+                            <td style="padding: 8px 0; color: #001A33; font-weight: 600;">${numberOfGuests} ${numberOfGuests === 1 ? 'person' : 'people'}</td>
+                          </tr>
+                          ${specialRequests ? `
+                          <tr>
+                            <td style="padding: 8px 0; font-weight: 600; color: #666; vertical-align: top;">Special Requests:</td>
+                            <td style="padding: 8px 0; color: #001A33;">${specialRequests}</td>
+                          </tr>
+                          ` : ''}
+                        </table>
+                      </div>
+                      
+                      <!-- Invoice Section -->
+                      <div style="background-color: #001A33; border-radius: 8px; padding: 24px; margin: 30px 0;">
+                        <h2 style="margin: 0 0 20px 0; font-size: 20px; font-weight: 700; color: #ffffff;">Invoice</h2>
+                        
+                        <table style="width: 100%; border-collapse: collapse;">
+                          <tr>
+                            <td style="padding: 8px 0; color: #ffffff; opacity: 0.9;">Total Amount:</td>
+                            <td style="padding: 8px 0; text-align: right; color: #10B981; font-weight: 700; font-size: 24px;">
+                              ${currency === 'INR' ? '₹' : '$'}${totalAmount.toLocaleString()}
+                            </td>
+                          </tr>
+                          <tr>
+                            <td style="padding: 8px 0; color: #ffffff; opacity: 0.7; font-size: 14px;">Payment Status:</td>
+                            <td style="padding: 8px 0; text-align: right; color: #ffffff; opacity: 0.9; font-size: 14px;">Pending</td>
+                          </tr>
+                        </table>
+                      </div>
+                      
+                      <!-- Guide Contact Information -->
+                      <div style="background-color: #f8f9fa; border-radius: 8px; padding: 24px; margin: 30px 0;">
+                        <h2 style="margin: 0 0 20px 0; font-size: 20px; font-weight: 700; color: #001A33;">Your Guide Contact</h2>
+                        
+                        <table style="width: 100%; border-collapse: collapse;">
+                          <tr>
+                            <td style="padding: 8px 0; font-weight: 600; color: #666; width: 40%;">Guide Name:</td>
+                            <td style="padding: 8px 0; color: #001A33; font-weight: 600;">${supplierName}</td>
+                          </tr>
+                          ${supplierEmail ? `
+                          <tr>
+                            <td style="padding: 8px 0; font-weight: 600; color: #666;">Email:</td>
+                            <td style="padding: 8px 0; color: #001A33;">
+                              <a href="mailto:${supplierEmail}" style="color: #0071EB; text-decoration: none;">${supplierEmail}</a>
+                            </td>
+                          </tr>
+                          ` : ''}
+                          ${supplierPhone ? `
+                          <tr>
+                            <td style="padding: 8px 0; font-weight: 600; color: #666;">Phone:</td>
+                            <td style="padding: 8px 0; color: #001A33;">
+                              <a href="tel:${supplierPhone}" style="color: #0071EB; text-decoration: none;">${supplierPhone}</a>
+                            </td>
+                          </tr>
+                          ` : ''}
+                          ${whatsappContactLink ? `
+                          <tr>
+                            <td style="padding: 8px 0; font-weight: 600; color: #666;">WhatsApp:</td>
+                            <td style="padding: 8px 0;">
+                              <a href="${whatsappContactLink}" style="display: inline-block; background-color: #25D366; color: #ffffff; text-decoration: none; padding: 8px 16px; border-radius: 6px; font-size: 14px; font-weight: 600;">
+                                💬 Contact via WhatsApp
+                              </a>
+                            </td>
+                          </tr>
+                          ` : ''}
+                        </table>
+                      </div>
+                      
+                      <p style="margin: 30px 0 20px 0; font-size: 16px; line-height: 1.6; color: #001A33;">
+                        <strong>Important Information:</strong>
+                      </p>
+                      <ul style="margin: 0 0 30px 0; padding-left: 20px; font-size: 16px; line-height: 1.8; color: #001A33;">
+                        <li style="margin-bottom: 10px;">Your guide will contact you soon to confirm meeting details</li>
+                        <li style="margin-bottom: 10px;">Please save this confirmation email for your records</li>
+                        <li style="margin-bottom: 10px;">In case of any disputes, please contact us with your booking reference: <strong>${bookingReference}</strong></li>
+                        <li style="margin-bottom: 10px;">Keep this email as proof of your booking</li>
+                      </ul>
+                      
+                      <!-- CTA Buttons -->
+                      <table role="presentation" style="width: 100%; border-collapse: collapse; margin: 30px 0;">
+                        <tr>
+                          <td align="center" style="padding: 0;">
+                            <a href="${bookingConfirmationUrl}" style="display: inline-block; background-color: #10B981; color: #ffffff; text-decoration: none; padding: 16px 40px; border-radius: 6px; font-size: 16px; font-weight: 600; text-align: center; margin: 0 10px 10px 10px;">
+                              View Booking Details
+                            </a>
+                            ${whatsappContactLink ? `
+                            <a href="${whatsappContactLink}" style="display: inline-block; background-color: #25D366; color: #ffffff; text-decoration: none; padding: 16px 40px; border-radius: 6px; font-size: 16px; font-weight: 600; text-align: center; margin: 0 10px 10px 10px;">
+                              Contact Guide via WhatsApp
+                            </a>
+                            ` : ''}
+                          </td>
+                        </tr>
+                      </table>
+                      
+                      <p style="margin: 30px 0 0 0; font-size: 16px; line-height: 1.6; color: #001A33;">
+                        If you have any questions or need assistance, please don't hesitate to contact our support team.
+                      </p>
+                      
+                      <p style="margin: 20px 0 0 0; font-size: 16px; line-height: 1.6; color: #001A33;">
+                        Best regards,<br>
+                        <strong>The AsiaByLocals Team</strong>
+                      </p>
+                    </td>
+                  </tr>
+                  
+                  <!-- Footer -->
+                  <tr>
+                    <td style="background-color: #10B981; padding: 40px; text-align: center;">
+                      <p style="margin: 0 0 20px 0; font-size: 12px; color: #ffffff; opacity: 0.9;">
+                        This is your official booking confirmation and invoice. Please keep this email for your records.
+                      </p>
+                      <p style="margin: 0 0 20px 0; font-size: 12px; color: #ffffff; opacity: 0.9;">
+                        2025 © All rights reserved. AsiaByLocals
+                      </p>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+          </table>
+        </body>
+      </html>
+    `,
+    text: `
+      Booking Confirmation - ${bookingReference}
+      
+      Dear ${customerName},
+      
+      Thank you for booking with AsiaByLocals! Your booking has been confirmed.
+      
+      Booking Details:
+      - Booking Reference: ${bookingReference}
+      - Tour: ${tourTitle}
+      - Location: ${city}, ${country}
+      - Date: ${formattedDate}
+      - Guests: ${numberOfGuests} ${numberOfGuests === 1 ? 'person' : 'people'}
+      ${specialRequests ? `- Special Requests: ${specialRequests}` : ''}
+      
+      Invoice:
+      - Total Amount: ${currency === 'INR' ? '₹' : '$'}${totalAmount.toLocaleString()}
+      - Payment Status: Pending
+      
+      Your Guide Contact:
+      - Name: ${supplierName}
+      ${supplierEmail ? `- Email: ${supplierEmail}` : ''}
+      ${supplierPhone ? `- Phone: ${supplierPhone}` : ''}
+      ${whatsappContactLink ? `- WhatsApp: ${whatsappContactLink}` : ''}
+      
+      Important: Please save this email as proof of your booking. Your booking reference is ${bookingReference}.
+      
+      View booking: ${bookingConfirmationUrl}
+      
+      Best regards,
+      The AsiaByLocals Team
+    `
+  };
+
+  try {
+    const info = await transporter.sendMail(mailOptions);
+    console.log(`✅ Booking confirmation email sent successfully to ${customerEmail}`);
+    console.log('📬 Message ID:', info.messageId);
+    return { success: true, messageId: info.messageId };
+  } catch (error) {
+    console.error(`❌ Error sending booking confirmation email to ${customerEmail}:`, error.message);
+    throw error;
+  }
+};
+
+/**
+ * Send booking payment notification email to admin
+ * @param {object} bookingDetails - Complete booking information with payment details
+ * @returns {Promise<Object>}
+ */
+export const sendAdminPaymentNotificationEmail = async (bookingDetails) => {
+  const adminEmail = process.env.ADMIN_EMAIL || process.env.EMAIL_USER || 'admin@asiabylocals.com';
+  
+  if (!adminEmail || typeof adminEmail !== 'string' || !adminEmail.includes('@')) {
+    console.error('❌ Invalid admin email address:', adminEmail);
+    throw new Error('Invalid admin email address');
+  }
+
+  console.log(`📧 Sending payment notification email to admin: ${adminEmail}`);
+  
+  const { 
+    bookingReference,
+    bookingId,
+    tourTitle,
+    city,
+    country,
+    customerName,
+    customerEmail,
+    customerPhone,
+    bookingDate,
+    numberOfGuests,
+    totalAmount,
+    currency,
+    supplierName,
+    supplierEmail,
+    supplierPhone,
+    razorpayPaymentId,
+    razorpayOrderId
+  } = bookingDetails;
+  
+  const formattedDate = new Date(bookingDate).toLocaleDateString('en-US', { 
+    weekday: 'long', 
+    month: 'long', 
+    day: 'numeric', 
+    year: 'numeric' 
+  });
+
+  const mailOptions = {
+    from: `"AsiaByLocals Payments" <${process.env.EMAIL_USER || 'asiabylocals@gmail.com'}>`,
+    to: adminEmail,
+    subject: `💰 Payment Completed: ${tourTitle} - ${bookingReference}`,
+    html: `
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <meta charset="utf-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        </head>
+        <body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #f5f5f5;">
+          <table role="presentation" style="width: 100%; border-collapse: collapse; background-color: #f5f5f5;">
+            <tr>
+              <td align="center" style="padding: 40px 20px;">
+                <table role="presentation" style="width: 100%; max-width: 600px; background-color: #ffffff; border-collapse: collapse;">
+                  <!-- Header -->
+                  <tr>
+                    <td style="padding: 40px 40px 30px 40px; text-align: center; background-color: #10B981;">
+                      <h1 style="margin: 0; font-size: 32px; font-weight: 800; color: #ffffff; letter-spacing: -0.5px;">
+                        💰 Payment Completed
+                      </h1>
+                      <p style="margin: 10px 0 0 0; font-size: 16px; color: #ffffff; opacity: 0.9;">
+                        Booking Reference: ${bookingReference}
+                      </p>
+                    </td>
+                  </tr>
+                  
+                  <!-- Body Content -->
+                  <tr>
+                    <td style="padding: 40px;">
+                      <p style="margin: 0 0 20px 0; font-size: 16px; line-height: 1.6; color: #001A33;">
+                        A payment has been completed for a booking. Please review the details below.
+                      </p>
+                      
+                      <!-- Payment Details Card -->
+                      <div style="background-color: #f8f9fa; border-radius: 8px; padding: 24px; margin: 30px 0; border-left: 4px solid #10B981;">
+                        <h2 style="margin: 0 0 20px 0; font-size: 20px; font-weight: 700; color: #001A33;">Payment Information</h2>
+                        
+                        <table style="width: 100%; border-collapse: collapse;">
+                          <tr>
+                            <td style="padding: 8px 0; font-weight: 600; color: #666; width: 40%;">Booking Reference:</td>
+                            <td style="padding: 8px 0; color: #001A33; font-weight: 700; font-size: 16px;">${bookingReference}</td>
+                          </tr>
+                          <tr>
+                            <td style="padding: 8px 0; font-weight: 600; color: #666;">Payment Status:</td>
+                            <td style="padding: 8px 0; color: #10B981; font-weight: 700; font-size: 16px;">✅ PAID</td>
+                          </tr>
+                          <tr>
+                            <td style="padding: 8px 0; font-weight: 600; color: #666;">Amount:</td>
+                            <td style="padding: 8px 0; color: #001A33; font-weight: 700; font-size: 20px;">
+                              ${currency === 'INR' ? '₹' : '$'}${totalAmount.toLocaleString()}
+                            </td>
+                          </tr>
+                          ${razorpayPaymentId ? `
+                          <tr>
+                            <td style="padding: 8px 0; font-weight: 600; color: #666;">Razorpay Payment ID:</td>
+                            <td style="padding: 8px 0; color: #001A33; font-family: monospace; font-size: 12px;">${razorpayPaymentId}</td>
+                          </tr>
+                          ` : ''}
+                          ${razorpayOrderId ? `
+                          <tr>
+                            <td style="padding: 8px 0; font-weight: 600; color: #666;">Razorpay Order ID:</td>
+                            <td style="padding: 8px 0; color: #001A33; font-family: monospace; font-size: 12px;">${razorpayOrderId}</td>
+                          </tr>
+                          ` : ''}
+                        </table>
+                      </div>
+                      
+                      <!-- Booking Details Card -->
+                      <div style="background-color: #f8f9fa; border-radius: 8px; padding: 24px; margin: 30px 0;">
+                        <h2 style="margin: 0 0 20px 0; font-size: 20px; font-weight: 700; color: #001A33;">Booking Details</h2>
+                        
+                        <table style="width: 100%; border-collapse: collapse;">
+                          <tr>
+                            <td style="padding: 8px 0; font-weight: 600; color: #666; width: 40%;">Tour:</td>
+                            <td style="padding: 8px 0; color: #001A33; font-weight: 600;">${tourTitle}</td>
+                          </tr>
+                          <tr>
+                            <td style="padding: 8px 0; font-weight: 600; color: #666;">Location:</td>
+                            <td style="padding: 8px 0; color: #001A33;">${city}, ${country}</td>
+                          </tr>
+                          <tr>
+                            <td style="padding: 8px 0; font-weight: 600; color: #666;">Date:</td>
+                            <td style="padding: 8px 0; color: #001A33; font-weight: 600;">${formattedDate}</td>
+                          </tr>
+                          <tr>
+                            <td style="padding: 8px 0; font-weight: 600; color: #666;">Guests:</td>
+                            <td style="padding: 8px 0; color: #001A33; font-weight: 600;">${numberOfGuests} ${numberOfGuests === 1 ? 'person' : 'people'}</td>
+                          </tr>
+                        </table>
+                      </div>
+                      
+                      <!-- Customer Details Card -->
+                      <div style="background-color: #f8f9fa; border-radius: 8px; padding: 24px; margin: 30px 0;">
+                        <h2 style="margin: 0 0 20px 0; font-size: 20px; font-weight: 700; color: #001A33;">Customer Information</h2>
+                        
+                        <table style="width: 100%; border-collapse: collapse;">
+                          <tr>
+                            <td style="padding: 8px 0; font-weight: 600; color: #666; width: 40%;">Name:</td>
+                            <td style="padding: 8px 0; color: #001A33; font-weight: 600;">${customerName}</td>
+                          </tr>
+                          <tr>
+                            <td style="padding: 8px 0; font-weight: 600; color: #666;">Email:</td>
+                            <td style="padding: 8px 0; color: #001A33;">
+                              <a href="mailto:${customerEmail}" style="color: #0071EB; text-decoration: none;">${customerEmail}</a>
+                            </td>
+                          </tr>
+                          ${customerPhone ? `
+                          <tr>
+                            <td style="padding: 8px 0; font-weight: 600; color: #666;">Phone:</td>
+                            <td style="padding: 8px 0; color: #001A33;">
+                              <a href="tel:${customerPhone}" style="color: #0071EB; text-decoration: none;">${customerPhone}</a>
+                            </td>
+                          </tr>
+                          ` : ''}
+                        </table>
+                      </div>
+                      
+                      <!-- Supplier Details Card -->
+                      <div style="background-color: #f8f9fa; border-radius: 8px; padding: 24px; margin: 30px 0;">
+                        <h2 style="margin: 0 0 20px 0; font-size: 20px; font-weight: 700; color: #001A33;">Supplier/Guide Information</h2>
+                        
+                        <table style="width: 100%; border-collapse: collapse;">
+                          <tr>
+                            <td style="padding: 8px 0; font-weight: 600; color: #666; width: 40%;">Name:</td>
+                            <td style="padding: 8px 0; color: #001A33; font-weight: 600;">${supplierName}</td>
+                          </tr>
+                          ${supplierEmail ? `
+                          <tr>
+                            <td style="padding: 8px 0; font-weight: 600; color: #666;">Email:</td>
+                            <td style="padding: 8px 0; color: #001A33;">
+                              <a href="mailto:${supplierEmail}" style="color: #0071EB; text-decoration: none;">${supplierEmail}</a>
+                            </td>
+                          </tr>
+                          ` : ''}
+                          ${supplierPhone ? `
+                          <tr>
+                            <td style="padding: 8px 0; font-weight: 600; color: #666;">Phone:</td>
+                            <td style="padding: 8px 0; color: #001A33;">
+                              <a href="tel:${supplierPhone}" style="color: #0071EB; text-decoration: none;">${supplierPhone}</a>
+                            </td>
+                          </tr>
+                          ` : ''}
+                        </table>
+                      </div>
+                      
+                      <!-- CTA Button -->
+                      <table role="presentation" style="width: 100%; border-collapse: collapse; margin: 30px 0;">
+                        <tr>
+                          <td align="center" style="padding: 0;">
+                            <a href="${process.env.FRONTEND_URL || 'http://localhost:3000'}/secure-panel-abl" style="display: inline-block; background-color: #10B981; color: #ffffff; text-decoration: none; padding: 16px 40px; border-radius: 6px; font-size: 16px; font-weight: 600; text-align: center;">
+                              View in Admin Dashboard
+                            </a>
+                          </td>
+                        </tr>
+                      </table>
+                      
+                      <p style="margin: 30px 0 0 0; font-size: 16px; line-height: 1.6; color: #001A33;">
+                        Best regards,<br>
+                        <strong>AsiaByLocals Payment System</strong>
+                      </p>
+                    </td>
+                  </tr>
+                  
+                  <!-- Footer -->
+                  <tr>
+                    <td style="background-color: #10B981; padding: 40px; text-align: center;">
+                      <p style="margin: 0 0 20px 0; font-size: 12px; color: #ffffff; opacity: 0.9;">
+                        2025 © All rights reserved. AsiaByLocals
+                      </p>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+          </table>
+        </body>
+      </html>
+    `,
+    text: `
+      Payment Completed - ${bookingReference}
+      
+      A payment has been completed for a booking.
+      
+      Payment Information:
+      - Booking Reference: ${bookingReference}
+      - Payment Status: PAID
+      - Amount: ${currency === 'INR' ? '₹' : '$'}${totalAmount.toLocaleString()}
+      ${razorpayPaymentId ? `- Razorpay Payment ID: ${razorpayPaymentId}` : ''}
+      ${razorpayOrderId ? `- Razorpay Order ID: ${razorpayOrderId}` : ''}
+      
+      Booking Details:
+      - Tour: ${tourTitle}
+      - Location: ${city}, ${country}
+      - Date: ${formattedDate}
+      - Guests: ${numberOfGuests} ${numberOfGuests === 1 ? 'person' : 'people'}
+      
+      Customer Information:
+      - Name: ${customerName}
+      - Email: ${customerEmail}
+      ${customerPhone ? `- Phone: ${customerPhone}` : ''}
+      
+      Supplier Information:
+      - Name: ${supplierName}
+      ${supplierEmail ? `- Email: ${supplierEmail}` : ''}
+      ${supplierPhone ? `- Phone: ${supplierPhone}` : ''}
+      
+      View in admin dashboard: ${process.env.FRONTEND_URL || 'http://localhost:3000'}/secure-panel-abl
+      
+      Best regards,
+      AsiaByLocals Payment System
+    `
+  };
+
+  try {
+    const info = await transporter.sendMail(mailOptions);
+    console.log(`✅ Admin payment notification email sent successfully to ${adminEmail}`);
+    console.log('📬 Message ID:', info.messageId);
+    return { success: true, messageId: info.messageId };
+  } catch (error) {
+    console.error(`❌ Error sending admin payment notification email to ${adminEmail}:`, error.message);
     throw error;
   }
 };
