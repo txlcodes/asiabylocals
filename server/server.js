@@ -3575,55 +3575,51 @@ app.get('/api/public/tours/:id', async (req, res) => {
 
 // Serve static files from dist folder (frontend build) in production
 if (process.env.NODE_ENV === 'production') {
-  import('fs').then(fs => {
-    // Try multiple possible paths for dist folder
-    const distPaths = [
-      path.join(__dirname, '../dist'),           // If running from server/, dist is in root
-      path.join(process.cwd(), 'dist'),          // From current working directory
-      path.join(process.cwd(), '../dist')        // From parent directory
-    ];
-    
-    // Find the first existing dist path
-    let distPath = null;
-    for (const dist of distPaths) {
-      try {
-        const indexPath = path.join(dist, 'index.html');
-        if (fs.existsSync(indexPath)) {
-          distPath = dist;
-          console.log(`✅ Found dist folder at: ${distPath}`);
-          break;
-        }
-      } catch (e) {
-        // Continue to next path
+  // Try multiple possible paths for dist folder
+  const distPaths = [
+    path.join(__dirname, '../dist'),           // If running from server/, dist is in root
+    path.join(process.cwd(), 'dist'),          // From current working directory
+    path.join(process.cwd(), '../dist')        // From parent directory
+  ];
+  
+  // Find the first existing dist path
+  let distPath = null;
+  for (const dist of distPaths) {
+    try {
+      const indexPath = path.join(dist, 'index.html');
+      if (fs.existsSync(indexPath)) {
+        distPath = dist;
+        console.log(`✅ Found dist folder at: ${distPath}`);
+        break;
       }
+    } catch (e) {
+      // Continue to next path
     }
+  }
+  
+  if (distPath) {
+    // Serve static assets (JS, CSS, images, etc.)
+    app.use(express.static(distPath));
     
-    if (distPath) {
-      // Serve static assets (JS, CSS, images, etc.)
-      app.use(express.static(distPath));
-      
-      // Handle React Router - serve index.html for all non-API routes
-      app.get('*', (req, res, next) => {
-        // Don't serve index.html for API routes
-        if (req.path.startsWith('/api')) {
-          return next();
+    // Handle React Router - serve index.html for all non-API routes
+    app.get('*', (req, res, next) => {
+      // Don't serve index.html for API routes
+      if (req.path.startsWith('/api')) {
+        return next();
+      }
+      // Serve index.html for all other routes (SPA routing)
+      res.sendFile(path.join(distPath, 'index.html'), (err) => {
+        if (err) {
+          console.error('Error serving index.html:', err);
+          next();
         }
-        // Serve index.html for all other routes (SPA routing)
-        res.sendFile(path.join(distPath, 'index.html'), (err) => {
-          if (err) {
-            console.error('Error serving index.html:', err);
-            next();
-          }
-        });
       });
-    } else {
-      console.warn('⚠️  dist folder not found. Frontend will not be served.');
-      console.warn('   Check that Build Command includes "npm run build"');
-      console.warn('   Tried paths:', distPaths);
-    }
-  }).catch(err => {
-    console.error('Error setting up static file serving:', err);
-  });
+    });
+  } else {
+    console.warn('⚠️  dist folder not found. Frontend will not be served.');
+    console.warn('   Check that Build Command includes "npm run build"');
+    console.warn('   Tried paths:', distPaths);
+  }
 }
 
 app.listen(PORT, () => {
