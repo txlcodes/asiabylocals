@@ -2453,7 +2453,66 @@ app.post('/api/admin/tours/:id/reject', verifyAdmin, async (req, res) => {
   }
 });
 
-// Get all pending tours (admin)
+// Get all tours (admin) - can filter by status
+app.get('/api/admin/tours', verifyAdmin, async (req, res) => {
+  try {
+    const { status } = req.query;
+    const where = {};
+    if (status) {
+      where.status = status;
+    }
+    
+    const tours = await prisma.tour.findMany({
+      where,
+      include: {
+        supplier: {
+          select: {
+            id: true,
+            fullName: true,
+            companyName: true,
+            email: true,
+            phone: true,
+            whatsapp: true,
+            emailVerified: true,
+            verificationDocumentUrl: true
+          }
+        }
+      },
+      orderBy: {
+        createdAt: 'desc'
+      }
+    });
+
+    // Parse JSON fields
+    const formattedTours = tours.map(tour => ({
+      ...tour,
+      id: String(tour.id),
+      locations: JSON.parse(tour.locations || '[]'),
+      images: JSON.parse(tour.images || '[]'),
+      languages: JSON.parse(tour.languages || '[]'),
+      highlights: tour.highlights ? JSON.parse(tour.highlights || '[]') : [],
+      supplier: {
+        ...tour.supplier,
+        id: String(tour.supplier.id)
+      }
+    }));
+
+    res.json({
+      success: true,
+      tours: formattedTours,
+      count: formattedTours.length
+    });
+  } catch (error) {
+    console.error('Get admin tours error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Internal server error',
+      message: 'Failed to fetch tours'
+    });
+  }
+});
+
+// Get all pending tours (admin) - for backward compatibility
 app.get('/api/admin/tours/pending', verifyAdmin, async (req, res) => {
   try {
     const tours = await prisma.tour.findMany({

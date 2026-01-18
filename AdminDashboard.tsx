@@ -50,7 +50,10 @@ const AdminDashboard: React.FC = () => {
     setLoading(true);
     try {
       const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
-      const response = await fetch(`${API_URL}/api/admin/tours/pending`, {
+      const url = tourFilter === 'pending' 
+        ? `${API_URL}/api/admin/tours/pending`
+        : `${API_URL}/api/admin/tours${tourFilter !== 'all' ? `?status=${tourFilter}` : ''}`;
+      const response = await fetch(url, {
         headers: getAuthHeaders()
       });
       console.log('Admin Dashboard - Response status:', response.status);
