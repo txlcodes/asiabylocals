@@ -255,7 +255,14 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
               setSelectedDate(draft.selectedDate);
             }
             if (draft.participants) {
-              setParticipants(draft.participants);
+              if (draft.participants > 8) {
+                setIsCustomParticipants(true);
+                setCustomParticipants(draft.participants);
+                setParticipants(draft.participants);
+              } else {
+                setIsCustomParticipants(false);
+                setParticipants(draft.participants);
+              }
             }
             if (draft.selectedOptionId && tour.options) {
               const option = tour.options.find((opt: any) => opt.id === draft.selectedOptionId);
