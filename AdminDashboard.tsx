@@ -7,6 +7,7 @@ const AdminDashboard: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'tours' | 'suppliers' | 'bookings'>('suppliers');
   const [pendingTours, setPendingTours] = useState<any[]>([]);
   const [pendingSuppliers, setPendingSuppliers] = useState<any[]>([]);
+  const [tourFilter, setTourFilter] = useState<'pending' | 'approved' | 'all'>('pending');
   const [bookings, setBookings] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadingBookings, setLoadingBookings] = useState(false);
@@ -140,7 +141,7 @@ const AdminDashboard: React.FC = () => {
         fetchBookings();
       }
     }
-  }, [activeTab, isAuthenticated]);
+  }, [activeTab, isAuthenticated, tourFilter]);
 
   // Show login if not authenticated
   if (!isAuthenticated) {
@@ -642,9 +643,43 @@ const AdminDashboard: React.FC = () => {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* Tours List */}
             <div className="lg:col-span-2 space-y-4">
-              <h2 className="text-xl font-black text-[#001A33] mb-4">
-                Pending Tours ({pendingTours.length})
-              </h2>
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-xl font-black text-[#001A33]">
+                  Tours ({pendingTours.length})
+                </h2>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => setTourFilter('pending')}
+                    className={`px-4 py-2 rounded-full text-[12px] font-black transition-all ${
+                      tourFilter === 'pending'
+                        ? 'bg-yellow-500 text-white'
+                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                    }`}
+                  >
+                    Pending
+                  </button>
+                  <button
+                    onClick={() => setTourFilter('approved')}
+                    className={`px-4 py-2 rounded-full text-[12px] font-black transition-all ${
+                      tourFilter === 'approved'
+                        ? 'bg-[#10B981] text-white'
+                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                    }`}
+                  >
+                    Approved
+                  </button>
+                  <button
+                    onClick={() => setTourFilter('all')}
+                    className={`px-4 py-2 rounded-full text-[12px] font-black transition-all ${
+                      tourFilter === 'all'
+                        ? 'bg-[#001A33] text-white'
+                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                    }`}
+                  >
+                    All
+                  </button>
+                </div>
+              </div>
               {pendingTours.map((tour) => (
                 <div
                   key={tour.id}
