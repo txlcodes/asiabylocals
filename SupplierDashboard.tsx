@@ -91,7 +91,8 @@ const SupplierDashboard: React.FC<SupplierDashboardProps> = ({ supplier, onLogou
     
     setIsLoadingBookings(true);
     try {
-      const response = await fetch(`http://localhost:3001/api/suppliers/${supplier.id}/bookings`);
+      const API_URL = (import.meta as any).env?.VITE_API_URL || 'http://localhost:3001';
+      const response = await fetch(`${API_URL}/api/suppliers/${supplier.id}/bookings`);
       const data = await response.json();
       if (data.success) {
         setBookings(data.bookings || []);
@@ -115,7 +116,8 @@ const SupplierDashboard: React.FC<SupplierDashboardProps> = ({ supplier, onLogou
     
     setIsLoading(true);
     try {
-      const response = await fetch(`http://localhost:3001/api/tours?supplierId=${supplier.id}`);
+      const API_URL = (import.meta as any).env?.VITE_API_URL || 'http://localhost:3001';
+      const response = await fetch(`${API_URL}/api/tours?supplierId=${supplier.id}`);
       const data = await response.json();
       if (data.success) {
         setTours(data.tours);
@@ -133,7 +135,8 @@ const SupplierDashboard: React.FC<SupplierDashboardProps> = ({ supplier, onLogou
     }
 
     try {
-      const response = await fetch(`http://localhost:3001/api/tours/${tourId}`, {
+      const API_URL = (import.meta as any).env?.VITE_API_URL || 'http://localhost:3001';
+      const response = await fetch(`${API_URL}/api/tours/${tourId}`, {
         method: 'DELETE'
       });
       const data = await response.json();
@@ -154,7 +157,8 @@ const SupplierDashboard: React.FC<SupplierDashboardProps> = ({ supplier, onLogou
     
     setIsSavingProfile(true);
     try {
-      const response = await fetch(`http://localhost:3001/api/suppliers/${supplier.id}/profile`, {
+      const API_URL = (import.meta as any).env?.VITE_API_URL || 'http://localhost:3001';
+      const response = await fetch(`${API_URL}/api/suppliers/${supplier.id}/profile`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -182,7 +186,8 @@ const SupplierDashboard: React.FC<SupplierDashboardProps> = ({ supplier, onLogou
 
   const handleSubmitTour = async (tourId: string) => {
     try {
-      const response = await fetch(`http://localhost:3001/api/tours/${tourId}/submit`, {
+      const API_URL = (import.meta as any).env?.VITE_API_URL || 'http://localhost:3001';
+      const response = await fetch(`${API_URL}/api/tours/${tourId}/submit`, {
         method: 'POST'
       });
       const data = await response.json();

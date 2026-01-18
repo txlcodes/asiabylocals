@@ -455,7 +455,8 @@ const CityPage: React.FC<CityPageProps> = ({ country, city }) => {
   const fetchTours = async () => {
     setLoading(true);
     try {
-      const url = `http://localhost:3001/api/public/tours?country=${encodeURIComponent(country)}&city=${encodeURIComponent(city)}&status=approved`;
+      const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+      const url = `${API_URL}/api/public/tours?country=${encodeURIComponent(country)}&city=${encodeURIComponent(city)}&status=approved`;
       console.log('CityPage - Fetching tours from:', url);
       const response = await fetch(url);
       console.log('CityPage - Response status:', response.status);

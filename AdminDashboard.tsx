@@ -49,7 +49,8 @@ const AdminDashboard: React.FC = () => {
   const fetchPendingTours = async () => {
     setLoading(true);
     try {
-      const response = await fetch('http://localhost:3001/api/admin/tours/pending', {
+      const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+      const response = await fetch(`${API_URL}/api/admin/tours/pending`, {
         headers: getAuthHeaders()
       });
       console.log('Admin Dashboard - Response status:', response.status);
@@ -79,7 +80,8 @@ const AdminDashboard: React.FC = () => {
   const fetchBookings = async () => {
     setLoadingBookings(true);
     try {
-      const response = await fetch('http://localhost:3001/api/admin/bookings', {
+      const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+      const response = await fetch(`${API_URL}/api/admin/bookings`, {
         headers: getAuthHeaders()
       });
       if (!response.ok) {
@@ -102,7 +104,8 @@ const AdminDashboard: React.FC = () => {
   const fetchPendingSuppliers = async () => {
     setLoading(true);
     try {
-      const response = await fetch('http://localhost:3001/api/admin/suppliers/pending', {
+      const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+      const response = await fetch(`${API_URL}/api/admin/suppliers/pending`, {
         headers: getAuthHeaders()
       });
       if (!response.ok) {
@@ -148,7 +151,8 @@ const AdminDashboard: React.FC = () => {
 
     setIsProcessing(true);
     try {
-      const response = await fetch(`http://localhost:3001/api/admin/tours/${tourId}/approve`, {
+      const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+      const response = await fetch(`${API_URL}/api/admin/tours/${tourId}/approve`, {
         method: 'POST',
         headers: getAuthHeaders()
       });
@@ -176,7 +180,8 @@ const AdminDashboard: React.FC = () => {
 
     setIsProcessing(true);
     try {
-      const response = await fetch(`http://localhost:3001/api/admin/suppliers/${supplierId}/approve`, {
+      const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+      const response = await fetch(`${API_URL}/api/admin/suppliers/${supplierId}/approve`, {
         method: 'POST',
         headers: getAuthHeaders()
       });
@@ -209,7 +214,8 @@ const AdminDashboard: React.FC = () => {
 
     setIsProcessing(true);
     try {
-      const response = await fetch(`http://localhost:3001/api/admin/suppliers/${supplierId}/reject`, {
+      const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+      const response = await fetch(`${API_URL}/api/admin/suppliers/${supplierId}/reject`, {
         method: 'POST',
         headers: getAuthHeaders(),
         body: JSON.stringify({ rejectionReason })
@@ -244,7 +250,8 @@ const AdminDashboard: React.FC = () => {
 
     setIsProcessing(true);
     try {
-      const response = await fetch(`http://localhost:3001/api/admin/tours/${tourId}/reject`, {
+      const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+      const response = await fetch(`${API_URL}/api/admin/tours/${tourId}/reject`, {
         method: 'POST',
         headers: getAuthHeaders(),
         body: JSON.stringify({ rejectionReason })

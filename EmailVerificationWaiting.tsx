@@ -19,7 +19,8 @@ const EmailVerificationWaiting: React.FC = () => {
 
     const checkVerification = async () => {
       try {
-        const response = await fetch(`http://localhost:3001/api/suppliers/${supplierId}/verification-status`);
+        const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+        const response = await fetch(`${API_URL}/api/suppliers/${supplierId}/verification-status`);
         const data = await response.json();
         
         if (data.success && data.emailVerified) {
@@ -45,7 +46,8 @@ const EmailVerificationWaiting: React.FC = () => {
   const handleResendEmail = async () => {
     setIsResending(true);
     try {
-      const response = await fetch('http://localhost:3001/api/suppliers/resend-verification', {
+      const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+      const response = await fetch(`${API_URL}/api/suppliers/resend-verification`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email }),

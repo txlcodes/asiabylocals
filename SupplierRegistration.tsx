@@ -156,7 +156,8 @@ const SupplierRegistration: React.FC<SupplierRegistrationProps> = ({ onClose }) 
             console.log('📤 Sending document to server...');
             
             // Update supplier with license document
-            const response = await fetch(`http://localhost:3001/api/suppliers/${supplierId}/update-document`, {
+            const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+            const response = await fetch(`${API_URL}/api/suppliers/${supplierId}/update-document`, {
               method: 'PATCH',
               headers: {
                 'Content-Type': 'application/json',
@@ -220,7 +221,8 @@ const SupplierRegistration: React.FC<SupplierRegistrationProps> = ({ onClose }) 
     };
 
     // Call API
-    fetch('http://localhost:3001/api/suppliers/register', {
+    const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+    fetch(`${API_URL}/api/suppliers/register`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -288,7 +290,8 @@ const SupplierRegistration: React.FC<SupplierRegistrationProps> = ({ onClose }) 
   const startVerificationPolling = (supplierId: string) => {
     const checkVerification = async () => {
       try {
-        const response = await fetch(`http://localhost:3001/api/suppliers/${supplierId}/verification-status`);
+        const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+        const response = await fetch(`${API_URL}/api/suppliers/${supplierId}/verification-status`);
         const data = await response.json();
         
         if (data.success && data.emailVerified) {

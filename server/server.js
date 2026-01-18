@@ -4,6 +4,7 @@ import prisma from './db.js';
 import bcrypt from 'bcrypt';
 import { randomBytes } from 'crypto';
 import { sendVerificationEmail, sendWelcomeEmail, sendBookingNotificationEmail, sendBookingConfirmationEmail, sendAdminPaymentNotificationEmail } from './utils/email.js';
+import { uploadMultipleImages } from './utils/cloudinary.js';
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -12,7 +13,26 @@ const PORT = process.env.PORT || 3001;
 app.set('trust proxy', 1);
 
 // Middleware
-app.use(cors());
+// CORS configuration - allows localhost for development and production domains
+const allowedOrigins = [
+  'http://localhost:3000',
+  'http://localhost:4000',
+  process.env.FRONTEND_URL,
+  process.env.VITE_FRONTEND_URL
+].filter(Boolean); // Remove undefined values
+
+// In production, use specific origins; in development, allow all
+if (process.env.NODE_ENV === 'production' && allowedOrigins.length > 0) {
+  app.use(cors({
+    origin: allowedOrigins,
+    credentials: true
+  }));
+} else {
+  // Development: allow all origins
+  app.use(cors({
+    credentials: true
+  }));
+}
 // Increase body size limit to 50MB for PDF uploads (base64 encoded files are larger)
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
@@ -1641,6 +1661,41 @@ app.post('/api/tours', async (req, res) => {
     
     console.log(`📝 Generated slug: "${slug}" (${slug.length} characters)`);
 
+    // Upload images to Cloudinary (if Cloudinary is configured)
+    let imageUrls = imagesArray;
+    if (process.env.CLOUDINARY_CLOUD_NAME && process.env.CLOUDINARY_API_KEY && process.env.CLOUDINARY_API_SECRET) {
+      try {
+        console.log('☁️  Uploading images to Cloudinary...');
+        // Check if images are base64 (data URLs) or already URLs
+        const needsUpload = imagesArray.some(img => img.startsWith('data:image'));
+        
+        if (needsUpload) {
+          // Upload base64 images to Cloudinary
+          const folder = `tours/${city.toLowerCase().replace(/\s+/g, '-')}`;
+          imageUrls = await uploadMultipleImages(imagesArray, folder);
+          console.log(`✅ Uploaded ${imageUrls.length} images to Cloudinary`);
+        } else {
+          // Images are already URLs (from Cloudinary or other sources)
+          console.log('ℹ️  Images are already URLs, skipping Cloudinary upload');
+          imageUrls = imagesArray;
+        }
+      } catch (cloudinaryError) {
+        console.error('❌ Cloudinary upload error:', cloudinaryError);
+        // Fallback: use base64 images if Cloudinary fails (for development)
+        if (process.env.NODE_ENV === 'production') {
+          return res.status(500).json({
+            success: false,
+            error: 'Image upload failed',
+            message: 'Failed to upload images. Please try again.'
+          });
+        }
+        console.warn('⚠️  Using base64 images as fallback (development mode)');
+        imageUrls = imagesArray;
+      }
+    } else {
+      console.log('ℹ️  Cloudinary not configured, using base64 images (development mode)');
+    }
+
     // Parse tour options if provided (accept both 'options' and 'tourOptions' field names)
     const tourOptions = req.body.options || req.body.tourOptions || [];
     
@@ -1676,7 +1731,7 @@ app.post('/api/tours', async (req, res) => {
       notIncluded: notIncluded || null,
       meetingPoint: meetingPoint || null,
       guideType: guideType || null,
-      images: JSON.stringify(imagesArray),
+      images: JSON.stringify(imageUrls), // Store Cloudinary URLs instead of base64
       languages: JSON.stringify(languagesArray || ['English']),
       reviews: null,
       status: 'draft'

@@ -121,15 +121,16 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
   const fetchTour = async () => {
     setLoading(true);
     try {
+      const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
       let url;
       if (tourSlug) {
         // Use slug-based endpoint for SEO-friendly URLs
-        url = `http://localhost:3001/api/public/tours/by-slug/${encodeURIComponent(tourSlug)}`;
+        url = `${API_URL}/api/public/tours/by-slug/${encodeURIComponent(tourSlug)}`;
         console.log('TourDetailPage - Fetching tour by slug:', tourSlug);
         console.log('TourDetailPage - Full URL:', url);
       } else if (tourId) {
         // Fallback to ID-based endpoint
-        url = `http://localhost:3001/api/public/tours/${tourId}`;
+        url = `${API_URL}/api/public/tours/${tourId}`;
         console.log('TourDetailPage - Fetching tour by ID:', tourId);
       } else {
         console.warn('TourDetailPage - No tourId or tourSlug provided');
