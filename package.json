@@ -7,7 +7,7 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "start": "cd server && node server.js"
+    "start": "cd server && npm install && npm run prisma:generate && node server.js"
   },
   "dependencies": {
     "react-dom": "^19.2.3",
