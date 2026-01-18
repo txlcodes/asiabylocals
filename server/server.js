@@ -24,7 +24,10 @@ const allowedOrigins = [
   'http://localhost:3000',
   'http://localhost:4000',
   process.env.FRONTEND_URL,
-  process.env.VITE_FRONTEND_URL
+  process.env.VITE_FRONTEND_URL,
+  // Add www variant if main domain is set
+  process.env.FRONTEND_URL?.replace('https://', 'https://www.'),
+  process.env.VITE_FRONTEND_URL?.replace('https://', 'https://www.')
 ].filter(Boolean); // Remove undefined values
 
 // In production, use specific origins; in development, allow all
