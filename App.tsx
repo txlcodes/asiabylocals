@@ -873,13 +873,18 @@ const App: React.FC = () => {
             </div>
           </div>
 
-          <div className="pt-10 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-8 text-[11px] font-black uppercase tracking-widest text-gray-500">
-            <span>&copy; 2025 AsiaByLocals HQ • Authentic Experiences Only</span>
-            <div className="flex gap-4 items-center grayscale opacity-50">
-              <div className="bg-white/10 p-2 rounded">VISA</div>
-              <div className="bg-white/10 p-2 rounded">MASTERCARD</div>
-              <div className="bg-white/10 p-2 rounded">PAYPAL</div>
-              <div className="bg-white/10 p-2 rounded">STRIPE</div>
+          <div className="pt-10 border-t border-white/5">
+            <div className="flex flex-col md:flex-row justify-between items-center gap-8 text-[11px] font-black uppercase tracking-widest text-gray-500 mb-4">
+              <span>&copy; 2025 AsiaByLocals HQ • Authentic Experiences Only</span>
+              <div className="flex gap-4 items-center grayscale opacity-50">
+                <div className="bg-white/10 p-2 rounded">VISA</div>
+                <div className="bg-white/10 p-2 rounded">MASTERCARD</div>
+                <div className="bg-white/10 p-2 rounded">PAYPAL</div>
+                <div className="bg-white/10 p-2 rounded">STRIPE</div>
+              </div>
+            </div>
+            <div className="text-center text-gray-400 text-[12px] font-semibold">
+              Branch Office: JBC 3 Building, Cluster Y, JLT Dubai
             </div>
           </div>
         </div>
