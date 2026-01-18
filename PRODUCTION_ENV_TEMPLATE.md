@@ -37,10 +37,10 @@ EMAIL_APP_PASSWORD=your_gmail_app_password_here
 ADMIN_USERNAME=admin
 ADMIN_PASSWORD=YourSecurePassword123!
 
-# Cloudinary (Image Storage)
-CLOUDINARY_CLOUD_NAME=your_cloudinary_cloud_name
-CLOUDINARY_API_KEY=your_cloudinary_api_key
-CLOUDINARY_API_SECRET=your_cloudinary_api_secret
+# Cloudinary (Image Storage) - ✅ CONFIGURED
+CLOUDINARY_CLOUD_NAME=dx2fxyaft
+CLOUDINARY_API_KEY=661233678661536
+CLOUDINARY_API_SECRET=PEePosrZMLygFivk04VKF7BcaeA
 
 # Razorpay (Payment Gateway - Optional)
 RAZORPAY_KEY_ID=your_razorpay_key
