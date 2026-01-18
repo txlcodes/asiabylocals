@@ -39,6 +39,8 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [selectedDate, setSelectedDate] = useState<string>('');
   const [participants, setParticipants] = useState(1);
+  const [isCustomParticipants, setIsCustomParticipants] = useState(false);
+  const [customParticipants, setCustomParticipants] = useState(9);
   const [selectedLanguage, setSelectedLanguage] = useState('English');
   const [selectedOption, setSelectedOption] = useState<any>(null);
   const [showImageModal, setShowImageModal] = useState(false);
@@ -76,7 +78,14 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
             setSelectedDate(draft.selectedDate);
           }
           if (draft.participants) {
-            setParticipants(draft.participants);
+            if (draft.participants > 8) {
+              setIsCustomParticipants(true);
+              setCustomParticipants(draft.participants);
+              setParticipants(draft.participants);
+            } else {
+              setIsCustomParticipants(false);
+              setParticipants(draft.participants);
+            }
           }
           if (draft.selectedOptionId && tour.options) {
             const option = tour.options.find((opt: any) => opt.id === draft.selectedOptionId);
@@ -961,16 +970,45 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
               <div className="space-y-4 mb-6">
                 <div className="relative">
                   <select
-                    value={participants}
-                    onChange={(e) => setParticipants(parseInt(e.target.value))}
+                    value={isCustomParticipants ? 'custom' : participants}
+                    onChange={(e) => {
+                      if (e.target.value === 'custom') {
+                        setIsCustomParticipants(true);
+                        setParticipants(customParticipants);
+                      } else {
+                        setIsCustomParticipants(false);
+                        setParticipants(parseInt(e.target.value));
+                      }
+                    }}
                     className="w-full bg-white border-2 border-gray-200 rounded-2xl py-4 px-4 pr-10 font-bold text-[#001A33] text-[14px] focus:ring-2 focus:ring-[#10B981] focus:border-[#10B981] outline-none appearance-none"
                   >
                     {[1, 2, 3, 4, 5, 6, 7, 8].map(num => (
                       <option key={num} value={num}>Adult x {num}</option>
                     ))}
+                    <option value="custom">Custom</option>
                   </select>
                   <Users className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" size={20} />
                 </div>
+
+                {/* Custom Participants Input */}
+                {isCustomParticipants && (
+                  <div className="relative">
+                    <input
+                      type="number"
+                      min="9"
+                      max="100"
+                      value={customParticipants}
+                      onChange={(e) => {
+                        const value = parseInt(e.target.value) || 9;
+                        setCustomParticipants(value);
+                        setParticipants(value);
+                      }}
+                      className="w-full bg-white border-2 border-gray-200 rounded-2xl py-4 px-4 pr-10 font-bold text-[#001A33] text-[14px] focus:ring-2 focus:ring-[#10B981] focus:border-[#10B981] outline-none"
+                      placeholder="Enter number of adults"
+                    />
+                    <Users className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" size={20} />
+                  </div>
+                )}
 
                 {tour.languages && tour.languages.length > 0 && (
                   <div className="relative">
