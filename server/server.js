@@ -2294,8 +2294,6 @@ app.post('/api/admin/login', rateLimitAdminLogin, async (req, res) => {
     
     // Simple authentication (in production, use JWT tokens and bcrypt)
     if (normalizedUsername === ADMIN_CREDENTIALS.username && normalizedPassword === ADMIN_CREDENTIALS.password) {
-      // Successful login - clear any previous attempts
-      loginAttempts.delete(clientIp);
       console.log('✅ Admin login successful:', username, 'from IP:', clientIp);
       res.json({
         success: true,
@@ -2303,23 +2301,7 @@ app.post('/api/admin/login', rateLimitAdminLogin, async (req, res) => {
         message: 'Login successful'
       });
     } else {
-      // Failed login - track attempt
-      const attemptData = loginAttempts.get(clientIp) || { count: 0, lastAttempt: 0 };
-      attemptData.count += 1;
-      attemptData.lastAttempt = Date.now();
-
-      if (attemptData.count >= MAX_ATTEMPTS) {
-        attemptData.lockedUntil = Date.now() + LOCKOUT_DURATION;
-        console.log('🔒 Admin login locked for IP:', clientIp, 'after', MAX_ATTEMPTS, 'failed attempts');
-        loginAttempts.set(clientIp, attemptData);
-        return res.status(429).json({
-          error: 'Too many attempts',
-          message: `Too many failed login attempts. Your IP has been temporarily locked for 15 minutes.`
-        });
-      }
-
-      loginAttempts.set(clientIp, attemptData);
-      console.log('❌ Admin login failed:', username, 'from IP:', clientIp, `(${attemptData.count}/${MAX_ATTEMPTS} attempts)`);
+      console.log('❌ Admin login failed:', username, 'from IP:', clientIp);
       res.status(401).json({ 
         error: 'Invalid credentials',
         message: 'Username or password is incorrect'
