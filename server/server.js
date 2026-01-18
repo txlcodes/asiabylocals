@@ -2219,9 +2219,16 @@ app.delete('/api/admin/tours/:id', verifyAdmin, async (req, res) => {
 
 // Admin credentials (in production, use environment variables)
 const ADMIN_CREDENTIALS = {
-  username: process.env.ADMIN_USERNAME || 'admin',
-  password: process.env.ADMIN_PASSWORD || 'admin123' // Change this in production!
+  username: (process.env.ADMIN_USERNAME || 'admin').trim(),
+  password: (process.env.ADMIN_PASSWORD || 'admin123').trim() // Change this in production!
 };
+
+// Log admin credentials status (without exposing password)
+console.log('🔐 Admin credentials loaded:', {
+  username: ADMIN_CREDENTIALS.username,
+  passwordSet: !!process.env.ADMIN_PASSWORD,
+  passwordLength: ADMIN_CREDENTIALS.password.length
+});
 
 // Rate limiting for admin login (prevent brute force attacks)
 const loginAttempts = new Map();
@@ -2281,8 +2288,12 @@ app.post('/api/admin/login', rateLimitAdminLogin, async (req, res) => {
       });
     }
 
+    // Normalize inputs (trim whitespace)
+    const normalizedUsername = username.trim();
+    const normalizedPassword = password.trim();
+    
     // Simple authentication (in production, use JWT tokens and bcrypt)
-    if (username === ADMIN_CREDENTIALS.username && password === ADMIN_CREDENTIALS.password) {
+    if (normalizedUsername === ADMIN_CREDENTIALS.username && normalizedPassword === ADMIN_CREDENTIALS.password) {
       // Successful login - clear any previous attempts
       loginAttempts.delete(clientIp);
       console.log('✅ Admin login successful:', username, 'from IP:', clientIp);
