@@ -33,18 +33,18 @@ When you deploy to Render, you'll get:
    - Connect your GitHub repository: `txlcodes/asiabylocals`
 
 2. **Configure Service:**
-   - **Name**: `asiabylocals-api`
+   - **Name**: `asiabylocals`
    - **Region**: Same as database
    - **Branch**: `main`
-   - **Root Directory**: `server` ⚠️ **IMPORTANT**
+   - **Root Directory**: `.` (root of repo) ⚠️ **IMPORTANT - Changed from `server`**
    - **Runtime**: `Node`
    - **Build Command**: 
      ```bash
-     npm install && npm run prisma:generate
+     npm install && npm run build && cd server && npm install && npm run prisma:generate
      ```
    - **Start Command**: 
      ```bash
-     npm start
+     cd server && npm start
      ```
 
 3. **Environment Variables** (Add these in Render dashboard):
