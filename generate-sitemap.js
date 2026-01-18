@@ -230,19 +230,19 @@ function generateSitemap() {
 
   <!-- Layer 1: Homepage -->
   <url>
-    <loc>https://asiabylocals.com/</loc>
+    <loc>https://www.asiabylocals.com/</loc>
     <lastmod>${today}</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
     <image:image>
-      <image:loc>https://asiabylocals.com/logo.jpeg</image:loc>
+      <image:loc>https://www.asiabylocals.com/logo.jpeg</image:loc>
       <image:title>AsiaByLocals Logo</image:title>
     </image:image>
   </url>
   
   <!-- Supplier Registration -->
   <url>
-    <loc>https://asiabylocals.com/supplier</loc>
+    <loc>https://www.asiabylocals.com/supplier</loc>
     <lastmod>${today}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
@@ -258,7 +258,7 @@ function generateSitemap() {
     const countrySlug = getCountrySlug(country);
     xml += `  <!-- Layer 2: ${country} -->
   <url>
-    <loc>https://asiabylocals.com/${countrySlug}</loc>
+    <loc>https://www.asiabylocals.com/${countrySlug}</loc>
     <lastmod>${today}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
@@ -302,7 +302,7 @@ function generateSitemap() {
       
       xml += `  <!-- Layer 3: ${city.name}, ${country} -->
   <url>
-    <loc>https://asiabylocals.com/${countrySlug}/${citySlug}</loc>
+    <loc>https://www.asiabylocals.com/${countrySlug}/${citySlug}</loc>
     <lastmod>${today}</lastmod>
     <changefreq>${changefreq}</changefreq>
     <priority>${priority}</priority>

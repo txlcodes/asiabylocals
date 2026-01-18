@@ -124,8 +124,25 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
       if (metaDescription) {
         metaDescription.setAttribute('content', tour.shortDescription || tour.fullDescription?.substring(0, 155) || '');
       }
+      
+      // Set canonical URL
+      let canonical = document.querySelector('link[rel="canonical"]');
+      if (!canonical) {
+        canonical = document.createElement('link');
+        canonical.setAttribute('rel', 'canonical');
+        document.head.appendChild(canonical);
+      }
+      // Build canonical URL from tour slug
+      if (tour.slug && country && city) {
+        const countrySlug = country.toLowerCase();
+        const citySlug = city.toLowerCase();
+        canonical.setAttribute('href', `https://www.asiabylocals.com/${countrySlug}/${citySlug}/${tour.slug}`);
+      } else if (tour.id) {
+        // Fallback to ID-based URL if slug not available
+        canonical.setAttribute('href', `https://www.asiabylocals.com/tour/${tour.id}`);
+      }
     }
-  }, [tour, city]);
+  }, [tour, city, country]);
 
   const fetchTour = async () => {
     setLoading(true);

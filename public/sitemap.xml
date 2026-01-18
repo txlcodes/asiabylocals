@@ -7,42 +7,1198 @@
 
   <!-- Layer 1: Homepage -->
   <url>
-    <loc>https://asiabylocals.com/</loc>
-    <lastmod>2026-01-05</lastmod>
+    <loc>https://www.asiabylocals.com/</loc>
+    <lastmod>2026-01-18</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
+    <image:image>
+      <image:loc>https://www.asiabylocals.com/logo.jpeg</image:loc>
+      <image:title>AsiaByLocals Logo</image:title>
+    </image:image>
   </url>
   
   <!-- Supplier Registration -->
   <url>
-    <loc>https://asiabylocals.com/supplier</loc>
-    <lastmod>2026-01-05</lastmod>
+    <loc>https://www.asiabylocals.com/supplier</loc>
+    <lastmod>2026-01-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
 
-  <!-- Layer 3: Agra, India -->
+  <!-- Layer 2: Japan -->
   <url>
-    <loc>https://asiabylocals.com/india/agra</loc>
-    <lastmod>2026-01-05</lastmod>
+    <loc>https://www.asiabylocals.com/japan</loc>
+    <lastmod>2026-01-18</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- Layer 2: Thailand -->
+  <url>
+    <loc>https://www.asiabylocals.com/thailand</loc>
+    <lastmod>2026-01-18</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- Layer 2: China -->
+  <url>
+    <loc>https://www.asiabylocals.com/china</loc>
+    <lastmod>2026-01-18</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- Layer 2: Hong Kong -->
+  <url>
+    <loc>https://www.asiabylocals.com/hong-kong</loc>
+    <lastmod>2026-01-18</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- Layer 2: Macau -->
+  <url>
+    <loc>https://www.asiabylocals.com/macau</loc>
+    <lastmod>2026-01-18</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- Layer 2: South Korea -->
+  <url>
+    <loc>https://www.asiabylocals.com/south-korea</loc>
+    <lastmod>2026-01-18</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- Layer 2: India -->
+  <url>
+    <loc>https://www.asiabylocals.com/india</loc>
+    <lastmod>2026-01-18</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- Layer 2: Indonesia -->
+  <url>
+    <loc>https://www.asiabylocals.com/indonesia</loc>
+    <lastmod>2026-01-18</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- Layer 2: Vietnam -->
+  <url>
+    <loc>https://www.asiabylocals.com/vietnam</loc>
+    <lastmod>2026-01-18</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- Layer 2: Malaysia -->
+  <url>
+    <loc>https://www.asiabylocals.com/malaysia</loc>
+    <lastmod>2026-01-18</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- Layer 2: Philippines -->
+  <url>
+    <loc>https://www.asiabylocals.com/philippines</loc>
+    <lastmod>2026-01-18</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- Layer 2: Singapore -->
+  <url>
+    <loc>https://www.asiabylocals.com/singapore</loc>
+    <lastmod>2026-01-18</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- Layer 2: Taiwan -->
+  <url>
+    <loc>https://www.asiabylocals.com/taiwan</loc>
+    <lastmod>2026-01-18</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- Layer 2: United Arab Emirates -->
+  <url>
+    <loc>https://www.asiabylocals.com/uae</loc>
+    <lastmod>2026-01-18</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- Layer 2: Qatar -->
+  <url>
+    <loc>https://www.asiabylocals.com/qatar</loc>
+    <lastmod>2026-01-18</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- Layer 2: Oman -->
+  <url>
+    <loc>https://www.asiabylocals.com/oman</loc>
+    <lastmod>2026-01-18</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- Layer 2: Sri Lanka -->
+  <url>
+    <loc>https://www.asiabylocals.com/sri-lanka</loc>
+    <lastmod>2026-01-18</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- Layer 2: Nepal -->
+  <url>
+    <loc>https://www.asiabylocals.com/nepal</loc>
+    <lastmod>2026-01-18</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- Layer 2: Bangladesh -->
+  <url>
+    <loc>https://www.asiabylocals.com/bangladesh</loc>
+    <lastmod>2026-01-18</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- Layer 2: Myanmar -->
+  <url>
+    <loc>https://www.asiabylocals.com/myanmar</loc>
+    <lastmod>2026-01-18</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- Layer 2: Cambodia -->
+  <url>
+    <loc>https://www.asiabylocals.com/cambodia</loc>
+    <lastmod>2026-01-18</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- Layer 2: Laos -->
+  <url>
+    <loc>https://www.asiabylocals.com/laos</loc>
+    <lastmod>2026-01-18</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- Layer 2: Mongolia -->
+  <url>
+    <loc>https://www.asiabylocals.com/mongolia</loc>
+    <lastmod>2026-01-18</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- Layer 2: Pakistan -->
+  <url>
+    <loc>https://www.asiabylocals.com/pakistan</loc>
+    <lastmod>2026-01-18</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- Layer 3: Dhaka, Bangladesh -->
+  <url>
+    <loc>https://www.asiabylocals.com/bangladesh/dhaka</loc>
+    <lastmod>2026-01-18</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Layer 3: Siem Reap, Cambodia -->
+  <url>
+    <loc>https://www.asiabylocals.com/cambodia/siem-reap</loc>
+    <lastmod>2026-01-18</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Layer 3: Phnom Penh, Cambodia -->
+  <url>
+    <loc>https://www.asiabylocals.com/cambodia/phnom-penh</loc>
+    <lastmod>2026-01-18</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Layer 3: Beijing, China -->
+  <url>
+    <loc>https://www.asiabylocals.com/china/beijing</loc>
+    <lastmod>2026-01-18</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Layer 3: Shanghai, China -->
+  <url>
+    <loc>https://www.asiabylocals.com/china/shanghai</loc>
+    <lastmod>2026-01-18</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Layer 3: Guangzhou, China -->
+  <url>
+    <loc>https://www.asiabylocals.com/china/guangzhou</loc>
+    <lastmod>2026-01-18</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Layer 3: Shenzhen, China -->
+  <url>
+    <loc>https://www.asiabylocals.com/china/shenzhen</loc>
+    <lastmod>2026-01-18</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Layer 3: Chengdu, China -->
+  <url>
+    <loc>https://www.asiabylocals.com/china/chengdu</loc>
+    <lastmod>2026-01-18</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Layer 3: Xi'an, China -->
+  <url>
+    <loc>https://www.asiabylocals.com/china/xian</loc>
+    <lastmod>2026-01-18</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Layer 3: Hangzhou, China -->
+  <url>
+    <loc>https://www.asiabylocals.com/china/hangzhou</loc>
+    <lastmod>2026-01-18</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Layer 3: Suzhou, China -->
+  <url>
+    <loc>https://www.asiabylocals.com/china/suzhou</loc>
+    <lastmod>2026-01-18</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Layer 3: Nanjing, China -->
+  <url>
+    <loc>https://www.asiabylocals.com/china/nanjing</loc>
+    <lastmod>2026-01-18</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Layer 3: Hong Kong, Hong Kong -->
+  <url>
+    <loc>https://www.asiabylocals.com/hong-kong/hong-kong</loc>
+    <lastmod>2026-01-18</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <!-- Layer 3: Mumbai, India -->
+  <url>
+    <loc>https://www.asiabylocals.com/india/mumbai</loc>
+    <lastmod>2026-01-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
 
   <!-- Layer 3: Delhi, India -->
   <url>
-    <loc>https://asiabylocals.com/india/delhi</loc>
-    <lastmod>2026-01-05</lastmod>
+    <loc>https://www.asiabylocals.com/india/delhi</loc>
+    <lastmod>2026-01-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
+  </url>
+
+  <!-- Layer 3: Agra, India -->
+  <url>
+    <loc>https://www.asiabylocals.com/india/agra</loc>
+    <lastmod>2026-01-18</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <!-- Layer 3: Goa, India -->
+  <url>
+    <loc>https://www.asiabylocals.com/india/goa</loc>
+    <lastmod>2026-01-18</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Layer 3: Bangalore, India -->
+  <url>
+    <loc>https://www.asiabylocals.com/india/bangalore</loc>
+    <lastmod>2026-01-18</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
   </url>
 
   <!-- Layer 3: Jaipur, India -->
   <url>
-    <loc>https://asiabylocals.com/india/jaipur</loc>
-    <lastmod>2026-01-05</lastmod>
+    <loc>https://www.asiabylocals.com/india/jaipur</loc>
+    <lastmod>2026-01-18</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Layer 3: Varanasi, India -->
+  <url>
+    <loc>https://www.asiabylocals.com/india/varanasi</loc>
+    <lastmod>2026-01-18</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Layer 3: Kolkata, India -->
+  <url>
+    <loc>https://www.asiabylocals.com/india/kolkata</loc>
+    <lastmod>2026-01-18</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Layer 3: Chennai, India -->
+  <url>
+    <loc>https://www.asiabylocals.com/india/chennai</loc>
+    <lastmod>2026-01-18</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Layer 3: Hyderabad, India -->
+  <url>
+    <loc>https://www.asiabylocals.com/india/hyderabad</loc>
+    <lastmod>2026-01-18</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Layer 3: Pune, India -->
+  <url>
+    <loc>https://www.asiabylocals.com/india/pune</loc>
+    <lastmod>2026-01-18</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Layer 3: Udaipur, India -->
+  <url>
+    <loc>https://www.asiabylocals.com/india/udaipur</loc>
+    <lastmod>2026-01-18</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Layer 3: Jodhpur, India -->
+  <url>
+    <loc>https://www.asiabylocals.com/india/jodhpur</loc>
+    <lastmod>2026-01-18</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Layer 3: Kochi, India -->
+  <url>
+    <loc>https://www.asiabylocals.com/india/kochi</loc>
+    <lastmod>2026-01-18</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Layer 3: Mysore, India -->
+  <url>
+    <loc>https://www.asiabylocals.com/india/mysore</loc>
+    <lastmod>2026-01-18</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Layer 3: Amritsar, India -->
+  <url>
+    <loc>https://www.asiabylocals.com/india/amritsar</loc>
+    <lastmod>2026-01-18</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Layer 3: Rishikesh, India -->
+  <url>
+    <loc>https://www.asiabylocals.com/india/rishikesh</loc>
+    <lastmod>2026-01-18</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Layer 3: Darjeeling, India -->
+  <url>
+    <loc>https://www.asiabylocals.com/india/darjeeling</loc>
+    <lastmod>2026-01-18</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Layer 3: Bali, Indonesia -->
+  <url>
+    <loc>https://www.asiabylocals.com/indonesia/bali</loc>
+    <lastmod>2026-01-18</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Layer 3: Ubud, Indonesia -->
+  <url>
+    <loc>https://www.asiabylocals.com/indonesia/ubud</loc>
+    <lastmod>2026-01-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
 
+  <!-- Layer 3: Jakarta, Indonesia -->
+  <url>
+    <loc>https://www.asiabylocals.com/indonesia/jakarta</loc>
+    <lastmod>2026-01-18</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
 
+  <!-- Layer 3: Yogyakarta, Indonesia -->
+  <url>
+    <loc>https://www.asiabylocals.com/indonesia/yogyakarta</loc>
+    <lastmod>2026-01-18</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Layer 3: Bandung, Indonesia -->
+  <url>
+    <loc>https://www.asiabylocals.com/indonesia/bandung</loc>
+    <lastmod>2026-01-18</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Layer 3: Surabaya, Indonesia -->
+  <url>
+    <loc>https://www.asiabylocals.com/indonesia/surabaya</loc>
+    <lastmod>2026-01-18</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Layer 3: Lombok, Indonesia -->
+  <url>
+    <loc>https://www.asiabylocals.com/indonesia/lombok</loc>
+    <lastmod>2026-01-18</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Layer 3: Medan, Indonesia -->
+  <url>
+    <loc>https://www.asiabylocals.com/indonesia/medan</loc>
+    <lastmod>2026-01-18</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Layer 3: Semarang, Indonesia -->
+  <url>
+    <loc>https://www.asiabylocals.com/indonesia/semarang</loc>
+    <lastmod>2026-01-18</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Layer 3: Makassar, Indonesia -->
+  <url>
+    <loc>https://www.asiabylocals.com/indonesia/makassar</loc>
+    <lastmod>2026-01-18</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Layer 3: Tokyo, Japan -->
+  <url>
+    <loc>https://www.asiabylocals.com/japan/tokyo</loc>
+    <lastmod>2026-01-18</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <!-- Layer 3: Kyoto, Japan -->
+  <url>
+    <loc>https://www.asiabylocals.com/japan/kyoto</loc>
+    <lastmod>2026-01-18</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <!-- Layer 3: Osaka, Japan -->
+  <url>
+    <loc>https://www.asiabylocals.com/japan/osaka</loc>
+    <lastmod>2026-01-18</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <!-- Layer 3: Yokohama, Japan -->
+  <url>
+    <loc>https://www.asiabylocals.com/japan/yokohama</loc>
+    <lastmod>2026-01-18</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Layer 3: Sapporo, Japan -->
+  <url>
+    <loc>https://www.asiabylocals.com/japan/sapporo</loc>
+    <lastmod>2026-01-18</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Layer 3: Fukuoka, Japan -->
+  <url>
+    <loc>https://www.asiabylocals.com/japan/fukuoka</loc>
+    <lastmod>2026-01-18</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Layer 3: Hiroshima, Japan -->
+  <url>
+    <loc>https://www.asiabylocals.com/japan/hiroshima</loc>
+    <lastmod>2026-01-18</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Layer 3: Nagoya, Japan -->
+  <url>
+    <loc>https://www.asiabylocals.com/japan/nagoya</loc>
+    <lastmod>2026-01-18</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Layer 3: Nara, Japan -->
+  <url>
+    <loc>https://www.asiabylocals.com/japan/nara</loc>
+    <lastmod>2026-01-18</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Layer 3: Okinawa, Japan -->
+  <url>
+    <loc>https://www.asiabylocals.com/japan/okinawa</loc>
+    <lastmod>2026-01-18</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Layer 3: Nikko, Japan -->
+  <url>
+    <loc>https://www.asiabylocals.com/japan/nikko</loc>
+    <lastmod>2026-01-18</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Layer 3: Takayama, Japan -->
+  <url>
+    <loc>https://www.asiabylocals.com/japan/takayama</loc>
+    <lastmod>2026-01-18</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Layer 3: Kanazawa, Japan -->
+  <url>
+    <loc>https://www.asiabylocals.com/japan/kanazawa</loc>
+    <lastmod>2026-01-18</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Layer 3: Luang Prabang, Laos -->
+  <url>
+    <loc>https://www.asiabylocals.com/laos/luang-prabang</loc>
+    <lastmod>2026-01-18</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Layer 3: Vientiane, Laos -->
+  <url>
+    <loc>https://www.asiabylocals.com/laos/vientiane</loc>
+    <lastmod>2026-01-18</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Layer 3: Macau, Macau -->
+  <url>
+    <loc>https://www.asiabylocals.com/macau/macau</loc>
+    <lastmod>2026-01-18</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Layer 3: Kuala Lumpur, Malaysia -->
+  <url>
+    <loc>https://www.asiabylocals.com/malaysia/kuala-lumpur</loc>
+    <lastmod>2026-01-18</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <!-- Layer 3: Penang, Malaysia -->
+  <url>
+    <loc>https://www.asiabylocals.com/malaysia/penang</loc>
+    <lastmod>2026-01-18</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Layer 3: Langkawi, Malaysia -->
+  <url>
+    <loc>https://www.asiabylocals.com/malaysia/langkawi</loc>
+    <lastmod>2026-01-18</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Layer 3: Malacca, Malaysia -->
+  <url>
+    <loc>https://www.asiabylocals.com/malaysia/malacca</loc>
+    <lastmod>2026-01-18</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Layer 3: Kota Kinabalu, Malaysia -->
+  <url>
+    <loc>https://www.asiabylocals.com/malaysia/kota-kinabalu</loc>
+    <lastmod>2026-01-18</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Layer 3: Kuching, Malaysia -->
+  <url>
+    <loc>https://www.asiabylocals.com/malaysia/kuching</loc>
+    <lastmod>2026-01-18</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Layer 3: Ipoh, Malaysia -->
+  <url>
+    <loc>https://www.asiabylocals.com/malaysia/ipoh</loc>
+    <lastmod>2026-01-18</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Layer 3: Johor Bahru, Malaysia -->
+  <url>
+    <loc>https://www.asiabylocals.com/malaysia/johor-bahru</loc>
+    <lastmod>2026-01-18</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Layer 3: Ulaanbaatar, Mongolia -->
+  <url>
+    <loc>https://www.asiabylocals.com/mongolia/ulaanbaatar</loc>
+    <lastmod>2026-01-18</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Layer 3: Yangon, Myanmar -->
+  <url>
+    <loc>https://www.asiabylocals.com/myanmar/yangon</loc>
+    <lastmod>2026-01-18</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Layer 3: Bagan, Myanmar -->
+  <url>
+    <loc>https://www.asiabylocals.com/myanmar/bagan</loc>
+    <lastmod>2026-01-18</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Layer 3: Mandalay, Myanmar -->
+  <url>
+    <loc>https://www.asiabylocals.com/myanmar/mandalay</loc>
+    <lastmod>2026-01-18</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Layer 3: Kathmandu, Nepal -->
+  <url>
+    <loc>https://www.asiabylocals.com/nepal/kathmandu</loc>
+    <lastmod>2026-01-18</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Layer 3: Pokhara, Nepal -->
+  <url>
+    <loc>https://www.asiabylocals.com/nepal/pokhara</loc>
+    <lastmod>2026-01-18</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Layer 3: Muscat, Oman -->
+  <url>
+    <loc>https://www.asiabylocals.com/oman/muscat</loc>
+    <lastmod>2026-01-18</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Layer 3: Lahore, Pakistan -->
+  <url>
+    <loc>https://www.asiabylocals.com/pakistan/lahore</loc>
+    <lastmod>2026-01-18</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Layer 3: Karachi, Pakistan -->
+  <url>
+    <loc>https://www.asiabylocals.com/pakistan/karachi</loc>
+    <lastmod>2026-01-18</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Layer 3: Manila, Philippines -->
+  <url>
+    <loc>https://www.asiabylocals.com/philippines/manila</loc>
+    <lastmod>2026-01-18</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Layer 3: Cebu, Philippines -->
+  <url>
+    <loc>https://www.asiabylocals.com/philippines/cebu</loc>
+    <lastmod>2026-01-18</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Layer 3: Boracay, Philippines -->
+  <url>
+    <loc>https://www.asiabylocals.com/philippines/boracay</loc>
+    <lastmod>2026-01-18</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Layer 3: Palawan, Philippines -->
+  <url>
+    <loc>https://www.asiabylocals.com/philippines/palawan</loc>
+    <lastmod>2026-01-18</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Layer 3: Davao, Philippines -->
+  <url>
+    <loc>https://www.asiabylocals.com/philippines/davao</loc>
+    <lastmod>2026-01-18</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Layer 3: Baguio, Philippines -->
+  <url>
+    <loc>https://www.asiabylocals.com/philippines/baguio</loc>
+    <lastmod>2026-01-18</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Layer 3: Iloilo, Philippines -->
+  <url>
+    <loc>https://www.asiabylocals.com/philippines/iloilo</loc>
+    <lastmod>2026-01-18</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Layer 3: Bacolod, Philippines -->
+  <url>
+    <loc>https://www.asiabylocals.com/philippines/bacolod</loc>
+    <lastmod>2026-01-18</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Layer 3: Doha, Qatar -->
+  <url>
+    <loc>https://www.asiabylocals.com/qatar/doha</loc>
+    <lastmod>2026-01-18</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Layer 3: Singapore, Singapore -->
+  <url>
+    <loc>https://www.asiabylocals.com/singapore/singapore</loc>
+    <lastmod>2026-01-18</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <!-- Layer 3: Seoul, South Korea -->
+  <url>
+    <loc>https://www.asiabylocals.com/south-korea/seoul</loc>
+    <lastmod>2026-01-18</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <!-- Layer 3: Busan, South Korea -->
+  <url>
+    <loc>https://www.asiabylocals.com/south-korea/busan</loc>
+    <lastmod>2026-01-18</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Layer 3: Jeju Island, South Korea -->
+  <url>
+    <loc>https://www.asiabylocals.com/south-korea/jeju-island</loc>
+    <lastmod>2026-01-18</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Layer 3: Incheon, South Korea -->
+  <url>
+    <loc>https://www.asiabylocals.com/south-korea/incheon</loc>
+    <lastmod>2026-01-18</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Layer 3: Gyeongju, South Korea -->
+  <url>
+    <loc>https://www.asiabylocals.com/south-korea/gyeongju</loc>
+    <lastmod>2026-01-18</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Layer 3: Jeonju, South Korea -->
+  <url>
+    <loc>https://www.asiabylocals.com/south-korea/jeonju</loc>
+    <lastmod>2026-01-18</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Layer 3: Colombo, Sri Lanka -->
+  <url>
+    <loc>https://www.asiabylocals.com/sri-lanka/colombo</loc>
+    <lastmod>2026-01-18</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Layer 3: Kandy, Sri Lanka -->
+  <url>
+    <loc>https://www.asiabylocals.com/sri-lanka/kandy</loc>
+    <lastmod>2026-01-18</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Layer 3: Galle, Sri Lanka -->
+  <url>
+    <loc>https://www.asiabylocals.com/sri-lanka/galle</loc>
+    <lastmod>2026-01-18</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Layer 3: Sigiriya, Sri Lanka -->
+  <url>
+    <loc>https://www.asiabylocals.com/sri-lanka/sigiriya</loc>
+    <lastmod>2026-01-18</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Layer 3: Taipei, Taiwan -->
+  <url>
+    <loc>https://www.asiabylocals.com/taiwan/taipei</loc>
+    <lastmod>2026-01-18</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <!-- Layer 3: Kaohsiung, Taiwan -->
+  <url>
+    <loc>https://www.asiabylocals.com/taiwan/kaohsiung</loc>
+    <lastmod>2026-01-18</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Layer 3: Taichung, Taiwan -->
+  <url>
+    <loc>https://www.asiabylocals.com/taiwan/taichung</loc>
+    <lastmod>2026-01-18</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Layer 3: Tainan, Taiwan -->
+  <url>
+    <loc>https://www.asiabylocals.com/taiwan/tainan</loc>
+    <lastmod>2026-01-18</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Layer 3: Bangkok, Thailand -->
+  <url>
+    <loc>https://www.asiabylocals.com/thailand/bangkok</loc>
+    <lastmod>2026-01-18</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <!-- Layer 3: Chiang Mai, Thailand -->
+  <url>
+    <loc>https://www.asiabylocals.com/thailand/chiang-mai</loc>
+    <lastmod>2026-01-18</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Layer 3: Phuket, Thailand -->
+  <url>
+    <loc>https://www.asiabylocals.com/thailand/phuket</loc>
+    <lastmod>2026-01-18</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Layer 3: Krabi, Thailand -->
+  <url>
+    <loc>https://www.asiabylocals.com/thailand/krabi</loc>
+    <lastmod>2026-01-18</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Layer 3: Ko Samui, Thailand -->
+  <url>
+    <loc>https://www.asiabylocals.com/thailand/ko-samui</loc>
+    <lastmod>2026-01-18</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Layer 3: Ko Phangan, Thailand -->
+  <url>
+    <loc>https://www.asiabylocals.com/thailand/ko-phangan</loc>
+    <lastmod>2026-01-18</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Layer 3: Ko Lanta, Thailand -->
+  <url>
+    <loc>https://www.asiabylocals.com/thailand/ko-lanta</loc>
+    <lastmod>2026-01-18</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Layer 3: Phi Phi Islands, Thailand -->
+  <url>
+    <loc>https://www.asiabylocals.com/thailand/phi-phi-islands</loc>
+    <lastmod>2026-01-18</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Layer 3: Pattaya, Thailand -->
+  <url>
+    <loc>https://www.asiabylocals.com/thailand/pattaya</loc>
+    <lastmod>2026-01-18</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Layer 3: Ayutthaya, Thailand -->
+  <url>
+    <loc>https://www.asiabylocals.com/thailand/ayutthaya</loc>
+    <lastmod>2026-01-18</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Layer 3: Sukhothai, Thailand -->
+  <url>
+    <loc>https://www.asiabylocals.com/thailand/sukhothai</loc>
+    <lastmod>2026-01-18</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Layer 3: Hua Hin, Thailand -->
+  <url>
+    <loc>https://www.asiabylocals.com/thailand/hua-hin</loc>
+    <lastmod>2026-01-18</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Layer 3: Pai, Thailand -->
+  <url>
+    <loc>https://www.asiabylocals.com/thailand/pai</loc>
+    <lastmod>2026-01-18</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Layer 3: Dubai, United Arab Emirates -->
+  <url>
+    <loc>https://www.asiabylocals.com/uae/dubai</loc>
+    <lastmod>2026-01-18</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <!-- Layer 3: Abu Dhabi, United Arab Emirates -->
+  <url>
+    <loc>https://www.asiabylocals.com/uae/abu-dhabi</loc>
+    <lastmod>2026-01-18</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Layer 3: Ho Chi Minh City, Vietnam -->
+  <url>
+    <loc>https://www.asiabylocals.com/vietnam/ho-chi-minh-city</loc>
+    <lastmod>2026-01-18</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Layer 3: Hanoi, Vietnam -->
+  <url>
+    <loc>https://www.asiabylocals.com/vietnam/hanoi</loc>
+    <lastmod>2026-01-18</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Layer 3: Da Nang, Vietnam -->
+  <url>
+    <loc>https://www.asiabylocals.com/vietnam/da-nang</loc>
+    <lastmod>2026-01-18</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Layer 3: Hoi An, Vietnam -->
+  <url>
+    <loc>https://www.asiabylocals.com/vietnam/hoi-an</loc>
+    <lastmod>2026-01-18</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Layer 3: Hue, Vietnam -->
+  <url>
+    <loc>https://www.asiabylocals.com/vietnam/hue</loc>
+    <lastmod>2026-01-18</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Layer 3: Nha Trang, Vietnam -->
+  <url>
+    <loc>https://www.asiabylocals.com/vietnam/nha-trang</loc>
+    <lastmod>2026-01-18</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Layer 3: Sapa, Vietnam -->
+  <url>
+    <loc>https://www.asiabylocals.com/vietnam/sapa</loc>
+    <lastmod>2026-01-18</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Layer 3: Ha Long Bay, Vietnam -->
+  <url>
+    <loc>https://www.asiabylocals.com/vietnam/ha-long-bay</loc>
+    <lastmod>2026-01-18</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Layer 3: Phu Quoc, Vietnam -->
+  <url>
+    <loc>https://www.asiabylocals.com/vietnam/phu-quoc</loc>
+    <lastmod>2026-01-18</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Layer 3: Mui Ne, Vietnam -->
+  <url>
+    <loc>https://www.asiabylocals.com/vietnam/mui-ne</loc>
+    <lastmod>2026-01-18</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+</urlset>

@@ -601,7 +601,7 @@ const CityPage: React.FC<CityPageProps> = ({ country, city }) => {
       canonical.setAttribute('rel', 'canonical');
       document.head.appendChild(canonical);
     }
-    canonical.setAttribute('href', `https://asiabylocals.com/${countrySlug}/${citySlug}`);
+    canonical.setAttribute('href', `https://www.asiabylocals.com/${countrySlug}/${citySlug}`);
     
     // Update Open Graph
     const ogTags = [

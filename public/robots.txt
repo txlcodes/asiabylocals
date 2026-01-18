@@ -1,16 +1,18 @@
 # Robots.txt for AsiaByLocals
-# https://asiabylocals.com/robots.txt
+# https://www.asiabylocals.com/robots.txt
 
 User-agent: *
 Allow: /
 Disallow: /api/
+Disallow: /secure-panel-abl
 Disallow: /admin/
 Disallow: /supplier/register
 Disallow: /supplier/login
 Disallow: /verify-email
+Disallow: /email-verification-waiting
 
 # Sitemap
-Sitemap: https://asiabylocals.com/sitemap.xml
+Sitemap: https://www.asiabylocals.com/sitemap.xml
 
 # Crawl-delay
 Crawl-delay: 1
