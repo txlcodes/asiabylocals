@@ -432,7 +432,7 @@ const App: React.FC = () => {
           <div className="flex items-center gap-10">
             {/* Logo */}
             <div className="flex items-center cursor-pointer">
-              <img src="/logo.png" alt="Asia By Locals" className="h-16 md:h-18 lg:h-20 w-auto" />
+              <img src="/logo.jpeg" alt="Asia By Locals" className="h-16 md:h-18 lg:h-20 w-auto" />
             </div>
 
             {/* Nav Links */}
@@ -829,7 +829,7 @@ const App: React.FC = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-16 mb-20">
             <div className="col-span-1 lg:col-span-1">
               <div className="flex items-center mb-8">
-                <img src="/logo.png" alt="AsiaByLocals - Authentic Local Tours and Cultural Experiences in Asia" className="h-20 md:h-24 lg:h-28 w-auto" />
+                <img src="/logo.jpeg" alt="AsiaByLocals - Authentic Local Tours and Cultural Experiences in Asia" className="h-20 md:h-24 lg:h-28 w-auto" />
               </div>
               <p className="text-gray-400 text-[14px] leading-relaxed">
                 Empowering local experts across Asia to share their heritage directly with curious travelers.

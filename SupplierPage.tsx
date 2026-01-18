@@ -206,7 +206,7 @@ const SupplierPage: React.FC<SupplierPageProps> = ({ onClose }) => {
             <div></div>
           )}
           <img 
-            src="/logo.png" 
+            src="/logo.jpeg" 
             alt="AsiaByLocals" 
             className="h-16 w-auto"
           />

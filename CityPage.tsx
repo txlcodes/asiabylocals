@@ -44,6 +44,7 @@ const CITY_DESCRIPTIONS: Record<string, {
     ],
     bestTime: 'The best time to visit Agra is from October to March when the weather is pleasant. Early mornings are highly recommended, especially for sunrise Taj Mahal tours when the monument glows in golden light and crowds are minimal.',
     faqs: [
+      
       {
         question: 'How long does a Taj Mahal tour take?',
         answer: 'A typical Taj Mahal tour takes 2-3 hours, including entry, guided exploration, and photography time. Combined tours with Agra Fort usually take 5-6 hours.'
@@ -641,7 +642,7 @@ const CityPage: React.FC<CityPageProps> = ({ country, city }) => {
           <div className="flex items-center justify-between mb-4">
             {/* Logo */}
             <a href="/" className="flex items-center gap-3">
-              <img src="/logo.png" alt="AsiaByLocals" className="h-10 w-10 object-contain" />
+              <img src="/logo.jpeg" alt="AsiaByLocals" className="h-10 w-10 object-contain" />
               <span className="font-black text-[#001A33] text-lg">ASIA BY LOCALS</span>
             </a>
 
