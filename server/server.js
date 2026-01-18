@@ -2230,50 +2230,9 @@ console.log('🔐 Admin credentials loaded:', {
   passwordLength: ADMIN_CREDENTIALS.password.length
 });
 
-// Rate limiting for admin login (prevent brute force attacks)
-const loginAttempts = new Map();
-const MAX_ATTEMPTS = 5;
-const LOCKOUT_DURATION = 15 * 60 * 1000; // 15 minutes in milliseconds
-
-// Clean up old attempts periodically
-setInterval(() => {
-  const now = Date.now();
-  for (const [ip, data] of loginAttempts.entries()) {
-    if (now - data.lastAttempt > LOCKOUT_DURATION) {
-      loginAttempts.delete(ip);
-    }
-  }
-}, 60000); // Clean up every minute
-
-// Rate limiting middleware for admin login
+// Rate limiting disabled - no IP locking
 const rateLimitAdminLogin = (req, res, next) => {
-  // Temporarily bypass rate limiting for development
-  // TODO: Re-enable rate limiting in production
-  next();
-  
-  /* Original rate limiting code (disabled for now)
-  const clientIp = req.ip || req.connection.remoteAddress || 'unknown';
-  const now = Date.now();
-  const attemptData = loginAttempts.get(clientIp);
-
-  if (attemptData) {
-    // Check if still locked out
-    if (attemptData.lockedUntil && now < attemptData.lockedUntil) {
-      const minutesLeft = Math.ceil((attemptData.lockedUntil - now) / 60000);
-      return res.status(429).json({
-        error: 'Too many attempts',
-        message: `Too many login attempts. Please try again in ${minutesLeft} minute(s).`
-      });
-    }
-
-    // Reset if lockout expired
-    if (attemptData.lockedUntil && now >= attemptData.lockedUntil) {
-      loginAttempts.delete(clientIp);
-    }
-  }
-
-  next();
-  */
+  next(); // No rate limiting
 };
 
 // Admin login endpoint
