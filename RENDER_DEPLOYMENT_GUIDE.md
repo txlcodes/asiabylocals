@@ -119,6 +119,11 @@ When you deploy to Render, you'll get:
      npm install && npm run build
      ```
    - **Publish Directory**: `dist`
+   - **Redirects/Rewrites**: Add redirect rule in Render settings:
+     - Pattern: `/*`
+     - Destination: `/index.html`
+     - Status: `200`
+     - This handles client-side routing (React Router)
 
 3. **Environment Variables:**
    ```env
