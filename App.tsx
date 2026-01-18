@@ -284,6 +284,21 @@ const App: React.FC = () => {
     localStorage.setItem('cart', JSON.stringify(cart));
   }, [cart]);
 
+  // Expose functions globally so tour pages can add items
+  useEffect(() => {
+    (window as any).addToWishlist = addToWishlist;
+    (window as any).addToCart = addToCart;
+    (window as any).openWishlist = () => setShowWishlistModal(true);
+    (window as any).openCart = () => setShowCartModal(true);
+    
+    return () => {
+      delete (window as any).addToWishlist;
+      delete (window as any).addToCart;
+      delete (window as any).openWishlist;
+      delete (window as any).openCart;
+    };
+  }, [wishlist, cart]);
+
   // Wishlist functions
   const addToWishlist = (tour: any) => {
     if (!wishlist.find((item: any) => item.id === tour.id)) {
