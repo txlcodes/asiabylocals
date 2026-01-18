@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { CheckCircle2, XCircle, Clock, Eye, MapPin, Star, Calendar, Phone, MessageCircle, Mail, Info, User, Building2, X, LogOut } from 'lucide-react';
+import { CheckCircle2, XCircle, Clock, Eye, MapPin, Star, Calendar, Phone, MessageCircle, Mail, Info, User, Building2, X, LogOut, Trash2 } from 'lucide-react';
 import AdminLogin from './AdminLogin';
 
 const AdminDashboard: React.FC = () => {
@@ -269,6 +269,35 @@ const AdminDashboard: React.FC = () => {
     } catch (error) {
       console.error('Error rejecting tour:', error);
       alert('Failed to reject tour. Please try again.');
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  const handleDeleteTour = async (tourId: string) => {
+    if (!confirm('⚠️ WARNING: This will permanently delete this tour. This action cannot be undone!\n\nAre you sure you want to delete this tour?')) {
+      return;
+    }
+
+    setIsProcessing(true);
+    try {
+      const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+      const response = await fetch(`${API_URL}/api/admin/tours/${tourId}`, {
+        method: 'DELETE',
+        headers: getAuthHeaders()
+      });
+
+      const data = await response.json();
+      if (data.success) {
+        alert('Tour deleted successfully.');
+        fetchPendingTours(); // Refresh list
+        setSelectedTour(null);
+      } else {
+        alert(data.message || 'Failed to delete tour');
+      }
+    } catch (error) {
+      console.error('Error deleting tour:', error);
+      alert('Failed to delete tour. Please try again.');
     } finally {
       setIsProcessing(false);
     }
@@ -853,6 +882,17 @@ const AdminDashboard: React.FC = () => {
                       >
                         <XCircle size={20} />
                         Reject Tour
+                      </button>
+                    </div>
+
+                    <div className="border-t border-gray-200 pt-4">
+                      <button
+                        onClick={() => handleDeleteTour(selectedTour.id)}
+                        disabled={isProcessing}
+                        className="w-full bg-gray-800 hover:bg-gray-900 text-white font-black py-5 rounded-full text-[16px] disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2 shadow-lg"
+                      >
+                        <Trash2 size={20} />
+                        Delete Tour Permanently
                       </button>
                     </div>
                   </div>
