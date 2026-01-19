@@ -3,6 +3,21 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
+// Check if email credentials are configured
+const emailUser = process.env.EMAIL_USER;
+const emailPassword = process.env.EMAIL_APP_PASSWORD;
+
+if (!emailUser || !emailPassword) {
+  console.warn('⚠️ Email credentials not configured!');
+  console.warn('   EMAIL_USER:', emailUser ? '✅ Set' : '❌ Missing');
+  console.warn('   EMAIL_APP_PASSWORD:', emailPassword ? '✅ Set' : '❌ Missing');
+  console.warn('   Email sending will fail. Please set EMAIL_USER and EMAIL_APP_PASSWORD in Render environment variables.');
+} else {
+  console.log('📧 Email configuration found:');
+  console.log('   EMAIL_USER:', emailUser);
+  console.log('   EMAIL_APP_PASSWORD:', emailPassword ? '✅ Set (' + emailPassword.length + ' chars)' : '❌ Missing');
+}
+
 // Create reusable transporter object using Gmail SMTP
 // Using explicit SMTP configuration with port 587 (TLS) for better reliability
 const transporter = nodemailer.createTransport({
@@ -10,21 +25,29 @@ const transporter = nodemailer.createTransport({
   port: 587,
   secure: false, // true for 465, false for other ports
   auth: {
-    user: process.env.EMAIL_USER, // Your Gmail address
-    pass: process.env.EMAIL_APP_PASSWORD // Gmail App Password (not regular password)
+    user: emailUser, // Your Gmail address
+    pass: emailPassword // Gmail App Password (not regular password)
   },
   tls: {
     rejectUnauthorized: false // Allow self-signed certificates if needed
   },
-  connectionTimeout: 10000, // 10 seconds
-  greetingTimeout: 10000,
-  socketTimeout: 10000
+  connectionTimeout: 15000, // 15 seconds (increased from 10)
+  greetingTimeout: 15000,
+  socketTimeout: 15000
 });
 
 // Verify transporter configuration
 transporter.verify((error, success) => {
   if (error) {
-    console.error('❌ Email transporter error:', error);
+    console.error('❌ Email transporter verification failed:');
+    console.error('   Error:', error.message);
+    console.error('   Code:', error.code);
+    if (error.code === 'EAUTH') {
+      console.error('   ⚠️ Authentication failed! Check EMAIL_USER and EMAIL_APP_PASSWORD');
+      console.error('   Make sure you\'re using a Gmail App Password, not your regular password.');
+    } else if (error.code === 'ETIMEDOUT' || error.code === 'ECONNECTION') {
+      console.error('   ⚠️ Connection timeout! Gmail SMTP might be blocked or unreachable.');
+    }
   } else {
     console.log('✅ Email server is ready to send messages');
   }
@@ -38,6 +61,13 @@ transporter.verify((error, success) => {
  * @returns {Promise<Object>}
  */
 export const sendVerificationEmail = async (email, fullName, verificationToken) => {
+  // Check if email is configured
+  if (!emailUser || !emailPassword) {
+    const errorMsg = 'Email not configured. Please set EMAIL_USER and EMAIL_APP_PASSWORD in Render environment variables.';
+    console.error('❌', errorMsg);
+    throw new Error(errorMsg);
+  }
+
   // Validate email parameter
   if (!email || typeof email !== 'string' || !email.includes('@')) {
     console.error('❌ Invalid email address provided:', email);
@@ -45,7 +75,9 @@ export const sendVerificationEmail = async (email, fullName, verificationToken) 
   }
 
   console.log(`📧 Attempting to send verification email to: ${email}`);
-  const verificationUrl = `${process.env.FRONTEND_URL || 'http://localhost:3000'}/verify-email?token=${verificationToken}`;
+  console.log(`   From: ${emailUser}`);
+  console.log(`   Frontend URL: ${process.env.FRONTEND_URL || process.env.VITE_FRONTEND_URL || 'http://localhost:3000'}`);
+  const verificationUrl = `${process.env.FRONTEND_URL || process.env.VITE_FRONTEND_URL || 'http://localhost:3000'}/verify-email?token=${verificationToken}`;
 
   const mailOptions = {
     from: `"AsiaByLocals Registration" <${process.env.EMAIL_USER || 'asiabylocals@gmail.com'}>`,
@@ -190,13 +222,29 @@ export const sendVerificationEmail = async (email, fullName, verificationToken) 
     console.log('📧 Response:', info.response);
     return { success: true, messageId: info.messageId };
   } catch (error) {
-    console.error(`❌ Error sending verification email to ${email}:`, error.message);
-    console.error('🔍 Error details:', {
-      code: error.code,
-      command: error.command,
-      response: error.response,
-      responseCode: error.responseCode
-    });
+    console.error(`❌ Error sending verification email to ${email}:`);
+    console.error('   Error message:', error.message);
+    console.error('   Error code:', error.code);
+    console.error('   Command:', error.command);
+    console.error('   Response:', error.response);
+    console.error('   Response Code:', error.responseCode);
+    
+    // Provide helpful error messages
+    if (error.code === 'EAUTH') {
+      console.error('   ⚠️ Authentication failed!');
+      console.error('   → Check EMAIL_USER and EMAIL_APP_PASSWORD in Render');
+      console.error('   → Make sure you\'re using a Gmail App Password (16 characters)');
+      console.error('   → Not your regular Gmail password!');
+    } else if (error.code === 'ETIMEDOUT' || error.code === 'ECONNECTION') {
+      console.error('   ⚠️ Connection timeout!');
+      console.error('   → Gmail SMTP might be blocking connections from Render');
+      console.error('   → Check firewall/network settings');
+      console.error('   → Try again in a few minutes');
+    } else if (!emailUser || !emailPassword) {
+      console.error('   ⚠️ Email credentials not configured!');
+      console.error('   → Set EMAIL_USER and EMAIL_APP_PASSWORD in Render environment variables');
+    }
+    
     throw error;
   }
 };
