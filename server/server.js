@@ -25,6 +25,8 @@ const allowedOrigins = [
   'http://localhost:4000',
   process.env.FRONTEND_URL,
   process.env.VITE_FRONTEND_URL,
+  'https://www.asiabylocals.com',
+  'https://asiabylocals.com',
   // Add www variant if main domain is set
   process.env.FRONTEND_URL?.replace('https://', 'https://www.'),
   process.env.VITE_FRONTEND_URL?.replace('https://', 'https://www.')

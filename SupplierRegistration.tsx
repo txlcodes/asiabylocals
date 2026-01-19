@@ -20,6 +20,7 @@ import {
   EyeOff,
   RefreshCw
 } from 'lucide-react';
+import { API_URL } from './config';
 
 interface SupplierRegistrationProps {
   onClose: () => void;
@@ -111,7 +112,9 @@ const SupplierRegistration: React.FC<SupplierRegistrationProps> = ({ onClose }) 
       }
     } else if (step === ((selectedBusinessType === 'company' || selectedBusinessType === 'individual' || selectedBusinessType === 'other') ? 3 : 2)) {
       // Business details step - validate required fields
-      if (companyName && mainHub && city && tourLanguages && phone && whatsapp) {
+      // Company name is only required for companies, optional for individuals
+      const isCompanyNameRequired = selectedBusinessType === 'company';
+      if ((!isCompanyNameRequired || companyName) && mainHub && city && tourLanguages && phone && whatsapp) {
         nextStep();
       }
     } else if (step === ((selectedBusinessType === 'company' || selectedBusinessType === 'individual' || selectedBusinessType === 'other') ? 4 : 3)) {
@@ -156,7 +159,6 @@ const SupplierRegistration: React.FC<SupplierRegistrationProps> = ({ onClose }) 
             console.log('📤 Sending document to server...');
             
             // Update supplier with license document
-            const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
             const response = await fetch(`${API_URL}/api/suppliers/${supplierId}/update-document`, {
               method: 'PATCH',
               headers: {
@@ -221,7 +223,6 @@ const SupplierRegistration: React.FC<SupplierRegistrationProps> = ({ onClose }) 
     };
 
     // Call API
-    const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
     fetch(`${API_URL}/api/suppliers/register`, {
       method: 'POST',
       headers: {
@@ -286,11 +287,10 @@ const SupplierRegistration: React.FC<SupplierRegistrationProps> = ({ onClose }) 
     });
   };
 
-  // Poll for email verification status
+    // Poll for email verification status
   const startVerificationPolling = (supplierId: string) => {
     const checkVerification = async () => {
       try {
-        const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
         const response = await fetch(`${API_URL}/api/suppliers/${supplierId}/verification-status`);
         const data = await response.json();
         
@@ -353,7 +353,7 @@ const SupplierRegistration: React.FC<SupplierRegistrationProps> = ({ onClose }) 
       window.history.replaceState({}, '', window.location.pathname);
       
       // Optional: Verify with server in background (non-blocking)
-      fetch(`http://localhost:3001/api/suppliers/${urlSupplierId}/verification-status`)
+      fetch(`${API_URL}/api/suppliers/${urlSupplierId}/verification-status`)
         .then(res => res.json())
         .then(data => {
           console.log('   Server verification check:', data);
@@ -379,7 +379,7 @@ const SupplierRegistration: React.FC<SupplierRegistrationProps> = ({ onClose }) 
       
       if (finalSupplierId) {
         // Verify with server
-        fetch(`http://localhost:3001/api/suppliers/${finalSupplierId}/verification-status`)
+        fetch(`${API_URL}/api/suppliers/${finalSupplierId}/verification-status`)
           .then(res => {
             if (!res.ok) {
               throw new Error(`HTTP error! status: ${res.status}`);
@@ -696,10 +696,10 @@ const SupplierRegistration: React.FC<SupplierRegistrationProps> = ({ onClose }) 
                     <Building2 className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
                     <input 
                       type="text" 
-                      required
+                      required={selectedBusinessType === 'company'}
                       value={companyName}
                       onChange={(e) => setCompanyName(e.target.value)}
-                      placeholder="Company Name (or Legal Name)"
+                      placeholder={selectedBusinessType === 'individual' ? 'Business Name (Optional)' : 'Company Name (or Legal Name)'}
                       className="w-full bg-gray-50 border-none rounded-2xl py-4 pl-12 pr-4 font-bold text-[#001A33] text-[14px] focus:ring-2 focus:ring-[#10B981] transition-all outline-none"
                     />
                   </div>
@@ -1167,7 +1167,7 @@ const SupplierRegistration: React.FC<SupplierRegistrationProps> = ({ onClose }) 
                   (step === 2 && selectedBusinessType === 'company' && (!companyEmployees || !companyActivities)) || 
                   (step === 2 && selectedBusinessType === 'individual' && !individualActivities) || 
                   (step === 2 && selectedBusinessType === 'other' && !otherActivities) ||
-                  (step === ((selectedBusinessType === 'company' || selectedBusinessType === 'individual' || selectedBusinessType === 'other') ? 3 : 2) && (!companyName || !mainHub || !city || !tourLanguages)) ||
+                  (step === ((selectedBusinessType === 'company' || selectedBusinessType === 'individual' || selectedBusinessType === 'other') ? 3 : 2) && ((selectedBusinessType === 'company' && !companyName) || !mainHub || !city || !tourLanguages || !phone || !whatsapp)) ||
                   (step === ((selectedBusinessType === 'company' || selectedBusinessType === 'individual' || selectedBusinessType === 'other') ? 4 : 3) && (
                     !firstName || !lastName || !email || !password || !acceptedTerms ||
                     password.length < 8 || password.length > 30 ||
