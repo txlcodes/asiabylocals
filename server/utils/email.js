@@ -19,11 +19,12 @@ if (!emailUser || !emailPassword) {
 }
 
 // Create reusable transporter object using Gmail SMTP
-// Using explicit SMTP configuration with port 587 (TLS) for better reliability
+// Try port 465 (SSL) first, fallback to 587 (TLS) if needed
+// Port 465 is more reliable for cloud providers like Render
 const transporter = nodemailer.createTransport({
   host: 'smtp.gmail.com',
-  port: 587,
-  secure: false, // true for 465, false for other ports
+  port: 465, // Use SSL port (more reliable for cloud providers)
+  secure: true, // true for 465, false for other ports
   auth: {
     user: emailUser, // Your Gmail address
     pass: emailPassword // Gmail App Password (not regular password)
@@ -31,9 +32,13 @@ const transporter = nodemailer.createTransport({
   tls: {
     rejectUnauthorized: false // Allow self-signed certificates if needed
   },
-  connectionTimeout: 15000, // 15 seconds (increased from 10)
-  greetingTimeout: 15000,
-  socketTimeout: 15000
+  connectionTimeout: 20000, // 20 seconds
+  greetingTimeout: 20000,
+  socketTimeout: 20000,
+  // Additional options for better reliability
+  pool: true, // Use connection pooling
+  maxConnections: 1,
+  maxMessages: 3
 });
 
 // Verify transporter configuration
