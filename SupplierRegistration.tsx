@@ -20,7 +20,7 @@ import {
   EyeOff,
   RefreshCw
 } from 'lucide-react';
-import { API_URL } from './src/config';
+import { API_URL } from '@/src/config';
 
 interface SupplierRegistrationProps {
   onClose: () => void;
