@@ -491,7 +491,7 @@ export const sendBookingNotificationEmail = async (supplierEmail, supplierName, 
     year: 'numeric' 
   });
 
-  const fromEmail = (resendApiKey || sendGridApiKey) ? 'support@asiabylocals.com' : (process.env.EMAIL_USER || 'asiabylocals@gmail.com');
+  const fromEmail = resendApiKey ? 'onboarding@resend.dev' : (sendGridApiKey ? 'support@asiabylocals.com' : (process.env.EMAIL_USER || 'asiabylocals@gmail.com'));
   const mailOptions = {
     from: `"AsiaByLocals Bookings" <${fromEmail}>`,
     to: supplierEmail,
@@ -720,7 +720,7 @@ export const sendBookingConfirmationEmail = async (customerEmail, customerName, 
     whatsappContactLink = `https://wa.me/${cleanWhatsApp}`;
   }
 
-  const fromEmail = (resendApiKey || sendGridApiKey) ? 'support@asiabylocals.com' : (process.env.EMAIL_USER || 'asiabylocals@gmail.com');
+  const fromEmail = resendApiKey ? 'onboarding@resend.dev' : (sendGridApiKey ? 'support@asiabylocals.com' : (process.env.EMAIL_USER || 'asiabylocals@gmail.com'));
   const mailOptions = {
     from: `"AsiaByLocals Bookings" <${fromEmail}>`,
     to: customerEmail,
@@ -992,7 +992,7 @@ export const sendAdminPaymentNotificationEmail = async (bookingDetails) => {
     year: 'numeric' 
   });
 
-  const fromEmail = (resendApiKey || sendGridApiKey) ? 'support@asiabylocals.com' : (process.env.EMAIL_USER || 'asiabylocals@gmail.com');
+  const fromEmail = resendApiKey ? 'onboarding@resend.dev' : (sendGridApiKey ? 'support@asiabylocals.com' : (process.env.EMAIL_USER || 'asiabylocals@gmail.com'));
   const mailOptions = {
     from: `"AsiaByLocals Payments" <${fromEmail}>`,
     to: adminEmail,
