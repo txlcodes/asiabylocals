@@ -66,6 +66,39 @@ app.get('/api/health', async (req, res) => {
   }
 });
 
+// Quick email test endpoint (for testing only)
+app.post('/api/test-email', async (req, res) => {
+  try {
+    const { email } = req.body;
+    const testEmail = email || 'txlweb3@gmail.com'; // Default test email
+    
+    console.log('🧪 Testing email sending to:', testEmail);
+    
+    const testToken = 'test-token-' + Date.now();
+    const result = await sendVerificationEmail(testEmail, 'Test User', testToken);
+    
+    res.json({
+      success: true,
+      message: 'Test email sent successfully!',
+      email: testEmail,
+      messageId: result.messageId,
+      note: 'Check your inbox (and spam folder) for the verification email'
+    });
+  } catch (error) {
+    console.error('❌ Test email failed:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to send test email',
+      message: error.message,
+      details: error.code === 'EAUTH' 
+        ? 'Check EMAIL_USER and EMAIL_APP_PASSWORD in Render environment variables'
+        : error.code === 'ETIMEDOUT' || error.code === 'ECONNECTION'
+        ? 'Connection timeout - Gmail SMTP might be blocked'
+        : 'Unknown error - check server logs'
+    });
+  }
+});
+
 // Register supplier endpoint
 app.post('/api/suppliers/register', async (req, res) => {
   try {
