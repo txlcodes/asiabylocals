@@ -15,6 +15,7 @@ if (sendGridApiKey) {
   // Use SendGrid (recommended for cloud providers like Render)
   console.log('📧 Using SendGrid for email delivery');
   console.log('   SENDGRID_API_KEY: ✅ Set');
+  console.log('   From Email: support@asiabylocals.com');
   transporter = nodemailer.createTransport({
     service: 'SendGrid',
     auth: {
@@ -98,7 +99,7 @@ export const sendVerificationEmail = async (email, fullName, verificationToken) 
   }
 
   console.log(`📧 Attempting to send verification email to: ${email}`);
-  const fromEmail = sendGridApiKey ? 'noreply@asiabylocals.com' : (emailUser || 'asiabylocals@gmail.com');
+  const fromEmail = sendGridApiKey ? 'support@asiabylocals.com' : (emailUser || 'asiabylocals@gmail.com');
   console.log(`   From: ${fromEmail}`);
   console.log(`   Service: ${sendGridApiKey ? 'SendGrid' : 'Gmail SMTP'}`);
   const verificationUrl = `${process.env.FRONTEND_URL || process.env.VITE_FRONTEND_URL || 'http://localhost:3000'}/verify-email?token=${verificationToken}`;

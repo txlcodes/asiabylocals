@@ -33,14 +33,14 @@ Gmail SMTP is timing out on Render. **SendGrid is the recommended solution** for
 1. Go to: https://app.sendgrid.com/settings/sender_auth/senders/new
 2. Click **"Verify a Single Sender"**
 3. Fill in:
-   - **From Email Address**: `noreply@asiabylocals.com` (or your domain email)
+   - **From Email Address**: `support@asiabylocals.com` ✅ (Your custom domain email)
    - **From Name**: `AsiaByLocals`
-   - **Reply To**: `asiabylocals@gmail.com`
+   - **Reply To**: `support@asiabylocals.com`
    - **Company Address**: Your business address
 4. Click **"Create"**
-5. **Check your email** and click the verification link
+5. **Check your email** (`support@asiabylocals.com`) and click the verification link
 
-**Note**: If you don't have a custom domain email, you can use `asiabylocals@gmail.com` but you'll need to verify it.
+**Note**: Using a custom domain email (`support@asiabylocals.com`) is better for deliverability and looks more professional!
 
 ### Step 4: Add to Render
 
