@@ -36,6 +36,7 @@ interface SupplierDashboardProps {
 }
 
 const SupplierDashboard: React.FC<SupplierDashboardProps> = ({ supplier, onLogout }) => {
+  const [currentSupplier, setCurrentSupplier] = React.useState(supplier);
   // Guard: Check if supplier exists BEFORE any state initialization
   if (!supplier || !supplier.id) {
     console.error('SupplierDashboard: supplier is not defined or missing id');
@@ -67,10 +68,21 @@ const SupplierDashboard: React.FC<SupplierDashboardProps> = ({ supplier, onLogou
   const [filterStatus, setFilterStatus] = useState<string>('all');
   // Now supplier is guaranteed to exist, safe to access
   const [profileData, setProfileData] = useState({
-    fullName: supplier?.fullName || '',
-    phone: supplier?.phone || '',
-    whatsapp: supplier?.whatsapp || ''
+    fullName: currentSupplier?.fullName || '',
+    phone: currentSupplier?.phone || '',
+    whatsapp: currentSupplier?.whatsapp || ''
   });
+
+  // Update profileData when supplier changes
+  React.useEffect(() => {
+    if (currentSupplier) {
+      setProfileData({
+        fullName: currentSupplier.fullName || '',
+        phone: currentSupplier.phone || '',
+        whatsapp: currentSupplier.whatsapp || ''
+      });
+    }
+  }, [currentSupplier]);
   const [isSavingProfile, setIsSavingProfile] = useState(false);
 
   // Fetch tours
@@ -159,7 +171,7 @@ const SupplierDashboard: React.FC<SupplierDashboardProps> = ({ supplier, onLogou
     setIsSavingProfile(true);
     try {
       const API_URL = (import.meta as any).env?.VITE_API_URL || 'http://localhost:3001';
-      const response = await fetch(`${API_URL}/api/suppliers/${supplier.id}/profile`, {
+      const response = await fetch(`${API_URL}/api/suppliers/${currentSupplier.id}/profile`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -171,12 +183,12 @@ const SupplierDashboard: React.FC<SupplierDashboardProps> = ({ supplier, onLogou
       
       const data = await response.json();
       if (data.success) {
-        alert('Contact information saved successfully!');
+        alert('Profile updated successfully!');
         // Update supplier in localStorage
-        const updatedSupplier = { ...supplier, fullName: profileData.fullName, phone: profileData.phone, whatsapp: profileData.whatsapp };
+        const updatedSupplier = { ...currentSupplier, ...data.supplier };
         localStorage.setItem('supplier', JSON.stringify(updatedSupplier));
-        // Update the supplier prop by calling a refresh or updating parent state
-        window.location.reload(); // Simple refresh to update the UI
+        // Update local state
+        setCurrentSupplier(updatedSupplier);
       } else {
         alert(data.message || 'Failed to save contact information');
       }
@@ -287,7 +299,7 @@ const SupplierDashboard: React.FC<SupplierDashboardProps> = ({ supplier, onLogou
               <img src="/logo.jpeg" alt="AsiaByLocals" className="h-12 w-12 object-contain" />
               <div>
                 <h1 className="text-xl font-black text-[#001A33]">Supplier Portal</h1>
-                <p className="text-[12px] text-gray-500 font-semibold">Welcome back, {supplier.fullName}</p>
+                <p className="text-[12px] text-gray-500 font-semibold">Welcome back, {currentSupplier?.fullName || supplier.fullName}</p>
               </div>
             </div>
             <div className="flex items-center gap-4">
