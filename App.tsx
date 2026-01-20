@@ -338,8 +338,8 @@ const App: React.FC = () => {
   const isEmailVerificationWaitingPage = window.location.pathname === '/email-verification-waiting';
   // Check if we're on the supplier page (from URL)
   const isSupplierPageFromUrl = window.location.pathname === '/supplier';
-  // Check if we're on the admin dashboard (secure route - not easily guessable)
-  const isAdminPage = window.location.pathname === '/secure-panel-abl';
+  // Check if we're on the admin dashboard
+  const isAdminPage = window.location.pathname === '/admin' || window.location.pathname === '/secure-panel-abl';
   
   // Check for city page: /india/agra, /thailand/bangkok, etc.
   const cityPageMatch = window.location.pathname.match(/^\/([^\/]+)\/([^\/]+)$/);
@@ -988,6 +988,12 @@ const App: React.FC = () => {
                 </li>
                 <li className="hover:text-white cursor-pointer">Sustainability</li>
                 <li className="hover:text-white cursor-pointer">Careers</li>
+                <li 
+                  onClick={() => window.location.href = '/admin'}
+                  className="hover:text-white cursor-pointer opacity-60"
+                >
+                  Admin Panel
+                </li>
               </ul>
             </div>
           </div>
