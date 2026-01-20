@@ -1,4 +1,5 @@
 import nodemailer from 'nodemailer';
+import { Resend } from 'resend';
 import dotenv from 'dotenv';
 
 dotenv.config();
@@ -11,20 +12,19 @@ const emailUser = process.env.EMAIL_USER;
 const emailPassword = process.env.EMAIL_APP_PASSWORD;
 
 let transporter;
+let resendClient = null;
 
 if (resendApiKey) {
-  // Use Resend (easiest setup, great free tier)
-  console.log('📧 Using Resend for email delivery');
+  // Use Resend SDK (recommended - more reliable than SMTP)
+  console.log('📧 Using Resend SDK for email delivery');
   console.log('   RESEND_API_KEY: ✅ Set');
   console.log('   From Email: support@asiabylocals.com');
+  resendClient = new Resend(resendApiKey);
+  // Create a dummy transporter for compatibility (we'll use Resend SDK directly)
   transporter = nodemailer.createTransport({
-    host: 'smtp.resend.com',
-    port: 587,
-    secure: false,
-    auth: {
-      user: 'resend',
-      pass: resendApiKey
-    }
+    host: 'localhost',
+    port: 25,
+    secure: false
   });
 } else if (sendGridApiKey) {
   // Use SendGrid SMTP (recommended for cloud providers like Render)
