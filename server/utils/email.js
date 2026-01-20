@@ -289,7 +289,7 @@ export const sendWelcomeEmail = async (email, fullName) => {
 
   console.log(`📧 Attempting to send welcome email to: ${email}`);
   const mailOptions = {
-    from: `"AsiaByLocals" <${process.env.EMAIL_USER || 'asiabylocals@gmail.com'}>`,
+    from: `"AsiaByLocals" <${sendGridApiKey ? 'support@asiabylocals.com' : (process.env.EMAIL_USER || 'asiabylocals@gmail.com')}>`,
     to: email,
     subject: 'Welcome to AsiaByLocals - Your Account is Verified!',
     html: `
