@@ -12,15 +12,20 @@ const emailPassword = process.env.EMAIL_APP_PASSWORD;
 let transporter;
 
 if (sendGridApiKey) {
-  // Use SendGrid (recommended for cloud providers like Render)
-  console.log('📧 Using SendGrid for email delivery');
+  // Use SendGrid SMTP (recommended for cloud providers like Render)
+  console.log('📧 Using SendGrid SMTP for email delivery');
   console.log('   SENDGRID_API_KEY: ✅ Set');
   console.log('   From Email: support@asiabylocals.com');
   transporter = nodemailer.createTransport({
-    service: 'SendGrid',
+    host: 'smtp.sendgrid.net',
+    port: 587,
+    secure: false, // true for 465, false for other ports
     auth: {
-      user: 'apikey',
-      pass: sendGridApiKey
+      user: 'apikey', // Must be exactly 'apikey' for SendGrid
+      pass: sendGridApiKey // Your SendGrid API key
+    },
+    tls: {
+      rejectUnauthorized: false
     }
   });
 } else if (emailUser && emailPassword) {
