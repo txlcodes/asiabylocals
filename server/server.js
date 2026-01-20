@@ -486,16 +486,16 @@ app.get('/api/suppliers/verify-email', async (req, res) => {
       id: String(updatedSupplier.id)
     };
 
-    // Redirect URL back to supplier page with registration open
-    // Convert id to string for URL parameter
-    const redirectUrl = `${process.env.FRONTEND_URL || 'http://localhost:3000'}/supplier?verified=true&supplierId=${String(updatedSupplier.id)}&openRegistration=true`;
+    // Redirect URL to supplier login page with verification success message
+    // After verification, user should log in to access the dashboard
+    const redirectUrl = `${process.env.FRONTEND_URL || process.env.VITE_FRONTEND_URL || 'http://localhost:3000'}/supplier?verified=true&email=${encodeURIComponent(updatedSupplier.email)}`;
     
     console.log(`✅ Email verified for supplier ID: ${updatedSupplier.id}`);
     console.log(`📧 Redirect URL: ${redirectUrl}`);
     
     res.json({
       success: true,
-      message: 'Email verified successfully! Your account is now active.',
+      message: 'Email verified successfully! Please log in to access your supplier dashboard.',
       supplier: updatedSupplierResponse,
       redirectUrl: redirectUrl
     });
@@ -699,114 +699,6 @@ app.patch('/api/suppliers/:id/status', async (req, res) => {
     }
     res.status(500).json({ 
       error: 'Internal server error',
-      details: process.env.NODE_ENV === 'development' ? error.message : undefined
-    });
-  }
-});
-
-// Verify email endpoint
-app.get('/api/suppliers/verify-email', async (req, res) => {
-  try {
-    const { token } = req.query;
-
-    console.log('🔍 Email verification request received');
-    console.log('   Token:', token ? `${token.substring(0, 10)}...` : 'MISSING');
-
-    if (!token) {
-      return res.status(400).json({ 
-        error: 'Verification token is required',
-        message: 'Please provide a valid verification token'
-      });
-    }
-
-    // Find supplier by verification token (check both expired and non-expired)
-    const supplier = await prisma.supplier.findFirst({
-      where: {
-        emailVerificationToken: token
-      }
-    });
-
-    console.log('   Supplier found:', supplier ? `Yes (ID: ${supplier.id}, Verified: ${supplier.emailVerified})` : 'No');
-    
-    if (!supplier) {
-      console.log('   ❌ No supplier found with this token');
-      // Check if token might exist but expired
-      const allSuppliers = await prisma.supplier.findMany({
-        select: { id: true, email: true, emailVerificationToken: true }
-      });
-      console.log('   Total suppliers in DB:', allSuppliers.length);
-      return res.status(400).json({ 
-        error: 'Invalid or expired token',
-        message: 'The verification link is invalid or has expired. Please request a new verification email.'
-      });
-    }
-
-    // Check if token is expired
-    if (supplier.emailVerificationExpires && new Date(supplier.emailVerificationExpires) < new Date()) {
-      console.log('   ❌ Token expired');
-      return res.status(400).json({ 
-        error: 'Token expired',
-        message: 'The verification link has expired. Please request a new verification email.'
-      });
-    }
-
-    if (supplier.emailVerified) {
-      return res.status(400).json({ 
-        error: 'Email already verified',
-        message: 'This email address has already been verified.'
-      });
-    }
-
-    // Update supplier to mark email as verified
-    const updatedSupplier = await prisma.supplier.update({
-      where: { id: supplier.id },
-      data: {
-        emailVerified: true,
-        emailVerificationToken: null,
-        emailVerificationExpires: null
-      },
-      select: {
-        id: true,
-        email: true,
-        fullName: true,
-        emailVerified: true,
-        status: true
-      }
-    });
-
-    // Send welcome email
-    try {
-      await sendWelcomeEmail(supplier.email, supplier.fullName);
-      console.log(`✅ Welcome email sent to ${supplier.email}`);
-    } catch (emailError) {
-      console.error('❌ Failed to send welcome email:', emailError);
-      // Don't fail verification if welcome email fails
-    }
-
-    // Convert id to string for consistency with frontend
-    const updatedSupplierResponse = {
-      ...updatedSupplier,
-      id: String(updatedSupplier.id)
-    };
-
-    // Redirect URL back to supplier page with registration open
-    // Convert id to string for URL parameter
-    const redirectUrl = `${process.env.FRONTEND_URL || 'http://localhost:3000'}/supplier?verified=true&supplierId=${String(updatedSupplier.id)}&openRegistration=true`;
-    
-    console.log(`✅ Email verified for supplier ID: ${updatedSupplier.id}`);
-    console.log(`📧 Redirect URL: ${redirectUrl}`);
-    
-    res.json({
-      success: true,
-      message: 'Email verified successfully! Your account is now active.',
-      supplier: updatedSupplierResponse,
-      redirectUrl: redirectUrl
-    });
-  } catch (error) {
-    console.error('Email verification error:', error);
-    res.status(500).json({ 
-      error: 'Internal server error',
-      message: 'Failed to verify email. Please try again later.',
       details: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
   }

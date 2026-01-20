@@ -33,15 +33,18 @@ const VerifyEmail: React.FC = () => {
           localStorage.setItem('emailVerified', 'true');
           localStorage.setItem('verifiedSupplierId', data.supplier.id);
           
-          // Always redirect back to supplier page with registration open
-          const redirectUrl = data.redirectUrl || `${window.location.origin}/supplier?verified=true&supplierId=${data.supplier.id}&openRegistration=true`;
+          // Redirect to supplier login page with success message
+          // User needs to log in to access the dashboard
+          const redirectUrl = data.redirectUrl || `${window.location.origin}/supplier?verified=true&email=${encodeURIComponent(data.supplier.email)}`;
           
           console.log('✅ Email verified successfully, redirecting to:', redirectUrl);
           console.log('   Supplier ID:', data.supplier.id);
           console.log('   Email verified:', data.supplier.emailVerified);
           
-          // Use replace to ensure redirect happens and prevent back button issues
-          window.location.replace(redirectUrl);
+          // Redirect after a short delay to show success message
+          setTimeout(() => {
+            window.location.replace(redirectUrl);
+          }, 1500);
         } else {
           setStatus('error');
           setMessage(data.message || data.error || 'Failed to verify email. Please try again.');

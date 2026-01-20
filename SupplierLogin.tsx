@@ -21,6 +21,24 @@ const SupplierLogin: React.FC<SupplierLoginProps> = ({ onClose, onLoginSuccess, 
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+  const [showVerificationSuccess, setShowVerificationSuccess] = useState(false);
+
+  // Check if coming from email verification
+  React.useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const verified = urlParams.get('verified');
+    const verifiedEmail = sessionStorage.getItem('verifiedEmail');
+    
+    if (verified === 'true' || verifiedEmail) {
+      setShowVerificationSuccess(true);
+      if (verifiedEmail) {
+        setEmail(verifiedEmail);
+        sessionStorage.removeItem('verifiedEmail');
+      }
+      // Clear URL params
+      window.history.replaceState({}, '', window.location.pathname);
+    }
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -107,6 +125,12 @@ const SupplierLogin: React.FC<SupplierLoginProps> = ({ onClose, onLoginSuccess, 
               <h3 className="text-2xl font-black text-[#001A33] mb-2">Welcome back</h3>
               <p className="text-[14px] text-gray-400 font-semibold">Sign in to your partner account</p>
             </div>
+
+            {showVerificationSuccess && (
+              <div className="bg-green-50 border border-green-200 text-green-800 px-4 py-3 rounded-xl text-sm font-semibold">
+                ✅ Email verified successfully! Please log in to access your supplier dashboard.
+              </div>
+            )}
             
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="relative">

@@ -78,13 +78,18 @@ const SupplierPage: React.FC<SupplierPageProps> = ({ onClose }) => {
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     const verified = urlParams.get('verified');
-    const openRegistration = urlParams.get('openRegistration');
+    const email = urlParams.get('email');
     
-    if (verified === 'true' && openRegistration === 'true') {
-      // User just verified email, open registration form
-      setShowRegistration(true);
+    if (verified === 'true') {
+      // User just verified email, show login form with success message
+      setShowLogin(true);
       // Clear URL params
       window.history.replaceState({}, '', window.location.pathname);
+      // If email is provided, pre-fill it in the login form
+      if (email) {
+        // Store email for login form to use
+        sessionStorage.setItem('verifiedEmail', email);
+      }
     }
   }, []);
 
