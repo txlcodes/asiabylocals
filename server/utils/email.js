@@ -85,8 +85,8 @@ transporter.verify((error, success) => {
  */
 export const sendVerificationEmail = async (email, fullName, verificationToken) => {
   // Check if email is configured
-  if (!emailUser || !emailPassword) {
-    const errorMsg = 'Email not configured. Please set EMAIL_USER and EMAIL_APP_PASSWORD in Render environment variables.';
+  if (!sendGridApiKey && (!emailUser || !emailPassword)) {
+    const errorMsg = 'Email not configured. Please set SENDGRID_API_KEY (recommended) or EMAIL_USER + EMAIL_APP_PASSWORD in Render environment variables.';
     console.error('❌', errorMsg);
     throw new Error(errorMsg);
   }
@@ -98,12 +98,13 @@ export const sendVerificationEmail = async (email, fullName, verificationToken) 
   }
 
   console.log(`📧 Attempting to send verification email to: ${email}`);
-  console.log(`   From: ${emailUser}`);
-  console.log(`   Frontend URL: ${process.env.FRONTEND_URL || process.env.VITE_FRONTEND_URL || 'http://localhost:3000'}`);
+  const fromEmail = sendGridApiKey ? 'noreply@asiabylocals.com' : (emailUser || 'asiabylocals@gmail.com');
+  console.log(`   From: ${fromEmail}`);
+  console.log(`   Service: ${sendGridApiKey ? 'SendGrid' : 'Gmail SMTP'}`);
   const verificationUrl = `${process.env.FRONTEND_URL || process.env.VITE_FRONTEND_URL || 'http://localhost:3000'}/verify-email?token=${verificationToken}`;
 
   const mailOptions = {
-    from: `"AsiaByLocals Registration" <${process.env.EMAIL_USER || 'asiabylocals@gmail.com'}>`,
+    from: `"AsiaByLocals Registration" <${fromEmail}>`,
     to: email,
     subject: 'AsiaByLocals Registration Confirmation',
     html: `
