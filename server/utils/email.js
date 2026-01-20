@@ -81,22 +81,26 @@ if (resendApiKey) {
   });
 }
 
-// Verify transporter configuration
-transporter.verify((error, success) => {
-  if (error) {
-    console.error('❌ Email transporter verification failed:');
-    console.error('   Error:', error.message);
-    console.error('   Code:', error.code);
-    if (error.code === 'EAUTH') {
-      console.error('   ⚠️ Authentication failed! Check EMAIL_USER and EMAIL_APP_PASSWORD');
-      console.error('   Make sure you\'re using a Gmail App Password, not your regular password.');
-    } else if (error.code === 'ETIMEDOUT' || error.code === 'ECONNECTION') {
-      console.error('   ⚠️ Connection timeout! Gmail SMTP might be blocked or unreachable.');
+// Verify transporter configuration (skip if using Resend SDK)
+if (!resendClient) {
+  transporter.verify((error, success) => {
+    if (error) {
+      console.error('❌ Email transporter verification failed:');
+      console.error('   Error:', error.message);
+      console.error('   Code:', error.code);
+      if (error.code === 'EAUTH') {
+        console.error('   ⚠️ Authentication failed! Check EMAIL_USER and EMAIL_APP_PASSWORD');
+        console.error('   Make sure you\'re using a Gmail App Password, not your regular password.');
+      } else if (error.code === 'ETIMEDOUT' || error.code === 'ECONNECTION') {
+        console.error('   ⚠️ Connection timeout! Gmail SMTP might be blocked or unreachable.');
+      }
+    } else {
+      console.log('✅ Email server is ready to send messages');
     }
-  } else {
-    console.log('✅ Email server is ready to send messages');
-  }
-});
+  });
+} else {
+  console.log('✅ Resend SDK initialized - ready to send messages');
+}
 
 /**
  * Send verification email to supplier
