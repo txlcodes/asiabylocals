@@ -263,6 +263,21 @@ export const sendVerificationEmail = async (email, fullName, verificationToken) 
   };
 
   try {
+    // Use Resend SDK if available (more reliable than SMTP)
+    if (resendClient) {
+      const result = await resendClient.emails.send({
+        from: `AsiaByLocals Registration <${fromEmail}>`,
+        to: email,
+        subject: 'AsiaByLocals Registration Confirmation',
+        html: mailOptions.html,
+        text: mailOptions.text
+      });
+      console.log(`✅ Verification email sent successfully to ${email}`);
+      console.log('📬 Message ID:', result.data?.id);
+      return { success: true, messageId: result.data?.id };
+    }
+    
+    // Fallback to nodemailer for SendGrid/Gmail
     const info = await transporter.sendMail(mailOptions);
     console.log(`✅ Verification email sent successfully to ${email}`);
     console.log('📬 Message ID:', info.messageId);
