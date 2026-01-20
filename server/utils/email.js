@@ -3,43 +3,61 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-// Check if email credentials are configured
+// Check email service configuration
+// Priority: SendGrid (recommended for cloud) > Gmail SMTP
+const sendGridApiKey = process.env.SENDGRID_API_KEY;
 const emailUser = process.env.EMAIL_USER;
 const emailPassword = process.env.EMAIL_APP_PASSWORD;
 
-if (!emailUser || !emailPassword) {
-  console.warn('⚠️ Email credentials not configured!');
-  console.warn('   EMAIL_USER:', emailUser ? '✅ Set' : '❌ Missing');
-  console.warn('   EMAIL_APP_PASSWORD:', emailPassword ? '✅ Set' : '❌ Missing');
-  console.warn('   Email sending will fail. Please set EMAIL_USER and EMAIL_APP_PASSWORD in Render environment variables.');
-} else {
-  console.log('📧 Email configuration found:');
-  console.log('   EMAIL_USER:', emailUser);
-  console.log('   EMAIL_APP_PASSWORD:', emailPassword ? '✅ Set (' + emailPassword.length + ' chars)' : '❌ Missing');
-}
+let transporter;
 
-// Create reusable transporter object using Gmail SMTP
-// Try port 465 (SSL) first, fallback to 587 (TLS) if needed
-// Port 465 is more reliable for cloud providers like Render
-const transporter = nodemailer.createTransport({
-  host: 'smtp.gmail.com',
-  port: 465, // Use SSL port (more reliable for cloud providers)
-  secure: true, // true for 465, false for other ports
-  auth: {
-    user: emailUser, // Your Gmail address
-    pass: emailPassword // Gmail App Password (not regular password)
-  },
-  tls: {
-    rejectUnauthorized: false // Allow self-signed certificates if needed
-  },
-  connectionTimeout: 20000, // 20 seconds
-  greetingTimeout: 20000,
-  socketTimeout: 20000,
-  // Additional options for better reliability
-  pool: true, // Use connection pooling
-  maxConnections: 1,
-  maxMessages: 3
-});
+if (sendGridApiKey) {
+  // Use SendGrid (recommended for cloud providers like Render)
+  console.log('📧 Using SendGrid for email delivery');
+  console.log('   SENDGRID_API_KEY: ✅ Set');
+  transporter = nodemailer.createTransport({
+    service: 'SendGrid',
+    auth: {
+      user: 'apikey',
+      pass: sendGridApiKey
+    }
+  });
+} else if (emailUser && emailPassword) {
+  // Fallback to Gmail SMTP (may have connection issues on cloud providers)
+  console.log('📧 Using Gmail SMTP for email delivery');
+  console.log('   EMAIL_USER:', emailUser);
+  console.log('   EMAIL_APP_PASSWORD: ✅ Set (' + emailPassword.length + ' chars)');
+  console.log('   ⚠️ Note: Gmail SMTP may timeout on cloud providers. Consider using SendGrid.');
+  transporter = nodemailer.createTransport({
+    host: 'smtp.gmail.com',
+    port: 465,
+    secure: true,
+    auth: {
+      user: emailUser,
+      pass: emailPassword
+    },
+    tls: {
+      rejectUnauthorized: false
+    },
+    connectionTimeout: 20000,
+    greetingTimeout: 20000,
+    socketTimeout: 20000,
+    pool: true,
+    maxConnections: 1,
+    maxMessages: 3
+  });
+} else {
+  console.warn('⚠️ Email credentials not configured!');
+  console.warn('   Option 1 (Recommended): Set SENDGRID_API_KEY in Render');
+  console.warn('   Option 2: Set EMAIL_USER and EMAIL_APP_PASSWORD in Render');
+  console.warn('   Email sending will fail until one is configured.');
+  // Create a dummy transporter to prevent crashes
+  transporter = nodemailer.createTransport({
+    host: 'localhost',
+    port: 25,
+    secure: false
+  });
+}
 
 // Verify transporter configuration
 transporter.verify((error, success) => {
