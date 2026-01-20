@@ -4,14 +4,29 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 // Check email service configuration
-// Priority: SendGrid (recommended for cloud) > Gmail SMTP
+// Priority: Resend (easiest) > SendGrid > Gmail SMTP
+const resendApiKey = process.env.RESEND_API_KEY;
 const sendGridApiKey = process.env.SENDGRID_API_KEY;
 const emailUser = process.env.EMAIL_USER;
 const emailPassword = process.env.EMAIL_APP_PASSWORD;
 
 let transporter;
 
-if (sendGridApiKey) {
+if (resendApiKey) {
+  // Use Resend (easiest setup, great free tier)
+  console.log('📧 Using Resend for email delivery');
+  console.log('   RESEND_API_KEY: ✅ Set');
+  console.log('   From Email: support@asiabylocals.com');
+  transporter = nodemailer.createTransport({
+    host: 'smtp.resend.com',
+    port: 587,
+    secure: false,
+    auth: {
+      user: 'resend',
+      pass: resendApiKey
+    }
+  });
+} else if (sendGridApiKey) {
   // Use SendGrid SMTP (recommended for cloud providers like Render)
   console.log('📧 Using SendGrid SMTP for email delivery');
   console.log('   SENDGRID_API_KEY: ✅ Set');
@@ -54,8 +69,9 @@ if (sendGridApiKey) {
   });
 } else {
   console.warn('⚠️ Email credentials not configured!');
-  console.warn('   Option 1 (Recommended): Set SENDGRID_API_KEY in Render');
-  console.warn('   Option 2: Set EMAIL_USER and EMAIL_APP_PASSWORD in Render');
+  console.warn('   Option 1 (Easiest): Set RESEND_API_KEY in Render');
+  console.warn('   Option 2: Set SENDGRID_API_KEY in Render');
+  console.warn('   Option 3: Set EMAIL_USER and EMAIL_APP_PASSWORD in Render');
   console.warn('   Email sending will fail until one is configured.');
   // Create a dummy transporter to prevent crashes
   transporter = nodemailer.createTransport({
@@ -91,8 +107,8 @@ transporter.verify((error, success) => {
  */
 export const sendVerificationEmail = async (email, fullName, verificationToken) => {
   // Check if email is configured
-  if (!sendGridApiKey && (!emailUser || !emailPassword)) {
-    const errorMsg = 'Email not configured. Please set SENDGRID_API_KEY (recommended) or EMAIL_USER + EMAIL_APP_PASSWORD in Render environment variables.';
+  if (!resendApiKey && !sendGridApiKey && (!emailUser || !emailPassword)) {
+    const errorMsg = 'Email not configured. Please set RESEND_API_KEY (easiest), SENDGRID_API_KEY, or EMAIL_USER + EMAIL_APP_PASSWORD in Render environment variables.';
     console.error('❌', errorMsg);
     throw new Error(errorMsg);
   }
@@ -104,9 +120,10 @@ export const sendVerificationEmail = async (email, fullName, verificationToken) 
   }
 
   console.log(`📧 Attempting to send verification email to: ${email}`);
-  const fromEmail = sendGridApiKey ? 'support@asiabylocals.com' : (emailUser || 'asiabylocals@gmail.com');
+  const fromEmail = (resendApiKey || sendGridApiKey) ? 'support@asiabylocals.com' : (emailUser || 'asiabylocals@gmail.com');
+  const serviceName = resendApiKey ? 'Resend' : (sendGridApiKey ? 'SendGrid' : 'Gmail SMTP');
   console.log(`   From: ${fromEmail}`);
-  console.log(`   Service: ${sendGridApiKey ? 'SendGrid' : 'Gmail SMTP'}`);
+  console.log(`   Service: ${serviceName}`);
   const verificationUrl = `${process.env.FRONTEND_URL || process.env.VITE_FRONTEND_URL || 'http://localhost:3000'}/verify-email?token=${verificationToken}`;
 
   const mailOptions = {
