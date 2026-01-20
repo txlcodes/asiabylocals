@@ -117,6 +117,25 @@ app.post('/api/test-email', async (req, res) => {
   }
 });
 
+// Check email configuration endpoint
+app.get('/api/email-config', (req, res) => {
+  const resendApiKey = process.env.RESEND_API_KEY;
+  const sendGridApiKey = process.env.SENDGRID_API_KEY;
+  const emailUser = process.env.EMAIL_USER;
+  
+  const fromEmail = (resendApiKey || sendGridApiKey) ? 'info@asiabylocals.com' : (emailUser || 'asiabylocals@gmail.com');
+  const serviceName = resendApiKey ? 'Resend' : (sendGridApiKey ? 'SendGrid' : 'Gmail SMTP');
+  
+  res.json({
+    configured: !!(resendApiKey || sendGridApiKey || emailUser),
+    service: serviceName,
+    fromEmail: fromEmail,
+    resendConfigured: !!resendApiKey,
+    sendGridConfigured: !!sendGridApiKey,
+    gmailConfigured: !!emailUser
+  });
+});
+
 // Register supplier endpoint
 app.post('/api/suppliers/register', async (req, res) => {
   try {
