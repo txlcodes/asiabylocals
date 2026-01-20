@@ -124,9 +124,9 @@ export const sendVerificationEmail = async (email, fullName, verificationToken) 
   }
 
   console.log(`📧 Attempting to send verification email to: ${email}`);
-  // Use onboarding@resend.dev for Resend (works without domain verification)
-  // Use support@asiabylocals.com for SendGrid (requires domain verification)
-  const fromEmail = resendApiKey ? 'onboarding@resend.dev' : (sendGridApiKey ? 'support@asiabylocals.com' : (emailUser || 'asiabylocals@gmail.com'));
+  // Use support@asiabylocals.com for Resend (domain verified!) or SendGrid
+  // Fallback to onboarding@resend.dev if domain not verified (shouldn't happen now)
+  const fromEmail = (resendApiKey || sendGridApiKey) ? 'support@asiabylocals.com' : (emailUser || 'asiabylocals@gmail.com');
   const serviceName = resendApiKey ? 'Resend' : (sendGridApiKey ? 'SendGrid' : 'Gmail SMTP');
   console.log(`   From: ${fromEmail}`);
   console.log(`   Service: ${serviceName}`);
@@ -491,7 +491,7 @@ export const sendBookingNotificationEmail = async (supplierEmail, supplierName, 
     year: 'numeric' 
   });
 
-  const fromEmail = resendApiKey ? 'onboarding@resend.dev' : (sendGridApiKey ? 'support@asiabylocals.com' : (process.env.EMAIL_USER || 'asiabylocals@gmail.com'));
+  const fromEmail = (resendApiKey || sendGridApiKey) ? 'support@asiabylocals.com' : (process.env.EMAIL_USER || 'asiabylocals@gmail.com');
   const mailOptions = {
     from: `"AsiaByLocals Bookings" <${fromEmail}>`,
     to: supplierEmail,
@@ -720,7 +720,7 @@ export const sendBookingConfirmationEmail = async (customerEmail, customerName, 
     whatsappContactLink = `https://wa.me/${cleanWhatsApp}`;
   }
 
-  const fromEmail = resendApiKey ? 'onboarding@resend.dev' : (sendGridApiKey ? 'support@asiabylocals.com' : (process.env.EMAIL_USER || 'asiabylocals@gmail.com'));
+  const fromEmail = (resendApiKey || sendGridApiKey) ? 'support@asiabylocals.com' : (process.env.EMAIL_USER || 'asiabylocals@gmail.com');
   const mailOptions = {
     from: `"AsiaByLocals Bookings" <${fromEmail}>`,
     to: customerEmail,
@@ -992,7 +992,7 @@ export const sendAdminPaymentNotificationEmail = async (bookingDetails) => {
     year: 'numeric' 
   });
 
-  const fromEmail = resendApiKey ? 'onboarding@resend.dev' : (sendGridApiKey ? 'support@asiabylocals.com' : (process.env.EMAIL_USER || 'asiabylocals@gmail.com'));
+  const fromEmail = (resendApiKey || sendGridApiKey) ? 'support@asiabylocals.com' : (process.env.EMAIL_USER || 'asiabylocals@gmail.com');
   const mailOptions = {
     from: `"AsiaByLocals Payments" <${fromEmail}>`,
     to: adminEmail,
