@@ -551,12 +551,12 @@ app.get('/api/suppliers/:id', async (req, res) => {
   }
 });
 
-// Update supplier profile (phone, whatsapp)
+// Update supplier profile (fullName, phone, whatsapp)
 app.patch('/api/suppliers/:id/profile', async (req, res) => {
   try {
     const { id } = req.params;
     const supplierId = parseInt(id);
-    const { phone, whatsapp } = req.body;
+    const { fullName, phone, whatsapp } = req.body;
 
     if (isNaN(supplierId)) {
       return res.status(400).json({ 
@@ -581,8 +581,9 @@ app.patch('/api/suppliers/:id/profile', async (req, res) => {
     const supplier = await prisma.supplier.update({
       where: { id: supplierId },
       data: {
-        phone: phone || null,
-        whatsapp: whatsapp || null
+        ...(fullName !== undefined && { fullName: fullName.trim() || null }),
+        ...(phone !== undefined && { phone: phone || null }),
+        ...(whatsapp !== undefined && { whatsapp: whatsapp || null })
       },
       select: {
         id: true,

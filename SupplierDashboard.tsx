@@ -67,6 +67,7 @@ const SupplierDashboard: React.FC<SupplierDashboardProps> = ({ supplier, onLogou
   const [filterStatus, setFilterStatus] = useState<string>('all');
   // Now supplier is guaranteed to exist, safe to access
   const [profileData, setProfileData] = useState({
+    fullName: supplier?.fullName || '',
     phone: supplier?.phone || '',
     whatsapp: supplier?.whatsapp || ''
   });
@@ -162,6 +163,7 @@ const SupplierDashboard: React.FC<SupplierDashboardProps> = ({ supplier, onLogou
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
+          fullName: profileData.fullName,
           phone: profileData.phone,
           whatsapp: profileData.whatsapp
         })
@@ -171,8 +173,10 @@ const SupplierDashboard: React.FC<SupplierDashboardProps> = ({ supplier, onLogou
       if (data.success) {
         alert('Contact information saved successfully!');
         // Update supplier in localStorage
-        const updatedSupplier = { ...supplier, phone: profileData.phone, whatsapp: profileData.whatsapp };
+        const updatedSupplier = { ...supplier, fullName: profileData.fullName, phone: profileData.phone, whatsapp: profileData.whatsapp };
         localStorage.setItem('supplier', JSON.stringify(updatedSupplier));
+        // Update the supplier prop by calling a refresh or updating parent state
+        window.location.reload(); // Simple refresh to update the UI
       } else {
         alert(data.message || 'Failed to save contact information');
       }
@@ -697,13 +701,17 @@ const SupplierDashboard: React.FC<SupplierDashboardProps> = ({ supplier, onLogou
               </p>
               <div className="space-y-6">
                 <div>
-                  <label className="block text-[14px] font-bold text-[#001A33] mb-2">Full Name</label>
+                  <label className="block text-[14px] font-bold text-[#001A33] mb-2">Full Name *</label>
                   <input
                     type="text"
-                    value={supplier.fullName}
-                    readOnly
-                    className="w-full bg-gray-50 border-none rounded-2xl py-4 px-4 font-bold text-[#001A33] text-[14px]"
+                    value={profileData.fullName}
+                    onChange={(e) => setProfileData({ ...profileData, fullName: e.target.value })}
+                    placeholder="Enter your full name"
+                    className="w-full bg-white border-2 border-gray-200 rounded-2xl py-4 px-4 font-bold text-[#001A33] text-[14px] focus:ring-2 focus:ring-[#10B981] focus:border-[#10B981] outline-none"
                   />
+                  <p className="text-[12px] text-gray-500 font-semibold mt-2">
+                    Your name as it will appear to customers
+                  </p>
                 </div>
                 <div>
                   <label className="block text-[14px] font-bold text-[#001A33] mb-2">Email Address *</label>
