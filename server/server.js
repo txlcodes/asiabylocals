@@ -86,15 +86,33 @@ app.post('/api/test-email', async (req, res) => {
     });
   } catch (error) {
     console.error('❌ Test email failed:', error);
+    const resendApiKey = process.env.RESEND_API_KEY;
+    const sendGridApiKey = process.env.SENDGRID_API_KEY;
+    const emailUser = process.env.EMAIL_USER;
+    
+    let details = 'Unknown error - check server logs';
+    if (error.code === 'EAUTH') {
+      details = 'Authentication failed - check API key or credentials';
+    } else if (error.code === 'ETIMEDOUT' || error.code === 'ECONNECTION') {
+      if (!resendApiKey && !sendGridApiKey && !emailUser) {
+        details = 'No email service configured. Add RESEND_API_KEY (recommended), SENDGRID_API_KEY, or EMAIL_USER + EMAIL_APP_PASSWORD to Render environment variables';
+      } else if (emailUser && !resendApiKey && !sendGridApiKey) {
+        details = 'Connection timeout - Gmail SMTP is blocked on Render. Add RESEND_API_KEY or SENDGRID_API_KEY instead';
+      } else {
+        details = 'Connection timeout - check network/firewall settings';
+      }
+    }
+    
     res.status(500).json({
       success: false,
       error: 'Failed to send test email',
       message: error.message,
-      details: error.code === 'EAUTH' 
-        ? 'Check EMAIL_USER and EMAIL_APP_PASSWORD in Render environment variables'
-        : error.code === 'ETIMEDOUT' || error.code === 'ECONNECTION'
-        ? 'Connection timeout - Gmail SMTP might be blocked'
-        : 'Unknown error - check server logs'
+      details: details,
+      configured: {
+        resend: !!resendApiKey,
+        sendgrid: !!sendGridApiKey,
+        gmail: !!emailUser
+      }
     });
   }
 });
