@@ -448,8 +448,9 @@ export const sendBookingNotificationEmail = async (supplierEmail, supplierName, 
     year: 'numeric' 
   });
 
+  const fromEmail = sendGridApiKey ? 'support@asiabylocals.com' : (process.env.EMAIL_USER || 'asiabylocals@gmail.com');
   const mailOptions = {
-    from: `"AsiaByLocals Bookings" <${process.env.EMAIL_USER || 'asiabylocals@gmail.com'}>`,
+    from: `"AsiaByLocals Bookings" <${fromEmail}>`,
     to: supplierEmail,
     subject: `New Booking Received: ${tourTitle}`,
     html: `
@@ -676,8 +677,9 @@ export const sendBookingConfirmationEmail = async (customerEmail, customerName, 
     whatsappContactLink = `https://wa.me/${cleanWhatsApp}`;
   }
 
+  const fromEmail = sendGridApiKey ? 'support@asiabylocals.com' : (process.env.EMAIL_USER || 'asiabylocals@gmail.com');
   const mailOptions = {
-    from: `"AsiaByLocals Bookings" <${process.env.EMAIL_USER || 'asiabylocals@gmail.com'}>`,
+    from: `"AsiaByLocals Bookings" <${fromEmail}>`,
     to: customerEmail,
     subject: `Booking Confirmation: ${tourTitle} - ${bookingReference}`,
     html: `
@@ -947,8 +949,9 @@ export const sendAdminPaymentNotificationEmail = async (bookingDetails) => {
     year: 'numeric' 
   });
 
+  const fromEmail = sendGridApiKey ? 'support@asiabylocals.com' : (process.env.EMAIL_USER || 'asiabylocals@gmail.com');
   const mailOptions = {
-    from: `"AsiaByLocals Payments" <${process.env.EMAIL_USER || 'asiabylocals@gmail.com'}>`,
+    from: `"AsiaByLocals Payments" <${fromEmail}>`,
     to: adminEmail,
     subject: `💰 Payment Completed: ${tourTitle} - ${bookingReference}`,
     html: `
