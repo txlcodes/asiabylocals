@@ -125,7 +125,7 @@ export const sendVerificationEmail = async (email, fullName, verificationToken) 
 
   console.log(`📧 Attempting to send verification email to: ${email}`);
   // Use support@asiabylocals.com for Resend (domain verified!) or SendGrid
-  // Fallback to onboarding@resend.dev if domain not verified (shouldn't happen now)
+  // Domain verified! Using support@asiabylocals.com
   const fromEmail = (resendApiKey || sendGridApiKey) ? 'support@asiabylocals.com' : (emailUser || 'asiabylocals@gmail.com');
   const serviceName = resendApiKey ? 'Resend' : (sendGridApiKey ? 'SendGrid' : 'Gmail SMTP');
   console.log(`   From: ${fromEmail}`);
