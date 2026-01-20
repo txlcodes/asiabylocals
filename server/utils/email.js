@@ -18,7 +18,7 @@ if (resendApiKey) {
   // Use Resend SDK (recommended - more reliable than SMTP)
   console.log('📧 Using Resend SDK for email delivery');
   console.log('   RESEND_API_KEY: ✅ Set');
-  console.log('   From Email: support@asiabylocals.com');
+  console.log('   From Email: info@asiabylocals.com');
   resendClient = new Resend(resendApiKey);
   // Create a dummy transporter for compatibility (we'll use Resend SDK directly)
   transporter = nodemailer.createTransport({
@@ -30,7 +30,7 @@ if (resendApiKey) {
   // Use SendGrid SMTP (recommended for cloud providers like Render)
   console.log('📧 Using SendGrid SMTP for email delivery');
   console.log('   SENDGRID_API_KEY: ✅ Set');
-  console.log('   From Email: support@asiabylocals.com');
+  console.log('   From Email: info@asiabylocals.com');
   transporter = nodemailer.createTransport({
     host: 'smtp.sendgrid.net',
     port: 587,
@@ -124,9 +124,9 @@ export const sendVerificationEmail = async (email, fullName, verificationToken) 
   }
 
   console.log(`📧 Attempting to send verification email to: ${email}`);
-  // Use support@asiabylocals.com for Resend (domain verified!) or SendGrid
-  // Domain verified! Using support@asiabylocals.com
-  const fromEmail = (resendApiKey || sendGridApiKey) ? 'support@asiabylocals.com' : (emailUser || 'asiabylocals@gmail.com');
+  // Use info@asiabylocals.com for Resend (domain verified!) or SendGrid
+  // Domain verified! Using info@asiabylocals.com
+  const fromEmail = (resendApiKey || sendGridApiKey) ? 'info@asiabylocals.com' : (emailUser || 'asiabylocals@gmail.com');
   const serviceName = resendApiKey ? 'Resend' : (sendGridApiKey ? 'SendGrid' : 'Gmail SMTP');
   console.log(`   From: ${fromEmail}`);
   console.log(`   Service: ${serviceName}`);
@@ -332,7 +332,7 @@ export const sendWelcomeEmail = async (email, fullName) => {
 
   console.log(`📧 Attempting to send welcome email to: ${email}`);
   const mailOptions = {
-    from: `"AsiaByLocals" <${sendGridApiKey ? 'support@asiabylocals.com' : (process.env.EMAIL_USER || 'asiabylocals@gmail.com')}>`,
+    from: `"AsiaByLocals" <${sendGridApiKey ? 'info@asiabylocals.com' : (process.env.EMAIL_USER || 'asiabylocals@gmail.com')}>`,
     to: email,
     subject: 'Welcome to AsiaByLocals - Your Account is Verified!',
     html: `
@@ -491,7 +491,7 @@ export const sendBookingNotificationEmail = async (supplierEmail, supplierName, 
     year: 'numeric' 
   });
 
-  const fromEmail = (resendApiKey || sendGridApiKey) ? 'support@asiabylocals.com' : (process.env.EMAIL_USER || 'asiabylocals@gmail.com');
+  const fromEmail = (resendApiKey || sendGridApiKey) ? 'info@asiabylocals.com' : (process.env.EMAIL_USER || 'asiabylocals@gmail.com');
   const mailOptions = {
     from: `"AsiaByLocals Bookings" <${fromEmail}>`,
     to: supplierEmail,
@@ -720,7 +720,7 @@ export const sendBookingConfirmationEmail = async (customerEmail, customerName, 
     whatsappContactLink = `https://wa.me/${cleanWhatsApp}`;
   }
 
-  const fromEmail = (resendApiKey || sendGridApiKey) ? 'support@asiabylocals.com' : (process.env.EMAIL_USER || 'asiabylocals@gmail.com');
+  const fromEmail = (resendApiKey || sendGridApiKey) ? 'info@asiabylocals.com' : (process.env.EMAIL_USER || 'asiabylocals@gmail.com');
   const mailOptions = {
     from: `"AsiaByLocals Bookings" <${fromEmail}>`,
     to: customerEmail,
@@ -992,7 +992,7 @@ export const sendAdminPaymentNotificationEmail = async (bookingDetails) => {
     year: 'numeric' 
   });
 
-  const fromEmail = (resendApiKey || sendGridApiKey) ? 'support@asiabylocals.com' : (process.env.EMAIL_USER || 'asiabylocals@gmail.com');
+  const fromEmail = (resendApiKey || sendGridApiKey) ? 'info@asiabylocals.com' : (process.env.EMAIL_USER || 'asiabylocals@gmail.com');
   const mailOptions = {
     from: `"AsiaByLocals Payments" <${fromEmail}>`,
     to: adminEmail,
