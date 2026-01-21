@@ -933,28 +933,72 @@ app.get('/api/suppliers/verify-email', async (req, res) => {
     }
 
     if (supplier.emailVerified) {
-      return res.status(400).json({ 
-        error: 'Email already verified',
-        message: 'This email address has already been verified.'
+      console.log('   ⚠️ Email already verified, returning existing supplier');
+      // Return success even if already verified
+      const alreadyVerifiedResponse = {
+        ...supplier,
+        id: String(supplier.id)
+      };
+      return res.json({
+        success: true,
+        message: 'Email already verified. You can log in now.',
+        supplier: alreadyVerifiedResponse,
+        redirectUrl: `${process.env.FRONTEND_URL || process.env.VITE_FRONTEND_URL || 'http://localhost:3000'}/supplier?verified=true&email=${encodeURIComponent(supplier.email)}`
       });
     }
 
     // Update supplier to mark email as verified
-    const updatedSupplier = await prisma.supplier.update({
-      where: { id: supplier.id },
-      data: {
-        emailVerified: true,
-        emailVerificationToken: null,
-        emailVerificationExpires: null
-      },
-      select: {
-        id: true,
-        email: true,
-        fullName: true,
-        emailVerified: true,
-        status: true
+    // Use retry logic for Render free tier database connection issues
+    let updatedSupplier = null;
+    let updateAttempts = 0;
+    const MAX_UPDATE_RETRIES = 3;
+    
+    console.log('   🔄 Updating email verification status...');
+    
+    while (updateAttempts < MAX_UPDATE_RETRIES && !updatedSupplier) {
+      try {
+        updatedSupplier = await prisma.supplier.update({
+          where: { id: supplier.id },
+          data: {
+            emailVerified: true,
+            emailVerificationToken: null,
+            emailVerificationExpires: null
+          },
+          select: {
+            id: true,
+            email: true,
+            fullName: true,
+            emailVerified: true,
+            status: true
+          }
+        });
+        console.log('   ✅ Email verification updated successfully');
+        console.log('      Email verified:', updatedSupplier.emailVerified);
+        break; // Success, exit retry loop
+      } catch (updateError) {
+        updateAttempts++;
+        console.error(`   ❌ Database error updating verification (attempt ${updateAttempts}/${MAX_UPDATE_RETRIES}):`, updateError.message);
+        
+        // If it's a connection error and we have retries left, wait and retry
+        if (updateAttempts < MAX_UPDATE_RETRIES && (
+          updateError.message?.includes('connection') || 
+          updateError.message?.includes('timeout') ||
+          updateError.code === 'P1001' ||
+          updateError.code === 'P1017' ||
+          updateError.code === 'P1008'
+        )) {
+          console.log(`   Retrying update in ${updateAttempts * 500}ms...`);
+          await new Promise(resolve => setTimeout(resolve, updateAttempts * 500));
+          continue;
+        }
+        // Not a retryable error, throw
+        throw updateError;
       }
-    });
+    }
+    
+    if (!updatedSupplier) {
+      throw new Error('Failed to update email verification after retries');
+    }
 
     // Send welcome email
     try {
