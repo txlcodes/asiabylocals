@@ -635,33 +635,105 @@ app.post('/api/suppliers/login', async (req, res) => {
     // Normalize email (trim and lowercase)
     const normalizedEmail = email.trim().toLowerCase();
     
-    console.log('🔐 Login attempt:', normalizedEmail);
+    console.log('🔐 Login attempt:');
+    console.log('   Email provided:', email);
+    console.log('   Normalized email:', normalizedEmail);
     
-    // Find supplier using Prisma
-    const supplier = await prisma.supplier.findUnique({
-      where: { email: normalizedEmail },
-      select: {
-        id: true,
-        email: true,
-        fullName: true,
-        passwordHash: true,
-        status: true,
-        emailVerified: true,
-        phone: true,
-        whatsapp: true
+    // Find supplier using Prisma with retry logic for Render free tier
+    let supplier = null;
+    let findAttempts = 0;
+    const MAX_FIND_RETRIES = 3;
+    
+    while (findAttempts < MAX_FIND_RETRIES && !supplier) {
+      try {
+        supplier = await prisma.supplier.findUnique({
+          where: { email: normalizedEmail },
+          select: {
+            id: true,
+            email: true,
+            fullName: true,
+            passwordHash: true,
+            status: true,
+            emailVerified: true,
+            phone: true,
+            whatsapp: true
+          }
+        });
+        break; // Success, exit retry loop
+      } catch (dbError) {
+        findAttempts++;
+        console.error(`   Database error finding supplier (attempt ${findAttempts}/${MAX_FIND_RETRIES}):`, dbError.message);
+        
+        // If it's a connection error and we have retries left, wait and retry
+        if (findAttempts < MAX_FIND_RETRIES && (
+          dbError.message?.includes('connection') || 
+          dbError.message?.includes('timeout') ||
+          dbError.code === 'P1001' ||
+          dbError.code === 'P1017' ||
+          dbError.code === 'P1008'
+        )) {
+          console.log(`   Retrying in ${findAttempts * 500}ms...`);
+          await new Promise(resolve => setTimeout(resolve, findAttempts * 500));
+          continue;
+        }
+        // Not a retryable error, break and handle below
+        throw dbError;
       }
-    });
+    }
 
     if (!supplier) {
+      console.log('   ❌ Supplier not found in database');
+      console.log('   Checking for similar emails...');
+      
+      // Try case-insensitive search as fallback
+      try {
+        const similarSuppliers = await prisma.supplier.findMany({
+          where: {
+            email: {
+              contains: normalizedEmail.split('@')[0],
+              mode: 'insensitive'
+            }
+          },
+          select: {
+            email: true,
+            emailVerified: true
+          },
+          take: 5
+        });
+        
+        if (similarSuppliers.length > 0) {
+          console.log('   Found similar emails:', similarSuppliers.map(s => s.email).join(', '));
+        }
+      } catch (e) {
+        // Ignore fallback search errors
+      }
+      
       return res.status(401).json({ 
         error: 'Invalid credentials',
-        message: 'Email or password is incorrect'
+        message: 'Email or password is incorrect. If you just verified your email, please wait a moment and try again.'
+      });
+    }
+    
+    console.log('   ✅ Supplier found:');
+    console.log('      ID:', supplier.id);
+    console.log('      Email:', supplier.email);
+    console.log('      Email Verified:', supplier.emailVerified);
+
+    // Compare password with retry logic for database connection issues
+    let passwordMatch = false;
+    try {
+      passwordMatch = await bcrypt.compare(password, supplier.passwordHash);
+      console.log('   Password match:', passwordMatch ? '✅ YES' : '❌ NO');
+    } catch (bcryptError) {
+      console.error('   ❌ Error comparing password:', bcryptError.message);
+      return res.status(500).json({ 
+        error: 'Internal server error',
+        message: 'Failed to verify password. Please try again.'
       });
     }
 
-    const passwordMatch = await bcrypt.compare(password, supplier.passwordHash);
-
     if (!passwordMatch) {
+      console.log('   ❌ Password mismatch');
       return res.status(401).json({ 
         error: 'Invalid credentials',
         message: 'Email or password is incorrect'
