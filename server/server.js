@@ -2509,10 +2509,9 @@ app.get('/api/admin/tours', verifyAdmin, async (req, res) => {
 // Get all pending tours (admin) - for backward compatibility
 app.get('/api/admin/tours/pending', verifyAdmin, async (req, res) => {
   try {
+    console.log('📋 Fetching tours for admin dashboard');
+    // Get all tours, not just pending (since they might be auto-approved)
     const tours = await prisma.tour.findMany({
-      where: {
-        status: 'pending'
-      },
       include: {
         supplier: {
           select: {
@@ -2531,6 +2530,15 @@ app.get('/api/admin/tours/pending', verifyAdmin, async (req, res) => {
         createdAt: 'desc'
       }
     });
+    
+    console.log(`   Found ${tours.length} tours`);
+    if (tours.length > 0) {
+      const statusBreakdown = tours.reduce((acc, t) => {
+        acc[t.status] = (acc[t.status] || 0) + 1;
+        return acc;
+      }, {});
+      console.log(`   Status breakdown:`, statusBreakdown);
+    }
 
     // Parse JSON fields
     const formattedTours = tours.map(tour => ({
@@ -2566,14 +2574,37 @@ app.get('/api/admin/tours/pending', verifyAdmin, async (req, res) => {
 // Get all pending suppliers (admin)
 app.get('/api/admin/suppliers/pending', verifyAdmin, async (req, res) => {
   try {
+    console.log('📋 Fetching suppliers for admin dashboard');
+    // Get all suppliers (not just pending) since they're auto-approved
     const suppliers = await prisma.supplier.findMany({
-      where: {
-        status: 'pending'
-      },
       orderBy: {
         createdAt: 'desc'
+      },
+      select: {
+        id: true,
+        email: true,
+        fullName: true,
+        businessType: true,
+        status: true,
+        emailVerified: true,
+        createdAt: true,
+        companyName: true,
+        mainHub: true,
+        city: true,
+        phone: true,
+        whatsapp: true,
+        verificationDocumentUrl: true
       }
     });
+    
+    console.log(`   Found ${suppliers.length} suppliers`);
+    if (suppliers.length > 0) {
+      const statusBreakdown = suppliers.reduce((acc, s) => {
+        acc[s.status] = (acc[s.status] || 0) + 1;
+        return acc;
+      }, {});
+      console.log(`   Status breakdown:`, statusBreakdown);
+    }
 
     // Format suppliers
     const formattedSuppliers = suppliers.map(supplier => ({
