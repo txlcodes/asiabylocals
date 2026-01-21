@@ -174,18 +174,27 @@ app.post('/api/suppliers/register', async (req, res) => {
     }
 
     // Check if email already exists using Prisma
-    const existingSupplier = await prisma.supplier.findUnique({
-      where: { email },
-      select: {
-        id: true,
-        email: true,
-        fullName: true,
-        businessType: true,
-        status: true,
-        emailVerified: true,
-        createdAt: true
-      }
-    });
+    // Use findFirst with try-catch to handle any database errors gracefully
+    let existingSupplier = null;
+    try {
+      existingSupplier = await prisma.supplier.findUnique({
+        where: { email },
+        select: {
+          id: true,
+          email: true,
+          fullName: true,
+          businessType: true,
+          status: true,
+          emailVerified: true,
+          createdAt: true
+        }
+      });
+    } catch (dbError) {
+      console.error('❌ Database error checking existing supplier:', dbError);
+      // If database check fails, continue with registration attempt
+      // Prisma will catch duplicate email error during create
+      existingSupplier = null;
+    }
 
     if (existingSupplier) {
       // If email exists, allow them to continue registration
@@ -249,38 +258,100 @@ app.post('/api/suppliers/register', async (req, res) => {
     verificationExpires.setHours(verificationExpires.getHours() + 48); // 48 hours expiry (increased from 24)
 
     // Create supplier using Prisma
-    const supplier = await prisma.supplier.create({
-      data: {
-        businessType,
-        companyEmployees: companyEmployees || null,
-        companyActivities: companyActivities || null,
-        individualActivities: individualActivities || null,
-        otherActivities: otherActivities || null,
-        fullName,
-        email,
-        passwordHash,
-        companyName: companyName || null,
-        mainHub: mainHub || null,
-        city: city || null,
-        tourLanguages: tourLanguages || null,
-        verificationDocumentUrl: verificationDocumentUrl || null,
-        phone: phone || null,
-        whatsapp: whatsapp || null,
-        emailVerificationToken: verificationToken,
-        emailVerificationExpires: verificationExpires,
-        emailVerified: false,
-        status: 'approved' // Auto-approve suppliers
-      },
-      select: {
-        id: true,
-        email: true,
-        fullName: true,
-        businessType: true,
-        status: true,
-        emailVerified: true,
-        createdAt: true
+    // Wrap in try-catch to handle duplicate email race condition
+    let supplier;
+    try {
+      supplier = await prisma.supplier.create({
+        data: {
+          businessType,
+          companyEmployees: companyEmployees || null,
+          companyActivities: companyActivities || null,
+          individualActivities: individualActivities || null,
+          otherActivities: otherActivities || null,
+          fullName,
+          email,
+          passwordHash,
+          companyName: companyName || null,
+          mainHub: mainHub || null,
+          city: city || null,
+          tourLanguages: tourLanguages || null,
+          verificationDocumentUrl: verificationDocumentUrl || null,
+          phone: phone || null,
+          whatsapp: whatsapp || null,
+          emailVerificationToken: verificationToken,
+          emailVerificationExpires: verificationExpires,
+          emailVerified: false,
+          status: 'approved' // Auto-approve suppliers
+        },
+        select: {
+          id: true,
+          email: true,
+          fullName: true,
+          businessType: true,
+          status: true,
+          emailVerified: true,
+          createdAt: true
+        }
+      });
+    } catch (createError) {
+      // Handle race condition: email might have been created between check and create
+      if (createError.code === 'P2002' && createError.meta?.target?.includes('email')) {
+        console.log('   ⚠️ Email was created between check and create (race condition)');
+        console.log('   Fetching existing supplier and resending verification email...');
+        
+        // Fetch the existing supplier
+        const raceConditionSupplier = await prisma.supplier.findUnique({
+          where: { email },
+          select: {
+            id: true,
+            email: true,
+            fullName: true,
+            businessType: true,
+            status: true,
+            emailVerified: true,
+            createdAt: true
+          }
+        });
+        
+        if (raceConditionSupplier) {
+          // Generate new verification token
+          const newToken = randomBytes(32).toString('hex');
+          const newExpires = new Date();
+          newExpires.setHours(newExpires.getHours() + 48);
+          
+          await prisma.supplier.update({
+            where: { id: raceConditionSupplier.id },
+            data: {
+              emailVerificationToken: newToken,
+              emailVerificationExpires: newExpires
+            }
+          });
+          
+          // Resend verification email
+          let emailSent = false;
+          try {
+            await sendVerificationEmail(email, raceConditionSupplier.fullName || fullName, newToken);
+            emailSent = true;
+          } catch (emailError) {
+            console.error('   Failed to send verification email:', emailError);
+          }
+          
+          // Return success response
+          return res.status(200).json({
+            success: true,
+            message: 'Account found. Please check your email to verify your account.',
+            supplier: {
+              ...raceConditionSupplier,
+              id: String(raceConditionSupplier.id)
+            },
+            emailSent: emailSent,
+            existingAccount: true
+          });
+        }
       }
-    });
+      // Re-throw if it's not a duplicate email error
+      throw createError;
+    }
 
     // Send verification email (don't fail registration if this fails)
     console.log(`📧 Preparing to send verification email:`);
