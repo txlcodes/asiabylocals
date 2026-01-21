@@ -736,10 +736,26 @@ const AdminDashboard: React.FC = () => {
                         By: {tour.supplier?.fullName || tour.supplier?.companyName || 'Unknown'}
                       </div>
                     </div>
-                    <div className="flex items-center gap-2 bg-yellow-50 px-3 py-2 rounded-full">
-                      <Clock className="text-yellow-600" size={18} />
-                      <span className="text-[12px] font-black text-yellow-700">Pending</span>
-                    </div>
+                    {tour.status === 'pending' ? (
+                      <div className="flex items-center gap-2 bg-yellow-50 px-3 py-2 rounded-full">
+                        <Clock className="text-yellow-600" size={18} />
+                        <span className="text-[12px] font-black text-yellow-700">Pending</span>
+                      </div>
+                    ) : tour.status === 'approved' ? (
+                      <div className="flex items-center gap-2 bg-[#10B981]/10 px-3 py-2 rounded-full border border-[#10B981]/20">
+                        <CheckCircle2 className="text-[#10B981]" size={18} />
+                        <span className="text-[12px] font-black text-[#10B981]">Approved</span>
+                      </div>
+                    ) : tour.status === 'rejected' ? (
+                      <div className="flex items-center gap-2 bg-red-50 px-3 py-2 rounded-full">
+                        <XCircle className="text-red-600" size={18} />
+                        <span className="text-[12px] font-black text-red-700">Rejected</span>
+                      </div>
+                    ) : (
+                      <div className="flex items-center gap-2 bg-gray-50 px-3 py-2 rounded-full">
+                        <span className="text-[12px] font-black text-gray-700 capitalize">{tour.status || 'Draft'}</span>
+                      </div>
+                    )}
                   </div>
                 </div>
               ))}
