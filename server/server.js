@@ -174,26 +174,48 @@ app.post('/api/suppliers/register', async (req, res) => {
     }
 
     // Check if email already exists using Prisma
-    // Use findFirst with try-catch to handle any database errors gracefully
+    // Use retry logic for Render free tier connection issues
     let existingSupplier = null;
-    try {
-      existingSupplier = await prisma.supplier.findUnique({
-        where: { email },
-        select: {
-          id: true,
-          email: true,
-          fullName: true,
-          businessType: true,
-          status: true,
-          emailVerified: true,
-          createdAt: true
+    let checkAttempts = 0;
+    const MAX_CHECK_RETRIES = 3;
+    
+    while (checkAttempts < MAX_CHECK_RETRIES && existingSupplier === null) {
+      try {
+        existingSupplier = await prisma.supplier.findUnique({
+          where: { email },
+          select: {
+            id: true,
+            email: true,
+            fullName: true,
+            businessType: true,
+            status: true,
+            emailVerified: true,
+            createdAt: true
+          }
+        });
+        break; // Success, exit retry loop
+      } catch (dbError) {
+        checkAttempts++;
+        console.error(`❌ Database error checking existing supplier (attempt ${checkAttempts}/${MAX_CHECK_RETRIES}):`, dbError.message);
+        
+        // If it's a connection error and we have retries left, wait and retry
+        if (checkAttempts < MAX_CHECK_RETRIES && (
+          dbError.message?.includes('connection') || 
+          dbError.message?.includes('timeout') ||
+          dbError.code === 'P1001' ||
+          dbError.code === 'P1017'
+        )) {
+          console.log(`   Retrying in ${checkAttempts * 500}ms...`);
+          await new Promise(resolve => setTimeout(resolve, checkAttempts * 500));
+          continue;
         }
-      });
-    } catch (dbError) {
-      console.error('❌ Database error checking existing supplier:', dbError);
-      // If database check fails, continue with registration attempt
-      // Prisma will catch duplicate email error during create
-      existingSupplier = null;
+        
+        // If database check fails completely, continue with registration attempt
+        // Prisma will catch duplicate email error during create
+        console.log('   Continuing with registration - will handle duplicate email during create');
+        existingSupplier = null;
+        break;
+      }
     }
 
     if (existingSupplier) {
@@ -258,42 +280,168 @@ app.post('/api/suppliers/register', async (req, res) => {
     verificationExpires.setHours(verificationExpires.getHours() + 48); // 48 hours expiry (increased from 24)
 
     // Create supplier using Prisma
-    // Wrap in try-catch to handle duplicate email race condition
+    // Wrap in try-catch with retry logic for Render free tier connection issues
     let supplier;
-    try {
-      supplier = await prisma.supplier.create({
-        data: {
-          businessType,
-          companyEmployees: companyEmployees || null,
-          companyActivities: companyActivities || null,
-          individualActivities: individualActivities || null,
-          otherActivities: otherActivities || null,
-          fullName,
-          email,
-          passwordHash,
-          companyName: companyName || null,
-          mainHub: mainHub || null,
-          city: city || null,
-          tourLanguages: tourLanguages || null,
-          verificationDocumentUrl: verificationDocumentUrl || null,
-          phone: phone || null,
-          whatsapp: whatsapp || null,
-          emailVerificationToken: verificationToken,
-          emailVerificationExpires: verificationExpires,
-          emailVerified: false,
-          status: 'approved' // Auto-approve suppliers
-        },
-        select: {
-          id: true,
-          email: true,
-          fullName: true,
-          businessType: true,
-          status: true,
-          emailVerified: true,
-          createdAt: true
+    let createAttempts = 0;
+    const MAX_CREATE_RETRIES = 3;
+    let createError = null;
+    
+    while (createAttempts < MAX_CREATE_RETRIES && !supplier) {
+      try {
+        supplier = await prisma.supplier.create({
+          data: {
+            businessType,
+            companyEmployees: companyEmployees || null,
+            companyActivities: companyActivities || null,
+            individualActivities: individualActivities || null,
+            otherActivities: otherActivities || null,
+            fullName,
+            email,
+            passwordHash,
+            companyName: companyName || null,
+            mainHub: mainHub || null,
+            city: city || null,
+            tourLanguages: tourLanguages || null,
+            verificationDocumentUrl: verificationDocumentUrl || null,
+            phone: phone || null,
+            whatsapp: whatsapp || null,
+            emailVerificationToken: verificationToken,
+            emailVerificationExpires: verificationExpires,
+            emailVerified: false,
+            status: 'approved' // Auto-approve suppliers
+          },
+          select: {
+            id: true,
+            email: true,
+            fullName: true,
+            businessType: true,
+            status: true,
+            emailVerified: true,
+            createdAt: true
+          }
+        });
+        break; // Success, exit retry loop
+      } catch (error) {
+        createAttempts++;
+        createError = error;
+        
+        // Handle duplicate email error (race condition)
+        if (error.code === 'P2002' && error.meta?.target?.includes('email')) {
+          console.log('   ⚠️ Email was created between check and create (race condition)');
+          console.log('   Fetching existing supplier and resending verification email...');
+          
+          // Fetch the existing supplier with retry
+          let raceConditionSupplier = null;
+          let fetchAttempts = 0;
+          while (fetchAttempts < MAX_CREATE_RETRIES && !raceConditionSupplier) {
+            try {
+              raceConditionSupplier = await prisma.supplier.findUnique({
+                where: { email },
+                select: {
+                  id: true,
+                  email: true,
+                  fullName: true,
+                  businessType: true,
+                  status: true,
+                  emailVerified: true,
+                  createdAt: true
+                }
+              });
+              break;
+            } catch (fetchError) {
+              fetchAttempts++;
+              if (fetchAttempts < MAX_CREATE_RETRIES && (
+                fetchError.message?.includes('connection') || 
+                fetchError.message?.includes('timeout') ||
+                fetchError.code === 'P1001' ||
+                fetchError.code === 'P1017'
+              )) {
+                await new Promise(resolve => setTimeout(resolve, fetchAttempts * 500));
+                continue;
+              }
+              throw fetchError;
+            }
+          }
+          
+          if (raceConditionSupplier) {
+            // Generate new verification token
+            const newToken = randomBytes(32).toString('hex');
+            const newExpires = new Date();
+            newExpires.setHours(newExpires.getHours() + 48);
+            
+            // Update supplier with retry
+            let updateSuccess = false;
+            let updateAttempts = 0;
+            while (updateAttempts < MAX_CREATE_RETRIES && !updateSuccess) {
+              try {
+                await prisma.supplier.update({
+                  where: { id: raceConditionSupplier.id },
+                  data: {
+                    emailVerificationToken: newToken,
+                    emailVerificationExpires: newExpires
+                  }
+                });
+                updateSuccess = true;
+              } catch (updateError) {
+                updateAttempts++;
+                if (updateAttempts < MAX_CREATE_RETRIES && (
+                  updateError.message?.includes('connection') || 
+                  updateError.message?.includes('timeout') ||
+                  updateError.code === 'P1001' ||
+                  updateError.code === 'P1017'
+                )) {
+                  await new Promise(resolve => setTimeout(resolve, updateAttempts * 500));
+                  continue;
+                }
+                throw updateError;
+              }
+            }
+            
+            // Resend verification email
+            let emailSent = false;
+            try {
+              await sendVerificationEmail(email, raceConditionSupplier.fullName || fullName, newToken);
+              emailSent = true;
+            } catch (emailError) {
+              console.error('   Failed to send verification email:', emailError);
+            }
+            
+            // Return success response
+            return res.status(200).json({
+              success: true,
+              message: 'Account found. Please check your email to verify your account.',
+              supplier: {
+                ...raceConditionSupplier,
+                id: String(raceConditionSupplier.id)
+              },
+              emailSent: emailSent,
+              existingAccount: true
+            });
+          }
         }
-      });
-    } catch (createError) {
+        
+        // If it's a connection error and we have retries left, wait and retry
+        if (createAttempts < MAX_CREATE_RETRIES && (
+          error.message?.includes('connection') || 
+          error.message?.includes('timeout') ||
+          error.message?.includes('ECONNREFUSED') ||
+          error.message?.includes('ETIMEDOUT') ||
+          error.code === 'P1001' ||
+          error.code === 'P1017' ||
+          error.code === 'P1008'
+        )) {
+          console.log(`   Connection error, retrying in ${createAttempts * 1000}ms...`);
+          await new Promise(resolve => setTimeout(resolve, createAttempts * 1000));
+          continue;
+        }
+        
+        // Not a retryable error, break and handle below
+        break;
+      }
+    }
+    
+    // If we still don't have a supplier after retries, handle the error
+    if (!supplier && createError) {
       // Handle race condition: email might have been created between check and create
       if (createError.code === 'P2002' && createError.meta?.target?.includes('email')) {
         console.log('   ⚠️ Email was created between check and create (race condition)');
