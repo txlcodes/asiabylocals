@@ -196,7 +196,7 @@ app.post('/api/suppliers/register', async (req, res) => {
       if (!existingSupplier.emailVerified) {
         verificationToken = randomBytes(32).toString('hex');
         verificationExpires = new Date();
-        verificationExpires.setHours(verificationExpires.getHours() + 24); // 24 hours expiry
+        verificationExpires.setHours(verificationExpires.getHours() + 48); // 48 hours expiry
         
         // Update supplier with new verification token
         await prisma.supplier.update({
@@ -246,7 +246,7 @@ app.post('/api/suppliers/register', async (req, res) => {
     // Generate email verification token
     const verificationToken = randomBytes(32).toString('hex');
     const verificationExpires = new Date();
-    verificationExpires.setHours(verificationExpires.getHours() + 24); // 24 hours expiry
+    verificationExpires.setHours(verificationExpires.getHours() + 48); // 48 hours expiry (increased from 24)
 
     // Create supplier using Prisma
     const supplier = await prisma.supplier.create({
@@ -855,7 +855,7 @@ app.post('/api/suppliers/resend-verification', async (req, res) => {
     // Generate new verification token
     const verificationToken = randomBytes(32).toString('hex');
     const verificationExpires = new Date();
-    verificationExpires.setHours(verificationExpires.getHours() + 24);
+    verificationExpires.setHours(verificationExpires.getHours() + 48); // 48 hours expiry
 
     // Update supplier with new token
     await prisma.supplier.update({

@@ -266,7 +266,7 @@ export const sendVerificationEmail = async (email, fullName, verificationToken) 
       
       ${verificationUrl}
       
-      This link will expire in 24 hours.
+      This link will expire in 48 hours.
       
       If you didn't create an account with AsiaByLocals, please ignore this email.
       
