@@ -252,17 +252,35 @@ const SupplierRegistration: React.FC<SupplierRegistrationProps> = ({ onClose }) 
         localStorage.setItem('pendingSupplierId', data.supplier.id);
         localStorage.setItem('pendingSupplierEmail', email);
         
-        // ALWAYS redirect to email verification waiting page (unless already verified)
-        // This ensures users see the verification step
-        if (data.supplier.emailVerified === true) {
-          console.log('   ✅ Email already verified, going directly to step 5');
+        // ALWAYS redirect to email verification waiting page
+        // Even if account exists and is verified, we should still verify email matches
+        // Only skip if this is an existing account AND email is verified AND we're coming from email verification
+        const isExistingAccount = data.existingAccount === true;
+        const isEmailVerified = data.supplier.emailVerified === true;
+        const isFromVerification = new URLSearchParams(window.location.search).get('verified') === 'true';
+        
+        console.log('   Registration response details:');
+        console.log('   - Existing account:', isExistingAccount);
+        console.log('   - Email verified:', isEmailVerified);
+        console.log('   - From verification:', isFromVerification);
+        console.log('   - Email entered:', email);
+        console.log('   - Email in response:', data.supplier.email);
+        
+        // Only skip verification if:
+        // 1. Account exists AND
+        // 2. Email is verified AND  
+        // 3. We're coming from email verification page (user just verified)
+        if (isExistingAccount && isEmailVerified && isFromVerification) {
+          console.log('   ✅ Email already verified and coming from verification, going directly to step 5');
           setEmailVerified(true);
           setIsCheckingVerification(false);
           // Move directly to step 5 (license upload)
           const targetStep = (selectedBusinessType === 'company' || selectedBusinessType === 'individual' || selectedBusinessType === 'other') ? 5 : 4;
           setStep(targetStep);
         } else {
-          console.log('   📧 Email NOT verified, redirecting to verification waiting page...');
+          // Always redirect to verification waiting page
+          console.log('   📧 Redirecting to email verification waiting page...');
+          console.log('   Reason: Email not verified or not coming from verification');
           console.log('   Redirect URL:', `/email-verification-waiting?email=${encodeURIComponent(email)}&supplierId=${data.supplier.id}`);
           // IMPORTANT: Use window.location.replace to ensure redirect happens
           window.location.replace(`/email-verification-waiting?email=${encodeURIComponent(email)}&supplierId=${data.supplier.id}`);
