@@ -209,8 +209,13 @@ app.post('/api/suppliers/register', async (req, res) => {
         
         // Resend verification email
         try {
+          console.log(`📧 Resending verification email to existing supplier:`);
+          console.log(`   User entered: ${rawEmail}`);
+          console.log(`   Email in DB: ${existingSupplier.email}`);
+          console.log(`   Email to send to: ${email}`);
           await sendVerificationEmail(email, existingSupplier.fullName, verificationToken);
           console.log(`✅ Verification email resent to ${email}`);
+          console.log(`   ⚠️ IMPORTANT: Verify email address matches what user entered!`);
         } catch (emailError) {
           console.error('❌ Failed to resend verification email:', emailError);
         }
@@ -282,10 +287,15 @@ app.post('/api/suppliers/register', async (req, res) => {
     console.log(`   To: ${email}`);
     console.log(`   Full Name: ${fullName}`);
     console.log(`   Token: ${verificationToken.substring(0, 10)}...`);
+    console.log(`   Supplier ID: ${supplier.id}`);
+    console.log(`   Email stored in DB: ${supplier.email}`);
     try {
       const emailResult = await sendVerificationEmail(email, fullName, verificationToken);
       console.log(`✅ Verification email sent successfully to: ${email}`);
       console.log(`   Message ID: ${emailResult.messageId}`);
+      console.log(`   ⚠️ IMPORTANT: Verify email address matches what user entered!`);
+      console.log(`   User entered: ${rawEmail}`);
+      console.log(`   Email sent to: ${email}`);
     } catch (emailError) {
       console.error(`❌ Failed to send verification email to ${email}:`);
       console.error(`   Error: ${emailError.message || emailError}`);
@@ -404,10 +414,19 @@ app.post('/api/suppliers/login', async (req, res) => {
 // Verify email endpoint - MUST come before /api/suppliers/:id route
 app.get('/api/suppliers/verify-email', async (req, res) => {
   try {
-    const { token } = req.query;
+    let { token } = req.query;
+    
+    // Decode the token in case it was URL encoded
+    if (token) {
+      token = decodeURIComponent(token);
+    }
 
     console.log('🔍 Email verification request received');
     console.log('   Token:', token ? `${token.substring(0, 10)}...` : 'MISSING');
+    console.log('   Token length:', token ? token.length : 0);
+    console.log('   Full token (first 20 chars):', token ? token.substring(0, 20) : 'N/A');
+    console.log('   Request URL:', req.url);
+    console.log('   Query params:', JSON.stringify(req.query));
 
     if (!token) {
       return res.status(400).json({ 

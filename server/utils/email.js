@@ -124,13 +124,19 @@ export const sendVerificationEmail = async (email, fullName, verificationToken) 
   }
 
   console.log(`📧 Attempting to send verification email to: ${email}`);
+  console.log(`   ⚠️ VERIFICATION: Email address being used: ${email}`);
+  console.log(`   Email length: ${email.length}`);
+  console.log(`   Email contains @: ${email.includes('@')}`);
   // Use info@asiabylocals.com for Resend (domain verified!) or SendGrid
   // Domain verified! Using info@asiabylocals.com
   const fromEmail = (resendApiKey || sendGridApiKey) ? 'info@asiabylocals.com' : (emailUser || 'asiabylocals@gmail.com');
   const serviceName = resendApiKey ? 'Resend' : (sendGridApiKey ? 'SendGrid' : 'Gmail SMTP');
   console.log(`   From: ${fromEmail}`);
   console.log(`   Service: ${serviceName}`);
-  const verificationUrl = `${process.env.FRONTEND_URL || process.env.VITE_FRONTEND_URL || 'http://localhost:3000'}/verify-email?token=${verificationToken}`;
+  console.log(`   To: ${email}`);
+  // URL encode the token to prevent issues with email clients modifying the URL
+  const encodedToken = encodeURIComponent(verificationToken);
+  const verificationUrl = `${process.env.FRONTEND_URL || process.env.VITE_FRONTEND_URL || 'http://localhost:3000'}/verify-email?token=${encodedToken}`;
 
   const mailOptions = {
     from: `"AsiaByLocals Registration" <${fromEmail}>`,
@@ -271,6 +277,14 @@ export const sendVerificationEmail = async (email, fullName, verificationToken) 
   try {
     // Use Resend SDK if available (more reliable than SMTP)
     if (resendClient) {
+      console.log(`📧 Sending via Resend SDK to: ${email}`);
+      console.log(`   From: ${fromEmail}`);
+      
+      console.log(`📤 Sending email via Resend SDK:`);
+      console.log(`   To: ${email}`);
+      console.log(`   From: ${fromEmail}`);
+      console.log(`   Subject: AsiaByLocals Registration Confirmation`);
+      
       const result = await resendClient.emails.send({
         from: `AsiaByLocals Registration <${fromEmail}>`,
         to: email,
@@ -278,8 +292,20 @@ export const sendVerificationEmail = async (email, fullName, verificationToken) 
         html: mailOptions.html,
         text: mailOptions.text
       });
+      
+      console.log(`📬 Resend API Response:`);
+      console.log(`   Result:`, JSON.stringify(result, null, 2));
+      
+      // Check if Resend returned an error
+      if (result.error) {
+        console.error(`❌ Resend API Error:`);
+        console.error('   Error:', result.error);
+        throw new Error(`Resend API Error: ${JSON.stringify(result.error)}`);
+      }
+      
       console.log(`✅ Verification email sent successfully to ${email}`);
       console.log('📬 Message ID:', result.data?.id);
+      console.log('📧 Resend Response:', JSON.stringify(result.data));
       return { success: true, messageId: result.data?.id };
     }
     
@@ -293,11 +319,30 @@ export const sendVerificationEmail = async (email, fullName, verificationToken) 
     console.error(`❌ Error sending verification email to ${email}:`);
     console.error('   Error message:', error.message);
     console.error('   Error code:', error.code);
-    console.error('   Command:', error.command);
-    console.error('   Response:', error.response);
-    console.error('   Response Code:', error.responseCode);
+    console.error('   Full error:', error);
     
-    // Provide helpful error messages
+    // Resend-specific error handling
+    if (resendClient) {
+      console.error('   ⚠️ Resend API Error!');
+      if (error.message?.includes('Invalid API key') || error.message?.includes('Unauthorized')) {
+        console.error('   → RESEND_API_KEY is invalid or expired');
+        console.error('   → Go to https://resend.com/api-keys and create a new API key');
+        console.error('   → Update RESEND_API_KEY in Render environment variables');
+      } else if (error.message?.includes('domain') || error.message?.includes('Domain')) {
+        console.error('   → Domain verification issue');
+        console.error('   → Go to https://resend.com/domains and verify asiabylocals.com');
+        console.error('   → Follow DNS setup guide: GODADDY_DNS_SETUP_RESEND.md');
+      } else if (error.message?.includes('rate limit') || error.message?.includes('Rate limit')) {
+        console.error('   → Resend rate limit exceeded');
+        console.error('   → Free tier: 100 emails/day, 3,000/month');
+        console.error('   → Wait a few hours or upgrade plan');
+      } else {
+        console.error('   → Check Resend dashboard: https://resend.com/logs');
+        console.error('   → Verify API key is correct in Render');
+      }
+    }
+    
+    // Nodemailer error handling
     if (error.code === 'EAUTH') {
       console.error('   ⚠️ Authentication failed!');
       console.error('   → Check EMAIL_USER and EMAIL_APP_PASSWORD in Render');
