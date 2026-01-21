@@ -282,13 +282,16 @@ app.post('/api/suppliers/register', async (req, res) => {
       }
     });
 
-    // Send verification email
+    // Send verification email (don't fail registration if this fails)
     console.log(`📧 Preparing to send verification email:`);
     console.log(`   To: ${email}`);
     console.log(`   Full Name: ${fullName}`);
     console.log(`   Token: ${verificationToken.substring(0, 10)}...`);
     console.log(`   Supplier ID: ${supplier.id}`);
     console.log(`   Email stored in DB: ${supplier.email}`);
+    
+    let emailSent = false;
+    
     try {
       const emailResult = await sendVerificationEmail(email, fullName, verificationToken);
       console.log(`✅ Verification email sent successfully to: ${email}`);
@@ -296,11 +299,13 @@ app.post('/api/suppliers/register', async (req, res) => {
       console.log(`   ⚠️ IMPORTANT: Verify email address matches what user entered!`);
       console.log(`   User entered: ${rawEmail}`);
       console.log(`   Email sent to: ${email}`);
+      emailSent = true;
     } catch (emailError) {
       console.error(`❌ Failed to send verification email to ${email}:`);
       console.error(`   Error: ${emailError.message || emailError}`);
       console.error(`   Full error:`, emailError);
-      // Don't fail registration if email fails, but log it
+      // Don't fail registration if email fails - user can request resend later
+      emailSent = false;
     }
 
     // Convert id to string for consistency with frontend
