@@ -50,10 +50,12 @@ const AdminDashboard: React.FC = () => {
   const fetchPendingTours = async () => {
     setLoading(true);
     try {
-      const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+      // Use relative URL for unified deployment, or env var for separate deployment
+      const API_URL = import.meta.env.VITE_API_URL || (typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3001');
       const url = tourFilter === 'pending' 
         ? `${API_URL}/api/admin/tours/pending`
         : `${API_URL}/api/admin/tours${tourFilter !== 'all' ? `?status=${tourFilter}` : ''}`;
+      console.log('Admin Dashboard - Fetching tours from:', url);
       const response = await fetch(url, {
         headers: getAuthHeaders()
       });
@@ -84,8 +86,11 @@ const AdminDashboard: React.FC = () => {
   const fetchBookings = async () => {
     setLoadingBookings(true);
     try {
-      const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
-      const response = await fetch(`${API_URL}/api/admin/bookings`, {
+      // Use relative URL for unified deployment, or env var for separate deployment
+      const API_URL = import.meta.env.VITE_API_URL || (typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3001');
+      const url = `${API_URL}/api/admin/bookings`;
+      console.log('Admin Dashboard - Fetching bookings from:', url);
+      const response = await fetch(url, {
         headers: getAuthHeaders()
       });
       if (!response.ok) {
@@ -108,17 +113,26 @@ const AdminDashboard: React.FC = () => {
   const fetchPendingSuppliers = async () => {
     setLoading(true);
     try {
-      const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
-      const response = await fetch(`${API_URL}/api/admin/suppliers/pending`, {
+      // Use relative URL for unified deployment, or env var for separate deployment
+      const API_URL = import.meta.env.VITE_API_URL || (typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3001');
+      const url = `${API_URL}/api/admin/suppliers/pending`;
+      console.log('Admin Dashboard - Fetching suppliers from:', url);
+      const response = await fetch(url, {
         headers: getAuthHeaders()
       });
+      console.log('Admin Dashboard - Response status:', response.status);
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
       const data = await response.json();
+      console.log('Admin Dashboard - API Response:', data);
+      console.log('Admin Dashboard - Suppliers array:', data.suppliers);
+      console.log('Admin Dashboard - Suppliers count:', data.suppliers?.length);
       if (data.success && Array.isArray(data.suppliers)) {
+        console.log('Admin Dashboard - Setting suppliers:', data.suppliers.length);
         setPendingSuppliers(data.suppliers);
       } else {
+        console.error('Admin Dashboard - Invalid response format:', data);
         setPendingSuppliers([]);
       }
     } catch (error) {
