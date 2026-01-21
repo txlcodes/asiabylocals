@@ -375,12 +375,30 @@ const SupplierRegistration: React.FC<SupplierRegistrationProps> = ({ onClose }) 
       
       // Better error message based on error type
       let errorMessage = 'Failed to submit registration. ';
-      if (error.message?.includes('Failed to fetch') || error.message?.includes('NetworkError') || error.message?.includes('Network request failed')) {
+      
+      // Handle Prisma errors
+      if (error.message?.includes('PrismaClientKnownRequestError') || error.message?.includes('P2002')) {
+        if (error.message?.includes('email') || error.message?.includes('Email')) {
+          errorMessage = 'An account with this email already exists. Please use a different email or log in.';
+        } else {
+          errorMessage = 'Registration failed due to a database error. Please try again.';
+        }
+      }
+      // Network errors
+      else if (error.message?.includes('Failed to fetch') || error.message?.includes('NetworkError') || error.message?.includes('Network request failed')) {
         errorMessage += 'Cannot connect to server. Please check your internet connection and try again.';
-      } else if (error.message?.includes('Registration failed') || error.message?.includes('Internal server error')) {
+      }
+      // Server errors
+      else if (error.message?.includes('Registration failed') || error.message?.includes('Internal server error')) {
         errorMessage += 'Server error occurred. Please try again in a few moments.';
-      } else {
-        errorMessage += error.message || 'Please check your connection and try again.';
+      }
+      // Other errors
+      else {
+        // Extract user-friendly message from error
+        const cleanMessage = error.message
+          .replace('PrismaClientKnownRequestError: ', '')
+          .replace('Error: ', '');
+        errorMessage += cleanMessage || 'Please check your connection and try again.';
       }
       
       console.error('   Showing error to user:', errorMessage);

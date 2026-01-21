@@ -330,25 +330,42 @@ app.post('/api/suppliers/register', async (req, res) => {
     console.error('   Error stack:', error.stack);
     console.error('   Error name:', error.name);
     console.error('   Error code:', error.code);
+    console.error('   Error meta:', error.meta);
     
-    // Check for specific error types and provide helpful messages
+    // Check for specific Prisma error types and provide helpful messages
     let errorMessage = 'Failed to register supplier. Please try again later.';
     let statusCode = 500;
     
     // Database connection errors
-    if (error.code === 'P1001' || error.message?.includes('Can\'t reach database')) {
+    if (error.code === 'P1001' || error.message?.includes('Can\'t reach database') || error.message?.includes('connection')) {
       errorMessage = 'Database connection error. Please try again in a few moments.';
       statusCode = 503; // Service Unavailable
     }
-    // Database constraint violations
+    // Unique constraint violation (duplicate email)
     else if (error.code === 'P2002') {
-      errorMessage = 'An account with this email already exists. Please use a different email or log in.';
-      statusCode = 409; // Conflict
+      const target = error.meta?.target || [];
+      if (target.includes('email')) {
+        errorMessage = 'An account with this email already exists. Please use a different email or log in.';
+        statusCode = 409; // Conflict
+      } else {
+        errorMessage = 'A record with this information already exists. Please check your details and try again.';
+        statusCode = 409;
+      }
     }
-    // Prisma validation errors
-    else if (error.code === 'P2003' || error.code === 'P2011') {
+    // Foreign key constraint violation
+    else if (error.code === 'P2003') {
       errorMessage = 'Invalid registration data. Please check all fields and try again.';
       statusCode = 400; // Bad Request
+    }
+    // Prisma validation errors
+    else if (error.code === 'P2011' || error.code === 'P2012') {
+      errorMessage = 'Invalid registration data. Please check all required fields are filled correctly.';
+      statusCode = 400; // Bad Request
+    }
+    // Record not found
+    else if (error.code === 'P2025') {
+      errorMessage = 'Registration data not found. Please try again.';
+      statusCode = 404; // Not Found
     }
     // Email sending errors (don't fail registration, just log)
     else if (error.message?.includes('email') || error.message?.includes('Email')) {
@@ -373,11 +390,12 @@ app.post('/api/suppliers/register', async (req, res) => {
     const errorDetails = process.env.NODE_ENV === 'development' ? {
       message: error.message,
       code: error.code,
-      name: error.name
+      name: error.name,
+      meta: error.meta
     } : undefined;
     
     res.status(statusCode).json({ 
-      error: statusCode === 500 ? 'Internal server error' : error.name || 'Registration error',
+      error: statusCode === 500 ? 'Internal server error' : (error.name || 'Registration error'),
       message: errorMessage,
       details: errorDetails
     });
