@@ -18,7 +18,8 @@ import {
   DollarSign,
   Users,
   MapPin,
-  Globe
+  Globe,
+  Home
 } from 'lucide-react';
 import TourCreationForm from './TourCreationForm';
 
@@ -183,12 +184,18 @@ const SupplierDashboard: React.FC<SupplierDashboardProps> = ({ supplier, onLogou
       
       const data = await response.json();
       if (data.success) {
-        alert('Profile updated successfully!');
         // Update supplier in localStorage
         const updatedSupplier = { ...currentSupplier, ...data.supplier };
         localStorage.setItem('supplier', JSON.stringify(updatedSupplier));
         // Update local state
         setCurrentSupplier(updatedSupplier);
+        // Explicitly update profileData to reflect the saved changes
+        setProfileData({
+          fullName: data.supplier.fullName || '',
+          phone: data.supplier.phone || '',
+          whatsapp: data.supplier.whatsapp || ''
+        });
+        alert('Profile updated successfully!');
       } else {
         alert(data.message || 'Failed to save contact information');
       }
@@ -307,6 +314,13 @@ const SupplierDashboard: React.FC<SupplierDashboardProps> = ({ supplier, onLogou
                 <Bell size={20} className="text-gray-600" />
                 <span className="absolute top-1 right-1 w-2 h-2 bg-[#10B981] rounded-full"></span>
               </button>
+              <a
+                href="/"
+                className="flex items-center gap-2 px-4 py-2 text-gray-600 hover:text-[#001A33] font-semibold text-[14px] transition-colors"
+              >
+                <Home size={18} />
+                Homepage
+              </a>
               <button
                 onClick={onLogout}
                 className="flex items-center gap-2 px-4 py-2 text-gray-600 hover:text-[#001A33] font-semibold text-[14px] transition-colors"
