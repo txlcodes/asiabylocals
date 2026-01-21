@@ -320,18 +320,56 @@ app.post('/api/suppliers/register', async (req, res) => {
     console.error('   Error message:', error.message);
     console.error('   Error stack:', error.stack);
     console.error('   Error name:', error.name);
-    console.error('   Full error:', JSON.stringify(error, Object.getOwnPropertyNames(error)));
+    console.error('   Error code:', error.code);
+    
+    // Check for specific error types and provide helpful messages
+    let errorMessage = 'Failed to register supplier. Please try again later.';
+    let statusCode = 500;
+    
+    // Database connection errors
+    if (error.code === 'P1001' || error.message?.includes('Can\'t reach database')) {
+      errorMessage = 'Database connection error. Please try again in a few moments.';
+      statusCode = 503; // Service Unavailable
+    }
+    // Database constraint violations
+    else if (error.code === 'P2002') {
+      errorMessage = 'An account with this email already exists. Please use a different email or log in.';
+      statusCode = 409; // Conflict
+    }
+    // Prisma validation errors
+    else if (error.code === 'P2003' || error.code === 'P2011') {
+      errorMessage = 'Invalid registration data. Please check all fields and try again.';
+      statusCode = 400; // Bad Request
+    }
+    // Email sending errors (don't fail registration, just log)
+    else if (error.message?.includes('email') || error.message?.includes('Email')) {
+      // Registration succeeded but email failed - still return success
+      console.error('   ⚠️ Registration succeeded but email sending failed');
+      console.error('   User can request a new verification email later');
+      // Don't throw - registration was successful
+      return res.status(201).json({
+        success: true,
+        message: 'Registration successful! However, we couldn\'t send the verification email. Please use "Resend Verification Email" on the supplier page.',
+        supplier: {
+          id: 'unknown', // We don't have supplier ID if email failed
+          email: email,
+          emailVerified: false
+        },
+        emailSent: false,
+        warning: 'Email service temporarily unavailable'
+      });
+    }
     
     // Return more detailed error in development
     const errorDetails = process.env.NODE_ENV === 'development' ? {
       message: error.message,
-      stack: error.stack,
+      code: error.code,
       name: error.name
     } : undefined;
     
-    res.status(500).json({ 
-      error: 'Internal server error',
-      message: 'Failed to register supplier. Please try again later.',
+    res.status(statusCode).json({ 
+      error: statusCode === 500 ? 'Internal server error' : error.name || 'Registration error',
+      message: errorMessage,
       details: errorDetails
     });
   }

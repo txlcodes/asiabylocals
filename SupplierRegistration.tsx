@@ -222,22 +222,67 @@ const SupplierRegistration: React.FC<SupplierRegistrationProps> = ({ onClose }) 
       verificationDocumentUrl: null // No document at registration
     };
 
-    // Call API
-    fetch(`${API_URL}/api/suppliers/register`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(registrationData),
-    })
-    .then(response => {
+    // Log registration data (without password)
+    console.log('📤 Submitting registration:');
+    console.log('   API URL:', `${API_URL}/api/suppliers/register`);
+    console.log('   Email:', email);
+    console.log('   Full Name:', `${firstName} ${lastName}`.trim());
+    console.log('   Business Type:', selectedBusinessType);
+    console.log('   Registration Data:', { ...registrationData, password: '***HIDDEN***' });
+
+    // Call API with timeout and retry logic
+    const makeRequest = async (retryCount = 0): Promise<Response> => {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
+      
+      try {
+        const response = await fetch(`${API_URL}/api/suppliers/register`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(registrationData),
+          signal: controller.signal
+        });
+        clearTimeout(timeoutId);
+        return response;
+      } catch (error) {
+        clearTimeout(timeoutId);
+        if (error instanceof Error && error.name === 'AbortError') {
+          throw new Error('Request timeout. Please check your internet connection and try again.');
+        }
+        // Retry on network errors (up to 2 retries)
+        if (retryCount < 2 && (error instanceof TypeError || error.message?.includes('fetch'))) {
+          console.log(`   ⚠️ Network error, retrying... (${retryCount + 1}/2)`);
+          await new Promise(resolve => setTimeout(resolve, 1000 * (retryCount + 1))); // Exponential backoff
+          return makeRequest(retryCount + 1);
+        }
+        throw error;
+      }
+    };
+
+    makeRequest()
+    .then(async response => {
+      console.log('📥 Registration API response:', response.status, response.statusText);
+      
+      // Get response text first to see what we're dealing with
+      const responseText = await response.text();
+      console.log('   Response body:', responseText);
+      
+      let data;
+      try {
+        data = JSON.parse(responseText);
+      } catch (e) {
+        console.error('   Failed to parse JSON response:', e);
+        throw new Error('Invalid server response. Please try again.');
+      }
+      
       // Handle both 200 (existing account) and 201 (new account) as success
       if (response.status === 200 || response.status === 201) {
-        return response.json();
+        return data;
       } else {
-        return response.json().then(data => {
-          throw new Error(data.error || data.message || 'Registration failed');
-        });
+        console.error('   Registration failed:', data);
+        throw new Error(data.error || data.message || 'Registration failed');
       }
     })
     .then(data => {
