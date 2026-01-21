@@ -33,13 +33,23 @@ const AdminLogin: React.FC<AdminLoginProps> = ({ onLoginSuccess }) => {
     try {
       // Use relative URL for unified deployment, or fallback to env var for separate deployment
       const API_URL = import.meta.env.VITE_API_URL || (typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3001');
-      const response = await fetch(`${API_URL}/api/admin/login`, {
+      const loginUrl = `${API_URL}/api/admin/login`;
+      
+      console.log('🔐 Admin login attempt:');
+      console.log('   API URL:', loginUrl);
+      console.log('   Username:', username);
+      console.log('   Password length:', password.length);
+      
+      const response = await fetch(loginUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ username, password }),
       });
+      
+      console.log('   Response status:', response.status);
+      console.log('   Response OK:', response.ok);
 
       let data;
       try {

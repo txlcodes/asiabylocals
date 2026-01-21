@@ -2238,6 +2238,15 @@ app.post('/api/admin/login', rateLimitAdminLogin, async (req, res) => {
     const normalizedUsername = username.trim();
     const normalizedPassword = password.trim();
     
+    // Debug logging (don't log actual password, just length)
+    console.log('🔐 Admin login attempt:');
+    console.log('   Username received:', normalizedUsername);
+    console.log('   Password length:', normalizedPassword.length);
+    console.log('   Expected username:', ADMIN_CREDENTIALS.username);
+    console.log('   Expected password length:', ADMIN_CREDENTIALS.password.length);
+    console.log('   Username match:', normalizedUsername === ADMIN_CREDENTIALS.username);
+    console.log('   Password match:', normalizedPassword === ADMIN_CREDENTIALS.password);
+    
     // Simple authentication (in production, use JWT tokens and bcrypt)
     if (normalizedUsername === ADMIN_CREDENTIALS.username && normalizedPassword === ADMIN_CREDENTIALS.password) {
       console.log('✅ Admin login successful:', username, 'from IP:', clientIp);
@@ -2248,6 +2257,7 @@ app.post('/api/admin/login', rateLimitAdminLogin, async (req, res) => {
       });
     } else {
       console.log('❌ Admin login failed:', username, 'from IP:', clientIp);
+      console.log('   Reason: Username or password mismatch');
       res.status(401).json({ 
         error: 'Invalid credentials',
         message: 'Username or password is incorrect'
