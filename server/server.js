@@ -2509,9 +2509,12 @@ app.get('/api/admin/tours', verifyAdmin, async (req, res) => {
 // Get all pending tours (admin) - for backward compatibility
 app.get('/api/admin/tours/pending', verifyAdmin, async (req, res) => {
   try {
-    console.log('📋 Fetching tours for admin dashboard');
-    // Get all tours, not just pending (since they might be auto-approved)
+    console.log('📋 Fetching PENDING tours for admin dashboard');
+    // Get only pending tours
     const tours = await prisma.tour.findMany({
+      where: {
+        status: 'pending'
+      },
       include: {
         supplier: {
           select: {
