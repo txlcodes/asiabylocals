@@ -15,20 +15,44 @@ const EmailVerificationWaiting: React.FC = () => {
 
   // Poll for email verification status
   useEffect(() => {
-    if (!supplierId) return;
+    if (!supplierId) {
+      console.log('⚠️ No supplierId in URL, cannot check verification status');
+      // Try to get supplierId from localStorage (set during registration)
+      const storedSupplierId = localStorage.getItem('pendingSupplierId');
+      if (storedSupplierId) {
+        console.log('   Found supplierId in localStorage:', storedSupplierId);
+        setSupplierId(storedSupplierId);
+      }
+      return;
+    }
 
     const checkVerification = async () => {
       try {
-        const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
-        const response = await fetch(`${API_URL}/api/suppliers/${supplierId}/verification-status`);
+        // Use window.location.origin for unified deployment
+        const API_URL = import.meta.env.VITE_API_URL || window.location.origin;
+        const url = `${API_URL}/api/suppliers/${supplierId}/verification-status`;
+        
+        console.log('🔍 Checking verification status:', url);
+        
+        const response = await fetch(url);
         const data = await response.json();
         
+        console.log('   Response:', data);
+        
         if (data.success && data.emailVerified) {
+          console.log('✅ Email verified! Redirecting...');
+          // Clear polling
+          clearInterval(interval);
           // Redirect to supplier page with registration open and verified
           window.location.href = `/supplier?verified=true&supplierId=${supplierId}&openRegistration=true`;
+        } else if (data.success && !data.emailVerified) {
+          console.log('   ⏳ Still waiting for verification...');
+        } else {
+          console.warn('   ⚠️ Unexpected response:', data);
         }
       } catch (error) {
-        console.error('Verification check error:', error);
+        console.error('❌ Verification check error:', error);
+        // Don't stop polling on network errors - might be temporary
       }
     };
 

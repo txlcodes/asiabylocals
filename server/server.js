@@ -1265,7 +1265,10 @@ app.get('/api/suppliers/:id/verification-status', async (req, res) => {
     const { id } = req.params;
     const supplierId = parseInt(id);
 
+    console.log(`🔍 Checking verification status for supplier ID: ${supplierId}`);
+
     if (isNaN(supplierId)) {
+      console.log('   ❌ Invalid supplier ID:', id);
       return res.status(400).json({ 
         success: false,
         error: 'Invalid supplier ID',
@@ -1273,17 +1276,46 @@ app.get('/api/suppliers/:id/verification-status', async (req, res) => {
       });
     }
 
-    const supplier = await prisma.supplier.findUnique({
-      where: { id: supplierId },
-      select: {
-        id: true,
-        email: true,
-        emailVerified: true,
-        status: true
+    // Retry logic for Render free tier database connection issues
+    let supplier = null;
+    let findAttempts = 0;
+    const MAX_FIND_RETRIES = 3;
+    
+    while (findAttempts < MAX_FIND_RETRIES && !supplier) {
+      try {
+        supplier = await prisma.supplier.findUnique({
+          where: { id: supplierId },
+          select: {
+            id: true,
+            email: true,
+            emailVerified: true,
+            status: true
+          }
+        });
+        break; // Success, exit retry loop
+      } catch (dbError) {
+        findAttempts++;
+        console.error(`   Database error finding supplier (attempt ${findAttempts}/${MAX_FIND_RETRIES}):`, dbError.message);
+        
+        // If it's a connection error and we have retries left, wait and retry
+        if (findAttempts < MAX_FIND_RETRIES && (
+          dbError.message?.includes('connection') || 
+          dbError.message?.includes('timeout') ||
+          dbError.code === 'P1001' ||
+          dbError.code === 'P1017' ||
+          dbError.code === 'P1008'
+        )) {
+          console.log(`   Retrying in ${findAttempts * 500}ms...`);
+          await new Promise(resolve => setTimeout(resolve, findAttempts * 500));
+          continue;
+        }
+        // Not a retryable error, break and handle below
+        throw dbError;
       }
-    });
+    }
 
     if (!supplier) {
+      console.log('   ❌ Supplier not found');
       return res.status(404).json({ 
         success: false,
         error: 'Supplier not found',
@@ -1291,16 +1323,24 @@ app.get('/api/suppliers/:id/verification-status', async (req, res) => {
       });
     }
 
+    console.log(`   ✅ Supplier found: ${supplier.email}`);
+    console.log(`   📧 Email verified: ${supplier.emailVerified ? 'YES' : 'NO'}`);
+    console.log(`   📊 Status: ${supplier.status}`);
+
     res.json({
       success: true,
       emailVerified: supplier.emailVerified,
-      status: supplier.status
+      status: supplier.status,
+      email: supplier.email // Include email for debugging
     });
   } catch (error) {
-    console.error('Verification status check error:', error);
+    console.error('❌ Verification status check error:', error);
+    console.error('   Error message:', error.message);
+    console.error('   Error code:', error.code);
     res.status(500).json({ 
+      success: false,
       error: 'Internal server error',
-      message: 'Failed to check verification status'
+      message: 'Failed to check verification status. Please try again.'
     });
   }
 });
