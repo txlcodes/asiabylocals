@@ -2452,9 +2452,13 @@ app.get('/api/admin/tours', verifyAdmin, async (req, res) => {
   try {
     const { status } = req.query;
     const where = {};
-    if (status) {
+    if (status && status !== 'all') {
       where.status = status;
     }
+    
+    console.log('📋 Fetching tours for admin dashboard');
+    console.log('   Filter status:', status || 'all');
+    console.log('   Where clause:', JSON.stringify(where));
     
     const tours = await prisma.tour.findMany({
       where,
