@@ -416,15 +416,9 @@ app.get('/api/suppliers/verify-email', async (req, res) => {
   try {
     let { token } = req.query;
     
-    // Decode the token in case it was URL encoded
-    if (token) {
-      token = decodeURIComponent(token);
-    }
-
     console.log('🔍 Email verification request received');
-    console.log('   Token:', token ? `${token.substring(0, 10)}...` : 'MISSING');
-    console.log('   Token length:', token ? token.length : 0);
-    console.log('   Full token (first 20 chars):', token ? token.substring(0, 20) : 'N/A');
+    console.log('   Raw token from query:', token ? `${token.substring(0, 20)}...` : 'MISSING');
+    console.log('   Raw token length:', token ? token.length : 0);
     console.log('   Request URL:', req.url);
     console.log('   Query params:', JSON.stringify(req.query));
 
@@ -435,8 +429,73 @@ app.get('/api/suppliers/verify-email', async (req, res) => {
       });
     }
 
-    // Find supplier by verification token (check both expired and non-expired)
-    const supplier = await prisma.supplier.findFirst({
+    // Normalize token: decode, trim whitespace, remove any email client modifications
+    // Email clients often add tracking parameters or wrap URLs
+    try {
+      // Decode URL encoding
+      token = decodeURIComponent(token);
+    } catch (e) {
+      // If decode fails, token might already be decoded or corrupted
+      console.log('   ⚠️ Token decode failed, using as-is');
+    }
+    
+    // Trim whitespace and remove any trailing parameters email clients might add
+    token = token.trim();
+    // Remove common email client tracking parameters
+    token = token.split('&')[0].split('#')[0].split('?')[0];
+    token = token.trim();
+
+    console.log('   Normalized token:', token ? `${token.substring(0, 20)}...` : 'MISSING');
+    console.log('   Normalized token length:', token ? token.length : 0);
+    console.log('   Expected token length: 64 (32 bytes hex)');
+
+    // Validate token format (should be 64 character hex string)
+    if (token.length !== 64 || !/^[a-f0-9]{64}$/i.test(token)) {
+      console.log('   ❌ Token format invalid - not 64 character hex string');
+      console.log('   Token received:', token);
+      
+      // Try to find supplier by partial token match (in case email client truncated it)
+      const allSuppliers = await prisma.supplier.findMany({
+        where: {
+          emailVerificationToken: {
+            not: null
+          }
+        },
+        select: {
+          id: true,
+          email: true,
+          emailVerificationToken: true,
+          emailVerificationExpires: true,
+          emailVerified: true
+        }
+      });
+      
+      // Try partial match (first 32 characters)
+      if (token.length >= 32) {
+        const partialToken = token.substring(0, 32);
+        console.log('   Trying partial token match:', partialToken);
+        const partialMatch = allSuppliers.find(s => 
+          s.emailVerificationToken && s.emailVerificationToken.startsWith(partialToken)
+        );
+        
+        if (partialMatch) {
+          console.log('   ✅ Found supplier with partial token match!');
+          token = partialMatch.emailVerificationToken; // Use full token from DB
+        }
+      }
+      
+      // If still no match, return error
+      if (token.length !== 64 || !/^[a-f0-9]{64}$/i.test(token)) {
+        return res.status(400).json({ 
+          error: 'Invalid token format',
+          message: 'The verification link appears to be corrupted. Please request a new verification email.',
+          details: 'Token should be 64 characters. Received: ' + token.length + ' characters.'
+        });
+      }
+    }
+
+    // Find supplier by verification token
+    let supplier = await prisma.supplier.findFirst({
       where: {
         emailVerificationToken: token
       }
@@ -446,24 +505,63 @@ app.get('/api/suppliers/verify-email', async (req, res) => {
     
     if (!supplier) {
       console.log('   ❌ No supplier found with this token');
-      // Check if token might exist but expired
-      const allSuppliers = await prisma.supplier.findMany({
-        select: { id: true, email: true, emailVerificationToken: true }
+      
+      // Get all suppliers with tokens for debugging
+      const suppliersWithTokens = await prisma.supplier.findMany({
+        where: {
+          emailVerificationToken: {
+            not: null
+          },
+          emailVerified: false
+        },
+        select: {
+          id: true,
+          email: true,
+          emailVerificationToken: true,
+          emailVerificationExpires: true
+        },
+        take: 5 // Limit to 5 for debugging
       });
-      console.log('   Total suppliers in DB:', allSuppliers.length);
+      
+      console.log('   Suppliers with unverified tokens:', suppliersWithTokens.length);
+      if (suppliersWithTokens.length > 0) {
+        console.log('   Sample tokens in DB:');
+        suppliersWithTokens.forEach(s => {
+          console.log(`     - ID ${s.id}: ${s.emailVerificationToken?.substring(0, 20)}... (expires: ${s.emailVerificationExpires})`);
+        });
+      }
+      
       return res.status(400).json({ 
         error: 'Invalid or expired token',
-        message: 'The verification link is invalid or has expired. Please request a new verification email.'
+        message: 'The verification link is invalid or has expired. Please request a new verification email.',
+        hint: 'If you just registered, please check your email for the latest verification link.'
       });
     }
 
-    // Check if token is expired
-    if (supplier.emailVerificationExpires && new Date(supplier.emailVerificationExpires) < new Date()) {
-      console.log('   ❌ Token expired');
-      return res.status(400).json({ 
-        error: 'Token expired',
-        message: 'The verification link has expired. Please request a new verification email.'
-      });
+    // Check if token is expired (with 1 hour grace period for email delivery delays)
+    if (supplier.emailVerificationExpires) {
+      const now = new Date();
+      const expiresAt = new Date(supplier.emailVerificationExpires);
+      const gracePeriod = 60 * 60 * 1000; // 1 hour grace period
+      const expiredAt = new Date(expiresAt.getTime() + gracePeriod);
+      
+      console.log('   Token expiry check:');
+      console.log(`     Expires at: ${expiresAt.toISOString()}`);
+      console.log(`     Current time: ${now.toISOString()}`);
+      console.log(`     With grace period: ${expiredAt.toISOString()}`);
+      
+      if (now > expiredAt) {
+        console.log('   ❌ Token expired (even with grace period)');
+        return res.status(400).json({ 
+          error: 'Token expired',
+          message: 'The verification link has expired. Please request a new verification email.',
+          hint: 'Verification links expire after 24 hours. Click "Resend Verification Email" to get a new link.'
+        });
+      } else if (now > expiresAt) {
+        console.log('   ⚠️ Token expired but within grace period - allowing verification');
+      } else {
+        console.log('   ✅ Token is valid');
+      }
     }
 
     if (supplier.emailVerified) {
