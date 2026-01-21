@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { CheckCircle2, XCircle, Loader2, Mail } from 'lucide-react';
+import { API_URL } from '@/src/config';
 
 const VerifyEmail: React.FC = () => {
   // Get token from URL query parameter
@@ -22,7 +23,7 @@ const VerifyEmail: React.FC = () => {
     // Call verification API
     const verifyEmail = async () => {
       try {
-        const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3001'}/api/suppliers/verify-email?token=${token}`);
+        const response = await fetch(`${API_URL}/api/suppliers/verify-email?token=${token}`);
         const data = await response.json();
 
         if (response.ok && data.success) {
