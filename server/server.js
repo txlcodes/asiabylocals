@@ -1831,19 +1831,43 @@ app.post('/api/tours', async (req, res) => {
         }
       } catch (cloudinaryError) {
         console.error('❌ Cloudinary upload error:', cloudinaryError);
-        // Fallback: use base64 images if Cloudinary fails (for development)
+        console.error('   Error details:', cloudinaryError.message);
+        console.error('   Cloudinary config check:');
+        console.error('     CLOUDINARY_CLOUD_NAME:', process.env.CLOUDINARY_CLOUD_NAME ? '✅ Set' : '❌ Missing');
+        console.error('     CLOUDINARY_API_KEY:', process.env.CLOUDINARY_API_KEY ? '✅ Set' : '❌ Missing');
+        console.error('     CLOUDINARY_API_SECRET:', process.env.CLOUDINARY_API_SECRET ? '✅ Set' : '❌ Missing');
+        
+        // NEVER use base64 in production - fail the request instead
         if (process.env.NODE_ENV === 'production') {
           return res.status(500).json({
             success: false,
             error: 'Image upload failed',
-            message: 'Failed to upload images. Please try again.'
+            message: 'Failed to upload images to Cloudinary. Please check Cloudinary configuration and try again.',
+            details: 'Cloudinary upload is required in production. Base64 images are not allowed.'
           });
         }
-        console.warn('⚠️  Using base64 images as fallback (development mode)');
+        // Development fallback only
+        console.warn('⚠️  Using base64 images as fallback (development mode only)');
         imageUrls = imagesArray;
       }
     } else {
-      console.log('ℹ️  Cloudinary not configured, using base64 images (development mode)');
+      console.error('❌ Cloudinary not configured!');
+      console.error('   CLOUDINARY_CLOUD_NAME:', process.env.CLOUDINARY_CLOUD_NAME ? '✅ Set' : '❌ Missing');
+      console.error('   CLOUDINARY_API_KEY:', process.env.CLOUDINARY_API_KEY ? '✅ Set' : '❌ Missing');
+      console.error('   CLOUDINARY_API_SECRET:', process.env.CLOUDINARY_API_SECRET ? '✅ Set' : '❌ Missing');
+      
+      // In production, fail if Cloudinary is not configured
+      if (process.env.NODE_ENV === 'production') {
+        return res.status(500).json({
+          success: false,
+          error: 'Image storage not configured',
+          message: 'Cloudinary is required for image storage in production. Please configure Cloudinary environment variables.',
+          details: 'Add CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, and CLOUDINARY_API_SECRET to Render environment variables.'
+        });
+      }
+      
+      // Development fallback only
+      console.warn('⚠️  Using base64 images (development mode only - NOT for production!)');
     }
 
     // Parse tour options if provided (accept both 'options' and 'tourOptions' field names)
