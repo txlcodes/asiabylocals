@@ -316,11 +316,23 @@ app.post('/api/suppliers/register', async (req, res) => {
       emailSent: true
     });
   } catch (error) {
-    console.error('Registration error:', error);
+    console.error('❌ Registration error:', error);
+    console.error('   Error message:', error.message);
+    console.error('   Error stack:', error.stack);
+    console.error('   Error name:', error.name);
+    console.error('   Full error:', JSON.stringify(error, Object.getOwnPropertyNames(error)));
+    
+    // Return more detailed error in development
+    const errorDetails = process.env.NODE_ENV === 'development' ? {
+      message: error.message,
+      stack: error.stack,
+      name: error.name
+    } : undefined;
+    
     res.status(500).json({ 
       error: 'Internal server error',
       message: 'Failed to register supplier. Please try again later.',
-      details: process.env.NODE_ENV === 'development' ? error.message : undefined
+      details: errorDetails
     });
   }
 });

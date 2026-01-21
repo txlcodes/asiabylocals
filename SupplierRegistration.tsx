@@ -290,17 +290,22 @@ const SupplierRegistration: React.FC<SupplierRegistrationProps> = ({ onClose }) 
       }
     })
     .catch(error => {
-      console.error('Registration error:', error);
+      console.error('❌ Registration error:', error);
+      console.error('   Error message:', error.message);
+      console.error('   Error stack:', error.stack);
       setIsSubmitting(false);
       
       // Better error message based on error type
       let errorMessage = 'Failed to submit registration. ';
-      if (error.message?.includes('Failed to fetch') || error.message?.includes('NetworkError')) {
-        errorMessage += 'The server is not responding. Please make sure the server is running.';
+      if (error.message?.includes('Failed to fetch') || error.message?.includes('NetworkError') || error.message?.includes('Network request failed')) {
+        errorMessage += 'Cannot connect to server. Please check your internet connection and try again.';
+      } else if (error.message?.includes('Registration failed') || error.message?.includes('Internal server error')) {
+        errorMessage += 'Server error occurred. Please try again in a few moments.';
       } else {
-        errorMessage += 'Please check your connection and try again.';
+        errorMessage += error.message || 'Please check your connection and try again.';
       }
       
+      console.error('   Showing error to user:', errorMessage);
       alert(errorMessage);
     });
   };
