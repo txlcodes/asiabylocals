@@ -595,9 +595,6 @@ const App: React.FC = () => {
                   </div>
                 )}
               </div>
-              <div className="flex items-center gap-1 cursor-pointer hover:text-[#10B981]">
-                Places to see <ChevronRight size={14} className="rotate-90" />
-              </div>
               <div 
                 className="relative flex items-center gap-1 cursor-pointer hover:text-[#10B981]"
                 onMouseEnter={() => setShowInspirationDropdown(true)}
