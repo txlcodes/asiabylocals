@@ -23,8 +23,29 @@ const VerifyEmail: React.FC = () => {
     // Call verification API
     const verifyEmail = async () => {
       try {
-        const response = await fetch(`${API_URL}/api/suppliers/verify-email?token=${token}`);
+        // Use production API URL, fallback to current origin
+        const apiUrl = API_URL || window.location.origin;
+        const tokenParam = encodeURIComponent(token);
+        const verifyUrl = `${apiUrl}/api/suppliers/verify-email?token=${tokenParam}`;
+        
+        console.log('🔍 Verifying email...');
+        console.log('   API URL:', apiUrl);
+        console.log('   Token length:', token?.length);
+        console.log('   Token (first 20 chars):', token?.substring(0, 20));
+        console.log('   Full URL:', verifyUrl);
+        
+        const response = await fetch(verifyUrl, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+
+        console.log('   Response status:', response.status);
+        console.log('   Response OK:', response.ok);
+        
         const data = await response.json();
+        console.log('   Response data:', data);
 
         if (response.ok && data.success) {
           setStatus('success');
@@ -48,12 +69,17 @@ const VerifyEmail: React.FC = () => {
           }, 1500);
         } else {
           setStatus('error');
-          setMessage(data.message || data.error || 'Failed to verify email. Please try again.');
+          const errorMessage = data.message || data.error || 'Failed to verify email. Please try again.';
+          const errorDetails = data.details ? ` (${data.details})` : '';
+          const errorHint = data.hint ? ` ${data.hint}` : '';
+          setMessage(errorMessage + errorDetails + errorHint);
+          console.error('❌ Verification failed:', data);
         }
       } catch (error) {
         setStatus('error');
-        setMessage('An error occurred while verifying your email. Please try again later.');
-        console.error('Verification error:', error);
+        const errorMsg = error instanceof Error ? error.message : 'Network error';
+        setMessage(`An error occurred while verifying your email: ${errorMsg}. Please check your connection and try again.`);
+        console.error('❌ Verification error:', error);
       }
     };
 
