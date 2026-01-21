@@ -4,9 +4,34 @@ import { API_URL } from '@/src/config';
 
 const VerifyEmail: React.FC = () => {
   // Get token from URL query parameter
+  // Handle email client modifications (Gmail/Outlook add tracking params)
   const getTokenFromUrl = () => {
-    const params = new URLSearchParams(window.location.search);
-    return params.get('token');
+    const urlParams = new URLSearchParams(window.location.search);
+    let token = urlParams.get('token');
+    
+    // If token not found in params, try extracting from full URL
+    // Email clients sometimes modify URLs
+    if (!token) {
+      const fullUrl = window.location.href;
+      const tokenMatch = fullUrl.match(/[?&]token=([a-f0-9]{64})/i);
+      if (tokenMatch) {
+        token = tokenMatch[1];
+      }
+    }
+    
+    // Clean token: remove any email client tracking parameters
+    if (token) {
+      // Remove common email client additions
+      token = token.split('&')[0].split('#')[0].split('?')[0];
+      token = decodeURIComponent(token).trim();
+    }
+    
+    console.log('🔍 Extracted token from URL:');
+    console.log('   Full URL:', window.location.href);
+    console.log('   Token:', token ? `${token.substring(0, 20)}...` : 'NOT FOUND');
+    console.log('   Token length:', token?.length || 0);
+    
+    return token;
   };
 
   const [token] = useState<string | null>(getTokenFromUrl());
