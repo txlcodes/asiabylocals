@@ -309,11 +309,15 @@ app.post('/api/suppliers/register', async (req, res) => {
       id: String(supplier.id)
     };
 
+    // Always return success even if email failed - user can resend verification email
     res.status(201).json({
       success: true,
-      message: 'Registration successful! Please check your email to verify your account.',
+      message: emailSent 
+        ? 'Registration successful! Please check your email to verify your account.'
+        : 'Registration successful! However, we couldn\'t send the verification email right now. Please use "Resend Verification Email" on the supplier page.',
       supplier: supplierResponse,
-      emailSent: true
+      emailSent: emailSent,
+      warning: emailSent ? undefined : 'Email service temporarily unavailable. You can request a new verification email after logging in.'
     });
   } catch (error) {
     console.error('❌ Registration error:', error);

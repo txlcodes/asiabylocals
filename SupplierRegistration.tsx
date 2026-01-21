@@ -204,19 +204,52 @@ const SupplierRegistration: React.FC<SupplierRegistrationProps> = ({ onClose }) 
 
   // Function to submit registration (called from step 4)
   const submitRegistration = () => {
+    // Validate all required fields before submission
+    const fullName = `${firstName} ${lastName}`.trim();
+    
+    if (!selectedBusinessType) {
+      alert('Please select a business type.');
+      setIsSubmitting(false);
+      return;
+    }
+    
+    if (!fullName || !firstName || !lastName) {
+      alert('Please enter your full name.');
+      setIsSubmitting(false);
+      return;
+    }
+    
+    if (!email || !email.includes('@')) {
+      alert('Please enter a valid email address.');
+      setIsSubmitting(false);
+      return;
+    }
+    
+    if (!password || password.length < 8) {
+      alert('Please enter a valid password (at least 8 characters).');
+      setIsSubmitting(false);
+      return;
+    }
+    
+    if (!acceptedTerms) {
+      alert('Please accept the Terms and Conditions to continue.');
+      setIsSubmitting(false);
+      return;
+    }
+    
     const registrationData = {
       businessType: selectedBusinessType,
       companyEmployees: selectedBusinessType === 'company' ? companyEmployees : null,
       companyActivities: selectedBusinessType === 'company' ? companyActivities : null,
       individualActivities: selectedBusinessType === 'individual' ? individualActivities : null,
       otherActivities: selectedBusinessType === 'other' ? otherActivities : null,
-      fullName: `${firstName} ${lastName}`.trim(),
-      email,
+      fullName: fullName,
+      email: email.trim().toLowerCase(),
       password,
-      companyName,
-      mainHub,
-      city,
-      tourLanguages,
+      companyName: companyName || null,
+      mainHub: mainHub || null,
+      city: city || null,
+      tourLanguages: tourLanguages || null,
       phone: phone || null,
       whatsapp: whatsapp || null,
       verificationDocumentUrl: null // No document at registration
