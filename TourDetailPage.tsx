@@ -247,13 +247,12 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
       return;
     }
 
-    // If tour has options, show option selection modal first
-    if (tour?.options && Array.isArray(tour.options) && tour.options.length > 0) {
-      setShowOptionSelectionModal(true);
+    // If tour has options but none selected, prompt user to select one
+    if (tour?.options && Array.isArray(tour.options) && tour.options.length > 0 && !selectedOption) {
+      alert('Please select a tour option first');
       return;
     }
 
-    // Otherwise, proceed directly to booking
     setAvailabilityStatus('checking');
     
     // Simulate API call - in real app, this would check actual availability
@@ -276,9 +275,9 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
   };
 
   const handleProceedToBooking = () => {
-    // If tour has options but none selected, show option selection
+    // If tour has options but none selected, prompt user to select one
     if (tour?.options && Array.isArray(tour.options) && tour.options.length > 0 && !selectedOption) {
-      setShowOptionSelectionModal(true);
+      alert('Please select a tour option first');
       return;
     }
 
