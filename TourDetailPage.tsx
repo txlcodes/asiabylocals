@@ -727,77 +727,100 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
               </div>
             </div>
 
-            {/* Tour Options Section - Moved to top for visibility */}
+            {/* Tour Options Section - GetYourGuide Style */}
             {tour.options && Array.isArray(tour.options) && tour.options.length > 0 && (
               <div className="mb-8">
-                <h2 className="text-2xl font-black text-[#001A33] mb-6">Choose from {tour.options.length} option{tour.options.length > 1 ? 's' : ''}</h2>
+                <h2 className="text-2xl font-black text-[#001A33] mb-6">Choose from {tour.options.length} available option{tour.options.length > 1 ? 's' : ''}</h2>
                 <div className="space-y-4">
-                  {tour.options.map((option: any) => (
-                    <div
-                      key={option.id}
-                      className={`border-2 rounded-2xl p-6 cursor-pointer transition-all ${
-                        selectedOption?.id === option.id
-                          ? 'border-[#10B981] bg-[#10B981]/5 shadow-md'
-                          : 'border-gray-200 hover:border-[#10B981]/50 hover:shadow-sm'
-                      }`}
-                      onClick={() => setSelectedOption(option)}
-                    >
-                      <div className="flex items-start justify-between gap-4">
-                        <div className="flex-1">
-                          <h4 className="font-black text-[#001A33] text-[16px] mb-2">{option.optionTitle}</h4>
-                          <p className="text-[14px] text-gray-600 font-semibold mb-3 line-clamp-2">
-                            {option.optionDescription}
-                          </p>
-                          <div className="flex items-center gap-4 text-[13px] text-gray-600 font-semibold mb-3">
-                            <div className="flex items-center gap-2">
-                              <Clock size={16} className="text-gray-500" />
-                              <span>{option.durationHours} {option.durationHours === 1 ? 'hour' : 'hours'}</span>
+                  {tour.options.map((option: any) => {
+                    const isSelected = selectedOption?.id === option.id;
+                    const currencySymbol = option.currency === 'USD' ? '$' : option.currency === 'EUR' ? '€' : '₹';
+                    const isPerGroup = option.pricingType === 'per_group';
+                    
+                    return (
+                      <div
+                        key={option.id}
+                        className={`bg-white border-2 rounded-2xl p-6 transition-all ${
+                          isSelected
+                            ? 'border-[#10B981] shadow-lg'
+                            : 'border-gray-200 hover:border-[#10B981]/50 hover:shadow-md'
+                        }`}
+                      >
+                        <div className="flex items-start justify-between gap-6">
+                          {/* Left: Option Details */}
+                          <div className="flex-1">
+                            <h3 className="font-black text-[#001A33] text-[18px] mb-2">{option.optionTitle}</h3>
+                            <p className="text-[14px] text-gray-600 font-semibold mb-4 leading-relaxed">
+                              {option.optionDescription}
+                              {option.optionDescription && option.optionDescription.length > 100 && (
+                                <span className="text-[#0071EB] cursor-pointer ml-1">Read more</span>
+                              )}
+                            </p>
+                            
+                            {/* Key Details Row */}
+                            <div className="flex items-center gap-6 text-[13px] text-gray-600 font-semibold">
+                              <div className="flex items-center gap-2">
+                                <Clock size={16} className="text-gray-500" />
+                                <span>{option.durationHours} {option.durationHours === 1 ? 'hour' : 'hours'}</span>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <User size={16} className="text-gray-500" />
+                                <span>Guide: {option.language}</span>
+                              </div>
+                              {option.pickupIncluded && (
+                                <div className="flex items-center gap-2">
+                                  <Bus size={16} className="text-gray-500" />
+                                  <span>Pickup included</span>
+                                </div>
+                              )}
                             </div>
-                            <div className="flex items-center gap-2">
-                              <Globe size={16} className="text-gray-500" />
-                              <span>Guide: {option.language}</span>
+                          </div>
+
+                          {/* Right: Pricing & Select Button */}
+                          <div className="text-right flex flex-col items-end min-w-[200px]">
+                            <div className="mb-3">
+                              {isPerGroup ? (
+                                <>
+                                  <div className="font-black text-[#001A33] text-[20px] mb-1">
+                                    From {currencySymbol}{option.groupPrice?.toLocaleString()}
+                                  </div>
+                                  <div className="text-[12px] text-gray-600 font-semibold">
+                                    per group (up to {option.maxGroupSize} people)
+                                  </div>
+                                </>
+                              ) : (
+                                <>
+                                  <div className="font-black text-[#001A33] text-[20px] mb-1">
+                                    From {currencySymbol}{option.price.toLocaleString()}
+                                  </div>
+                                  <div className="text-[12px] text-gray-600 font-semibold">
+                                    per person
+                                  </div>
+                                </>
+                              )}
+                            </div>
+                            
+                            <button
+                              onClick={() => setSelectedOption(option)}
+                              className={`w-full px-6 py-3 rounded-xl font-black text-[14px] transition-all mb-2 ${
+                                isSelected
+                                  ? 'bg-[#10B981] text-white'
+                                  : 'bg-[#0071EB] text-white hover:bg-[#0056b3]'
+                              }`}
+                            >
+                              {isSelected ? 'Selected' : 'Select'}
+                            </button>
+                            
+                            {/* Free Cancellation Badge */}
+                            <div className="flex items-center gap-1 text-[12px] text-gray-600">
+                              <CheckCircle2 size={14} className="text-[#10B981]" />
+                              <span className="font-semibold">Free cancellation</span>
                             </div>
                           </div>
-                          <div className="flex flex-wrap gap-2">
-                            {option.pickupIncluded && (
-                              <span className="text-[12px] px-2 py-1 bg-green-100 text-green-700 rounded-full font-bold">Pickup</span>
-                            )}
-                            {option.carIncluded && (
-                              <span className="text-[12px] px-2 py-1 bg-blue-100 text-blue-700 rounded-full font-bold">Car</span>
-                            )}
-                            {option.entryTicketIncluded && (
-                              <span className="text-[12px] px-2 py-1 bg-purple-100 text-purple-700 rounded-full font-bold">Entry Ticket</span>
-                            )}
-                            {option.guideIncluded && (
-                              <span className="text-[12px] px-2 py-1 bg-orange-100 text-orange-700 rounded-full font-bold">Guide</span>
-                            )}
-                          </div>
-                        </div>
-                        <div className="text-right flex flex-col items-end">
-                          <div className="font-black text-[#001A33] text-[18px] mb-3">
-                            From {(option.currency || 'INR') === 'INR' ? '₹' : '$'}{option.price.toLocaleString()} per person
-                          </div>
-                          <div className="mb-2 flex items-center gap-1 text-[12px] text-gray-600">
-                            <CheckCircle2 size={14} className="text-[#10B981]" />
-                            <span className="font-semibold">Free cancellation</span>
-                          </div>
-                          <button
-                            className={`px-6 py-2 rounded-xl font-black text-[14px] transition-all ${
-                              selectedOption?.id === option.id
-                                ? 'bg-[#10B981] text-white'
-                                : 'bg-[#0071EB] text-white hover:bg-[#0056b3]'
-                            }`}
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setSelectedOption(option);
-                            }}
-                          >
-                            {selectedOption?.id === option.id ? 'Selected' : 'Select'}
-                          </button>
                         </div>
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
             )}
