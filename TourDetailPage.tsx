@@ -311,7 +311,8 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
     
     // Create booking via API
     try {
-      const bookingResponse = await fetch('http://localhost:3001/api/bookings', {
+      const API_URL = import.meta.env.VITE_API_URL || (typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3001');
+      const bookingResponse = await fetch(`${API_URL}/api/bookings`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -375,7 +376,8 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
   const initializeRazorpayPayment = async (bookingId: string, amount: number, currency: string) => {
     try {
       // Create payment order via backend
-      const paymentResponse = await fetch('http://localhost:3001/api/payments/create-order', {
+      const API_URL = import.meta.env.VITE_API_URL || (typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3001');
+      const paymentResponse = await fetch(`${API_URL}/api/payments/create-order`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -407,7 +409,8 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
           order_id: paymentData.order.id,
           handler: async function(response: any) {
             // Verify payment on backend
-            const verifyResponse = await fetch('http://localhost:3001/api/payments/verify', {
+            const API_URL = import.meta.env.VITE_API_URL || (typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3001');
+            const verifyResponse = await fetch(`${API_URL}/api/payments/verify`, {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json',
