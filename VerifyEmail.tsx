@@ -80,14 +80,14 @@ const VerifyEmail: React.FC = () => {
           localStorage.setItem('emailVerified', 'true');
           localStorage.setItem('verifiedSupplierId', data.supplier.id);
           
-          // Redirect to supplier login page with success message
-          // User needs to log in to access the dashboard
-          // Redirect back to registration form at step 5 (license upload) instead of login
-          const redirectUrl = data.redirectUrl || `${window.location.origin}/supplier/register?verified=true&email=${encodeURIComponent(data.supplier.email)}&supplierId=${data.supplier.id}`;
+          // Redirect back to registration form at step 5 (license upload)
+          // This ensures users upload their license document before they can login
+          const redirectUrl = data.redirectUrl || `${window.location.origin}/supplier?register=true&verified=true&email=${encodeURIComponent(data.supplier.email)}&supplierId=${data.supplier.id}`;
           
-          console.log('✅ Email verified successfully, redirecting to:', redirectUrl);
+          console.log('✅ Email verified successfully, redirecting to license upload:', redirectUrl);
           console.log('   Supplier ID:', data.supplier.id);
           console.log('   Email verified:', data.supplier.emailVerified);
+          console.log('   Next step: License document upload');
           
           // Redirect after a short delay to show success message
           setTimeout(() => {
