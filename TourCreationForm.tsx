@@ -452,7 +452,7 @@ const TourCreationForm: React.FC<TourCreationFormProps> = ({
         }))
       });
 
-      const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+      const API_URL = import.meta.env.VITE_API_URL || (typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3001');
       const response = await fetch(`${API_URL}/api/tours`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -498,7 +498,7 @@ const TourCreationForm: React.FC<TourCreationFormProps> = ({
       if (data.success) {
         if (submitForReview) {
           // Submit for review
-          const submitResponse = await fetch(`http://localhost:3001/api/tours/${data.tour.id}/submit`, {
+          const submitResponse = await fetch(`${API_URL}/api/tours/${data.tour.id}/submit`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' }
           });
@@ -544,7 +544,8 @@ const TourCreationForm: React.FC<TourCreationFormProps> = ({
           errorMessage = 'An error occurred while processing your request. Please refresh the page and try again. If the problem persists, please log out and log back in.';
           console.error('ReferenceError detected - this might be a frontend issue');
         } else if (error.message.includes('fetch') || error.message.includes('Failed to fetch')) {
-          errorMessage = 'Cannot connect to server. Please make sure the server is running on http://localhost:3001';
+          const apiUrl = import.meta.env.VITE_API_URL || (typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3001');
+          errorMessage = `Cannot connect to server at ${apiUrl}. Please check your connection and try again.`;
         } else if (error.message.includes('Network')) {
           errorMessage = 'Network error. Please check your internet connection and try again.';
         } else {
