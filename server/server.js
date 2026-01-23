@@ -4268,7 +4268,12 @@ if (process.env.NODE_ENV === 'production') {
     app.get('/sitemap.xml', (req, res) => {
       const sitemapPath = path.join(distPath, 'sitemap.xml');
       if (fs.existsSync(sitemapPath)) {
+        // Set proper headers for sitemap
         res.type('application/xml');
+        res.setHeader('Cache-Control', 'public, max-age=3600'); // Cache for 1 hour
+        res.setHeader('X-Content-Type-Options', 'nosniff');
+        // Allow all origins for sitemap (Google needs this)
+        res.setHeader('Access-Control-Allow-Origin', '*');
         res.sendFile(sitemapPath);
       } else {
         res.status(404).send('Sitemap not found');
@@ -4279,6 +4284,7 @@ if (process.env.NODE_ENV === 'production') {
       const robotsPath = path.join(distPath, 'robots.txt');
       if (fs.existsSync(robotsPath)) {
         res.type('text/plain');
+        res.setHeader('Cache-Control', 'public, max-age=3600'); // Cache for 1 hour
         res.sendFile(robotsPath);
       } else {
         res.status(404).send('Robots.txt not found');
