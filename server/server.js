@@ -2600,6 +2600,7 @@ app.post('/api/tours', async (req, res) => {
     let tour;
     let createAttempts = 0;
     const MAX_CREATE_RETRIES = 3;
+    let finalTourData; // Declare outside loop for error handling
     
     // CRITICAL: Ensure tourData does not have an id field at all
     if ('id' in tourData) {
@@ -2610,7 +2611,7 @@ app.post('/api/tours', async (req, res) => {
     while (createAttempts < MAX_CREATE_RETRIES) {
       try {
         // Ensure no ID fields are present in tourData - deep clone to avoid mutation
-        const finalTourData = JSON.parse(JSON.stringify(tourData));
+        finalTourData = JSON.parse(JSON.stringify(tourData));
         
         // Remove id field from top level if it exists
         if ('id' in finalTourData) {
@@ -2677,13 +2678,22 @@ app.post('/api/tours', async (req, res) => {
         if (createError.code === 'P2002' && createError.meta?.target?.includes('id')) {
           console.error('   ⚠️  ID constraint violation detected!');
           console.error('   This should not happen if id is auto-generated.');
-          console.error('   Checking if id field exists in finalTourData...');
-          console.error('   finalTourData keys:', Object.keys(finalTourData));
+          if (finalTourData) {
+            console.error('   Checking if id field exists in finalTourData...');
+            console.error('   finalTourData keys:', Object.keys(finalTourData));
+            console.error('   Has id field:', 'id' in finalTourData);
+          }
           
-          // This might be a database sequence issue - try to reset it if possible
-          // For now, wait a bit longer and retry (might be a race condition)
+          // This is likely a database sequence issue - try to reset it
           if (createAttempts < MAX_CREATE_RETRIES) {
-            console.log(`   ID conflict detected, waiting longer and retrying (attempt ${createAttempts + 1}/${MAX_CREATE_RETRIES})...`);
+            console.log(`   ID conflict detected, attempting to reset sequence and retry (attempt ${createAttempts + 1}/${MAX_CREATE_RETRIES})...`);
+            try {
+              // Attempt to reset the sequence for the 'tours' table
+              await prisma.$queryRaw`SELECT setval('tours_id_seq', (SELECT MAX(id) FROM tours))`;
+              console.log('   ✅ tours_id_seq reset successfully.');
+            } catch (seqError) {
+              console.error('   ❌ Failed to reset tours_id_seq:', seqError.message);
+            }
             // Wait longer for ID conflicts (might be sequence sync issue)
             await new Promise(resolve => setTimeout(resolve, (createAttempts + 1) * 1000));
             continue;
