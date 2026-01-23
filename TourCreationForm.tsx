@@ -442,22 +442,29 @@ const TourCreationForm: React.FC<TourCreationFormProps> = ({
         guideType: formData.guideType?.trim() || null,
         images: JSON.stringify(formData.images),
         languages: JSON.stringify(formData.languages),
-        tourOptions: formData.tourOptions.map((opt, idx) => ({
-          optionTitle: opt.optionTitle.trim(),
-          optionDescription: opt.optionDescription.trim(),
-          durationHours: parseFloat(opt.durationHours) || 3,
-          price: opt.pricingType === 'per_person' ? (parseFloat(opt.price) || 0) : (parseFloat(opt.groupPrice || '0') || 0),
-          currency: opt.currency,
-          language: opt.language,
-          pickupIncluded: opt.pickupIncluded,
-          carIncluded: opt.carIncluded,
-          entryTicketIncluded: opt.entryTicketIncluded,
-          guideIncluded: opt.guideIncluded,
-          pricingType: opt.pricingType || 'per_person',
-          maxGroupSize: opt.pricingType === 'per_group' ? (opt.maxGroupSize || null) : null,
-          groupPrice: opt.pricingType === 'per_group' ? (parseFloat(opt.groupPrice || '0') || null) : null,
-          sortOrder: idx
-        }))
+        tourOptions: formData.tourOptions.map((opt, idx) => {
+          // CRITICAL: Remove any ID fields to prevent database conflicts
+          const { id, tourId, ...cleanOpt } = opt;
+          if (id || tourId) {
+            console.warn(`⚠️  Removing ID fields from tour option ${idx + 1} to prevent conflicts`);
+          }
+          return {
+            optionTitle: cleanOpt.optionTitle.trim(),
+            optionDescription: cleanOpt.optionDescription.trim(),
+            durationHours: parseFloat(cleanOpt.durationHours) || 3,
+            price: cleanOpt.pricingType === 'per_person' ? (parseFloat(cleanOpt.price) || 0) : (parseFloat(cleanOpt.groupPrice || '0') || 0),
+            currency: cleanOpt.currency,
+            language: cleanOpt.language,
+            pickupIncluded: cleanOpt.pickupIncluded,
+            carIncluded: cleanOpt.carIncluded,
+            entryTicketIncluded: cleanOpt.entryTicketIncluded,
+            guideIncluded: cleanOpt.guideIncluded,
+            pricingType: cleanOpt.pricingType || 'per_person',
+            maxGroupSize: cleanOpt.pricingType === 'per_group' ? (cleanOpt.maxGroupSize || null) : null,
+            groupPrice: cleanOpt.pricingType === 'per_group' ? (parseFloat(cleanOpt.groupPrice || '0') || null) : null,
+            sortOrder: idx
+          };
+        })
       };
 
       // Debug: Log what we're sending
