@@ -28,3 +28,5 @@ echo ""
 echo "Files created:"
 ls -lh "$TARGET_DIR"/*.jpg
 
+
+

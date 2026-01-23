@@ -240,6 +240,9 @@ const TourCreationForm: React.FC<TourCreationFormProps> = ({
       carIncluded: boolean;
       entryTicketIncluded: boolean;
       guideIncluded: boolean;
+      pricingType: 'per_person' | 'per_group';
+      maxGroupSize?: number;
+      groupPrice?: string;
     }>
   });
 
@@ -339,9 +342,14 @@ const TourCreationForm: React.FC<TourCreationFormProps> = ({
       case 4:
         return formData.duration && formData.pricePerPerson;
       case 5:
-        return formData.tourOptions.length > 0 && formData.tourOptions.every(opt => 
-          opt.optionTitle.trim() && opt.optionDescription.trim() && opt.price && opt.durationHours
-        );
+        return formData.tourOptions.length > 0 && formData.tourOptions.every(opt => {
+          const hasBasicFields = opt.optionTitle.trim() && opt.optionDescription.trim() && opt.durationHours;
+          if (opt.pricingType === 'per_person') {
+            return hasBasicFields && opt.price;
+          } else {
+            return hasBasicFields && opt.maxGroupSize && opt.maxGroupSize >= 1 && opt.maxGroupSize <= 20 && opt.groupPrice;
+          }
+        });
       case 6:
         return formData.fullDescription && formData.included && formData.highlights.filter(h => h.trim()).length >= 3;
       case 7:
@@ -420,13 +428,16 @@ const TourCreationForm: React.FC<TourCreationFormProps> = ({
           optionTitle: opt.optionTitle.trim(),
           optionDescription: opt.optionDescription.trim(),
           durationHours: parseFloat(opt.durationHours) || 3,
-          price: parseFloat(opt.price) || 0,
+          price: opt.pricingType === 'per_person' ? (parseFloat(opt.price) || 0) : (parseFloat(opt.groupPrice || '0') || 0),
           currency: opt.currency,
           language: opt.language,
           pickupIncluded: opt.pickupIncluded,
           carIncluded: opt.carIncluded,
           entryTicketIncluded: opt.entryTicketIncluded,
           guideIncluded: opt.guideIncluded,
+          pricingType: opt.pricingType || 'per_person',
+          maxGroupSize: opt.pricingType === 'per_group' ? (opt.maxGroupSize || null) : null,
+          groupPrice: opt.pricingType === 'per_group' ? (parseFloat(opt.groupPrice || '0') || null) : null,
           sortOrder: idx
         }))
       };
@@ -960,7 +971,10 @@ const TourCreationForm: React.FC<TourCreationFormProps> = ({
                       pickupIncluded: false,
                       carIncluded: false,
                       entryTicketIncluded: false,
-                      guideIncluded: true
+                      guideIncluded: true,
+                      pricingType: 'per_person' as 'per_person' | 'per_group',
+                      maxGroupSize: undefined,
+                      groupPrice: undefined
                     };
                     setFormData(prev => ({
                       ...prev,
@@ -1094,10 +1108,102 @@ const TourCreationForm: React.FC<TourCreationFormProps> = ({
                             }}
                             placeholder="e.g., 595"
                             min="0"
-                            className="w-full bg-gray-50 border-none rounded-xl py-3 px-4 font-semibold text-[#001A33] text-[14px] focus:ring-2 focus:ring-[#10B981] outline-none"
+                            disabled={option.pricingType === 'per_group'}
+                            className="w-full bg-gray-50 border-none rounded-xl py-3 px-4 font-semibold text-[#001A33] text-[14px] focus:ring-2 focus:ring-[#10B981] outline-none disabled:opacity-50 disabled:cursor-not-allowed"
                           />
                         </div>
                       </div>
+
+                      {/* Pricing Type Selection */}
+                      <div>
+                        <label className="block text-[14px] font-bold text-[#001A33] mb-2">
+                          Pricing Type *
+                        </label>
+                        <div className="flex gap-4">
+                          <label className="flex items-center gap-2 p-3 bg-gray-50 rounded-xl cursor-pointer hover:bg-gray-100 transition-colors flex-1">
+                            <input
+                              type="radio"
+                              name={`pricingType-${index}`}
+                              value="per_person"
+                              checked={option.pricingType === 'per_person'}
+                              onChange={(e) => {
+                                const newOptions = [...formData.tourOptions];
+                                newOptions[index].pricingType = 'per_person';
+                                setFormData(prev => ({ ...prev, tourOptions: newOptions }));
+                              }}
+                              className="w-4 h-4 text-[#10B981] focus:ring-[#10B981]"
+                            />
+                            <span className="text-[14px] font-semibold text-[#001A33]">Per Person</span>
+                          </label>
+                          <label className="flex items-center gap-2 p-3 bg-gray-50 rounded-xl cursor-pointer hover:bg-gray-100 transition-colors flex-1">
+                            <input
+                              type="radio"
+                              name={`pricingType-${index}`}
+                              value="per_group"
+                              checked={option.pricingType === 'per_group'}
+                              onChange={(e) => {
+                                const newOptions = [...formData.tourOptions];
+                                newOptions[index].pricingType = 'per_group';
+                                if (!newOptions[index].maxGroupSize) {
+                                  newOptions[index].maxGroupSize = 20;
+                                }
+                                if (!newOptions[index].groupPrice) {
+                                  newOptions[index].groupPrice = '';
+                                }
+                                setFormData(prev => ({ ...prev, tourOptions: newOptions }));
+                              }}
+                              className="w-4 h-4 text-[#10B981] focus:ring-[#10B981]"
+                            />
+                            <span className="text-[14px] font-semibold text-[#001A33]">Per Group</span>
+                          </label>
+                        </div>
+                      </div>
+
+                      {/* Group Pricing Fields (shown only when pricingType is 'per_group') */}
+                      {option.pricingType === 'per_group' && (
+                        <div className="grid grid-cols-2 gap-4 bg-green-50 p-4 rounded-xl border border-green-200">
+                          <div>
+                            <label className="block text-[14px] font-bold text-[#001A33] mb-2">
+                              Max Group Size (1-20) *
+                            </label>
+                            <input
+                              type="number"
+                              value={option.maxGroupSize || ''}
+                              onChange={(e) => {
+                                const newOptions = [...formData.tourOptions];
+                                const value = parseInt(e.target.value);
+                                if (value >= 1 && value <= 20) {
+                                  newOptions[index].maxGroupSize = value;
+                                } else if (e.target.value === '') {
+                                  newOptions[index].maxGroupSize = undefined;
+                                }
+                                setFormData(prev => ({ ...prev, tourOptions: newOptions }));
+                              }}
+                              placeholder="e.g., 20"
+                              min="1"
+                              max="20"
+                              className="w-full bg-white border-none rounded-xl py-3 px-4 font-semibold text-[#001A33] text-[14px] focus:ring-2 focus:ring-[#10B981] outline-none"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-[14px] font-bold text-[#001A33] mb-2">
+                              Group Price *
+                            </label>
+                            <input
+                              type="number"
+                              value={option.groupPrice || ''}
+                              onChange={(e) => {
+                                const newOptions = [...formData.tourOptions];
+                                newOptions[index].groupPrice = e.target.value;
+                                setFormData(prev => ({ ...prev, tourOptions: newOptions }));
+                              }}
+                              placeholder="e.g., 5000"
+                              min="0"
+                              className="w-full bg-white border-none rounded-xl py-3 px-4 font-semibold text-[#001A33] text-[14px] focus:ring-2 focus:ring-[#10B981] outline-none"
+                            />
+                          </div>
+                        </div>
+                      )}
 
                       <div className="grid grid-cols-2 gap-4">
                         <div>
@@ -1214,7 +1320,10 @@ const TourCreationForm: React.FC<TourCreationFormProps> = ({
                       pickupIncluded: false,
                       carIncluded: false,
                       entryTicketIncluded: false,
-                      guideIncluded: true
+                      guideIncluded: true,
+                      pricingType: 'per_person' as 'per_person' | 'per_group',
+                      maxGroupSize: undefined,
+                      groupPrice: undefined
                     };
                     setFormData(prev => ({
                       ...prev,

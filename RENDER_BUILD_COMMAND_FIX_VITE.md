@@ -41,3 +41,5 @@ npm ci && npm run build && cd server && npm install && npm run prisma:generate
 
 **Update the Build Command in Render and redeploy!** 🚀
 
+
+

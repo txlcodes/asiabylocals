@@ -47,3 +47,5 @@ When you add images to `/Users/talhanawaz/Desktop/things to do/jaipur/`, I'll co
 - ✅ Image paths configured
 - ⏳ Waiting for images to be added to desktop folder
 
+
+

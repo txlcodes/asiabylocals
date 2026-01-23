@@ -114,3 +114,5 @@ All sections appear above "Why Book with Local Guides" section.
 
 If images are not added, the section will still work but show placeholder images. Once you add the images with the exact filenames listed above, they will automatically display!
 
+
+

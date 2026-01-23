@@ -73,3 +73,5 @@ The "Things to Do in Agra" section appears:
 
 **Note:** The directory `public/things-to-do/` has been created. Just add your images with the exact filenames listed above!
 
+
+

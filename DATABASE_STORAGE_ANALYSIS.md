@@ -86,3 +86,5 @@ If you already have tours with base64 images, you can migrate them:
 
 **Next Steps**: Add Cloudinary credentials to Render and redeploy! 🚀
 
+
+

@@ -113,3 +113,5 @@ export async function deleteMultipleImages(publicIds) {
 
 export default cloudinary;
 
+
+

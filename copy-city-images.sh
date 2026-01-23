@@ -50,3 +50,5 @@ done
 echo ""
 echo "✨ Done! Images copied to public folder."
 
+
+

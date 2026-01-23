@@ -147,3 +147,5 @@ Everything is configured and ready to deploy. Follow the guides above and you'll
 
 **Questions?** Check the documentation files or Render/Cloudinary support.
 
+
+

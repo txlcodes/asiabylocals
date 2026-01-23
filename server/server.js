@@ -2328,6 +2328,9 @@ app.post('/api/tours', async (req, res) => {
             entryTicketIncluded: cleanOption.entryTicketIncluded || cleanOption.entry_ticket_included || false,
             guideIncluded: cleanOption.guideIncluded !== undefined ? cleanOption.guideIncluded : (cleanOption.guide_included !== undefined ? cleanOption.guide_included : true),
             carIncluded: cleanOption.carIncluded || cleanOption.car_included || false,
+            pricingType: cleanOption.pricingType || 'per_person',
+            maxGroupSize: cleanOption.maxGroupSize && cleanOption.maxGroupSize >= 1 && cleanOption.maxGroupSize <= 20 ? cleanOption.maxGroupSize : null,
+            groupPrice: cleanOption.groupPrice ? parseFloat(cleanOption.groupPrice) : null,
             sortOrder: index
           };
         })
