@@ -157,6 +157,10 @@ const SupplierPage: React.FC<SupplierPageProps> = ({ onClose }) => {
           localStorage.removeItem('supplier');
           setLoggedInSupplier(null);
           setShowDashboard(false);
+          setShowLogin(true);
+          setShowRegistration(false);
+          // Redirect to supplier page to show login form
+          window.location.href = '/supplier';
         }}
       />
     );
