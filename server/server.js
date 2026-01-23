@@ -3215,8 +3215,11 @@ app.get('/api/admin/suppliers/pending', verifyAdmin, async (req, res) => {
     
     while (findAttempts < MAX_FIND_RETRIES && !suppliers) {
       try {
-        // Get all suppliers (not just pending) since they're auto-approved
+        // Get only pending suppliers (exclude rejected and approved)
         suppliers = await prisma.supplier.findMany({
+          where: {
+            status: 'pending'
+          },
           orderBy: {
             createdAt: 'desc'
           },

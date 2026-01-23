@@ -507,10 +507,15 @@ const AdminDashboard: React.FC = () => {
                         )}
                       </div>
                       <div className="flex-1">
-                        <h3 className="text-lg font-black text-[#001A33] mb-2">
-                          {supplier.fullName}
-                          {supplier.companyName && ` - ${supplier.companyName}`}
-                        </h3>
+                        <div className="flex items-center gap-2 mb-1">
+                          <h3 className="text-lg font-black text-[#001A33]">
+                            {supplier.fullName}
+                            {supplier.companyName && ` - ${supplier.companyName}`}
+                          </h3>
+                          <span className="text-[10px] font-mono text-gray-400 bg-gray-100 px-2 py-0.5 rounded">
+                            ID: {supplier.id}
+                          </span>
+                        </div>
                         <div className="flex items-center gap-4 text-[12px] text-gray-500 font-semibold mb-2">
                           <div className="flex items-center gap-1">
                             <Mail size={14} />
@@ -558,6 +563,12 @@ const AdminDashboard: React.FC = () => {
                     <h3 className="text-xl font-black text-[#001A33] mb-4">Supplier Details</h3>
                     
                     <div className="space-y-3 mb-6">
+                      <div>
+                        <div className="text-[11px] font-bold text-gray-500 uppercase mb-1">Supplier ID</div>
+                        <div className="text-[14px] font-mono font-bold text-[#001A33] bg-gray-100 px-3 py-1.5 rounded-lg inline-block">
+                          {selectedSupplier.id}
+                        </div>
+                      </div>
                       <div>
                         <div className="text-[11px] font-bold text-gray-500 uppercase mb-1">Name</div>
                         <div className="text-[16px] font-black text-[#001A33]">{selectedSupplier.fullName}</div>
@@ -774,7 +785,12 @@ const AdminDashboard: React.FC = () => {
                       />
                     )}
                     <div className="flex-1">
-                      <h3 className="text-lg font-black text-[#001A33] mb-2">{tour.title}</h3>
+                      <div className="flex items-center gap-2 mb-1">
+                        <h3 className="text-lg font-black text-[#001A33]">{tour.title}</h3>
+                        <span className="text-[10px] font-mono text-gray-400 bg-gray-100 px-2 py-0.5 rounded">
+                          ID: {tour.id}
+                        </span>
+                      </div>
                       <div className="flex items-center gap-4 text-[12px] text-gray-500 font-semibold mb-2">
                         <div className="flex items-center gap-1">
                           <MapPin size={14} />
@@ -857,6 +873,12 @@ const AdminDashboard: React.FC = () => {
                   {/* Details */}
                   <div className="space-y-3 mb-6">
                     <div>
+                      <div className="text-[11px] font-bold text-gray-500 uppercase mb-1">Tour ID</div>
+                      <div className="text-[14px] font-mono font-bold text-[#001A33] bg-gray-100 px-3 py-1.5 rounded-lg inline-block">
+                        {selectedTour.id}
+                      </div>
+                    </div>
+                    <div>
                       <div className="text-[11px] font-bold text-gray-500 uppercase mb-1">Title</div>
                       <div className="text-[16px] font-black text-[#001A33]">{selectedTour.title}</div>
                     </div>
@@ -938,6 +960,12 @@ const AdminDashboard: React.FC = () => {
                         <div className="text-[14px] font-semibold text-[#001A33]">
                           {selectedTour.supplier?.fullName || selectedTour.supplier?.companyName || 'Unknown'}
                         </div>
+                        {selectedTour.supplier?.id && (
+                          <div className="text-[12px] text-gray-600 font-semibold">
+                            <span className="font-bold">Supplier ID:</span> 
+                            <span className="font-mono ml-2 bg-gray-100 px-2 py-0.5 rounded">{selectedTour.supplier.id}</span>
+                          </div>
+                        )}
                         <div className="text-[12px] text-gray-600 font-semibold">
                           <span className="font-bold">Email:</span> {selectedTour.supplier?.email || 'Not provided'}
                         </div>
