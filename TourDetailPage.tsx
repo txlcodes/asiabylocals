@@ -1367,6 +1367,161 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
         </div>
       )}
 
+      {/* Option Selection Modal - GetYourGuide Style */}
+      {showOptionSelectionModal && tour && tour.options && tour.options.length > 0 && (
+        <div 
+          className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 overflow-y-auto"
+          onClick={() => setShowOptionSelectionModal(false)}
+        >
+          <div 
+            className="bg-white rounded-3xl shadow-2xl max-w-4xl w-full p-8 my-8"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Header */}
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <h2 className="text-2xl font-black text-[#001A33] mb-2">Choose from {tour.options.length} available option{tour.options.length > 1 ? 's' : ''}</h2>
+                <p className="text-[14px] text-gray-600 font-semibold">Select your preferred tour option</p>
+              </div>
+              <button
+                onClick={() => setShowOptionSelectionModal(false)}
+                className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+              >
+                <X size={24} className="text-gray-600" />
+              </button>
+            </div>
+
+            {/* Options List */}
+            <div className="space-y-4 max-h-[70vh] overflow-y-auto pr-2">
+              {tour.options.map((option: any) => {
+                const isSelected = selectedOption?.id === option.id;
+                const currencySymbol = option.currency === 'USD' ? '$' : option.currency === 'EUR' ? '€' : '₹';
+                const isPerGroup = option.pricingType === 'per_group';
+                
+                return (
+                  <div
+                    key={option.id}
+                    className={`border-2 rounded-2xl p-6 transition-all ${
+                      isSelected
+                        ? 'border-[#10B981] bg-[#10B981]/5 shadow-lg'
+                        : 'border-gray-200 hover:border-[#10B981]/50 hover:shadow-md'
+                    }`}
+                  >
+                    <div className="flex items-start justify-between gap-6">
+                      {/* Left: Option Details */}
+                      <div className="flex-1">
+                        <h3 className="font-black text-[#001A33] text-[18px] mb-2">{option.optionTitle}</h3>
+                        <p className="text-[14px] text-gray-600 font-semibold mb-4 leading-relaxed">
+                          {option.optionDescription}
+                        </p>
+                        
+                        {/* Key Details Row */}
+                        <div className="flex items-center gap-6 text-[13px] text-gray-600 font-semibold mb-4">
+                          <div className="flex items-center gap-2">
+                            <Clock size={16} className="text-gray-500" />
+                            <span>{option.durationHours} {option.durationHours === 1 ? 'hour' : 'hours'}</span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <Globe size={16} className="text-gray-500" />
+                            <span>{option.language}</span>
+                          </div>
+                          {option.pickupIncluded && (
+                            <div className="flex items-center gap-2">
+                              <Bus size={16} className="text-gray-500" />
+                              <span>Pickup included</span>
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Inclusions Badges */}
+                        <div className="flex flex-wrap gap-2 mb-4">
+                          {option.guideIncluded && (
+                            <span className="text-[12px] px-3 py-1 bg-orange-100 text-orange-700 rounded-full font-bold">Guide Included</span>
+                          )}
+                          {option.carIncluded && (
+                            <span className="text-[12px] px-3 py-1 bg-blue-100 text-blue-700 rounded-full font-bold">Private Car</span>
+                          )}
+                          {option.entryTicketIncluded && (
+                            <span className="text-[12px] px-3 py-1 bg-purple-100 text-purple-700 rounded-full font-bold">Entry Tickets</span>
+                          )}
+                          {option.pickupIncluded && (
+                            <span className="text-[12px] px-3 py-1 bg-green-100 text-green-700 rounded-full font-bold">Hotel Pickup</span>
+                          )}
+                        </div>
+
+                        {/* Free Cancellation */}
+                        <div className="flex items-center gap-2 text-[13px] text-gray-600">
+                          <CheckCircle2 size={14} className="text-[#10B981]" />
+                          <span className="font-semibold">Free cancellation</span>
+                        </div>
+                      </div>
+
+                      {/* Right: Pricing & Select Button */}
+                      <div className="text-right flex flex-col items-end min-w-[200px]">
+                        <div className="mb-3">
+                          {isPerGroup ? (
+                            <>
+                              <div className="font-black text-[#001A33] text-[20px] mb-1">
+                                {currencySymbol}{option.groupPrice?.toLocaleString()}
+                              </div>
+                              <div className="text-[12px] text-gray-600 font-semibold">
+                                per group (up to {option.maxGroupSize} people)
+                              </div>
+                            </>
+                          ) : (
+                            <>
+                              <div className="font-black text-[#001A33] text-[20px] mb-1">
+                                {currencySymbol}{option.price.toLocaleString()}
+                              </div>
+                              <div className="text-[12px] text-gray-600 font-semibold">
+                                per person
+                              </div>
+                            </>
+                          )}
+                        </div>
+                        
+                        <button
+                          onClick={() => handleOptionSelected(option)}
+                          className={`w-full px-6 py-3 rounded-xl font-black text-[14px] transition-all ${
+                            isSelected
+                              ? 'bg-[#10B981] text-white'
+                              : 'bg-[#0071EB] text-white hover:bg-[#0056b3]'
+                          }`}
+                        >
+                          {isSelected ? 'Selected' : 'Select'}
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Footer Actions */}
+            {selectedOption && (
+              <div className="mt-6 pt-6 border-t border-gray-200 flex items-center justify-between">
+                <div>
+                  <div className="text-[14px] text-gray-600 font-semibold mb-1">Selected option:</div>
+                  <div className="font-black text-[#001A33] text-[16px]">{selectedOption.optionTitle}</div>
+                </div>
+                <button
+                  onClick={() => {
+                    setShowOptionSelectionModal(false);
+                    setAvailabilityStatus('checking');
+                    setTimeout(() => {
+                      setAvailabilityStatus('available');
+                    }, 1000);
+                  }}
+                  className="bg-[#10B981] hover:bg-[#059669] text-white font-black px-8 py-3 rounded-xl transition-all"
+                >
+                  Continue to Booking
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
       {/* Booking Modal */}
       {showBookingModal && tour && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[100]" onClick={() => {
