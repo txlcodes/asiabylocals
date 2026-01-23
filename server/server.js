@@ -308,7 +308,7 @@ app.post('/api/suppliers/register', async (req, res) => {
             emailVerificationToken: verificationToken,
             emailVerificationExpires: verificationExpires,
             emailVerified: false,
-            status: 'approved' // Auto-approve suppliers
+            status: 'pending' // Require admin approval after license upload
           },
           select: {
             id: true,
@@ -1432,17 +1432,21 @@ app.patch('/api/suppliers/:id/update-document', async (req, res) => {
     const supplier = await prisma.supplier.update({
       where: { id: supplierId },
       data: {
-        verificationDocumentUrl
+        verificationDocumentUrl,
+        // Keep status as 'pending' - admin needs to approve after reviewing license
+        status: 'pending'
       },
       select: {
         id: true,
         email: true,
         emailVerified: true,
-        status: true
+        status: true,
+        verificationDocumentUrl: true
       }
     });
 
     console.log('✅ Document uploaded successfully for supplier:', supplier.id);
+    console.log('   Status:', supplier.status, '(pending admin approval)');
 
     res.json({
       success: true,
