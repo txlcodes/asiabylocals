@@ -3156,29 +3156,62 @@ app.get('/api/admin/tours/pending', verifyAdmin, async (req, res) => {
 app.get('/api/admin/suppliers/pending', verifyAdmin, async (req, res) => {
   try {
     console.log('📋 Fetching suppliers for admin dashboard');
-    // Get all suppliers (not just pending) since they're auto-approved
-    const suppliers = await prisma.supplier.findMany({
-      orderBy: {
-        createdAt: 'desc'
-      },
-      select: {
-        id: true,
-        email: true,
-        fullName: true,
-        businessType: true,
-        status: true,
-        emailVerified: true,
-        createdAt: true,
-        companyName: true,
-        mainHub: true,
-        city: true,
-        phone: true,
-        whatsapp: true,
-        verificationDocumentUrl: true
-      }
-    });
     
-    console.log(`   Found ${suppliers.length} suppliers`);
+    // Retry logic for Render free tier database connection issues
+    let suppliers = null;
+    let findAttempts = 0;
+    const MAX_FIND_RETRIES = 3;
+    
+    while (findAttempts < MAX_FIND_RETRIES && !suppliers) {
+      try {
+        // Get all suppliers (not just pending) since they're auto-approved
+        suppliers = await prisma.supplier.findMany({
+          orderBy: {
+            createdAt: 'desc'
+          },
+          select: {
+            id: true,
+            email: true,
+            fullName: true,
+            businessType: true,
+            status: true,
+            emailVerified: true,
+            createdAt: true,
+            companyName: true,
+            mainHub: true,
+            city: true,
+            phone: true,
+            whatsapp: true,
+            verificationDocumentUrl: true
+          }
+        });
+        break; // Success, exit retry loop
+      } catch (dbError) {
+        findAttempts++;
+        console.error(`   Database error fetching suppliers (attempt ${findAttempts}/${MAX_FIND_RETRIES}):`, dbError.message);
+        
+        // If it's a connection error and we have retries left, wait and retry
+        if (findAttempts < MAX_FIND_RETRIES && (
+          dbError.message?.includes('connection') || 
+          dbError.message?.includes('timeout') ||
+          dbError.code === 'P1001' ||
+          dbError.code === 'P1017' ||
+          dbError.code === 'P1008'
+        )) {
+          console.log(`   Retrying in ${findAttempts * 500}ms...`);
+          await new Promise(resolve => setTimeout(resolve, findAttempts * 500));
+          continue;
+        }
+        // Not a retryable error, throw
+        throw dbError;
+      }
+    }
+    
+    if (!suppliers) {
+      throw new Error('Failed to fetch suppliers after retries');
+    }
+    
+    console.log(`   ✅ Found ${suppliers.length} suppliers`);
     if (suppliers.length > 0) {
       const statusBreakdown = suppliers.reduce((acc, s) => {
         acc[s.status] = (acc[s.status] || 0) + 1;
@@ -3199,11 +3232,14 @@ app.get('/api/admin/suppliers/pending', verifyAdmin, async (req, res) => {
       count: formattedSuppliers.length
     });
   } catch (error) {
-    console.error('Get pending suppliers error:', error);
+    console.error('❌ Get pending suppliers error:', error);
+    console.error('   Error message:', error.message);
+    console.error('   Error code:', error.code);
     res.status(500).json({
       success: false,
       error: 'Internal server error',
-      message: 'Failed to fetch pending suppliers'
+      message: 'Failed to fetch pending suppliers. Please try again.',
+      details: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
   }
 });
