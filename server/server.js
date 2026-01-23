@@ -2671,21 +2671,30 @@ app.post('/api/tours', async (req, res) => {
           console.error('   Checking if id field exists in finalTourData...');
           console.error('   finalTourData keys:', Object.keys(finalTourData));
           
-          // For ID conflicts, we can't retry - this indicates a deeper issue
-          // Instead, return a more helpful error message
-          return res.status(500).json({
-            success: false,
-            error: 'Database error',
-            message: 'Failed to create tour due to database constraint violation. This may be a temporary issue. Please try again.',
-            details: process.env.NODE_ENV === 'development' ? {
-              code: createError.code,
-              meta: createError.meta,
-              message: createError.message
-            } : undefined
-          });
+          // This might be a database sequence issue - try to reset it if possible
+          // For now, wait a bit longer and retry (might be a race condition)
+          if (createAttempts < MAX_CREATE_RETRIES) {
+            console.log(`   ID conflict detected, waiting longer and retrying (attempt ${createAttempts + 1}/${MAX_CREATE_RETRIES})...`);
+            // Wait longer for ID conflicts (might be sequence sync issue)
+            await new Promise(resolve => setTimeout(resolve, (createAttempts + 1) * 1000));
+            continue;
+          } else {
+            // Max retries reached - return error with suggestion to check database
+            return res.status(500).json({
+              success: false,
+              error: 'Database error',
+              message: 'Failed to create tour due to database sequence issue. Please contact support or try again later.',
+              details: process.env.NODE_ENV === 'development' ? {
+                code: createError.code,
+                meta: createError.meta,
+                message: createError.message,
+                suggestion: 'Database sequence may be out of sync. Run: SELECT setval(\'tours_id_seq\', (SELECT MAX(id) FROM tours));'
+              } : undefined
+            });
+          }
         }
         
-        // If it's an ID conflict and we have retries left, try again (for other constraint types)
+        // If it's any other constraint violation and we have retries left, try again
         if (createError.code === 'P2002' && createAttempts < MAX_CREATE_RETRIES) {
           console.log(`   Constraint violation detected, retrying in ${createAttempts * 500}ms...`);
           await new Promise(resolve => setTimeout(resolve, createAttempts * 500));

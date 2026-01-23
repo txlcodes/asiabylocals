@@ -105,7 +105,7 @@ const SupplierDashboard: React.FC<SupplierDashboardProps> = ({ supplier, onLogou
     
     setIsLoadingBookings(true);
     try {
-      const API_URL = (import.meta as any).env?.VITE_API_URL || 'http://localhost:3001';
+      const API_URL = (import.meta as any).env?.VITE_API_URL || (typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3001');
       const response = await fetch(`${API_URL}/api/suppliers/${supplier.id}/bookings`);
       const data = await response.json();
       if (data.success) {
@@ -130,7 +130,7 @@ const SupplierDashboard: React.FC<SupplierDashboardProps> = ({ supplier, onLogou
     
     setIsLoading(true);
     try {
-      const API_URL = (import.meta as any).env?.VITE_API_URL || 'http://localhost:3001';
+      const API_URL = (import.meta as any).env?.VITE_API_URL || (typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3001');
       const response = await fetch(`${API_URL}/api/tours?supplierId=${supplier.id}`);
       const data = await response.json();
       if (data.success) {
@@ -149,7 +149,7 @@ const SupplierDashboard: React.FC<SupplierDashboardProps> = ({ supplier, onLogou
     }
 
     try {
-      const API_URL = (import.meta as any).env?.VITE_API_URL || 'http://localhost:3001';
+      const API_URL = (import.meta as any).env?.VITE_API_URL || (typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3001');
       const response = await fetch(`${API_URL}/api/tours/${tourId}`, {
         method: 'DELETE'
       });
@@ -171,7 +171,7 @@ const SupplierDashboard: React.FC<SupplierDashboardProps> = ({ supplier, onLogou
     
     setIsSavingProfile(true);
     try {
-      const API_URL = (import.meta as any).env?.VITE_API_URL || 'http://localhost:3001';
+      const API_URL = (import.meta as any).env?.VITE_API_URL || (typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3001');
       const response = await fetch(`${API_URL}/api/suppliers/${currentSupplier.id}/profile`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
@@ -209,7 +209,7 @@ const SupplierDashboard: React.FC<SupplierDashboardProps> = ({ supplier, onLogou
 
   const handleSubmitTour = async (tourId: string) => {
     try {
-      const API_URL = (import.meta as any).env?.VITE_API_URL || 'http://localhost:3001';
+      const API_URL = (import.meta as any).env?.VITE_API_URL || (typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3001');
       const response = await fetch(`${API_URL}/api/tours/${tourId}/submit`, {
         method: 'POST'
       });
