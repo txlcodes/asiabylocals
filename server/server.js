@@ -1018,7 +1018,9 @@ app.get('/api/suppliers/verify-email', async (req, res) => {
     // Redirect URL to supplier login page with verification success message
     // After verification, user should log in to access the dashboard
     // Redirect back to registration form at step 5 (license upload) instead of login
-    const redirectUrl = `${process.env.FRONTEND_URL || process.env.VITE_FRONTEND_URL || 'http://localhost:3000'}/supplier/register?verified=true&email=${encodeURIComponent(updatedSupplier.email)}&supplierId=${updatedSupplier.id}`;
+    // Redirect back to registration form at step 5 (license upload)
+    // This ensures users upload their license document before they can login
+    const redirectUrl = `${process.env.FRONTEND_URL || process.env.VITE_FRONTEND_URL || 'http://localhost:3000'}/supplier?register=true&verified=true&email=${encodeURIComponent(updatedSupplier.email)}&supplierId=${updatedSupplier.id}`;
     
     console.log(`✅ Email verified for supplier ID: ${updatedSupplier.id}`);
     console.log(`📧 Redirect URL: ${redirectUrl}`);
