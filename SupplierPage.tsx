@@ -78,17 +78,32 @@ const SupplierPage: React.FC<SupplierPageProps> = ({ onClose }) => {
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     const verified = urlParams.get('verified');
+    const register = urlParams.get('register');
     const email = urlParams.get('email');
+    const supplierId = urlParams.get('supplierId');
     
     if (verified === 'true') {
-      // User just verified email, show login form with success message
-      setShowLogin(true);
-      // Clear URL params
-      window.history.replaceState({}, '', window.location.pathname);
-      // If email is provided, pre-fill it in the login form
-      if (email) {
-        // Store email for login form to use
-        sessionStorage.setItem('verifiedEmail', email);
+      if (register === 'true' && supplierId) {
+        // User just verified email, redirect to registration form at step 5 (license upload)
+        setShowRegistration(true);
+        // Store supplierId and verified status for registration form
+        localStorage.setItem('pendingSupplierId', supplierId);
+        localStorage.setItem('emailVerified', 'true');
+        if (email) {
+          sessionStorage.setItem('verifiedEmail', email);
+        }
+        // Clear URL params
+        window.history.replaceState({}, '', window.location.pathname);
+      } else {
+        // User verified email but no register param, show login form with success message
+        setShowLogin(true);
+        // Clear URL params
+        window.history.replaceState({}, '', window.location.pathname);
+        // If email is provided, pre-fill it in the login form
+        if (email) {
+          // Store email for login form to use
+          sessionStorage.setItem('verifiedEmail', email);
+        }
       }
     }
   }, []);
