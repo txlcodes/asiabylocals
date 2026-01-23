@@ -84,7 +84,8 @@ const SupplierRegistration: React.FC<SupplierRegistrationProps> = ({ onClose }) 
   const [documentPreview, setDocumentPreview] = useState<string | null>(null);
   const pollingIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
-  const maxSteps = (selectedBusinessType === 'company' || selectedBusinessType === 'individual' || selectedBusinessType === 'other') ? 5 : 4;
+  // Updated flow: License upload (step 4) BEFORE account creation (step 5)
+  const maxSteps = (selectedBusinessType === 'company' || selectedBusinessType === 'individual' || selectedBusinessType === 'other') ? 6 : 5;
   const nextStep = () => setStep(prev => Math.min(prev + 1, maxSteps));
   const prevStep = () => setStep(prev => Math.max(prev - 1, 1));
 
@@ -118,7 +119,14 @@ const SupplierRegistration: React.FC<SupplierRegistrationProps> = ({ onClose }) 
         nextStep();
       }
     } else if (step === ((selectedBusinessType === 'company' || selectedBusinessType === 'individual' || selectedBusinessType === 'other') ? 4 : 3)) {
-      // Account creation step - submit registration and wait for email verification
+      // License upload step - validate document is uploaded before proceeding
+      if (verificationDocument) {
+        nextStep();
+      } else {
+        alert('Please upload your license/verification document to continue.');
+      }
+    } else if (step === ((selectedBusinessType === 'company' || selectedBusinessType === 'individual' || selectedBusinessType === 'other') ? 5 : 4)) {
+      // Account creation step - submit registration with license document and wait for email verification
       const fullName = `${firstName} ${lastName}`.trim();
       // Password validation - allow common special characters
       const hasSpecialChar = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password);
@@ -202,8 +210,8 @@ const SupplierRegistration: React.FC<SupplierRegistrationProps> = ({ onClose }) 
     }
   };
 
-  // Function to submit registration (called from step 4)
-  const submitRegistration = () => {
+  // Function to submit registration (called from step 5 - account creation)
+  const submitRegistration = async () => {
     // Validate all required fields before submission
     const fullName = `${firstName} ${lastName}`.trim();
     
@@ -237,6 +245,29 @@ const SupplierRegistration: React.FC<SupplierRegistrationProps> = ({ onClose }) 
       return;
     }
     
+    // Validate license document is uploaded
+    if (!verificationDocument) {
+      alert('Please upload your license/verification document before creating your account.');
+      setIsSubmitting(false);
+      return;
+    }
+    
+    // Convert license document to base64
+    let documentBase64 = null;
+    try {
+      documentBase64 = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result as string);
+        reader.onerror = reject;
+        reader.readAsDataURL(verificationDocument);
+      });
+    } catch (error) {
+      console.error('Error reading document:', error);
+      alert('Failed to read license document. Please try again.');
+      setIsSubmitting(false);
+      return;
+    }
+    
     const registrationData = {
       businessType: selectedBusinessType,
       companyEmployees: selectedBusinessType === 'company' ? companyEmployees : null,
@@ -252,7 +283,7 @@ const SupplierRegistration: React.FC<SupplierRegistrationProps> = ({ onClose }) 
       tourLanguages: tourLanguages || null,
       phone: phone || null,
       whatsapp: whatsapp || null,
-      verificationDocumentUrl: null // No document at registration
+      verificationDocumentUrl: documentBase64 // Include license document in registration
     };
 
     // Log registration data (without password)
@@ -352,9 +383,8 @@ const SupplierRegistration: React.FC<SupplierRegistrationProps> = ({ onClose }) 
           console.log('   ✅ Email already verified and coming from verification, going directly to step 5');
           setEmailVerified(true);
           setIsCheckingVerification(false);
-          // Move directly to step 5 (license upload)
-          const targetStep = (selectedBusinessType === 'company' || selectedBusinessType === 'individual' || selectedBusinessType === 'other') ? 5 : 4;
-          setStep(targetStep);
+          // Email already verified, registration complete
+          setIsSuccess(true);
         } else {
           // Always redirect to verification waiting page
           console.log('   📧 Redirecting to email verification waiting page...');
@@ -421,8 +451,8 @@ const SupplierRegistration: React.FC<SupplierRegistrationProps> = ({ onClose }) 
             clearInterval(pollingIntervalRef.current);
             pollingIntervalRef.current = null;
           }
-          // Move to step 5 (license upload)
-          nextStep();
+          // Email verified, registration complete
+          setIsSuccess(true);
         }
       } catch (error) {
         console.error('Verification check error:', error);
@@ -465,8 +495,8 @@ const SupplierRegistration: React.FC<SupplierRegistrationProps> = ({ onClose }) 
       localStorage.setItem('pendingSupplierId', String(urlSupplierId));
       localStorage.setItem('emailVerified', 'true');
       
-      // Always go to step 5 when verified=true in URL
-      setStep(5);
+      // Email verified, registration should be complete
+      setIsSuccess(true);
       
       // Clean up URL immediately
       window.history.replaceState({}, '', window.location.pathname);
@@ -932,7 +962,85 @@ const SupplierRegistration: React.FC<SupplierRegistrationProps> = ({ onClose }) 
               </div>
             )}
 
+            {/* License Upload Step - Step 4 (BEFORE account creation) */}
             {step === ((selectedBusinessType === 'company' || selectedBusinessType === 'individual' || selectedBusinessType === 'other') ? 4 : 3) && (
+              <div className="space-y-6">
+                <div className="flex items-center gap-3 text-[#10B981] mb-2">
+                  <ShieldCheck size={24} />
+                  <h3 className="text-2xl font-black text-[#001A33]">License & Verification</h3>
+                </div>
+                <p className="text-[14px] text-gray-400 font-semibold leading-relaxed">
+                  To protect our marketplace, we require proof of business registration or a valid tour guide license. <span className="text-red-500 font-black">This is mandatory.</span>
+                </p>
+                <p className="text-[12px] text-gray-500 font-semibold mt-2">
+                  Your application will be reviewed by our admin team. You will receive an email notification once your account is approved, and then you can start creating tours.
+                </p>
+                
+                <div className="block">
+                  <input
+                    type="file"
+                    accept=".pdf,.jpg,.jpeg,.png"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) {
+                        // Check file size (10MB max)
+                        if (file.size > 10 * 1024 * 1024) {
+                          alert('File size must be less than 10MB');
+                          return;
+                        }
+                        // Check file type
+                        const validTypes = ['application/pdf', 'image/jpeg', 'image/jpg', 'image/png'];
+                        if (!validTypes.includes(file.type)) {
+                          alert('Please upload a PDF, JPG, or PNG file');
+                          return;
+                        }
+                        setVerificationDocument(file);
+                        // Create preview for images
+                        if (file.type.startsWith('image/')) {
+                          const reader = new FileReader();
+                          reader.onload = (e) => {
+                            setDocumentPreview(e.target?.result as string);
+                          };
+                          reader.readAsDataURL(file);
+                        } else {
+                          setDocumentPreview(null);
+                        }
+                      }
+                    }}
+                    className="hidden"
+                    id="license-upload"
+                  />
+                  <label
+                    htmlFor="license-upload"
+                    className="flex flex-col items-center justify-center w-full h-48 border-2 border-dashed border-gray-300 rounded-xl cursor-pointer bg-gray-50 hover:bg-gray-100 transition-colors"
+                  >
+                    {verificationDocument ? (
+                      <div className="flex flex-col items-center gap-2 p-4">
+                        <CheckCircle2 className="text-[#10B981]" size={32} />
+                        <span className="text-[14px] font-bold text-[#001A33]">{verificationDocument.name}</span>
+                        <span className="text-[12px] text-gray-500">Click to change file</span>
+                      </div>
+                    ) : (
+                      <div className="flex flex-col items-center gap-2 p-4">
+                        <Upload className="text-gray-400" size={32} />
+                        <span className="text-[14px] font-bold text-[#001A33]">Click to upload license document</span>
+                        <span className="text-[12px] text-gray-500">PDF, JPG, or PNG (max 10MB)</span>
+                      </div>
+                    )}
+                  </label>
+                </div>
+                
+                {documentPreview && (
+                  <div className="mt-4">
+                    <p className="text-[14px] font-bold text-[#001A33] mb-2">Preview:</p>
+                    <img src={documentPreview} alt="Document preview" className="max-w-full h-auto rounded-lg border-2 border-gray-200" />
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Account Creation Step - Step 5 (AFTER license upload) */}
+            {step === ((selectedBusinessType === 'company' || selectedBusinessType === 'individual' || selectedBusinessType === 'other') ? 5 : 4) && (
               <div className="space-y-6">
                 <div>
                   <h3 className="text-2xl font-black text-[#001A33] mb-2">Create your account</h3>
@@ -1287,16 +1395,15 @@ const SupplierRegistration: React.FC<SupplierRegistrationProps> = ({ onClose }) 
                   (step === 2 && selectedBusinessType === 'individual' && !individualActivities) || 
                   (step === 2 && selectedBusinessType === 'other' && !otherActivities) ||
                   (step === ((selectedBusinessType === 'company' || selectedBusinessType === 'individual' || selectedBusinessType === 'other') ? 3 : 2) && ((selectedBusinessType === 'company' && !companyName) || !mainHub || !city || !tourLanguages || !phone || !whatsapp)) ||
-                  (step === ((selectedBusinessType === 'company' || selectedBusinessType === 'individual' || selectedBusinessType === 'other') ? 4 : 3) && (
+                  (step === ((selectedBusinessType === 'company' || selectedBusinessType === 'individual' || selectedBusinessType === 'other') ? 4 : 3) && !verificationDocument) ||
+                  (step === ((selectedBusinessType === 'company' || selectedBusinessType === 'individual' || selectedBusinessType === 'other') ? 5 : 4) && (
                     !firstName || !lastName || !email || !password || !acceptedTerms ||
                     password.length < 8 || password.length > 30 ||
                     !/[A-Z]/.test(password) || !/[a-z]/.test(password) ||
                     !/[0-9]/.test(password) || !/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password) ||
                     password.includes(' ') ||
                     email.toLowerCase().split('@')[0].split('.').some(part => part.length > 2 && password.toLowerCase().includes(part))
-                  )) ||
-                  (emailVerified && step === ((selectedBusinessType === 'company' || selectedBusinessType === 'individual' || selectedBusinessType === 'other') ? 5 : 4) && !verificationDocument) ||
-                  (emailVerified && step === ((selectedBusinessType === 'company' || selectedBusinessType === 'individual' || selectedBusinessType === 'other') ? 5 : 4) && !supplierId)
+                  ))
                 }
                 className="flex-1 bg-[#10B981] hover:bg-[#059669] text-white font-black py-5 rounded-full shadow-lg shadow-green-200 transition-all active:scale-95 flex items-center justify-center gap-2 group disabled:opacity-50 text-[14px]"
               >

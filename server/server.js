@@ -279,6 +279,47 @@ app.post('/api/suppliers/register', async (req, res) => {
     const verificationExpires = new Date();
     verificationExpires.setHours(verificationExpires.getHours() + 48); // 48 hours expiry (increased from 24)
 
+    // Upload verification document to Cloudinary if provided and Cloudinary is configured
+    let finalDocumentUrl = verificationDocumentUrl;
+    if (verificationDocumentUrl && process.env.CLOUDINARY_CLOUD_NAME && process.env.CLOUDINARY_API_KEY && process.env.CLOUDINARY_API_SECRET) {
+      try {
+        console.log('☁️  Uploading verification document to Cloudinary...');
+        const { uploadImage } = await import('./utils/cloudinary.js');
+        
+        // Check if it's a PDF or image
+        const isPDF = verificationDocumentUrl.startsWith('data:application/pdf');
+        const isImage = verificationDocumentUrl.startsWith('data:image/');
+        
+        if (isPDF) {
+          // For PDFs, upload as raw file
+          const base64Data = verificationDocumentUrl.includes(',') 
+            ? verificationDocumentUrl.split(',')[1] 
+            : verificationDocumentUrl;
+          
+          const cloudinary = (await import('./utils/cloudinary.js')).default;
+          const result = await cloudinary.uploader.upload(
+            `data:application/pdf;base64,${base64Data}`,
+            {
+              folder: 'asiabylocals/suppliers/documents',
+              resource_type: 'raw',
+              public_id: `license_${Date.now()}_${email.split('@')[0]}`
+            }
+          );
+          finalDocumentUrl = result.secure_url;
+          console.log('✅ Verification document uploaded to Cloudinary:', finalDocumentUrl);
+        } else if (isImage) {
+          // For images, use existing uploadImage function
+          finalDocumentUrl = await uploadImage(verificationDocumentUrl, 'asiabylocals/suppliers/documents', `license_${Date.now()}_${email.split('@')[0]}`);
+          console.log('✅ Verification document uploaded to Cloudinary:', finalDocumentUrl);
+        }
+      } catch (cloudinaryError) {
+        console.error('❌ Cloudinary upload error for verification document:', cloudinaryError);
+        console.error('   Falling back to base64 storage');
+        // Continue with base64 if Cloudinary fails
+        finalDocumentUrl = verificationDocumentUrl;
+      }
+    }
+
     // Create supplier using Prisma
     // Wrap in try-catch with retry logic for Render free tier connection issues
     let supplier;
@@ -302,7 +343,7 @@ app.post('/api/suppliers/register', async (req, res) => {
             mainHub: mainHub || null,
             city: city || null,
             tourLanguages: tourLanguages || null,
-            verificationDocumentUrl: verificationDocumentUrl || null,
+            verificationDocumentUrl: finalDocumentUrl || null,
             phone: phone || null,
             whatsapp: whatsapp || null,
             emailVerificationToken: verificationToken,
