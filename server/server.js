@@ -2597,21 +2597,54 @@ app.post('/api/tours', async (req, res) => {
     let createAttempts = 0;
     const MAX_CREATE_RETRIES = 3;
     
+    // CRITICAL: Ensure tourData does not have an id field at all
+    if ('id' in tourData) {
+      console.error('❌ CRITICAL: tourData contains id field! Removing it...');
+      delete tourData.id;
+    }
+    
     while (createAttempts < MAX_CREATE_RETRIES) {
       try {
-        // Ensure no ID fields are present in tourData
-        const { id: tourId, ...finalTourData } = tourData;
-        if (tourId) {
+        // Ensure no ID fields are present in tourData - deep clone to avoid mutation
+        const finalTourData = JSON.parse(JSON.stringify(tourData));
+        
+        // Remove id field from top level if it exists
+        if ('id' in finalTourData) {
           console.warn('⚠️  Removing id field from tourData before creation');
+          delete finalTourData.id;
         }
         
-        // Also ensure no IDs in nested options
+        // Also ensure no IDs in nested options - remove ALL possible id fields
         if (finalTourData.options?.create) {
-          finalTourData.options.create = finalTourData.options.create.map((opt) => {
-            const { id: optId, tourId: optTourId, ...cleanOpt } = opt;
+          finalTourData.options.create = finalTourData.options.create.map((opt, idx) => {
+            // Create a clean copy without any id-related fields
+            const cleanOpt = { ...opt };
+            delete cleanOpt.id;
+            delete cleanOpt.tourId;
+            delete cleanOpt.tour_id;
+            
+            // Log if we found any id fields
+            if (opt.id || opt.tourId || opt.tour_id) {
+              console.warn(`⚠️  Option ${idx + 1} had id fields, removed:`, {
+                id: opt.id,
+                tourId: opt.tourId,
+                tour_id: opt.tour_id
+              });
+            }
+            
             return cleanOpt;
           });
         }
+        
+        // Final check - log what we're about to send (without sensitive data)
+        console.log('📤 Final tourData before Prisma create:', {
+          hasId: 'id' in finalTourData,
+          supplierId: finalTourData.supplierId,
+          title: finalTourData.title,
+          slug: finalTourData.slug,
+          optionsCount: finalTourData.options?.create?.length || 0,
+          optionsHaveIds: finalTourData.options?.create?.some(opt => 'id' in opt || 'tourId' in opt) || false
+        });
         
         tour = await prisma.tour.create({
           data: finalTourData,
@@ -2628,11 +2661,33 @@ app.post('/api/tours', async (req, res) => {
         createAttempts++;
         console.error(`❌ Tour creation attempt ${createAttempts}/${MAX_CREATE_RETRIES} failed:`, createError.message);
         console.error('   Error code:', createError.code);
-        console.error('   Error meta:', createError.meta);
+        console.error('   Error meta:', JSON.stringify(createError.meta, null, 2));
+        console.error('   Full error:', createError);
         
-        // If it's an ID conflict and we have retries left, try again
-        if (createError.code === 'P2002' && createError.meta?.target?.includes('id') && createAttempts < MAX_CREATE_RETRIES) {
-          console.log(`   ID conflict detected, retrying in ${createAttempts * 500}ms...`);
+        // If it's an ID constraint violation, this is unusual - log more details
+        if (createError.code === 'P2002' && createError.meta?.target?.includes('id')) {
+          console.error('   ⚠️  ID constraint violation detected!');
+          console.error('   This should not happen if id is auto-generated.');
+          console.error('   Checking if id field exists in finalTourData...');
+          console.error('   finalTourData keys:', Object.keys(finalTourData));
+          
+          // For ID conflicts, we can't retry - this indicates a deeper issue
+          // Instead, return a more helpful error message
+          return res.status(500).json({
+            success: false,
+            error: 'Database error',
+            message: 'Failed to create tour due to database constraint violation. This may be a temporary issue. Please try again.',
+            details: process.env.NODE_ENV === 'development' ? {
+              code: createError.code,
+              meta: createError.meta,
+              message: createError.message
+            } : undefined
+          });
+        }
+        
+        // If it's an ID conflict and we have retries left, try again (for other constraint types)
+        if (createError.code === 'P2002' && createAttempts < MAX_CREATE_RETRIES) {
+          console.log(`   Constraint violation detected, retrying in ${createAttempts * 500}ms...`);
           await new Promise(resolve => setTimeout(resolve, createAttempts * 500));
           continue;
         }
