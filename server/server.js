@@ -1914,6 +1914,33 @@ app.post('/api/tours', async (req, res) => {
       });
     }
 
+    // Validate pricing based on pricing type
+    const pricingTypeValue = pricingType || 'per_person';
+    if (pricingTypeValue === 'per_group') {
+      if (!groupPrice || isNaN(parseFloat(groupPrice)) || parseFloat(groupPrice) <= 0) {
+        return res.status(400).json({
+          success: false,
+          error: 'Invalid group price',
+          message: 'Group price is required and must be a positive number for per-group pricing'
+        });
+      }
+      if (!maxGroupSize || isNaN(parseInt(maxGroupSize)) || parseInt(maxGroupSize) < 1 || parseInt(maxGroupSize) > 20) {
+        return res.status(400).json({
+          success: false,
+          error: 'Invalid group size',
+          message: 'Max group size is required and must be between 1 and 20 for per-group pricing'
+        });
+      }
+    } else {
+      if (!pricePerPerson || isNaN(parseFloat(pricePerPerson)) || parseFloat(pricePerPerson) <= 0) {
+        return res.status(400).json({
+          success: false,
+          error: 'Invalid price',
+          message: 'Price per person is required and must be a positive number'
+        });
+      }
+    }
+
     // Check if supplier is approved
     let supplierCheck;
     try {
@@ -2344,9 +2371,9 @@ app.post('/api/tours', async (req, res) => {
       locations: JSON.stringify(locationsArray),
       duration: duration || 'Flexible',
       // Calculate pricePerPerson: if per_group, divide groupPrice by maxGroupSize; otherwise use pricePerPerson
-      pricePerPerson: pricingType === 'per_group' && groupPrice && maxGroupSize 
+      pricePerPerson: pricingTypeValue === 'per_group' && groupPrice && maxGroupSize 
         ? parseFloat(groupPrice) / parseInt(maxGroupSize)
-        : parseFloat(pricePerPerson || 0),
+        : parseFloat(pricePerPerson),
       currency: currency || 'INR',
       shortDescription: shortDescription || null,
       fullDescription,

@@ -426,7 +426,9 @@ const TourCreationForm: React.FC<TourCreationFormProps> = ({
         category: formData.category.trim(),
         locations: JSON.stringify(formData.locations),
         duration: formData.duration.trim(),
-        pricePerPerson: formData.pricingType === 'per_person' ? parseFloat(formData.pricePerPerson) : (parseFloat(formData.groupPrice || '0') / (formData.maxGroupSize || 1)), // Calculate per person for legacy field
+        pricePerPerson: formData.pricingType === 'per_person' 
+          ? parseFloat(formData.pricePerPerson || '0')
+          : (formData.maxGroupSize && formData.groupPrice ? parseFloat(formData.groupPrice) / parseInt(String(formData.maxGroupSize)) : 0), // Calculate per person for legacy field
         currency: formData.currency,
         pricingType: formData.pricingType,
         maxGroupSize: formData.pricingType === 'per_group' ? formData.maxGroupSize : null,
