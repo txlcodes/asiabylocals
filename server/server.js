@@ -2571,9 +2571,13 @@ app.post('/api/tours', async (req, res) => {
             optionPrice = parseFloat(pricePerPerson) || 0;
           }
           
+          // Ensure optionDescription is not empty (required field)
+          const optionDesc = (cleanOption.optionDescription || cleanOption.description || '').trim();
+          const finalOptionDesc = optionDesc || `Tour option ${index + 1}`;
+          
           return {
             optionTitle: (cleanOption.optionTitle || cleanOption.title || `Option ${index + 1}`).trim(),
-            optionDescription: (cleanOption.optionDescription || cleanOption.description || '').trim(),
+            optionDescription: finalOptionDesc,
             durationHours: parseFloat(cleanOption.durationHours || cleanOption.duration || duration?.replace(/[^\d.]/g, '') || 3) || 3,
             price: optionPrice,
             currency: (cleanOption.currency || currency || 'INR').trim(),
@@ -2645,6 +2649,11 @@ app.post('/api/tours', async (req, res) => {
           optionsCount: finalTourData.options?.create?.length || 0,
           optionsHaveIds: finalTourData.options?.create?.some(opt => 'id' in opt || 'tourId' in opt) || false
         });
+        
+        // Log first option details for debugging
+        if (finalTourData.options?.create && finalTourData.options.create.length > 0) {
+          console.log('📋 First option details:', JSON.stringify(finalTourData.options.create[0], null, 2));
+        }
         
         tour = await prisma.tour.create({
           data: finalTourData,
@@ -2754,12 +2763,38 @@ app.post('/api/tours', async (req, res) => {
     console.error('❌ Error stack:', error.stack);
     console.error('❌ Error message:', error.message);
     console.error('❌ Error code:', error.code);
+    console.error('❌ Error meta:', JSON.stringify(error.meta, null, 2));
+    console.error('❌ Full error object:', JSON.stringify(error, Object.getOwnPropertyNames(error), 2));
     
     // Handle specific Prisma errors
     let errorMessage = 'Failed to create tour. Please check all required fields and try again.';
     let commonIssues = [];
     
-    if (error.code === 'P2002') {
+    // Check for Prisma validation errors (P2003, P2011, etc.)
+    if (error.code === 'P2003') {
+      errorMessage = 'Invalid supplier or foreign key constraint violation. Please make sure you are logged in with an approved account.';
+      commonIssues = [
+        'Your supplier account needs admin approval',
+        'Log out and log back in',
+        'Contact support if the issue persists'
+      ];
+    } else if (error.code === 'P2011') {
+      // Null constraint violation
+      const field = error.meta?.target?.[0] || 'unknown field';
+      errorMessage = `Missing required field: ${field}. Please check all required fields are filled.`;
+      commonIssues = [
+        'Check that all tour option fields are filled',
+        'Ensure optionTitle, optionDescription, price, and durationHours are provided for each option'
+      ];
+    } else if (error.code === 'P2012') {
+      // Missing required value
+      const field = error.meta?.path || 'unknown field';
+      errorMessage = `Missing required value for field: ${field}. Please check all required fields.`;
+      commonIssues = [
+        'Check that all tour option fields are filled',
+        'Ensure optionTitle, optionDescription, price, and durationHours are provided'
+      ];
+    } else if (error.code === 'P2002') {
       // Unique constraint violation
       if (error.meta?.target?.includes('id')) {
         errorMessage = 'Database error: ID conflict. Please try again.';
