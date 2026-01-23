@@ -448,20 +448,33 @@ const TourCreationForm: React.FC<TourCreationFormProps> = ({
           if (id || tourId) {
             console.warn(`⚠️  Removing ID fields from tour option ${idx + 1} to prevent conflicts`);
           }
+          
+          // Calculate price based on pricing type
+          let optionPrice = 0;
+          if (cleanOpt.pricingType === 'per_group' && cleanOpt.groupPrice) {
+            optionPrice = parseFloat(cleanOpt.groupPrice) || 0;
+          } else if (cleanOpt.price) {
+            optionPrice = parseFloat(cleanOpt.price) || 0;
+          } else if (formData.pricingType === 'per_group' && formData.groupPrice) {
+            optionPrice = parseFloat(formData.groupPrice) || 0;
+          } else {
+            optionPrice = parseFloat(formData.pricePerPerson || '0') || 0;
+          }
+          
           return {
             optionTitle: cleanOpt.optionTitle.trim(),
             optionDescription: cleanOpt.optionDescription.trim(),
             durationHours: parseFloat(cleanOpt.durationHours) || 3,
-            price: cleanOpt.pricingType === 'per_person' ? (parseFloat(cleanOpt.price) || 0) : (parseFloat(cleanOpt.groupPrice || '0') || 0),
-            currency: cleanOpt.currency,
-            language: cleanOpt.language,
-            pickupIncluded: cleanOpt.pickupIncluded,
-            carIncluded: cleanOpt.carIncluded,
-            entryTicketIncluded: cleanOpt.entryTicketIncluded,
-            guideIncluded: cleanOpt.guideIncluded,
+            price: optionPrice,
+            currency: cleanOpt.currency || formData.currency,
+            language: cleanOpt.language || (formData.languages && formData.languages[0]) || 'English',
+            pickupIncluded: cleanOpt.pickupIncluded || false,
+            carIncluded: cleanOpt.carIncluded || false,
+            entryTicketIncluded: cleanOpt.entryTicketIncluded || false,
+            guideIncluded: cleanOpt.guideIncluded !== undefined ? cleanOpt.guideIncluded : true,
             pricingType: cleanOpt.pricingType || 'per_person',
             maxGroupSize: cleanOpt.pricingType === 'per_group' ? (cleanOpt.maxGroupSize || null) : null,
-            groupPrice: cleanOpt.pricingType === 'per_group' ? (parseFloat(cleanOpt.groupPrice || '0') || null) : null,
+            groupPrice: cleanOpt.pricingType === 'per_group' && cleanOpt.groupPrice ? (parseFloat(cleanOpt.groupPrice) || null) : null,
             sortOrder: idx
           };
         })

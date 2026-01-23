@@ -1990,16 +1990,95 @@ app.post('/api/tours', async (req, res) => {
     let highlightsArray = [];
 
     try {
-      locationsArray = typeof locations === 'string' ? JSON.parse(locations) : (Array.isArray(locations) ? locations : []);
-      imagesArray = typeof images === 'string' ? JSON.parse(images) : (Array.isArray(images) ? images : []);
-      languagesArray = typeof languages === 'string' ? JSON.parse(languages) : (Array.isArray(languages) ? languages : []);
-      highlightsArray = highlights ? (typeof highlights === 'string' ? JSON.parse(highlights) : (Array.isArray(highlights) ? highlights : [])) : [];
+      // Parse locations
+      if (locations) {
+        if (typeof locations === 'string') {
+          try {
+            locationsArray = JSON.parse(locations);
+          } catch (e) {
+            console.error('❌ Failed to parse locations JSON:', e.message);
+            locationsArray = [];
+          }
+        } else if (Array.isArray(locations)) {
+          locationsArray = locations;
+        }
+      }
+      
+      // Parse images - CRITICAL for tour creation
+      if (images) {
+        if (typeof images === 'string') {
+          try {
+            imagesArray = JSON.parse(images);
+          } catch (e) {
+            console.error('❌ Failed to parse images JSON:', e.message);
+            console.error('   Images string length:', images.length);
+            console.error('   Images string preview:', images.substring(0, 200));
+            return res.status(400).json({
+              success: false,
+              error: 'Invalid images format',
+              message: 'Images must be a valid JSON array. Please ensure all images are properly uploaded.',
+              details: process.env.NODE_ENV === 'development' ? e.message : undefined
+            });
+          }
+        } else if (Array.isArray(images)) {
+          imagesArray = images;
+        } else {
+          console.error('❌ Images is not a string or array:', typeof images);
+          return res.status(400).json({
+            success: false,
+            error: 'Invalid images format',
+            message: 'Images must be a JSON array string or an array.'
+          });
+        }
+      }
+      
+      // Parse languages
+      if (languages) {
+        if (typeof languages === 'string') {
+          try {
+            languagesArray = JSON.parse(languages);
+          } catch (e) {
+            console.error('❌ Failed to parse languages JSON:', e.message);
+            languagesArray = ['English']; // Default fallback
+          }
+        } else if (Array.isArray(languages)) {
+          languagesArray = languages;
+        }
+      }
+      
+      // Parse highlights (optional)
+      if (highlights) {
+        if (typeof highlights === 'string') {
+          try {
+            highlightsArray = JSON.parse(highlights);
+          } catch (e) {
+            console.error('❌ Failed to parse highlights JSON:', e.message);
+            highlightsArray = [];
+          }
+        } else if (Array.isArray(highlights)) {
+          highlightsArray = highlights;
+        }
+      }
+      
+      // Validate parsed arrays are actually arrays
+      if (!Array.isArray(locationsArray)) locationsArray = [];
+      if (!Array.isArray(imagesArray)) {
+        console.error('❌ Parsed imagesArray is not an array:', typeof imagesArray);
+        return res.status(400).json({
+          success: false,
+          error: 'Invalid images format',
+          message: 'Images must be a valid JSON array.'
+        });
+      }
+      if (!Array.isArray(languagesArray)) languagesArray = ['English'];
+      if (!Array.isArray(highlightsArray)) highlightsArray = [];
+      
     } catch (parseError) {
-      console.error('JSON parse error:', parseError);
+      console.error('❌ Unexpected JSON parse error:', parseError);
       return res.status(400).json({
         success: false,
         error: 'Invalid JSON format',
-        message: 'locations, images, and languages must be valid JSON arrays',
+        message: 'Failed to parse tour data. Please check all fields are properly formatted.',
         details: process.env.NODE_ENV === 'development' ? parseError.message : undefined
       });
     }
@@ -2010,14 +2089,31 @@ app.post('/api/tours', async (req, res) => {
     console.log('  imagesArray is array:', Array.isArray(imagesArray));
     console.log('  imagesArray length:', imagesArray?.length);
     
-    if (!Array.isArray(imagesArray) || imagesArray.length < 4) {
-      console.log('❌ Insufficient images:', imagesArray?.length || 0, 'provided, need at least 4');
+    if (!Array.isArray(imagesArray)) {
+      console.log('❌ Images is not an array:', typeof imagesArray);
+      return res.status(400).json({
+        success: false,
+        error: 'Invalid images format',
+        message: 'Images must be an array. Please ensure all images are properly uploaded.'
+      });
+    }
+    
+    // Filter out any invalid image entries (null, undefined, empty strings)
+    const validImages = imagesArray.filter(img => img && typeof img === 'string' && img.trim().length > 0);
+    
+    if (validImages.length < 4) {
+      console.log('❌ Insufficient valid images:', validImages.length, 'provided, need at least 4');
+      console.log('   Total images received:', imagesArray.length);
+      console.log('   Invalid images:', imagesArray.length - validImages.length);
       return res.status(400).json({
         success: false,
         error: 'Insufficient images',
-        message: `At least 4 images are required. You provided ${imagesArray?.length || 0} images.`
+        message: `At least 4 valid images are required. You provided ${validImages.length} valid images out of ${imagesArray.length} total.`
       });
     }
+    
+    // Use only valid images
+    imagesArray = validImages;
     
     console.log('✅ All validations passed, creating tour...');
 
@@ -2347,16 +2443,39 @@ app.post('/api/tours', async (req, res) => {
     // Parse tour options if provided (accept both 'options' and 'tourOptions' field names)
     let tourOptions = req.body.options || req.body.tourOptions || [];
     
-    // CRITICAL: Remove ALL id fields from tourOptions to prevent ID conflicts
-    if (Array.isArray(tourOptions)) {
-      tourOptions = tourOptions.map((opt, idx) => {
-        const { id, ...cleanOption } = opt;
-        if (id) {
-          console.warn(`⚠️  Tour option ${idx + 1} had an id field (${id}), removing it to prevent conflicts`);
+    // Validate tourOptions is an array
+    if (tourOptions && !Array.isArray(tourOptions)) {
+      console.warn('⚠️  tourOptions is not an array, attempting to parse:', typeof tourOptions);
+      try {
+        if (typeof tourOptions === 'string') {
+          tourOptions = JSON.parse(tourOptions);
+        } else {
+          tourOptions = [];
         }
-        return cleanOption;
-      });
+      } catch (parseError) {
+        console.error('❌ Failed to parse tourOptions:', parseError);
+        tourOptions = [];
+      }
     }
+    
+    // Ensure tourOptions is an array
+    if (!Array.isArray(tourOptions)) {
+      tourOptions = [];
+    }
+    
+    // CRITICAL: Remove ALL id fields from tourOptions to prevent ID conflicts
+    tourOptions = tourOptions.map((opt, idx) => {
+      // Ensure opt is an object
+      if (!opt || typeof opt !== 'object') {
+        console.warn(`⚠️  Tour option ${idx + 1} is not a valid object, skipping`);
+        return null;
+      }
+      const { id, ...cleanOption } = opt;
+      if (id) {
+        console.warn(`⚠️  Tour option ${idx + 1} had an id field (${id}), removing it to prevent conflicts`);
+      }
+      return cleanOption;
+    }).filter(opt => opt !== null); // Remove null entries
     
     console.log('📦 Tour options received:', {
       hasOptions: !!req.body.options,
@@ -2406,35 +2525,71 @@ app.post('/api/tours', async (req, res) => {
 
     // Only add options if tourOptions array has items
     if (tourOptions && Array.isArray(tourOptions) && tourOptions.length > 0) {
-      tourData.options = {
-        create: tourOptions.map((option, index) => {
-          // CRITICAL: Remove any id field from option (id is auto-generated by Prisma)
-          // This prevents ID conflicts that cause P2002 errors
-          const { id, tourId, ...cleanOption } = option;
-          if (id) {
-            console.warn(`⚠️  Option ${index + 1} had an id field (${id}), removing it to prevent conflicts`);
+      // Validate each option has required fields
+      const validOptions = tourOptions.filter((option, index) => {
+        if (!option || typeof option !== 'object') {
+          console.warn(`⚠️  Option ${index + 1} is not a valid object, skipping`);
+          return false;
+        }
+        const hasTitle = !!(option.optionTitle || option.title);
+        if (!hasTitle) {
+          console.warn(`⚠️  Option ${index + 1} is missing title, skipping`);
+          return false;
+        }
+        return true;
+      });
+      
+      if (validOptions.length === 0) {
+        console.warn('⚠️  No valid tour options found, creating tour without options');
+      } else {
+        tourData.options = {
+          create: validOptions.map((option, index) => {
+            // CRITICAL: Remove any id field from option (id is auto-generated by Prisma)
+            // This prevents ID conflicts that cause P2002 errors
+            const { id, tourId, ...cleanOption } = option;
+            if (id) {
+              console.warn(`⚠️  Option ${index + 1} had an id field (${id}), removing it to prevent conflicts`);
+            }
+            if (tourId) {
+              console.warn(`⚠️  Option ${index + 1} had a tourId field (${tourId}), removing it (will be set automatically)`);
+            }
+          // Calculate price based on pricing type
+          let optionPrice = 0;
+          if (cleanOption.pricingType === 'per_group' && cleanOption.groupPrice) {
+            optionPrice = parseFloat(cleanOption.groupPrice);
+          } else if (cleanOption.price) {
+            optionPrice = parseFloat(cleanOption.price);
+          } else if (pricingTypeValue === 'per_group' && groupPrice) {
+            optionPrice = parseFloat(groupPrice);
+          } else {
+            optionPrice = parseFloat(pricePerPerson);
           }
-          if (tourId) {
-            console.warn(`⚠️  Option ${index + 1} had a tourId field (${tourId}), removing it (will be set automatically)`);
+          
+          // Validate price is a valid number
+          if (isNaN(optionPrice) || optionPrice <= 0) {
+            console.warn(`⚠️  Option ${index + 1} has invalid price, using default`);
+            optionPrice = parseFloat(pricePerPerson) || 0;
           }
+          
           return {
-            optionTitle: cleanOption.optionTitle || cleanOption.title || `Option ${index + 1}`,
-            optionDescription: cleanOption.optionDescription || cleanOption.description || '',
-            durationHours: parseFloat(cleanOption.durationHours || cleanOption.duration || duration?.replace(/[^\d.]/g, '') || 3),
-            price: parseFloat(cleanOption.price || pricePerPerson),
-            currency: cleanOption.currency || currency || 'INR',
-            language: cleanOption.language || languagesArray?.[0] || 'English',
+            optionTitle: (cleanOption.optionTitle || cleanOption.title || `Option ${index + 1}`).trim(),
+            optionDescription: (cleanOption.optionDescription || cleanOption.description || '').trim(),
+            durationHours: parseFloat(cleanOption.durationHours || cleanOption.duration || duration?.replace(/[^\d.]/g, '') || 3) || 3,
+            price: optionPrice,
+            currency: (cleanOption.currency || currency || 'INR').trim(),
+            language: (cleanOption.language || languagesArray?.[0] || 'English').trim(),
             pickupIncluded: cleanOption.pickupIncluded || cleanOption.pickup_included || false,
             entryTicketIncluded: cleanOption.entryTicketIncluded || cleanOption.entry_ticket_included || false,
             guideIncluded: cleanOption.guideIncluded !== undefined ? cleanOption.guideIncluded : (cleanOption.guide_included !== undefined ? cleanOption.guide_included : true),
             carIncluded: cleanOption.carIncluded || cleanOption.car_included || false,
             pricingType: cleanOption.pricingType || 'per_person',
-            maxGroupSize: cleanOption.maxGroupSize && cleanOption.maxGroupSize >= 1 && cleanOption.maxGroupSize <= 20 ? cleanOption.maxGroupSize : null,
-            groupPrice: cleanOption.groupPrice ? parseFloat(cleanOption.groupPrice) : null,
+            maxGroupSize: cleanOption.maxGroupSize && cleanOption.maxGroupSize >= 1 && cleanOption.maxGroupSize <= 20 ? parseInt(cleanOption.maxGroupSize) : null,
+            groupPrice: cleanOption.groupPrice && !isNaN(parseFloat(cleanOption.groupPrice)) ? parseFloat(cleanOption.groupPrice) : null,
             sortOrder: index
           };
-        })
-      };
+          })
+        };
+      }
     }
     
     // Create tour with options - with retry logic for race conditions
