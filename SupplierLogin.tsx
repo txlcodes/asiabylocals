@@ -96,9 +96,13 @@ const SupplierLogin: React.FC<SupplierLoginProps> = ({ onClose, onLoginSuccess, 
         setIsSubmitting(false);
       }
     } catch (error: any) {
-      console.error('Login error:', error);
-      if (error.message?.includes('fetch') || error.message?.includes('Failed to fetch')) {
-        setErrorMessage('Cannot connect to server. Please make sure the backend server is running.');
+      console.error('❌ Login error:', error);
+      console.error('   Error message:', error.message);
+      console.error('   Error type:', error.name);
+      
+      if (error.message?.includes('fetch') || error.message?.includes('Failed to fetch') || error.message?.includes('NetworkError')) {
+        const apiUrl = import.meta.env.VITE_API_URL || (typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3001');
+        setErrorMessage(`Cannot connect to server at ${apiUrl}. Please check your connection and try again.`);
       } else {
         setErrorMessage('Failed to login. Please check your connection and try again.');
       }
