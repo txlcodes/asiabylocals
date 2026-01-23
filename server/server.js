@@ -1861,6 +1861,9 @@ app.post('/api/tours', async (req, res) => {
       locations,
       duration,
       pricePerPerson,
+      pricingType,
+      maxGroupSize,
+      groupPrice,
       currency,
       shortDescription,
       fullDescription,
@@ -1886,6 +1889,9 @@ app.post('/api/tours', async (req, res) => {
     console.log('  locations:', locations ? '✅' : '❌', typeof locations);
     console.log('  duration:', duration ? '✅' : '❌', duration);
     console.log('  pricePerPerson:', pricePerPerson ? '✅' : '❌', pricePerPerson);
+    console.log('  pricingType:', pricingType || 'per_person (default)');
+    console.log('  maxGroupSize:', maxGroupSize || 'N/A');
+    console.log('  groupPrice:', groupPrice || 'N/A');
     console.log('  languages:', languages ? '✅' : '❌', typeof languages);
 
     // Validation
@@ -2337,7 +2343,10 @@ app.post('/api/tours', async (req, res) => {
       category,
       locations: JSON.stringify(locationsArray),
       duration: duration || 'Flexible',
-      pricePerPerson: parseFloat(pricePerPerson),
+      // Calculate pricePerPerson: if per_group, divide groupPrice by maxGroupSize; otherwise use pricePerPerson
+      pricePerPerson: pricingType === 'per_group' && groupPrice && maxGroupSize 
+        ? parseFloat(groupPrice) / parseInt(maxGroupSize)
+        : parseFloat(pricePerPerson || 0),
       currency: currency || 'INR',
       shortDescription: shortDescription || null,
       fullDescription,

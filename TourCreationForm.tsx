@@ -219,6 +219,9 @@ const TourCreationForm: React.FC<TourCreationFormProps> = ({
     locations: [] as string[],
     duration: '',
     pricePerPerson: '',
+    pricingType: 'per_person' as 'per_person' | 'per_group',
+    maxGroupSize: undefined as number | undefined,
+    groupPrice: '',
     currency: 'INR',
     shortDescription: '',
     fullDescription: '',
@@ -340,7 +343,12 @@ const TourCreationForm: React.FC<TourCreationFormProps> = ({
       case 3:
         return formData.title && formData.locations.length > 0;
       case 4:
-        return formData.duration && formData.pricePerPerson;
+        if (!formData.duration) return false;
+        if (formData.pricingType === 'per_person') {
+          return !!formData.pricePerPerson;
+        } else {
+          return !!(formData.maxGroupSize && formData.maxGroupSize >= 1 && formData.maxGroupSize <= 20 && formData.groupPrice);
+        }
       case 5:
         return formData.tourOptions.length > 0 && formData.tourOptions.every(opt => {
           const hasBasicFields = opt.optionTitle.trim() && opt.optionDescription.trim() && opt.durationHours;
@@ -393,7 +401,12 @@ const TourCreationForm: React.FC<TourCreationFormProps> = ({
     if (!formData.images || formData.images.length < 4) missingFields.push('images (need at least 4)');
     if (!formData.locations || formData.locations.length === 0) missingFields.push('locations');
     if (!formData.duration || formData.duration.trim() === '') missingFields.push('duration');
-    if (!formData.pricePerPerson || formData.pricePerPerson.trim() === '') missingFields.push('pricePerPerson');
+    if (formData.pricingType === 'per_person') {
+      if (!formData.pricePerPerson || formData.pricePerPerson.trim() === '') missingFields.push('pricePerPerson');
+    } else {
+      if (!formData.maxGroupSize || formData.maxGroupSize < 1 || formData.maxGroupSize > 20) missingFields.push('maxGroupSize (1-20)');
+      if (!formData.groupPrice || formData.groupPrice.trim() === '') missingFields.push('groupPrice');
+    }
     if (!formData.languages || formData.languages.length === 0) missingFields.push('languages');
     if (!formData.highlights || formData.highlights.filter(h => h.trim()).length < 3) missingFields.push('highlights (need at least 3)');
 
@@ -413,8 +426,11 @@ const TourCreationForm: React.FC<TourCreationFormProps> = ({
         category: formData.category.trim(),
         locations: JSON.stringify(formData.locations),
         duration: formData.duration.trim(),
-        pricePerPerson: parseFloat(formData.pricePerPerson),
+        pricePerPerson: formData.pricingType === 'per_person' ? parseFloat(formData.pricePerPerson) : (parseFloat(formData.groupPrice || '0') / (formData.maxGroupSize || 1)), // Calculate per person for legacy field
         currency: formData.currency,
+        pricingType: formData.pricingType,
+        maxGroupSize: formData.pricingType === 'per_group' ? formData.maxGroupSize : null,
+        groupPrice: formData.pricingType === 'per_group' ? parseFloat(formData.groupPrice || '0') : null,
         shortDescription: formData.shortDescription?.trim() || null,
         fullDescription: formData.fullDescription.trim(),
         highlights: JSON.stringify(formData.highlights.filter(h => h.trim()).map(h => h.trim())), // Filter empty and trim each highlight
@@ -890,35 +906,133 @@ const TourCreationForm: React.FC<TourCreationFormProps> = ({
                 </select>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-[14px] font-bold text-[#001A33] mb-3">
-                    Price per person (₹) *
+              {/* Pricing Type Selection */}
+              <div>
+                <label className="block text-[14px] font-bold text-[#001A33] mb-3">
+                  Pricing Type *
+                </label>
+                <div className="flex gap-6">
+                  <label className="flex items-center gap-3 cursor-pointer">
+                    <input
+                      type="radio"
+                      name="pricingType"
+                      value="per_person"
+                      checked={formData.pricingType === 'per_person'}
+                      onChange={(e) => {
+                        handleInputChange('pricingType', e.target.value);
+                        // Clear group pricing fields when switching to per person
+                        handleInputChange('maxGroupSize', undefined);
+                        handleInputChange('groupPrice', '');
+                      }}
+                      className="w-5 h-5 text-[#10B981] focus:ring-[#10B981] cursor-pointer"
+                    />
+                    <span className="text-[14px] font-semibold text-[#001A33]">Per Person</span>
                   </label>
-                  <input
-                    type="number"
-                    value={formData.pricePerPerson}
-                    onChange={(e) => handleInputChange('pricePerPerson', e.target.value)}
-                    placeholder="0"
-                    min="0"
-                    step="0.01"
-                    className="w-full bg-gray-50 border-none rounded-2xl py-4 px-4 font-bold text-[#001A33] text-[14px] focus:ring-2 focus:ring-[#10B981] outline-none"
-                  />
-                </div>
-                <div>
-                  <label className="block text-[14px] font-bold text-[#001A33] mb-3">
-                    Currency
+                  <label className="flex items-center gap-3 cursor-pointer">
+                    <input
+                      type="radio"
+                      name="pricingType"
+                      value="per_group"
+                      checked={formData.pricingType === 'per_group'}
+                      onChange={(e) => {
+                        handleInputChange('pricingType', e.target.value);
+                        // Clear per person price when switching to per group
+                        handleInputChange('pricePerPerson', '');
+                      }}
+                      className="w-5 h-5 text-[#10B981] focus:ring-[#10B981] cursor-pointer"
+                    />
+                    <span className="text-[14px] font-semibold text-[#001A33]">Per Group</span>
                   </label>
-                  <select
-                    value={formData.currency}
-                    onChange={(e) => handleInputChange('currency', e.target.value)}
-                    className="w-full bg-gray-50 border-none rounded-2xl py-4 px-4 font-bold text-[#001A33] text-[14px] focus:ring-2 focus:ring-[#10B981] outline-none"
-                  >
-                    <option value="INR">INR (₹)</option>
-                    <option value="USD">USD ($)</option>
-                  </select>
                 </div>
               </div>
+
+              {/* Per Person Pricing */}
+              {formData.pricingType === 'per_person' && (
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-[14px] font-bold text-[#001A33] mb-3">
+                      Price per person *
+                    </label>
+                    <input
+                      type="number"
+                      value={formData.pricePerPerson}
+                      onChange={(e) => handleInputChange('pricePerPerson', e.target.value)}
+                      placeholder="0"
+                      min="0"
+                      step="0.01"
+                      className="w-full bg-gray-50 border-none rounded-2xl py-4 px-4 font-bold text-[#001A33] text-[14px] focus:ring-2 focus:ring-[#10B981] outline-none"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[14px] font-bold text-[#001A33] mb-3">
+                      Currency
+                    </label>
+                    <select
+                      value={formData.currency}
+                      onChange={(e) => handleInputChange('currency', e.target.value)}
+                      className="w-full bg-gray-50 border-none rounded-2xl py-4 px-4 font-bold text-[#001A33] text-[14px] focus:ring-2 focus:ring-[#10B981] outline-none"
+                    >
+                      <option value="INR">INR (₹)</option>
+                      <option value="USD">USD ($)</option>
+                    </select>
+                  </div>
+                </div>
+              )}
+
+              {/* Per Group Pricing */}
+              {formData.pricingType === 'per_group' && (
+                <div className="space-y-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-[14px] font-bold text-[#001A33] mb-3">
+                        Max Group Size *
+                      </label>
+                      <input
+                        type="number"
+                        value={formData.maxGroupSize || ''}
+                        onChange={(e) => handleInputChange('maxGroupSize', e.target.value ? parseInt(e.target.value) : undefined)}
+                        placeholder="1-20"
+                        min="1"
+                        max="20"
+                        className="w-full bg-gray-50 border-none rounded-2xl py-4 px-4 font-bold text-[#001A33] text-[14px] focus:ring-2 focus:ring-[#10B981] outline-none"
+                      />
+                      <p className="text-[11px] text-gray-400 mt-1">
+                        Maximum number of people per group (1-20)
+                      </p>
+                    </div>
+                    <div>
+                      <label className="block text-[14px] font-bold text-[#001A33] mb-3">
+                        Currency
+                      </label>
+                      <select
+                        value={formData.currency}
+                        onChange={(e) => handleInputChange('currency', e.target.value)}
+                        className="w-full bg-gray-50 border-none rounded-2xl py-4 px-4 font-bold text-[#001A33] text-[14px] focus:ring-2 focus:ring-[#10B981] outline-none"
+                      >
+                        <option value="INR">INR (₹)</option>
+                        <option value="USD">USD ($)</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-[14px] font-bold text-[#001A33] mb-3">
+                      Group Price *
+                    </label>
+                    <input
+                      type="number"
+                      value={formData.groupPrice}
+                      onChange={(e) => handleInputChange('groupPrice', e.target.value)}
+                      placeholder="0"
+                      min="0"
+                      step="0.01"
+                      className="w-full bg-gray-50 border-none rounded-2xl py-4 px-4 font-bold text-[#001A33] text-[14px] focus:ring-2 focus:ring-[#10B981] outline-none"
+                    />
+                    <p className="text-[11px] text-gray-400 mt-1">
+                      Total price for the entire group
+                    </p>
+                  </div>
+                </div>
+              )}
 
               {formData.category === 'Guided Tour' && (
                 <div>
@@ -965,16 +1079,16 @@ const TourCreationForm: React.FC<TourCreationFormProps> = ({
                       optionTitle: '',
                       optionDescription: '',
                       durationHours: formData.duration.replace(/[^\d.]/g, '') || '3',
-                      price: formData.pricePerPerson || '',
+                      price: formData.pricingType === 'per_person' ? (formData.pricePerPerson || '') : '',
                       currency: formData.currency,
                       language: formData.languages[0] || 'English',
                       pickupIncluded: false,
                       carIncluded: false,
                       entryTicketIncluded: false,
                       guideIncluded: true,
-                      pricingType: 'per_person' as 'per_person' | 'per_group',
-                      maxGroupSize: undefined,
-                      groupPrice: undefined
+                      pricingType: formData.pricingType,
+                      maxGroupSize: formData.pricingType === 'per_group' ? formData.maxGroupSize : undefined,
+                      groupPrice: formData.pricingType === 'per_group' ? (formData.groupPrice || '') : undefined
                     };
                     setFormData(prev => ({
                       ...prev,
@@ -1314,16 +1428,16 @@ const TourCreationForm: React.FC<TourCreationFormProps> = ({
                       optionTitle: '',
                       optionDescription: '',
                       durationHours: formData.duration.replace(/[^\d.]/g, '') || '3',
-                      price: formData.pricePerPerson || '',
+                      price: formData.pricingType === 'per_person' ? (formData.pricePerPerson || '') : '',
                       currency: formData.currency,
                       language: formData.languages[0] || 'English',
                       pickupIncluded: false,
                       carIncluded: false,
                       entryTicketIncluded: false,
                       guideIncluded: true,
-                      pricingType: 'per_person' as 'per_person' | 'per_group',
-                      maxGroupSize: undefined,
-                      groupPrice: undefined
+                      pricingType: formData.pricingType,
+                      maxGroupSize: formData.pricingType === 'per_group' ? formData.maxGroupSize : undefined,
+                      groupPrice: formData.pricingType === 'per_group' ? (formData.groupPrice || '') : undefined
                     };
                     setFormData(prev => ({
                       ...prev,
