@@ -4264,10 +4264,35 @@ if (process.env.NODE_ENV === 'production') {
     // Serve static assets (JS, CSS, images, etc.)
     app.use(express.static(distPath));
     
+    // Explicit routes for SEO files (must come before catch-all)
+    app.get('/sitemap.xml', (req, res) => {
+      const sitemapPath = path.join(distPath, 'sitemap.xml');
+      if (fs.existsSync(sitemapPath)) {
+        res.type('application/xml');
+        res.sendFile(sitemapPath);
+      } else {
+        res.status(404).send('Sitemap not found');
+      }
+    });
+    
+    app.get('/robots.txt', (req, res) => {
+      const robotsPath = path.join(distPath, 'robots.txt');
+      if (fs.existsSync(robotsPath)) {
+        res.type('text/plain');
+        res.sendFile(robotsPath);
+      } else {
+        res.status(404).send('Robots.txt not found');
+      }
+    });
+    
     // Handle React Router - serve index.html for all non-API routes
     app.get('*', (req, res, next) => {
       // Don't serve index.html for API routes
       if (req.path.startsWith('/api')) {
+        return next();
+      }
+      // Don't serve index.html for SEO files (already handled above)
+      if (req.path === '/sitemap.xml' || req.path === '/robots.txt') {
         return next();
       }
       // Serve index.html for all other routes (SPA routing)
