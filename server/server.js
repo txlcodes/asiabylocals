@@ -2613,11 +2613,21 @@ app.post('/api/tours', async (req, res) => {
         // Ensure no ID fields are present in tourData - deep clone to avoid mutation
         finalTourData = JSON.parse(JSON.stringify(tourData));
         
-        // Remove id field from top level if it exists
+        // Remove id field and any other fields that don't belong to Tour model
         if ('id' in finalTourData) {
           console.warn('⚠️  Removing id field from tourData before creation');
           delete finalTourData.id;
         }
+        
+        // Remove fields that don't exist in Tour model (these belong to TourOption or are request-only)
+        // Note: 'options' is valid (it's the relation field for nested creates)
+        const invalidFields = ['groupPrice', 'group_price', 'maxGroupSize', 'max_group_size', 'pricingType', 'pricing_type', 'tourOptions'];
+        invalidFields.forEach(field => {
+          if (field in finalTourData) {
+            console.warn(`⚠️  Removing invalid field '${field}' from tourData (not in Tour model)`);
+            delete finalTourData[field];
+          }
+        });
         
         // Also ensure no IDs in nested options - remove ALL possible id fields
         if (finalTourData.options?.create) {
