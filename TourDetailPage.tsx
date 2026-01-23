@@ -47,6 +47,7 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
   const [showCalendarModal, setShowCalendarModal] = useState(false);
   const [calendarMonth, setCalendarMonth] = useState(new Date());
   const [availabilityStatus, setAvailabilityStatus] = useState<'idle' | 'checking' | 'available' | 'unavailable'>('idle');
+  const [showOptionSelectionModal, setShowOptionSelectionModal] = useState(false);
   const [showBookingModal, setShowBookingModal] = useState(false);
   const [showGuideContactModal, setShowGuideContactModal] = useState(false);
   const [guideContactInfo, setGuideContactInfo] = useState<any>(null);
@@ -246,6 +247,13 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
       return;
     }
 
+    // If tour has options, show option selection modal first
+    if (tour?.options && Array.isArray(tour.options) && tour.options.length > 0) {
+      setShowOptionSelectionModal(true);
+      return;
+    }
+
+    // Otherwise, proceed directly to booking
     setAvailabilityStatus('checking');
     
     // Simulate API call - in real app, this would check actual availability
@@ -256,7 +264,24 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
     }, 1000);
   };
 
+  const handleOptionSelected = (option: any) => {
+    setSelectedOption(option);
+    setShowOptionSelectionModal(false);
+    setAvailabilityStatus('checking');
+    
+    // Simulate API call - in real app, this would check actual availability
+    setTimeout(() => {
+      setAvailabilityStatus('available');
+    }, 1000);
+  };
+
   const handleProceedToBooking = () => {
+    // If tour has options but none selected, show option selection
+    if (tour?.options && Array.isArray(tour.options) && tour.options.length > 0 && !selectedOption) {
+      setShowOptionSelectionModal(true);
+      return;
+    }
+
     if (availabilityStatus === 'available') {
       // Load draft data when opening booking modal
       if (tour?.id) {
@@ -304,10 +329,24 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
       return;
     }
 
-    // Calculate total amount - use selected option price if available, otherwise use tour price
-    const pricePerPerson = selectedOption?.price || tour.pricePerPerson || 0;
-    const totalAmount = pricePerPerson * participants;
-    const currency = selectedOption?.currency || tour.currency || 'INR';
+    // Calculate total amount - handle per-person vs per-group pricing
+    let totalAmount = 0;
+    let currency = selectedOption?.currency || tour.currency || 'INR';
+    
+    if (selectedOption) {
+      if (selectedOption.pricingType === 'per_group') {
+        // Per group pricing - fixed price regardless of participants
+        totalAmount = selectedOption.groupPrice || 0;
+      } else {
+        // Per person pricing
+        const pricePerPerson = selectedOption.price || 0;
+        totalAmount = pricePerPerson * participants;
+      }
+    } else {
+      // Fallback to tour price (per person)
+      const pricePerPerson = tour.pricePerPerson || 0;
+      totalAmount = pricePerPerson * participants;
+    }
     
     // Create booking via API
     try {
