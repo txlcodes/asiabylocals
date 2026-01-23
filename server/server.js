@@ -3258,9 +3258,13 @@ app.get('/api/admin/suppliers/pending', verifyAdmin, async (req, res) => {
 app.post('/api/admin/suppliers/:id/approve', verifyAdmin, async (req, res) => {
   try {
     const { id } = req.params;
+    console.log(`📝 Approve supplier request - ID from params: "${id}" (type: ${typeof id})`);
+    
     const supplierId = parseInt(id);
+    console.log(`   Parsed supplier ID: ${supplierId} (isNaN: ${isNaN(supplierId)})`);
 
     if (isNaN(supplierId)) {
+      console.error(`   ❌ Invalid supplier ID: "${id}"`);
       return res.status(400).json({
         success: false,
         error: 'Invalid supplier ID',
@@ -3268,18 +3272,48 @@ app.post('/api/admin/suppliers/:id/approve', verifyAdmin, async (req, res) => {
       });
     }
 
-    // Check if supplier exists
-    const existingSupplier = await prisma.supplier.findUnique({
-      where: { id: supplierId }
-    });
+    // Check if supplier exists with retry logic
+    let existingSupplier = null;
+    let findAttempts = 0;
+    const MAX_FIND_RETRIES = 3;
+
+    while (findAttempts < MAX_FIND_RETRIES && !existingSupplier) {
+      try {
+        existingSupplier = await prisma.supplier.findUnique({
+          where: { id: supplierId }
+        });
+        break; // Success, exit retry loop
+      } catch (dbError) {
+        findAttempts++;
+        console.error(`   Database error finding supplier (attempt ${findAttempts}/${MAX_FIND_RETRIES}):`, dbError.message);
+
+        // If it's a connection error and we have retries left, wait and retry
+        if (findAttempts < MAX_FIND_RETRIES && (
+          dbError.message?.includes('connection') ||
+          dbError.message?.includes('timeout') ||
+          dbError.code === 'P1001' ||
+          dbError.code === 'P1017' ||
+          dbError.code === 'P1008'
+        )) {
+          console.log(`   Retrying in ${findAttempts * 500}ms...`);
+          await new Promise(resolve => setTimeout(resolve, findAttempts * 500));
+          continue;
+        }
+        // Not a retryable error, break and handle below
+        throw dbError;
+      }
+    }
 
     if (!existingSupplier) {
+      console.error(`   ❌ Supplier not found with ID: ${supplierId}`);
       return res.status(404).json({
         success: false,
         error: 'Supplier not found',
         message: 'No supplier found with the provided ID'
       });
     }
+
+    console.log(`   ✅ Found supplier: ${existingSupplier.email} (status: ${existingSupplier.status})`);
 
     if (existingSupplier.status === 'approved') {
       return res.status(400).json({
@@ -3289,22 +3323,53 @@ app.post('/api/admin/suppliers/:id/approve', verifyAdmin, async (req, res) => {
       });
     }
 
-    // Update supplier status to approved
-    const updatedSupplier = await prisma.supplier.update({
-      where: { id: supplierId },
-      data: {
-        status: 'approved'
-      },
-      select: {
-        id: true,
-        email: true,
-        fullName: true,
-        companyName: true,
-        status: true
-      }
-    });
+    // Update supplier status to approved with retry logic
+    let updatedSupplier = null;
+    let updateAttempts = 0;
+    const MAX_UPDATE_RETRIES = 3;
 
-    console.log(`✅ Supplier ${supplierId} approved by admin`);
+    while (updateAttempts < MAX_UPDATE_RETRIES && !updatedSupplier) {
+      try {
+        updatedSupplier = await prisma.supplier.update({
+          where: { id: supplierId },
+          data: {
+            status: 'approved'
+          },
+          select: {
+            id: true,
+            email: true,
+            fullName: true,
+            companyName: true,
+            status: true
+          }
+        });
+        break; // Success, exit retry loop
+      } catch (dbError) {
+        updateAttempts++;
+        console.error(`   Database error updating supplier (attempt ${updateAttempts}/${MAX_UPDATE_RETRIES}):`, dbError.message);
+
+        // If it's a connection error and we have retries left, wait and retry
+        if (updateAttempts < MAX_UPDATE_RETRIES && (
+          dbError.message?.includes('connection') ||
+          dbError.message?.includes('timeout') ||
+          dbError.code === 'P1001' ||
+          dbError.code === 'P1017' ||
+          dbError.code === 'P1008'
+        )) {
+          console.log(`   Retrying in ${updateAttempts * 500}ms...`);
+          await new Promise(resolve => setTimeout(resolve, updateAttempts * 500));
+          continue;
+        }
+        // Not a retryable error, throw
+        throw dbError;
+      }
+    }
+
+    if (!updatedSupplier) {
+      throw new Error('Failed to update supplier after retries');
+    }
+
+    console.log(`✅ Supplier ${supplierId} (${updatedSupplier.email}) approved by admin`);
 
     res.json({
       success: true,
@@ -3315,11 +3380,14 @@ app.post('/api/admin/suppliers/:id/approve', verifyAdmin, async (req, res) => {
       }
     });
   } catch (error) {
-    console.error('Supplier approval error:', error);
+    console.error('❌ Supplier approval error:', error);
+    console.error('   Error message:', error.message);
+    console.error('   Error code:', error.code);
     res.status(500).json({
       success: false,
       error: 'Internal server error',
-      message: 'Failed to approve supplier'
+      message: 'Failed to approve supplier',
+      details: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
   }
 });
@@ -3329,9 +3397,13 @@ app.post('/api/admin/suppliers/:id/reject', verifyAdmin, async (req, res) => {
   try {
     const { id } = req.params;
     const { rejectionReason } = req.body;
+    console.log(`📝 Reject supplier request - ID from params: "${id}" (type: ${typeof id})`);
+    
     const supplierId = parseInt(id);
+    console.log(`   Parsed supplier ID: ${supplierId} (isNaN: ${isNaN(supplierId)})`);
 
     if (isNaN(supplierId)) {
+      console.error(`   ❌ Invalid supplier ID: "${id}"`);
       return res.status(400).json({
         success: false,
         error: 'Invalid supplier ID',
@@ -3339,12 +3411,40 @@ app.post('/api/admin/suppliers/:id/reject', verifyAdmin, async (req, res) => {
       });
     }
 
-    // Check if supplier exists
-    const existingSupplier = await prisma.supplier.findUnique({
-      where: { id: supplierId }
-    });
+    // Check if supplier exists with retry logic
+    let existingSupplier = null;
+    let findAttempts = 0;
+    const MAX_FIND_RETRIES = 3;
+
+    while (findAttempts < MAX_FIND_RETRIES && !existingSupplier) {
+      try {
+        existingSupplier = await prisma.supplier.findUnique({
+          where: { id: supplierId }
+        });
+        break; // Success, exit retry loop
+      } catch (dbError) {
+        findAttempts++;
+        console.error(`   Database error finding supplier (attempt ${findAttempts}/${MAX_FIND_RETRIES}):`, dbError.message);
+
+        // If it's a connection error and we have retries left, wait and retry
+        if (findAttempts < MAX_FIND_RETRIES && (
+          dbError.message?.includes('connection') ||
+          dbError.message?.includes('timeout') ||
+          dbError.code === 'P1001' ||
+          dbError.code === 'P1017' ||
+          dbError.code === 'P1008'
+        )) {
+          console.log(`   Retrying in ${findAttempts * 500}ms...`);
+          await new Promise(resolve => setTimeout(resolve, findAttempts * 500));
+          continue;
+        }
+        // Not a retryable error, break and handle below
+        throw dbError;
+      }
+    }
 
     if (!existingSupplier) {
+      console.error(`   ❌ Supplier not found with ID: ${supplierId}`);
       return res.status(404).json({
         success: false,
         error: 'Supplier not found',
@@ -3352,22 +3452,55 @@ app.post('/api/admin/suppliers/:id/reject', verifyAdmin, async (req, res) => {
       });
     }
 
-    // Update supplier status to rejected
-    const updatedSupplier = await prisma.supplier.update({
-      where: { id: supplierId },
-      data: {
-        status: 'rejected'
-      },
-      select: {
-        id: true,
-        email: true,
-        fullName: true,
-        companyName: true,
-        status: true
-      }
-    });
+    console.log(`   ✅ Found supplier: ${existingSupplier.email} (status: ${existingSupplier.status})`);
 
-    console.log(`❌ Supplier ${supplierId} rejected by admin. Reason: ${rejectionReason || 'Not provided'}`);
+    // Update supplier status to rejected with retry logic
+    let updatedSupplier = null;
+    let updateAttempts = 0;
+    const MAX_UPDATE_RETRIES = 3;
+
+    while (updateAttempts < MAX_UPDATE_RETRIES && !updatedSupplier) {
+      try {
+        updatedSupplier = await prisma.supplier.update({
+          where: { id: supplierId },
+          data: {
+            status: 'rejected'
+          },
+          select: {
+            id: true,
+            email: true,
+            fullName: true,
+            companyName: true,
+            status: true
+          }
+        });
+        break; // Success, exit retry loop
+      } catch (dbError) {
+        updateAttempts++;
+        console.error(`   Database error updating supplier (attempt ${updateAttempts}/${MAX_UPDATE_RETRIES}):`, dbError.message);
+
+        // If it's a connection error and we have retries left, wait and retry
+        if (updateAttempts < MAX_UPDATE_RETRIES && (
+          dbError.message?.includes('connection') ||
+          dbError.message?.includes('timeout') ||
+          dbError.code === 'P1001' ||
+          dbError.code === 'P1017' ||
+          dbError.code === 'P1008'
+        )) {
+          console.log(`   Retrying in ${updateAttempts * 500}ms...`);
+          await new Promise(resolve => setTimeout(resolve, updateAttempts * 500));
+          continue;
+        }
+        // Not a retryable error, throw
+        throw dbError;
+      }
+    }
+
+    if (!updatedSupplier) {
+      throw new Error('Failed to update supplier after retries');
+    }
+
+    console.log(`❌ Supplier ${supplierId} (${updatedSupplier.email}) rejected by admin. Reason: ${rejectionReason || 'Not provided'}`);
 
     res.json({
       success: true,
@@ -3378,11 +3511,14 @@ app.post('/api/admin/suppliers/:id/reject', verifyAdmin, async (req, res) => {
       }
     });
   } catch (error) {
-    console.error('Supplier rejection error:', error);
+    console.error('❌ Supplier rejection error:', error);
+    console.error('   Error message:', error.message);
+    console.error('   Error code:', error.code);
     res.status(500).json({
       success: false,
       error: 'Internal server error',
-      message: 'Failed to reject supplier'
+      message: 'Failed to reject supplier',
+      details: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
   }
 });

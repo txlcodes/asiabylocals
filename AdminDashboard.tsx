@@ -179,64 +179,87 @@ const AdminDashboard: React.FC = () => {
   }
 
   const handleApprove = async (tourId: string) => {
+    if (!tourId) {
+      alert('Error: Tour ID is missing. Please select a tour again.');
+      return;
+    }
+
     if (!confirm('Are you sure you want to approve this tour? It will go live on the site.')) {
       return;
     }
 
     setIsProcessing(true);
     try {
-      const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+      const API_URL = import.meta.env.VITE_API_URL || (typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3001');
+      console.log('Approving tour with ID:', tourId, 'API URL:', API_URL);
+      
       const response = await fetch(`${API_URL}/api/admin/tours/${tourId}/approve`, {
         method: 'POST',
         headers: getAuthHeaders()
       });
 
       const data = await response.json();
+      console.log('Approve tour response:', data);
+      
       if (data.success) {
         alert('Tour approved successfully! It is now live on the site.');
         fetchPendingTours(); // Refresh list
         setSelectedTour(null);
       } else {
-        alert(data.message || 'Failed to approve tour');
+        alert(data.message || data.error || 'Failed to approve tour');
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error approving tour:', error);
-      alert('Failed to approve tour. Please try again.');
+      alert(`Failed to approve tour: ${error.message || 'Please try again.'}`);
     } finally {
       setIsProcessing(false);
     }
   };
 
   const handleApproveSupplier = async (supplierId: string) => {
+    if (!supplierId) {
+      alert('Error: Supplier ID is missing. Please select a supplier again.');
+      return;
+    }
+
     if (!confirm('Are you sure you want to approve this supplier? They will be able to create tours.')) {
       return;
     }
 
     setIsProcessing(true);
     try {
-      const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+      const API_URL = import.meta.env.VITE_API_URL || (typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3001');
+      console.log('Approving supplier with ID:', supplierId, 'API URL:', API_URL);
+      
       const response = await fetch(`${API_URL}/api/admin/suppliers/${supplierId}/approve`, {
         method: 'POST',
         headers: getAuthHeaders()
       });
 
       const data = await response.json();
+      console.log('Approve supplier response:', data);
+      
       if (data.success) {
         alert('Supplier approved successfully! They can now create tours.');
         fetchPendingSuppliers();
         setSelectedSupplier(null);
       } else {
-        alert(data.message || 'Failed to approve supplier');
+        alert(data.message || data.error || 'Failed to approve supplier');
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error approving supplier:', error);
-      alert('Failed to approve supplier. Please try again.');
+      alert(`Failed to approve supplier: ${error.message || 'Please try again.'}`);
     } finally {
       setIsProcessing(false);
     }
   };
 
   const handleRejectSupplier = async (supplierId: string) => {
+    if (!supplierId) {
+      alert('Error: Supplier ID is missing. Please select a supplier again.');
+      return;
+    }
+
     if (!rejectionReason.trim()) {
       alert('Please provide a reason for rejection');
       return;
@@ -248,7 +271,9 @@ const AdminDashboard: React.FC = () => {
 
     setIsProcessing(true);
     try {
-      const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+      const API_URL = import.meta.env.VITE_API_URL || (typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3001');
+      console.log('Rejecting supplier with ID:', supplierId, 'API URL:', API_URL);
+      
       const response = await fetch(`${API_URL}/api/admin/suppliers/${supplierId}/reject`, {
         method: 'POST',
         headers: getAuthHeaders(),
@@ -256,23 +281,30 @@ const AdminDashboard: React.FC = () => {
       });
 
       const data = await response.json();
+      console.log('Reject supplier response:', data);
+      
       if (data.success) {
         alert('Supplier rejected successfully.');
         fetchPendingSuppliers();
         setSelectedSupplier(null);
         setRejectionReason('');
       } else {
-        alert(data.message || 'Failed to reject supplier');
+        alert(data.message || data.error || 'Failed to reject supplier');
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error rejecting supplier:', error);
-      alert('Failed to reject supplier. Please try again.');
+      alert(`Failed to reject supplier: ${error.message || 'Please try again.'}`);
     } finally {
       setIsProcessing(false);
     }
   };
 
   const handleReject = async (tourId: string) => {
+    if (!tourId) {
+      alert('Error: Tour ID is missing. Please select a tour again.');
+      return;
+    }
+
     if (!rejectionReason.trim()) {
       alert('Please provide a reason for rejection');
       return;
@@ -284,7 +316,9 @@ const AdminDashboard: React.FC = () => {
 
     setIsProcessing(true);
     try {
-      const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+      const API_URL = import.meta.env.VITE_API_URL || (typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3001');
+      console.log('Rejecting tour with ID:', tourId, 'API URL:', API_URL);
+      
       const response = await fetch(`${API_URL}/api/admin/tours/${tourId}/reject`, {
         method: 'POST',
         headers: getAuthHeaders(),
@@ -292,46 +326,57 @@ const AdminDashboard: React.FC = () => {
       });
 
       const data = await response.json();
+      console.log('Reject tour response:', data);
+      
       if (data.success) {
         alert('Tour rejected successfully. The guide will be notified.');
         fetchPendingTours(); // Refresh list
         setSelectedTour(null);
         setRejectionReason('');
       } else {
-        alert(data.message || 'Failed to reject tour');
+        alert(data.message || data.error || 'Failed to reject tour');
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error rejecting tour:', error);
-      alert('Failed to reject tour. Please try again.');
+      alert(`Failed to reject tour: ${error.message || 'Please try again.'}`);
     } finally {
       setIsProcessing(false);
     }
   };
 
   const handleDeleteTour = async (tourId: string) => {
+    if (!tourId) {
+      alert('Error: Tour ID is missing. Please select a tour again.');
+      return;
+    }
+
     if (!confirm('⚠️ WARNING: This will permanently delete this tour. This action cannot be undone!\n\nAre you sure you want to delete this tour?')) {
       return;
     }
 
     setIsProcessing(true);
     try {
-      const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+      const API_URL = import.meta.env.VITE_API_URL || (typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3001');
+      console.log('Deleting tour with ID:', tourId, 'API URL:', API_URL);
+      
       const response = await fetch(`${API_URL}/api/admin/tours/${tourId}`, {
         method: 'DELETE',
         headers: getAuthHeaders()
       });
 
       const data = await response.json();
+      console.log('Delete tour response:', data);
+      
       if (data.success) {
         alert('Tour deleted successfully.');
         fetchPendingTours(); // Refresh list
         setSelectedTour(null);
       } else {
-        alert(data.message || 'Failed to delete tour');
+        alert(data.message || data.error || 'Failed to delete tour');
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error deleting tour:', error);
-      alert('Failed to delete tour. Please try again.');
+      alert(`Failed to delete tour: ${error.message || 'Please try again.'}`);
     } finally {
       setIsProcessing(false);
     }
