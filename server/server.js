@@ -2641,35 +2641,84 @@ app.get('/api/tours', async (req, res) => {
       });
     }
 
-    const tours = await prisma.tour.findMany({
-      where: {
-        supplierId: parseInt(supplierId)
-      },
-      orderBy: {
-        createdAt: 'desc'
+    // Retry logic for Render free tier database connection issues
+    let tours = null;
+    let findAttempts = 0;
+    const MAX_FIND_RETRIES = 3;
+
+    while (findAttempts < MAX_FIND_RETRIES && !tours) {
+      try {
+        tours = await prisma.tour.findMany({
+          where: {
+            supplierId: parseInt(supplierId)
+          },
+          orderBy: {
+            createdAt: 'desc'
+          }
+        });
+        break; // Success, exit retry loop
+      } catch (dbError) {
+        findAttempts++;
+        console.error(`   Database error fetching tours (attempt ${findAttempts}/${MAX_FIND_RETRIES}):`, dbError.message);
+
+        // If it's a connection error and we have retries left, wait and retry
+        if (findAttempts < MAX_FIND_RETRIES && (
+          dbError.message?.includes('connection') ||
+          dbError.message?.includes('timeout') ||
+          dbError.code === 'P1001' ||
+          dbError.code === 'P1017' ||
+          dbError.code === 'P1008'
+        )) {
+          console.log(`   Retrying in ${findAttempts * 500}ms...`);
+          await new Promise(resolve => setTimeout(resolve, findAttempts * 500));
+          continue;
+        }
+        // Not a retryable error, throw
+        throw dbError;
+      }
+    }
+
+    if (!tours) {
+      throw new Error('Failed to fetch tours after retries');
+    }
+
+    // Parse JSON fields with error handling
+    const formattedTours = tours.map(tour => {
+      try {
+        return {
+          ...tour,
+          id: String(tour.id),
+          locations: JSON.parse(tour.locations || '[]'),
+          images: JSON.parse(tour.images || '[]'),
+          languages: JSON.parse(tour.languages || '[]'),
+          highlights: tour.highlights ? JSON.parse(tour.highlights || '[]') : []
+        };
+      } catch (parseError) {
+        console.warn(`   ⚠️  Error parsing tour ${tour.id} JSON fields:`, parseError.message);
+        return {
+          ...tour,
+          id: String(tour.id),
+          locations: [],
+          images: [],
+          languages: ['English'],
+          highlights: []
+        };
       }
     });
-
-    // Parse JSON fields
-    const formattedTours = tours.map(tour => ({
-      ...tour,
-      id: String(tour.id),
-      locations: JSON.parse(tour.locations || '[]'),
-      images: JSON.parse(tour.images || '[]'),
-      languages: JSON.parse(tour.languages || '[]'),
-      highlights: tour.highlights ? JSON.parse(tour.highlights || '[]') : []
-    }));
 
     res.json({
       success: true,
       tours: formattedTours
     });
   } catch (error) {
-    console.error('Get tours error:', error);
+    console.error('❌ Get tours error:', error);
+    console.error('   Error message:', error.message);
+    console.error('   Error code:', error.code);
     res.status(500).json({
       success: false,
       error: 'Internal server error',
-      message: 'Failed to fetch tours'
+      message: 'Failed to fetch tours',
+      details: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
   }
 });
@@ -2688,9 +2737,37 @@ app.get('/api/tours/:id', async (req, res) => {
       });
     }
 
-    const tour = await prisma.tour.findUnique({
-      where: { id: tourId }
-    });
+    // Retry logic for Render free tier database connection issues
+    let tour = null;
+    let findAttempts = 0;
+    const MAX_FIND_RETRIES = 3;
+
+    while (findAttempts < MAX_FIND_RETRIES && !tour) {
+      try {
+        tour = await prisma.tour.findUnique({
+          where: { id: tourId }
+        });
+        break; // Success, exit retry loop
+      } catch (dbError) {
+        findAttempts++;
+        console.error(`   Database error fetching tour (attempt ${findAttempts}/${MAX_FIND_RETRIES}):`, dbError.message);
+
+        // If it's a connection error and we have retries left, wait and retry
+        if (findAttempts < MAX_FIND_RETRIES && (
+          dbError.message?.includes('connection') ||
+          dbError.message?.includes('timeout') ||
+          dbError.code === 'P1001' ||
+          dbError.code === 'P1017' ||
+          dbError.code === 'P1008'
+        )) {
+          console.log(`   Retrying in ${findAttempts * 500}ms...`);
+          await new Promise(resolve => setTimeout(resolve, findAttempts * 500));
+          continue;
+        }
+        // Not a retryable error, throw
+        throw dbError;
+      }
+    }
 
     if (!tour) {
       return res.status(404).json({
@@ -2700,26 +2777,42 @@ app.get('/api/tours/:id', async (req, res) => {
       });
     }
 
-    // Parse JSON fields
-    const formattedTour = {
-      ...tour,
-      id: String(tour.id),
-      locations: JSON.parse(tour.locations || '[]'),
-      images: JSON.parse(tour.images || '[]'),
-      languages: JSON.parse(tour.languages || '[]'),
-      highlights: tour.highlights ? JSON.parse(tour.highlights || '[]') : []
-    };
+    // Parse JSON fields with error handling
+    let formattedTour;
+    try {
+      formattedTour = {
+        ...tour,
+        id: String(tour.id),
+        locations: JSON.parse(tour.locations || '[]'),
+        images: JSON.parse(tour.images || '[]'),
+        languages: JSON.parse(tour.languages || '[]'),
+        highlights: tour.highlights ? JSON.parse(tour.highlights || '[]') : []
+      };
+    } catch (parseError) {
+      console.warn(`   ⚠️  Error parsing tour ${tour.id} JSON fields:`, parseError.message);
+      formattedTour = {
+        ...tour,
+        id: String(tour.id),
+        locations: [],
+        images: [],
+        languages: ['English'],
+        highlights: []
+      };
+    }
 
     res.json({
       success: true,
       tour: formattedTour
     });
   } catch (error) {
-    console.error('Get tour error:', error);
+    console.error('❌ Get tour error:', error);
+    console.error('   Error message:', error.message);
+    console.error('   Error code:', error.code);
     res.status(500).json({
       success: false,
       error: 'Internal server error',
-      message: 'Failed to fetch tour'
+      message: 'Failed to fetch tour',
+      details: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
   }
 });
@@ -4317,6 +4410,8 @@ app.get('/api/public/tours', async (req, res) => {
   try {
     const { city, country, category, status = 'approved' } = req.query;
 
+    console.log('📋 Fetching public tours:', { city, country, category, status });
+
     const where = {
       status: status
     };
@@ -4325,56 +4420,151 @@ app.get('/api/public/tours', async (req, res) => {
     if (country) where.country = country;
     if (category) where.category = category;
 
-    const tours = await prisma.tour.findMany({
-      where,
-      include: {
-        supplier: {
-          select: {
-            id: true,
-            fullName: true,
-            companyName: true
-          }
-        },
-        options: {
+    // Retry logic for Render free tier database connection issues
+    let tours = null;
+    let findAttempts = 0;
+    const MAX_FIND_RETRIES = 3;
+
+    while (findAttempts < MAX_FIND_RETRIES && !tours) {
+      try {
+        tours = await prisma.tour.findMany({
+          where,
+          include: {
+            supplier: {
+              select: {
+                id: true,
+                fullName: true,
+                companyName: true
+              }
+            },
+            options: {
+              orderBy: {
+                sortOrder: 'asc'
+              }
+            }
+          },
           orderBy: {
-            sortOrder: 'asc'
+            createdAt: 'desc'
           }
+        });
+        break; // Success, exit retry loop
+      } catch (dbError) {
+        findAttempts++;
+        console.error(`   Database error fetching tours (attempt ${findAttempts}/${MAX_FIND_RETRIES}):`, dbError.message);
+
+        // If it's a connection error and we have retries left, wait and retry
+        if (findAttempts < MAX_FIND_RETRIES && (
+          dbError.message?.includes('connection') ||
+          dbError.message?.includes('timeout') ||
+          dbError.code === 'P1001' ||
+          dbError.code === 'P1017' ||
+          dbError.code === 'P1008'
+        )) {
+          console.log(`   Retrying in ${findAttempts * 500}ms...`);
+          await new Promise(resolve => setTimeout(resolve, findAttempts * 500));
+          continue;
         }
-      },
-      orderBy: {
-        createdAt: 'desc'
+        // Not a retryable error, throw
+        throw dbError;
+      }
+    }
+
+    if (!tours) {
+      throw new Error('Failed to fetch tours after retries');
+    }
+
+    console.log(`   ✅ Found ${tours.length} tours`);
+
+    // Parse JSON fields with error handling
+    const formattedTours = tours.map(tour => {
+      try {
+        // Safe JSON parsing with fallbacks
+        let locations = [];
+        try {
+          locations = JSON.parse(tour.locations || '[]');
+        } catch (e) {
+          console.warn(`   ⚠️  Failed to parse locations for tour ${tour.id}:`, e.message);
+          locations = [];
+        }
+
+        let images = [];
+        try {
+          images = JSON.parse(tour.images || '[]');
+        } catch (e) {
+          console.warn(`   ⚠️  Failed to parse images for tour ${tour.id}:`, e.message);
+          images = [];
+        }
+
+        let languages = [];
+        try {
+          languages = JSON.parse(tour.languages || '[]');
+        } catch (e) {
+          console.warn(`   ⚠️  Failed to parse languages for tour ${tour.id}:`, e.message);
+          languages = ['English']; // Default fallback
+        }
+
+        let highlights = [];
+        try {
+          highlights = tour.highlights ? JSON.parse(tour.highlights) : [];
+        } catch (e) {
+          console.warn(`   ⚠️  Failed to parse highlights for tour ${tour.id}:`, e.message);
+          highlights = [];
+        }
+
+        return {
+          ...tour,
+          id: String(tour.id),
+          locations,
+          images,
+          languages,
+          highlights,
+          supplier: tour.supplier ? {
+            ...tour.supplier,
+            id: String(tour.supplier.id)
+          } : null,
+          options: tour.options && Array.isArray(tour.options) ? tour.options.map(opt => ({
+            ...opt,
+            id: String(opt.id),
+            tourId: String(opt.tourId)
+          })) : []
+        };
+      } catch (parseError) {
+        console.error(`   ❌ Error formatting tour ${tour.id}:`, parseError);
+        // Return minimal safe tour data
+        return {
+          id: String(tour.id),
+          title: tour.title || 'Untitled Tour',
+          city: tour.city || '',
+          country: tour.country || '',
+          category: tour.category || '',
+          locations: [],
+          images: [],
+          languages: ['English'],
+          highlights: [],
+          supplier: null,
+          options: []
+        };
       }
     });
 
-    // Parse JSON fields
-    const formattedTours = tours.map(tour => ({
-      ...tour,
-      id: String(tour.id),
-      locations: JSON.parse(tour.locations || '[]'),
-      images: JSON.parse(tour.images || '[]'),
-      languages: JSON.parse(tour.languages || '[]'),
-      highlights: tour.highlights ? JSON.parse(tour.highlights || '[]') : [],
-      supplier: {
-        ...tour.supplier,
-        id: String(tour.supplier.id)
-      },
-      options: tour.options && Array.isArray(tour.options) ? tour.options.map(opt => ({
-        ...opt,
-        id: String(opt.id),
-        tourId: String(opt.tourId)
-      })) : []
-    }));
+    console.log(`   ✅ Formatted ${formattedTours.length} tours successfully`);
 
     res.json({
       success: true,
       tours: formattedTours
     });
   } catch (error) {
-    console.error('Get public tours error:', error);
-    res.status(500).json({
-      success: false,
-      error: 'Internal server error',
-      message: 'Failed to fetch tours'
+    console.error('❌ Get public tours error:', error);
+    console.error('   Error message:', error.message);
+    console.error('   Error code:', error.code);
+    console.error('   Error stack:', error.stack);
+    
+    // Return empty array instead of 500 error to prevent site breakage
+    res.status(200).json({
+      success: true,
+      tours: [],
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined,
+      message: 'Tours temporarily unavailable. Please try again in a moment.'
     });
   }
 });
@@ -4393,26 +4583,54 @@ app.get('/api/public/tours/by-slug/:slug', async (req, res) => {
       });
     }
 
-    const tour = await prisma.tour.findUnique({
-      where: { slug },
-      include: {
-        supplier: {
-          select: {
-            id: true,
-            fullName: true,
-            companyName: true,
-            email: true,
-            phone: true,
-            whatsapp: true
+    // Retry logic for Render free tier database connection issues
+    let tour = null;
+    let findAttempts = 0;
+    const MAX_FIND_RETRIES = 3;
+
+    while (findAttempts < MAX_FIND_RETRIES && !tour) {
+      try {
+        tour = await prisma.tour.findUnique({
+          where: { slug },
+          include: {
+            supplier: {
+              select: {
+                id: true,
+                fullName: true,
+                companyName: true,
+                email: true,
+                phone: true,
+                whatsapp: true
+              }
+            },
+            options: {
+              orderBy: {
+                sortOrder: 'asc'
+              }
+            }
           }
-        },
-        options: {
-          orderBy: {
-            sortOrder: 'asc'
-          }
+        });
+        break; // Success, exit retry loop
+      } catch (dbError) {
+        findAttempts++;
+        console.error(`   Database error fetching tour by slug (attempt ${findAttempts}/${MAX_FIND_RETRIES}):`, dbError.message);
+
+        // If it's a connection error and we have retries left, wait and retry
+        if (findAttempts < MAX_FIND_RETRIES && (
+          dbError.message?.includes('connection') ||
+          dbError.message?.includes('timeout') ||
+          dbError.code === 'P1001' ||
+          dbError.code === 'P1017' ||
+          dbError.code === 'P1008'
+        )) {
+          console.log(`   Retrying in ${findAttempts * 500}ms...`);
+          await new Promise(resolve => setTimeout(resolve, findAttempts * 500));
+          continue;
         }
+        // Not a retryable error, throw
+        throw dbError;
       }
-    });
+    }
 
     if (!tour) {
       return res.status(404).json({
@@ -4468,26 +4686,54 @@ app.get('/api/public/tours/:id', async (req, res) => {
       });
     }
 
-    const tour = await prisma.tour.findUnique({
-      where: { id: tourId },
-      include: {
-        supplier: {
-          select: {
-            id: true,
-            fullName: true,
-            companyName: true,
-            email: true,
-            phone: true,
-            whatsapp: true
+    // Retry logic for Render free tier database connection issues
+    let tour = null;
+    let findAttempts = 0;
+    const MAX_FIND_RETRIES = 3;
+
+    while (findAttempts < MAX_FIND_RETRIES && !tour) {
+      try {
+        tour = await prisma.tour.findUnique({
+          where: { id: tourId },
+          include: {
+            supplier: {
+              select: {
+                id: true,
+                fullName: true,
+                companyName: true,
+                email: true,
+                phone: true,
+                whatsapp: true
+              }
+            },
+            options: {
+              orderBy: {
+                sortOrder: 'asc'
+              }
+            }
           }
-        },
-        options: {
-          orderBy: {
-            sortOrder: 'asc'
-          }
+        });
+        break; // Success, exit retry loop
+      } catch (dbError) {
+        findAttempts++;
+        console.error(`   Database error fetching tour (attempt ${findAttempts}/${MAX_FIND_RETRIES}):`, dbError.message);
+
+        // If it's a connection error and we have retries left, wait and retry
+        if (findAttempts < MAX_FIND_RETRIES && (
+          dbError.message?.includes('connection') ||
+          dbError.message?.includes('timeout') ||
+          dbError.code === 'P1001' ||
+          dbError.code === 'P1017' ||
+          dbError.code === 'P1008'
+        )) {
+          console.log(`   Retrying in ${findAttempts * 500}ms...`);
+          await new Promise(resolve => setTimeout(resolve, findAttempts * 500));
+          continue;
         }
+        // Not a retryable error, throw
+        throw dbError;
       }
-    });
+    }
 
     if (!tour) {
       return res.status(404).json({
@@ -4520,11 +4766,14 @@ app.get('/api/public/tours/:id', async (req, res) => {
       tour: formattedTour
     });
   } catch (error) {
-    console.error('Get public tour error:', error);
+    console.error('❌ Get public tour error:', error);
+    console.error('   Error message:', error.message);
+    console.error('   Error code:', error.code);
     res.status(500).json({
       success: false,
       error: 'Internal server error',
-      message: 'Failed to fetch tour'
+      message: 'Failed to fetch tour',
+      details: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
   }
 });
