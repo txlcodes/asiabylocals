@@ -135,9 +135,25 @@ const AdminDashboard: React.FC = () => {
         console.error('Admin Dashboard - Invalid response format:', data);
         setPendingSuppliers([]);
       }
-    } catch (error) {
-      console.error('Error fetching pending suppliers:', error);
-      alert('Failed to load pending suppliers');
+    } catch (error: any) {
+      console.error('❌ Error fetching pending suppliers:', error);
+      console.error('   Error message:', error.message);
+      console.error('   Error type:', error.name);
+      
+      // Show more helpful error message
+      let errorMessage = 'Failed to load pending suppliers.';
+      if (error.message?.includes('401') || error.message?.includes('Unauthorized')) {
+        errorMessage = 'Authentication failed. Please log in again.';
+        // Clear admin session and redirect to login
+        localStorage.removeItem('admin');
+        setIsAuthenticated(false);
+      } else if (error.message?.includes('fetch') || error.message?.includes('Failed to fetch')) {
+        errorMessage = 'Cannot connect to server. Please check your connection and try again.';
+      } else if (error.message?.includes('500') || error.message?.includes('Internal server error')) {
+        errorMessage = 'Server error. Please try again in a few moments.';
+      }
+      
+      alert(errorMessage);
       setPendingSuppliers([]);
     } finally {
       setLoading(false);
