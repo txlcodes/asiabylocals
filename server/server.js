@@ -3400,11 +3400,12 @@ app.post('/api/admin/tours/:id/approve', verifyAdmin, async (req, res) => {
       });
     }
 
-    if (tour.status !== 'pending') {
+    // Allow approving tours that are 'pending' or 'draft'
+    if (tour.status !== 'pending' && tour.status !== 'draft') {
       return res.status(400).json({
         success: false,
-        error: 'Tour is not pending review',
-        message: `Tour status is: ${tour.status}. Only pending tours can be approved.`
+        error: 'Tour cannot be approved',
+        message: `Tour status is: ${tour.status}. Only pending or draft tours can be approved.`
       });
     }
 
@@ -3615,11 +3616,13 @@ app.get('/api/admin/tours', verifyAdmin, async (req, res) => {
 // Get all pending tours (admin) - for backward compatibility
 app.get('/api/admin/tours/pending', verifyAdmin, async (req, res) => {
   try {
-    console.log('📋 Fetching PENDING tours for admin dashboard');
-    // Get only pending tours
+    console.log('📋 Fetching PENDING and DRAFT tours for admin dashboard');
+    // Get pending and draft tours (both need approval)
     const tours = await prisma.tour.findMany({
       where: {
-        status: 'pending'
+        status: {
+          in: ['pending', 'draft']
+        }
       },
       include: {
         supplier: {

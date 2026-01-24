@@ -7,7 +7,7 @@ const AdminDashboard: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'tours' | 'suppliers' | 'bookings'>('suppliers');
   const [pendingTours, setPendingTours] = useState<any[]>([]);
   const [pendingSuppliers, setPendingSuppliers] = useState<any[]>([]);
-  const [tourFilter, setTourFilter] = useState<'pending' | 'approved' | 'all'>('pending');
+  const [tourFilter, setTourFilter] = useState<'pending' | 'approved' | 'draft' | 'all'>('pending');
   const [bookings, setBookings] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadingBookings, setLoadingBookings] = useState(false);
@@ -52,9 +52,13 @@ const AdminDashboard: React.FC = () => {
     try {
       // Use relative URL for unified deployment, or env var for separate deployment
       const API_URL = import.meta.env.VITE_API_URL || (typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3001');
-      const url = tourFilter === 'pending' 
-        ? `${API_URL}/api/admin/tours/pending`
-        : `${API_URL}/api/admin/tours${tourFilter !== 'all' ? `?status=${tourFilter}` : ''}`;
+      let url;
+      if (tourFilter === 'pending') {
+        // Pending endpoint includes both pending and draft tours
+        url = `${API_URL}/api/admin/tours/pending`;
+      } else {
+        url = `${API_URL}/api/admin/tours${tourFilter !== 'all' ? `?status=${tourFilter}` : ''}`;
+      }
       console.log('Admin Dashboard - Fetching tours from:', url);
       const response = await fetch(url, {
         headers: getAuthHeaders()
@@ -745,6 +749,16 @@ const AdminDashboard: React.FC = () => {
                     Pending
                   </button>
                   <button
+                    onClick={() => setTourFilter('draft')}
+                    className={`px-4 py-2 rounded-full text-[12px] font-black transition-all ${
+                      tourFilter === 'draft'
+                        ? 'bg-blue-500 text-white'
+                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                    }`}
+                  >
+                    Draft
+                  </button>
+                  <button
                     onClick={() => setTourFilter('approved')}
                     className={`px-4 py-2 rounded-full text-[12px] font-black transition-all ${
                       tourFilter === 'approved'
@@ -818,6 +832,11 @@ const AdminDashboard: React.FC = () => {
                         <Clock className="text-yellow-600" size={18} />
                         <span className="text-[12px] font-black text-yellow-700">Pending</span>
                       </div>
+                    ) : tour.status === 'draft' ? (
+                      <div className="flex items-center gap-2 bg-blue-50 px-3 py-2 rounded-full">
+                        <Info className="text-blue-600" size={18} />
+                        <span className="text-[12px] font-black text-blue-700">Draft</span>
+                      </div>
                     ) : tour.status === 'approved' ? (
                       <div className="flex items-center gap-2 bg-[#10B981]/10 px-3 py-2 rounded-full border border-[#10B981]/20">
                         <CheckCircle2 className="text-[#10B981]" size={18} />
@@ -830,6 +849,7 @@ const AdminDashboard: React.FC = () => {
                       </div>
                     ) : (
                       <div className="flex items-center gap-2 bg-gray-50 px-3 py-2 rounded-full">
+                        <Info className="text-gray-600" size={18} />
                         <span className="text-[12px] font-black text-gray-700 capitalize">{tour.status || 'Draft'}</span>
                       </div>
                     )}
