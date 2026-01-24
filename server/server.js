@@ -2708,23 +2708,41 @@ app.post('/api/tours', async (req, res) => {
           });
         }
         
-        // Final check - log what we're about to send (without sensitive data)
+        // FINAL SAFETY CHECK: Remove ALL option-related fields that might have leaked in
+        // This is a last-ditch effort to ensure no invalid fields reach Prisma
+        const SAFE_TOUR_FIELDS = [
+          'supplierId', 'title', 'slug', 'country', 'city', 'category', 'locations',
+          'duration', 'pricePerPerson', 'currency', 'shortDescription', 'fullDescription',
+          'highlights', 'included', 'notIncluded', 'meetingPoint', 'guideType',
+          'images', 'languages', 'reviews', 'status', 'options'
+        ];
+        
+        // Create a completely clean object with ONLY valid Tour model fields
+        const cleanFinalTourData = {};
+        SAFE_TOUR_FIELDS.forEach(field => {
+          if (field in finalTourData) {
+            cleanFinalTourData[field] = finalTourData[field];
+          }
+        });
+        
+        // Log what we're about to send
         console.log('📤 Final tourData before Prisma create:', {
-          hasId: 'id' in finalTourData,
-          supplierId: finalTourData.supplierId,
-          title: finalTourData.title,
-          slug: finalTourData.slug,
-          optionsCount: finalTourData.options?.create?.length || 0,
-          optionsHaveIds: finalTourData.options?.create?.some(opt => 'id' in opt || 'tourId' in opt) || false
+          hasId: 'id' in cleanFinalTourData,
+          supplierId: cleanFinalTourData.supplierId,
+          title: cleanFinalTourData.title,
+          slug: cleanFinalTourData.slug,
+          optionsCount: cleanFinalTourData.options?.create?.length || 0,
+          optionsHaveIds: cleanFinalTourData.options?.create?.some(opt => 'id' in opt || 'tourId' in opt) || false,
+          allFields: Object.keys(cleanFinalTourData)
         });
         
         // Log first option details for debugging
-        if (finalTourData.options?.create && finalTourData.options.create.length > 0) {
-          console.log('📋 First option details:', JSON.stringify(finalTourData.options.create[0], null, 2));
+        if (cleanFinalTourData.options?.create && cleanFinalTourData.options.create.length > 0) {
+          console.log('📋 First option details:', JSON.stringify(cleanFinalTourData.options.create[0], null, 2));
         }
         
         tour = await prisma.tour.create({
-          data: finalTourData,
+          data: cleanFinalTourData,
           include: {
             options: {
               orderBy: {
