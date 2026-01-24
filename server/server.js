@@ -3223,6 +3223,13 @@ app.get('/api/tours', async (req, res) => {
           where: {
             supplierId: parseInt(supplierId)
           },
+          include: {
+            options: {
+              orderBy: {
+                sortOrder: 'asc'
+              }
+            }
+          },
           orderBy: {
             createdAt: 'desc'
           }
@@ -3256,23 +3263,64 @@ app.get('/api/tours', async (req, res) => {
     // Parse JSON fields with error handling
     const formattedTours = tours.map(tour => {
       try {
+        // Format options
+        const formattedOptions = (tour.options || []).map(opt => ({
+          id: String(opt.id),
+          tourId: String(opt.tourId),
+          optionTitle: opt.optionTitle,
+          optionDescription: opt.optionDescription,
+          durationHours: opt.durationHours,
+          price: opt.price,
+          currency: opt.currency,
+          language: opt.language,
+          pickupIncluded: opt.pickupIncluded,
+          entryTicketIncluded: opt.entryTicketIncluded,
+          guideIncluded: opt.guideIncluded,
+          carIncluded: opt.carIncluded,
+          pricingType: opt.pricingType,
+          maxGroupSize: opt.maxGroupSize,
+          groupPrice: opt.groupPrice,
+          sortOrder: opt.sortOrder
+        }));
+
         return {
           ...tour,
           id: String(tour.id),
+          supplierId: String(tour.supplierId),
           locations: JSON.parse(tour.locations || '[]'),
           images: JSON.parse(tour.images || '[]'),
           languages: JSON.parse(tour.languages || '[]'),
-          highlights: tour.highlights ? JSON.parse(tour.highlights || '[]') : []
+          highlights: tour.highlights ? JSON.parse(tour.highlights || '[]') : [],
+          options: formattedOptions
         };
       } catch (parseError) {
         console.warn(`   ⚠️  Error parsing tour ${tour.id} JSON fields:`, parseError.message);
         return {
           ...tour,
           id: String(tour.id),
+          supplierId: String(tour.supplierId),
           locations: [],
           images: [],
           languages: ['English'],
-          highlights: []
+          highlights: [],
+          options: (tour.options || []).map(opt => ({
+            id: String(opt.id),
+            tourId: String(opt.tourId),
+            optionTitle: opt.optionTitle,
+            optionDescription: opt.optionDescription,
+            durationHours: opt.durationHours,
+            price: opt.price,
+            currency: opt.currency,
+            language: opt.language,
+            pickupIncluded: opt.pickupIncluded,
+            entryTicketIncluded: opt.entryTicketIncluded,
+            guideIncluded: opt.guideIncluded,
+            carIncluded: opt.carIncluded,
+            pricingType: opt.pricingType,
+            maxGroupSize: opt.maxGroupSize,
+            groupPrice: opt.groupPrice,
+            sortOrder: opt.sortOrder
+          }))
         };
       }
     });
@@ -3316,7 +3364,14 @@ app.get('/api/tours/:id', async (req, res) => {
     while (findAttempts < MAX_FIND_RETRIES && !tour) {
       try {
         tour = await prisma.tour.findUnique({
-          where: { id: tourId }
+          where: { id: tourId },
+          include: {
+            options: {
+              orderBy: {
+                sortOrder: 'asc'
+              }
+            }
+          }
         });
         break; // Success, exit retry loop
       } catch (dbError) {
@@ -3351,23 +3406,64 @@ app.get('/api/tours/:id', async (req, res) => {
     // Parse JSON fields with error handling
     let formattedTour;
     try {
+      // Format options
+      const formattedOptions = (tour.options || []).map(opt => ({
+        id: String(opt.id),
+        tourId: String(opt.tourId),
+        optionTitle: opt.optionTitle,
+        optionDescription: opt.optionDescription,
+        durationHours: opt.durationHours,
+        price: opt.price,
+        currency: opt.currency,
+        language: opt.language,
+        pickupIncluded: opt.pickupIncluded,
+        entryTicketIncluded: opt.entryTicketIncluded,
+        guideIncluded: opt.guideIncluded,
+        carIncluded: opt.carIncluded,
+        pricingType: opt.pricingType,
+        maxGroupSize: opt.maxGroupSize,
+        groupPrice: opt.groupPrice,
+        sortOrder: opt.sortOrder
+      }));
+
       formattedTour = {
         ...tour,
         id: String(tour.id),
+        supplierId: String(tour.supplierId),
         locations: JSON.parse(tour.locations || '[]'),
         images: JSON.parse(tour.images || '[]'),
         languages: JSON.parse(tour.languages || '[]'),
-        highlights: tour.highlights ? JSON.parse(tour.highlights || '[]') : []
+        highlights: tour.highlights ? JSON.parse(tour.highlights || '[]') : [],
+        options: formattedOptions
       };
     } catch (parseError) {
       console.warn(`   ⚠️  Error parsing tour ${tour.id} JSON fields:`, parseError.message);
       formattedTour = {
         ...tour,
         id: String(tour.id),
+        supplierId: String(tour.supplierId),
         locations: [],
         images: [],
         languages: ['English'],
-        highlights: []
+        highlights: [],
+        options: (tour.options || []).map(opt => ({
+          id: String(opt.id),
+          tourId: String(opt.tourId),
+          optionTitle: opt.optionTitle,
+          optionDescription: opt.optionDescription,
+          durationHours: opt.durationHours,
+          price: opt.price,
+          currency: opt.currency,
+          language: opt.language,
+          pickupIncluded: opt.pickupIncluded,
+          entryTicketIncluded: opt.entryTicketIncluded,
+          guideIncluded: opt.guideIncluded,
+          carIncluded: opt.carIncluded,
+          pricingType: opt.pricingType,
+          maxGroupSize: opt.maxGroupSize,
+          groupPrice: opt.groupPrice,
+          sortOrder: opt.sortOrder
+        }))
       };
     }
 
@@ -5549,17 +5645,34 @@ if (process.env.NODE_ENV === 'production') {
     
     // Explicit routes for SEO files (must come before catch-all)
     app.get('/sitemap.xml', (req, res) => {
-      const sitemapPath = path.join(distPath, 'sitemap.xml');
-      if (fs.existsSync(sitemapPath)) {
-        // Set proper headers for sitemap
-        res.type('application/xml');
-        res.setHeader('Cache-Control', 'public, max-age=3600'); // Cache for 1 hour
-        res.setHeader('X-Content-Type-Options', 'nosniff');
-        // Allow all origins for sitemap (Google needs this)
-        res.setHeader('Access-Control-Allow-Origin', '*');
-        res.sendFile(sitemapPath);
+      // Try dist folder first, then public folder as fallback
+      const distSitemapPath = path.join(distPath, 'sitemap.xml');
+      const publicSitemapPath = path.join(__dirname, '..', 'public', 'sitemap.xml');
+      
+      let sitemapPath = null;
+      if (fs.existsSync(distSitemapPath)) {
+        sitemapPath = distSitemapPath;
+      } else if (fs.existsSync(publicSitemapPath)) {
+        sitemapPath = publicSitemapPath;
+      }
+      
+      if (sitemapPath) {
+        try {
+          // Set proper headers for sitemap (Google requires text/xml)
+          res.type('text/xml');
+          res.setHeader('Content-Type', 'text/xml; charset=utf-8');
+          res.setHeader('Cache-Control', 'public, max-age=3600'); // Cache for 1 hour
+          res.setHeader('X-Content-Type-Options', 'nosniff');
+          // Allow all origins for sitemap (Google needs this)
+          res.setHeader('Access-Control-Allow-Origin', '*');
+          res.sendFile(sitemapPath);
+        } catch (error) {
+          console.error('❌ Error serving sitemap:', error);
+          res.status(500).send('Error serving sitemap');
+        }
       } else {
-        res.status(404).send('Sitemap not found');
+        console.error('❌ Sitemap not found in dist or public folder');
+        res.status(404).type('text/plain').send('Sitemap not found. Please generate it first.');
       }
     });
     

@@ -368,3 +368,4 @@ const prisma = new PrismaClient({
 
 **Remember:** Your current architecture is already scalable! The main issue is the base64 images in the database. Fix that first, then you can scale to thousands of suppliers without major changes.
 
+

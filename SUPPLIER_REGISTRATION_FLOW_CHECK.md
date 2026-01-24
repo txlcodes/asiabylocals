@@ -145,3 +145,4 @@ The entire registration and email verification flow is properly implemented with
 
 **Minor Improvement**: Consider using config file for API URL in `VerifyEmail.tsx` for consistency.
 
+

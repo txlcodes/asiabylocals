@@ -40,7 +40,7 @@ async function generateSitemap() {
 
   <!-- Layer 1: Homepage -->
   <url>
-    <loc>https://asiabylocals.com/</loc>
+    <loc>https://www.asiabylocals.com/</loc>
     <lastmod>${today}</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
@@ -48,7 +48,7 @@ async function generateSitemap() {
   
   <!-- Supplier Registration -->
   <url>
-    <loc>https://asiabylocals.com/supplier</loc>
+    <loc>https://www.asiabylocals.com/supplier</loc>
     <lastmod>${today}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
@@ -69,7 +69,7 @@ async function generateSitemap() {
       
       xml += `  <!-- Layer 3: ${city}, ${country} -->
   <url>
-    <loc>https://asiabylocals.com/${countrySlug}/${citySlug}</loc>
+    <loc>https://www.asiabylocals.com/${countrySlug}/${citySlug}</loc>
     <lastmod>${lastmod}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
@@ -87,7 +87,7 @@ async function generateSitemap() {
       
       xml += `  <!-- Layer 4: ${tour.title || tour.slug} -->
   <url>
-    <loc>https://asiabylocals.com/${countrySlug}/${citySlug}/${tourSlug}</loc>
+    <loc>https://www.asiabylocals.com/${countrySlug}/${citySlug}/${tourSlug}</loc>
     <lastmod>${lastmod}</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
@@ -98,9 +98,23 @@ async function generateSitemap() {
 
     xml += `</urlset>`;
 
-    // Write to public directory
-    const outputPath = path.join(__dirname, '..', 'public', 'sitemap.xml');
-    fs.writeFileSync(outputPath, xml, 'utf8');
+    // Write to both public and dist directories
+    const publicPath = path.join(__dirname, '..', 'public', 'sitemap.xml');
+    const distPath = path.join(__dirname, '..', 'dist', 'sitemap.xml');
+    
+    fs.writeFileSync(publicPath, xml, 'utf8');
+    console.log(`✅ Written to: ${publicPath}`);
+    
+    // Also write to dist if it exists
+    try {
+      const distDir = path.join(__dirname, '..', 'dist');
+      if (fs.existsSync(distDir)) {
+        fs.writeFileSync(distPath, xml, 'utf8');
+        console.log(`✅ Written to: ${distPath}`);
+      }
+    } catch (distError) {
+      console.warn('⚠️  Could not write to dist folder (non-critical):', distError.message);
+    }
 
     console.log(`✅ Sitemap generated successfully!`);
     console.log(`   Total URLs: ${1 + 1 + FOCUS_CITIES.length + tours.length}`);
@@ -108,7 +122,7 @@ async function generateSitemap() {
     console.log(`   - Supplier page: 1`);
     console.log(`   - City pages: ${FOCUS_CITIES.length}`);
     console.log(`   - Tour pages: ${tours.length}`);
-    console.log(`   Output: ${outputPath}`);
+    console.log(`   Output: ${publicPath}`);
 
   } catch (error) {
     console.error('Error generating sitemap:', error);
