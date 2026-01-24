@@ -1529,8 +1529,8 @@ function formatTourResponse(tour, parsedData = {}) {
       const { pricingType, pricing_type, ...cleanOpt } = opt;
       return {
         ...cleanOpt,
-        id: String(opt.id),
-        tourId: String(opt.tourId)
+      id: String(opt.id),
+      tourId: String(opt.tourId)
       };
     }) : []
   };
@@ -2158,73 +2158,148 @@ app.post('/api/tours', async (req, res) => {
     
     console.log('✅ All validations passed, creating tour...');
 
-    // ==================== OPTION 2: SMART KEYWORD EXTRACTION ====================
-    // Rule: Every slug must answer: WHAT place? + WHAT type of experience?
-    // Format: {primary-attraction}-{tour-type}
+    // ==================== WORLD-CLASS SEO SLUG GENERATION ====================
+    // Professional slug generation with intelligent keyword extraction and SEO optimization
+    // Format: {location}-{keyword}-{tour-type} or {city}-{location}-{tour-type}
     
-    // Helper: Convert text to URL-friendly slug
+    // Enhanced slugify function - handles edge cases and special characters
     const slugify = (text) => {
       if (!text) return '';
       return text
         .toLowerCase()
         .trim()
+        .normalize('NFD') // Normalize unicode characters (é -> e)
+        .replace(/[\u0300-\u036f]/g, '') // Remove diacritics
         .replace(/[^\w\s-]/g, '') // Remove special characters
         .replace(/[\s_-]+/g, '-') // Replace spaces and underscores with hyphens
-        .replace(/^-+|-+$/g, ''); // Remove leading/trailing hyphens
+        .replace(/^-+|-+$/g, '') // Remove leading/trailing hyphens
+        .substring(0, 50); // Max length for individual parts
     };
 
-    // Extract tour type from title + category
+    // World-class tour type extraction with priority-based matching
     const extractTourType = (title, category) => {
       const titleLower = title.toLowerCase();
+      const titleWords = titleLower.split(/\s+/);
       
-      // Specific tour types (check title first for most specific match)
-      if (titleLower.includes('sunrise')) return 'sunrise-tour';
-      if (titleLower.includes('sunset')) return 'sunset-tour';
-      if (titleLower.includes('food') || titleLower.includes('culinary')) return 'food-tour';
-      if (titleLower.includes('heritage') || titleLower.includes('heritage walk')) return 'heritage-walk';
-      if (titleLower.includes('walking') || titleLower.includes('walk')) return 'walking-tour';
-      if (titleLower.includes('photography') || titleLower.includes('photo')) return 'photography-tour';
-      if (titleLower.includes('private')) return 'private-tour';
-      if (titleLower.includes('group')) return 'group-tour';
-      if (titleLower.includes('entry') || titleLower.includes('ticket') || titleLower.includes('admission')) return 'entry-ticket';
-      if (titleLower.includes('day trip') || titleLower.includes('day-trip')) return 'day-trip';
-      if (titleLower.includes('multi-day') || titleLower.includes('multi day')) return 'multi-day-tour';
-      if (titleLower.includes('cultural') || titleLower.includes('culture')) return 'cultural-tour';
-      if (titleLower.includes('shopping') || titleLower.includes('market')) return 'shopping-tour';
-      if (titleLower.includes('night') || titleLower.includes('evening')) return 'night-tour';
-      if (titleLower.includes('bike') || titleLower.includes('cycling')) return 'bike-tour';
-      if (titleLower.includes('boat') || titleLower.includes('cruise')) return 'boat-tour';
+      // Priority 1: Time-based experiences (most specific)
+      const timeBased = [
+        { keywords: ['sunrise'], type: 'sunrise-tour' },
+        { keywords: ['sunset'], type: 'sunset-tour' },
+        { keywords: ['morning'], type: 'morning-tour' },
+        { keywords: ['afternoon'], type: 'afternoon-tour' },
+        { keywords: ['evening', 'night'], type: 'evening-tour' },
+        { keywords: ['full-day', 'full day', 'day trip', 'day-trip'], type: 'full-day-tour' },
+        { keywords: ['half-day', 'half day'], type: 'half-day-tour' },
+        { keywords: ['multi-day', 'multi day'], type: 'multi-day-tour' }
+      ];
       
-      // Default based on category
+      for (const { keywords, type } of timeBased) {
+        if (keywords.some(kw => titleLower.includes(kw))) {
+          return type;
+        }
+      }
+      
+      // Priority 2: Activity-based experiences
+      const activityBased = [
+        { keywords: ['food', 'culinary', 'cooking', 'dining'], type: 'food-tour' },
+        { keywords: ['photography', 'photo', 'photography tour'], type: 'photography-tour' },
+        { keywords: ['walking', 'walk', 'heritage walk'], type: 'walking-tour' },
+        { keywords: ['bike', 'cycling', 'bicycle'], type: 'bike-tour' },
+        { keywords: ['boat', 'cruise', 'river'], type: 'boat-tour' },
+        { keywords: ['shopping', 'market', 'bazaar'], type: 'shopping-tour' },
+        { keywords: ['spiritual', 'temple', 'pilgrimage'], type: 'spiritual-tour' },
+        { keywords: ['adventure', 'trekking', 'hiking'], type: 'adventure-tour' }
+      ];
+      
+      for (const { keywords, type } of activityBased) {
+        if (keywords.some(kw => titleLower.includes(kw))) {
+          return type;
+        }
+      }
+      
+      // Priority 3: Experience quality/type
+      const experienceType = [
+        { keywords: ['heritage', 'historical'], type: 'heritage-tour' },
+        { keywords: ['cultural', 'culture'], type: 'cultural-tour' },
+        { keywords: ['private'], type: 'private-tour' },
+        { keywords: ['group'], type: 'group-tour' },
+        { keywords: ['premium', 'deluxe', 'luxury'], type: 'premium-tour' },
+        { keywords: ['express', 'quick'], type: 'express-tour' },
+        { keywords: ['entry', 'ticket', 'admission'], type: 'entry-ticket' }
+      ];
+      
+      for (const { keywords, type } of experienceType) {
+        if (keywords.some(kw => titleLower.includes(kw))) {
+          return type;
+        }
+      }
+      
+      // Priority 4: Category-based fallback
       if (category === 'Guided Tour') return 'guided-tour';
       if (category === 'Entry Ticket') return 'entry-ticket';
       if (category === 'Mini Tour') return 'mini-tour';
       
-      // Fallback
+      // Final fallback
       return 'tour';
     };
 
-    // Extract primary location from locations array (SEO-optimized)
-    const extractPrimaryLocation = (locationsArray, city) => {
-      // Use first location if available (most important attraction)
-      if (Array.isArray(locationsArray) && locationsArray.length > 0) {
-        // Prioritize well-known attractions for SEO
+    // Intelligent location extraction with SEO prioritization
+    const extractPrimaryLocation = (locationsArray, city, title) => {
+      // Comprehensive list of well-known Indian attractions (SEO gold)
         const wellKnownAttractions = [
-          'taj mahal', 'amber fort', 'city palace', 'hawa mahal', 
-          'red fort', 'india gate', 'jama masjid', 'qutb minar',
-          'jantar mantar', 'jal mahal', 'nahargarh fort'
-        ];
-        
-        const firstLocation = locationsArray[0].toLowerCase();
-        // If first location is a well-known attraction, use it
-        if (wellKnownAttractions.some(attr => firstLocation.includes(attr))) {
-          return locationsArray[0];
+        // Agra
+        'taj mahal', 'agra fort', 'fatehpur sikri', 'mehtab bagh', 'baby taj',
+        // Delhi
+        'red fort', 'india gate', 'qutb minar', 'jama masjid', 'humayun tomb', 'lotus temple',
+        'akshardham', 'jantar mantar', 'raj ghat', 'purana qila',
+        // Jaipur
+        'amber fort', 'city palace', 'hawa mahal', 'jal mahal', 'nahargarh fort', 'jantar mantar',
+        'albert hall', 'birla temple', 'jaigarh fort',
+        // Other major attractions
+        'golden temple', 'gateway of india', 'charminar', 'mysore palace', 'victoria memorial'
+      ];
+      
+      if (Array.isArray(locationsArray) && locationsArray.length > 0) {
+        // Strategy 1: Find well-known attraction (best for SEO)
+        for (const location of locationsArray) {
+          const locationLower = location.toLowerCase();
+          const matchedAttraction = wellKnownAttractions.find(attr => 
+            locationLower.includes(attr) || attr.includes(locationLower)
+          );
+          if (matchedAttraction) {
+            return location; // Use the full location name
+          }
         }
         
-        // Otherwise, use first location (supplier's priority)
+        // Strategy 2: Check if title mentions a well-known attraction
+        const titleLower = title.toLowerCase();
+        for (const attr of wellKnownAttractions) {
+          if (titleLower.includes(attr)) {
+            // Find matching location or use attraction name
+            const matchingLocation = locationsArray.find(loc => 
+              loc.toLowerCase().includes(attr) || attr.includes(loc.toLowerCase())
+            );
+            if (matchingLocation) return matchingLocation;
+            // If title mentions it but not in locations, use first location
+          return locationsArray[0];
+          }
+        }
+        
+        // Strategy 3: Use first location (supplier's priority)
         return locationsArray[0];
       }
-      // Fallback to city name
+      
+      // Strategy 4: Extract from title if no locations provided
+      if (title) {
+        const titleLower = title.toLowerCase();
+        for (const attr of wellKnownAttractions) {
+          if (titleLower.includes(attr)) {
+            return attr.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+          }
+        }
+      }
+      
+      // Final fallback: city name
       return city;
     };
 
@@ -2252,32 +2327,54 @@ app.post('/api/tours', async (req, res) => {
       }
     }
     
-    // Extract additional keywords from title for uniqueness (SEO-optimized)
-    const extractKeywords = (text) => {
-      const stopWords = ['the', 'and', 'for', 'with', 'from', 'to', 'of', 'a', 'an', 'in', 'on', 'at', 'by', 'tour', 'tours', 'ticket', 'tickets', 'guide', 'guided', 'private', 'group', 'skip', 'line', 'book', 'booking'];
+    // Advanced keyword extraction with NLP-like prioritization
+    const extractKeywords = (text, locationSlug, citySlug) => {
+      // Comprehensive stop words (common words that don't add SEO value)
+      const stopWords = new Set([
+        'the', 'and', 'for', 'with', 'from', 'to', 'of', 'a', 'an', 'in', 'on', 'at', 'by',
+        'tour', 'tours', 'ticket', 'tickets', 'guide', 'guided', 'private', 'group',
+        'skip', 'line', 'book', 'booking', 'visit', 'visiting', 'see', 'seeing',
+        'day', 'hour', 'hours', 'minute', 'minutes', 'your', 'you', 'this', 'that',
+        'is', 'are', 'was', 'were', 'be', 'been', 'being', 'have', 'has', 'had',
+        'do', 'does', 'did', 'will', 'would', 'could', 'should', 'may', 'might'
+      ]);
       
-      // SEO-important keywords that should be prioritized
-      const seoKeywords = ['sunrise', 'sunset', 'heritage', 'cultural', 'food', 'walking', 'photography', 'full-day', 'half-day', 'express', 'premium', 'deluxe'];
+      // High-value SEO keywords (prioritize these)
+      const seoKeywords = new Set([
+        'sunrise', 'sunset', 'heritage', 'cultural', 'food', 'walking', 'photography',
+        'full-day', 'half-day', 'express', 'premium', 'deluxe', 'exclusive', 'authentic',
+        'traditional', 'royal', 'spiritual', 'adventure', 'culinary', 'shopping',
+        'morning', 'evening', 'night', 'detailed', 'comprehensive', 'personalized'
+      ]);
       
-      const words = text.toLowerCase()
-        .replace(/[^\w\s]/g, ' ') // Remove special chars
+      // Extract meaningful words
+      const words = text
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '') // Remove diacritics
+        .replace(/[^\w\s]/g, ' ') // Replace special chars with spaces
         .split(/\s+/)
+        .map(word => word.replace(/[^\w]/g, '')) // Clean each word
         .filter(word => {
-          const cleanWord = word.replace(/[^\w]/g, '');
-          return cleanWord.length > 3 && // Only words longer than 3 chars
-            !stopWords.includes(cleanWord) &&
-            cleanWord !== locationSlug.toLowerCase() && // Don't repeat location
-            cleanWord !== citySlug.toLowerCase(); // Don't repeat city
+          const cleanWord = word.toLowerCase();
+          return cleanWord.length > 3 && // Minimum 4 characters
+            !stopWords.has(cleanWord) &&
+            cleanWord !== locationSlug.toLowerCase() &&
+            cleanWord !== citySlug.toLowerCase() &&
+            !cleanWord.match(/^\d+$/); // Exclude pure numbers
         })
+        .filter((word, index, self) => self.indexOf(word) === index) // Remove duplicates
         .sort((a, b) => {
           // Prioritize SEO keywords
-          const aIsSEO = seoKeywords.some(kw => a.includes(kw));
-          const bIsSEO = seoKeywords.some(kw => b.includes(kw));
+          const aIsSEO = Array.from(seoKeywords).some(kw => a.includes(kw));
+          const bIsSEO = Array.from(seoKeywords).some(kw => b.includes(kw));
           if (aIsSEO && !bIsSEO) return -1;
           if (!aIsSEO && bIsSEO) return 1;
-          return 0;
+          // Then prioritize longer words (more specific)
+          return b.length - a.length;
         })
-        .slice(0, 6); // Take up to 6 meaningful words
+        .slice(0, 8); // Take up to 8 meaningful words
+      
       return words;
     };
     
@@ -2563,7 +2660,7 @@ app.post('/api/tours', async (req, res) => {
     }
     
     // CRITICAL: Remove ALL id fields from tourOptions to prevent ID conflicts
-    tourOptions = tourOptions.map((opt, idx) => {
+      tourOptions = tourOptions.map((opt, idx) => {
       // Ensure opt is an object
       if (!opt || typeof opt !== 'object') {
         console.warn(`⚠️  Tour option ${idx + 1} is not a valid object, skipping`);
@@ -2648,17 +2745,17 @@ app.post('/api/tours', async (req, res) => {
       if (validOptions.length === 0) {
         console.warn('⚠️  No valid tour options found, creating tour without options');
       } else {
-        tourData.options = {
+      tourData.options = {
           create: validOptions.map((option, index) => {
-            // CRITICAL: Remove any id field from option (id is auto-generated by Prisma)
-            // This prevents ID conflicts that cause P2002 errors
-            const { id, tourId, ...cleanOption } = option;
-            if (id) {
-              console.warn(`⚠️  Option ${index + 1} had an id field (${id}), removing it to prevent conflicts`);
-            }
-            if (tourId) {
-              console.warn(`⚠️  Option ${index + 1} had a tourId field (${tourId}), removing it (will be set automatically)`);
-            }
+          // CRITICAL: Remove any id field from option (id is auto-generated by Prisma)
+          // This prevents ID conflicts that cause P2002 errors
+          const { id, tourId, ...cleanOption } = option;
+          if (id) {
+            console.warn(`⚠️  Option ${index + 1} had an id field (${id}), removing it to prevent conflicts`);
+          }
+          if (tourId) {
+            console.warn(`⚠️  Option ${index + 1} had a tourId field (${tourId}), removing it (will be set automatically)`);
+          }
           // Infer pricing type for this option: if groupPrice and maxGroupSize exist, it's per_group
           const optionIsPerGroup = !!(cleanOption.groupPrice && cleanOption.maxGroupSize);
           
@@ -2699,8 +2796,8 @@ app.post('/api/tours', async (req, res) => {
             groupPrice: cleanOption.groupPrice && !isNaN(parseFloat(cleanOption.groupPrice)) ? parseFloat(cleanOption.groupPrice) : null,
             sortOrder: index
           };
-          })
-        };
+        })
+      };
       }
     }
     
@@ -3041,14 +3138,14 @@ app.post('/api/tours', async (req, res) => {
           // Fetch the tour again with options
           tour = await prisma.tour.findUnique({
             where: { id: tour.id },
-            include: {
-              options: {
-                orderBy: {
-                  sortOrder: 'asc'
-                }
+          include: {
+            options: {
+              orderBy: {
+                sortOrder: 'asc'
               }
             }
-          });
+          }
+        });
         }
         break; // Success, exit retry loop
       } catch (createError) {
@@ -5426,7 +5523,7 @@ app.get('/api/public/tours', async (req, res) => {
                 if (!opt || !opt.id) return null;
                 // Explicitly format option fields (exclude pricingType if it somehow exists)
                 const { pricingType, pricing_type, ...cleanOpt } = opt;
-                return {
+        return {
                   ...cleanOpt,
                   id: String(opt.id),
                   tourId: String(opt.tourId || tour.id)
@@ -5504,7 +5601,7 @@ app.get('/api/public/tours', async (req, res) => {
     }).filter(tour => tour !== null && tour !== undefined); // Remove any null/undefined tours
 
     console.log(`   ✅ Formatted ${formattedTours.length} tours successfully`);
-    
+
     // Log options statistics
     const toursWithOptions = formattedTours.filter(t => t.options && t.options.length > 0).length;
     const toursWithoutOptions = formattedTours.length - toursWithOptions;
@@ -5785,11 +5882,11 @@ if (process.env.NODE_ENV === 'production') {
           // Set proper headers for sitemap (Google requires text/xml)
           res.type('text/xml');
           res.setHeader('Content-Type', 'text/xml; charset=utf-8');
-          res.setHeader('Cache-Control', 'public, max-age=3600'); // Cache for 1 hour
-          res.setHeader('X-Content-Type-Options', 'nosniff');
-          // Allow all origins for sitemap (Google needs this)
-          res.setHeader('Access-Control-Allow-Origin', '*');
-          res.sendFile(sitemapPath);
+        res.setHeader('Cache-Control', 'public, max-age=3600'); // Cache for 1 hour
+        res.setHeader('X-Content-Type-Options', 'nosniff');
+        // Allow all origins for sitemap (Google needs this)
+        res.setHeader('Access-Control-Allow-Origin', '*');
+        res.sendFile(sitemapPath);
         } catch (error) {
           console.error('❌ Error serving sitemap:', error);
           res.status(500).send('Error serving sitemap');
