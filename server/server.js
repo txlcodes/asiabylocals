@@ -2243,28 +2243,154 @@ app.post('/api/tours', async (req, res) => {
       return 'tour';
     };
 
-    // Intelligent location extraction with SEO prioritization
+    // World-class location extraction for ALL Asian cities with comprehensive attraction database
     const extractPrimaryLocation = (locationsArray, city, title) => {
-      // Comprehensive list of well-known Indian attractions (SEO gold)
-        const wellKnownAttractions = [
-        // Agra
-        'taj mahal', 'agra fort', 'fatehpur sikri', 'mehtab bagh', 'baby taj',
-        // Delhi
-        'red fort', 'india gate', 'qutb minar', 'jama masjid', 'humayun tomb', 'lotus temple',
-        'akshardham', 'jantar mantar', 'raj ghat', 'purana qila',
-        // Jaipur
-        'amber fort', 'city palace', 'hawa mahal', 'jal mahal', 'nahargarh fort', 'jantar mantar',
-        'albert hall', 'birla temple', 'jaigarh fort',
-        // Other major attractions
-        'golden temple', 'gateway of india', 'charminar', 'mysore palace', 'victoria memorial'
-      ];
+      // Comprehensive database of well-known Asian attractions (SEO gold for entire continent)
+      const asianAttractions = {
+        // India
+        'agra': ['taj mahal', 'agra fort', 'fatehpur sikri', 'mehtab bagh', 'baby taj', 'itmad ud daulah'],
+        'delhi': ['red fort', 'india gate', 'qutb minar', 'jama masjid', 'humayun tomb', 'lotus temple', 'akshardham', 'jantar mantar', 'raj ghat', 'purana qila'],
+        'jaipur': ['amber fort', 'city palace', 'hawa mahal', 'jal mahal', 'nahargarh fort', 'jantar mantar', 'albert hall', 'birla temple', 'jaigarh fort'],
+        'mumbai': ['gateway of india', 'marine drive', 'elephanta caves', 'chhatrapati shivaji terminus'],
+        'varanasi': ['ghats', 'kashi vishwanath', 'sarnath', 'dashashwamedh ghat'],
+        'goa': ['basilica of bom jesus', 'anjuna beach', 'baga beach', 'calangute beach'],
+        'kolkata': ['victoria memorial', 'howrah bridge', 'kalighat temple'],
+        'chennai': ['kapaleeshwarar temple', 'marina beach', 'fort st george'],
+        'bangalore': ['lalbagh botanical garden', 'cubbon park', 'tipu sultan palace'],
+        'hyderabad': ['charminar', 'golconda fort', 'hussain sagar'],
+        'udaipur': ['city palace', 'lake pichola', 'jag mandir'],
+        'jodhpur': ['mehrangarh fort', 'jaswant thada', 'umaid bhawan palace'],
+        'kerala': ['backwaters', 'alleppey', 'munnar', 'fort kochi'],
+        
+        // Japan
+        'tokyo': ['tokyo tower', 'senso-ji temple', 'shibuya crossing', 'meiji shrine', 'imperial palace', 'skytree', 'harajuku', 'ginza', 'tsukiji market'],
+        'kyoto': ['fushimi inari', 'kinkaku-ji', 'ginkaku-ji', 'kiyomizu-dera', 'arashiyama bamboo grove', 'nijo castle', 'philosopher path', 'golden pavilion'],
+        'osaka': ['osaka castle', 'dotonbori', 'universal studios', 'shinsaibashi', 'osaka aquarium'],
+        'nara': ['todaiji temple', 'nara park', 'kasuga taisha', 'deer park'],
+        'hiroshima': ['peace memorial park', 'atomic bomb dome', 'miyajima', 'itsukushima shrine'],
+        'yokohama': ['chinatown', 'minato mirai', 'sankeien garden'],
+        'sapporo': ['sapporo snow festival', 'odori park', 'susukino'],
+        'okinawa': ['shuri castle', 'churaumi aquarium', 'kokusai street'],
+        
+        // Thailand
+        'bangkok': ['grand palace', 'wat pho', 'wat arun', 'chatuchak market', 'wat phra kaew', 'khao san road', 'lumphini park', 'wat saket'],
+        'chiang mai': ['doi suthep', 'old city', 'night bazaar', 'elephant sanctuary', 'wat phra singh', 'wat chedi luang'],
+        'phuket': ['patong beach', 'big buddha', 'phang nga bay', 'james bond island', 'old town'],
+        'pattaya': ['walking street', 'sanctuary of truth', 'nong nooch garden'],
+        'ayutthaya': ['ayutthaya historical park', 'wat mahathat', 'wat phra si sanphet'],
+        'sukhothai': ['sukhothai historical park', 'wat mahathat'],
+        'krabi': ['railay beach', 'phang nga bay', 'ao nang', 'tiger cave temple'],
+        
+        // Singapore
+        'singapore': ['marina bay sands', 'gardens by the bay', 'sentosa', 'merlion', 'orchard road', 'little india', 'chinatown', 'universal studios', 'singapore flyer', 'clarke quay'],
+        
+        // Indonesia
+        'bali': ['tanah lot', 'uluwatu temple', 'ubud monkey forest', 'tegallalang rice terrace', 'besakih temple', 'waterbom', 'seminyak', 'kuta beach'],
+        'jakarta': ['national monument', 'old town', 'ancol dreamland', 'taman mini'],
+        'yogyakarta': ['borobudur', 'prambanan', 'sultan palace', 'malioboro'],
+        'bandung': ['tangkuban perahu', 'gedung sate', 'braga street'],
+        
+        // Malaysia
+        'kuala lumpur': ['petronas towers', 'batu caves', 'kl tower', 'merdeka square', 'china town', 'little india'],
+        'penang': ['george town', 'kek lok si temple', 'penang hill', 'batu ferringhi'],
+        'langkawi': ['sky bridge', 'cable car', 'pantai cenang'],
+        'malacca': ['red square', 'a famosa', 'jonker street'],
+        
+        // Vietnam
+        'hanoi': ['hoan kiem lake', 'old quarter', 'temple of literature', 'ho chi minh mausoleum', 'water puppet theatre'],
+        'ho chi minh city': ['war remnants museum', 'cu chi tunnels', 'notre dame cathedral', 'ben thanh market', 'reunification palace'],
+        'hue': ['imperial city', 'thien mu pagoda', 'royal tombs'],
+        'hoi an': ['ancient town', 'japanese bridge', 'my son sanctuary'],
+        'halong bay': ['halong bay', 'cat ba island', 'sapa'],
+        
+        // Philippines
+        'manila': ['intramuros', 'rizal park', 'fort santiago', 'manila cathedral'],
+        'cebu': ['magellan cross', 'fort san pedro', 'temple of leah'],
+        'boracay': ['white beach', 'puka shell beach', 'ariel point'],
+        'palawan': ['underground river', 'el nido', 'coron'],
+        
+        // South Korea
+        'seoul': ['gyeongbokgung palace', 'namsan tower', 'myeongdong', 'insadong', 'bukchon hanok village', 'dongdaemun', 'hongdae'],
+        'busan': ['haeundae beach', 'gamcheon culture village', 'beomeosa temple', 'jagalchi market'],
+        'jeju': ['jeju island', 'seongsan ilchulbong', 'manjanggul cave', 'cheonjiyeon waterfall'],
+        
+        // China
+        'beijing': ['great wall', 'forbidden city', 'temple of heaven', 'summer palace', 'tiananmen square', 'beijing hutongs'],
+        'shanghai': ['the bund', 'yu garden', 'shanghai tower', 'tianzifang', 'nanjing road'],
+        'xi an': ['terracotta warriors', 'ancient city wall', 'muslim quarter'],
+        'guilin': ['li river', 'yangshuo', 'elephant trunk hill'],
+        'hong kong': ['victoria peak', 'disneyland', 'ocean park', 'temple street', 'star ferry', 'big buddha'],
+        
+        // Sri Lanka
+        'colombo': ['gangaramaya temple', 'national museum', 'galle face green'],
+        'kandy': ['temple of the tooth', 'royal botanical garden', 'kandy lake'],
+        'sigiriya': ['sigiriya rock', 'lion rock'],
+        'galle': ['galle fort', 'old town'],
+        
+        // Nepal
+        'kathmandu': ['durbar square', 'swayambhunath', 'pashupatinath', 'boudhanath'],
+        'pokhara': ['phewa lake', 'world peace pagoda', 'annapurna'],
+        
+        // Myanmar
+        'yangon': ['shwedagon pagoda', 'sule pagoda', 'bogyoke market'],
+        'bagan': ['bagan temples', 'ananda temple', 'sunset point'],
+        
+        // Cambodia
+        'phnom penh': ['royal palace', 'silver pagoda', 'killing fields'],
+        'siem reap': ['angkor wat', 'bayon temple', 'ta prohm', 'angkor thom'],
+        
+        // Bangladesh
+        'dhaka': ['lalbagh fort', 'ahsan manzil', 'national museum'],
+        
+        // Pakistan
+        'lahore': ['badshahi mosque', 'lahore fort', 'shalimar gardens'],
+        'karachi': ['mazar e quaid', 'clifton beach'],
+        
+        // Taiwan
+        'taipei': ['taipei 101', 'chiang kai shek memorial', 'longshan temple', 'shilin night market'],
+        'taichung': ['rainbow village', 'sun moon lake'],
+        
+        // Mongolia
+        'ulaanbaatar': ['gandantegchinlen monastery', 'genghis khan square'],
+        
+        // Kazakhstan
+        'almaty': ['kok tobe', 'big almaty lake'],
+        
+        // Uzbekistan
+        'samarkand': ['registan', 'gur e amir', 'bibi khanym mosque'],
+        'tashkent': ['chorsu bazaar', 'khast imam complex'],
+        
+        // General Asian landmarks (fallback)
+        'general': ['temple', 'pagoda', 'palace', 'fort', 'beach', 'market', 'garden', 'museum', 'monument', 'shrine', 'monastery', 'mosque', 'cathedral', 'bridge', 'tower', 'park', 'lake', 'mountain', 'island', 'cave', 'waterfall']
+      };
+      
+      // Normalize city name for lookup
+      const cityLower = city.toLowerCase().trim();
+      
+      // Find city-specific attractions
+      let cityAttractions = [];
+      for (const [cityKey, attractions] of Object.entries(asianAttractions)) {
+        if (cityLower.includes(cityKey) || cityKey.includes(cityLower)) {
+          cityAttractions = attractions;
+          break;
+        }
+      }
+      
+      // If no city match, use general attractions
+      if (cityAttractions.length === 0) {
+        cityAttractions = asianAttractions.general || [];
+      }
+      
+      // Combine city-specific and general attractions
+      const allAttractions = [...cityAttractions, ...(asianAttractions.general || [])];
       
       if (Array.isArray(locationsArray) && locationsArray.length > 0) {
-        // Strategy 1: Find well-known attraction (best for SEO)
+        // Strategy 1: Find well-known attraction from comprehensive Asian database (best for SEO)
         for (const location of locationsArray) {
           const locationLower = location.toLowerCase();
-          const matchedAttraction = wellKnownAttractions.find(attr => 
-            locationLower.includes(attr) || attr.includes(locationLower)
+          const matchedAttraction = allAttractions.find(attr => 
+            locationLower.includes(attr) || attr.includes(locationLower) ||
+            attr.split(' ').some(word => locationLower.includes(word))
           );
           if (matchedAttraction) {
             return location; // Use the full location name
@@ -2273,12 +2399,14 @@ app.post('/api/tours', async (req, res) => {
         
         // Strategy 2: Check if title mentions a well-known attraction
         const titleLower = title.toLowerCase();
-        for (const attr of wellKnownAttractions) {
-          if (titleLower.includes(attr)) {
+        for (const attr of allAttractions) {
+          if (titleLower.includes(attr) || attr.split(' ').some(word => titleLower.includes(word))) {
             // Find matching location or use attraction name
-            const matchingLocation = locationsArray.find(loc => 
-              loc.toLowerCase().includes(attr) || attr.includes(loc.toLowerCase())
-            );
+            const matchingLocation = locationsArray.find(loc => {
+              const locLower = loc.toLowerCase();
+              return locLower.includes(attr) || attr.includes(locLower) ||
+                     attr.split(' ').some(word => locLower.includes(word));
+            });
             if (matchingLocation) return matchingLocation;
             // If title mentions it but not in locations, use first location
           return locationsArray[0];
@@ -2292,8 +2420,9 @@ app.post('/api/tours', async (req, res) => {
       // Strategy 4: Extract from title if no locations provided
       if (title) {
         const titleLower = title.toLowerCase();
-        for (const attr of wellKnownAttractions) {
-          if (titleLower.includes(attr)) {
+        for (const attr of allAttractions) {
+          if (titleLower.includes(attr) || attr.split(' ').some(word => titleLower.includes(word))) {
+            // Capitalize properly
             return attr.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
           }
         }
@@ -2483,29 +2612,34 @@ app.post('/api/tours', async (req, res) => {
       break;
     }
     
-    // Final safety check - ensure slug is unique using custom descriptive words
+    // Final safety check - ensure slug is unique using custom descriptive words for ALL Asian cities
     if (attempt >= maxAttempts || (attempt > 0 && slug === baseSlug)) {
-      // Custom descriptive words for India tours - SEO-friendly and meaningful
-      const indiaTourWords = [
-        // Heritage & Culture
-        'heritage', 'cultural', 'traditional', 'authentic', 'classic', 'royal',
-        // Experience Types
-        'premium', 'deluxe', 'exclusive', 'private', 'personalized', 'custom',
-        'express', 'detailed', 'comprehensive', 'extended', 'full-day', 'half-day',
-        // Special Features
-        'sunrise', 'sunset', 'evening', 'morning', 'afternoon', 'night',
-        'photography', 'walking', 'cycling', 'food', 'shopping', 'spiritual',
-        // Location Specific
-        'city', 'temple', 'fort', 'palace', 'bazaar', 'market', 'garden', 'monument',
-        // Quality Indicators
-        'guided', 'expert', 'local', 'native', 'certified', 'professional', 'licensed'
+      // Comprehensive custom words for Asian tours - SEO-friendly and meaningful for entire continent
+      const asianTourWords = [
+        // Heritage & Culture (Universal Asian themes)
+        'heritage', 'cultural', 'traditional', 'authentic', 'classic', 'royal', 'imperial', 'ancient',
+        // Experience Types (Premium offerings)
+        'premium', 'deluxe', 'exclusive', 'private', 'personalized', 'custom', 'luxury', 'vip',
+        'express', 'detailed', 'comprehensive', 'extended', 'full-day', 'half-day', 'multi-day',
+        // Time-based (Universal)
+        'sunrise', 'sunset', 'evening', 'morning', 'afternoon', 'night', 'dawn', 'dusk',
+        // Activity Types (Pan-Asian activities)
+        'photography', 'walking', 'cycling', 'food', 'culinary', 'shopping', 'spiritual', 'adventure',
+        'nature', 'wildlife', 'beach', 'mountain', 'island', 'river', 'cruise', 'sailing',
+        // Location Types (Universal Asian landmarks)
+        'temple', 'pagoda', 'fort', 'palace', 'bazaar', 'market', 'garden', 'monument', 'shrine',
+        'monastery', 'mosque', 'cathedral', 'bridge', 'tower', 'park', 'lake', 'cave', 'waterfall',
+        'museum', 'gallery', 'village', 'town', 'district', 'quarter', 'street',
+        // Quality Indicators (Trust signals)
+        'guided', 'expert', 'local', 'native', 'certified', 'professional', 'licensed', 'official',
+        'award-winning', 'recommended', 'popular', 'famous', 'iconic', 'legendary'
       ];
       
       // Try custom words first (more SEO-friendly than numbers)
       let wordIndex = 0;
-      let finalSlug = `${baseSlug}-${indiaTourWords[wordIndex]}`;
+      let finalSlug = `${baseSlug}-${asianTourWords[wordIndex]}`;
       
-      while (wordIndex < indiaTourWords.length) {
+      while (wordIndex < asianTourWords.length) {
         const existingTour = await prisma.tour.findUnique({
           where: { slug: finalSlug }
         });
@@ -2514,17 +2648,17 @@ app.post('/api/tours', async (req, res) => {
           break;
         }
         wordIndex++;
-        if (wordIndex < indiaTourWords.length) {
-          finalSlug = `${baseSlug}-${indiaTourWords[wordIndex]}`;
+        if (wordIndex < asianTourWords.length) {
+          finalSlug = `${baseSlug}-${asianTourWords[wordIndex]}`;
         }
       }
       
       // If all custom words are exhausted, try combining with city
-      if (wordIndex >= indiaTourWords.length && citySlug && citySlug !== locationSlug) {
+      if (wordIndex >= asianTourWords.length && citySlug && citySlug !== locationSlug) {
         let combinedWordIndex = 0;
-        finalSlug = `${baseSlug}-${citySlug}-${indiaTourWords[combinedWordIndex]}`;
+        finalSlug = `${baseSlug}-${citySlug}-${asianTourWords[combinedWordIndex]}`;
         
-        while (combinedWordIndex < Math.min(10, indiaTourWords.length)) {
+        while (combinedWordIndex < Math.min(15, asianTourWords.length)) {
           const existingTour = await prisma.tour.findUnique({
             where: { slug: finalSlug }
           });
@@ -2533,14 +2667,14 @@ app.post('/api/tours', async (req, res) => {
             break;
           }
           combinedWordIndex++;
-          if (combinedWordIndex < indiaTourWords.length) {
-            finalSlug = `${baseSlug}-${citySlug}-${indiaTourWords[combinedWordIndex]}`;
+          if (combinedWordIndex < asianTourWords.length) {
+            finalSlug = `${baseSlug}-${citySlug}-${asianTourWords[combinedWordIndex]}`;
           }
         }
       }
       
       // Last resort: append number only if all custom words failed
-      if (wordIndex >= indiaTourWords.length) {
+      if (wordIndex >= asianTourWords.length) {
         let counter = 1;
         finalSlug = `${baseSlug}-${counter}`;
         while (counter < 20) {
