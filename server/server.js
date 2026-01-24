@@ -4753,6 +4753,51 @@ app.get('/api/public/tours', async (req, res) => {
         });
         break; // Success, exit retry loop
       } catch (dbError) {
+        // If mode: 'insensitive' is not supported, try with exact match
+        if (dbError.message?.includes('insensitive') || dbError.message?.includes('mode')) {
+          console.log('   ⚠️  Case-insensitive mode not supported, trying exact match...');
+          const fallbackWhere = {
+            status: status
+          };
+          if (city) fallbackWhere.city = city;
+          if (country) fallbackWhere.country = country;
+          if (category) fallbackWhere.category = category;
+          
+          try {
+            tours = await prisma.tour.findMany({
+              where: fallbackWhere,
+              include: {
+                supplier: {
+                  select: {
+                    id: true,
+                    fullName: true,
+                    companyName: true
+                  }
+                },
+                options: {
+                  orderBy: {
+                    sortOrder: 'asc'
+                  }
+                }
+              },
+              orderBy: {
+                createdAt: 'desc'
+              }
+            });
+            // Filter in memory for case-insensitive match
+            if (tours && (city || country)) {
+              tours = tours.filter(tour => {
+                const cityMatch = !city || tour.city?.toLowerCase() === city.toLowerCase();
+                const countryMatch = !country || tour.country?.toLowerCase() === country.toLowerCase();
+                return cityMatch && countryMatch;
+              });
+            }
+            break; // Success with fallback
+          } catch (fallbackError) {
+            console.error('   ❌ Fallback query also failed:', fallbackError.message);
+            throw dbError; // Throw original error
+          }
+        }
         findAttempts++;
         console.error(`   Database error fetching tours (attempt ${findAttempts}/${MAX_FIND_RETRIES}):`, dbError.message);
 
