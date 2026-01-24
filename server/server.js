@@ -2713,7 +2713,9 @@ app.post('/api/tours', async (req, res) => {
             const cleanOpt = {};
             
             VALID_TOUR_OPTION_FIELDS.forEach(field => {
-              if (field in opt && opt[field] !== undefined) {
+              // Only include field if it has a value (exclude null/undefined)
+              // This prevents Prisma from trying to validate columns that might not exist yet in production
+              if (field in opt && opt[field] !== undefined && opt[field] !== null) {
                 cleanOpt[field] = opt[field];
               }
             });
@@ -2920,7 +2922,9 @@ app.post('/api/tours', async (req, res) => {
             data: optionsToCreate.map(opt => {
               const cleanOpt = {};
               VALID_TOUR_OPTION_FIELDS.forEach(field => {
-                if (opt[field] !== undefined) {
+                // Only include field if it has a value (exclude null/undefined)
+                // This prevents Prisma from trying to validate columns that might not exist yet
+                if (opt[field] !== undefined && opt[field] !== null) {
                   cleanOpt[field] = opt[field];
                 }
               });
