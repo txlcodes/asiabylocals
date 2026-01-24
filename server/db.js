@@ -5,13 +5,22 @@ dotenv.config();
 
 // Configure Prisma for Render free tier PostgreSQL
 // Add connection pooling and timeout settings for better reliability
+function buildDatabaseUrl(baseUrl) {
+  if (!baseUrl) return undefined;
+  
+  // Check if URL already has query parameters
+  const hasQueryParams = baseUrl.includes('?');
+  const separator = hasQueryParams ? '&' : '?';
+  
+  // Add connection pool parameters
+  return `${baseUrl}${separator}connection_limit=5&pool_timeout=20&connect_timeout=10`;
+}
+
 const prisma = new PrismaClient({
   log: process.env.NODE_ENV === 'development' ? ['query', 'error', 'warn'] : ['error'],
   datasources: {
     db: {
-      url: process.env.DATABASE_URL
-        ? `${process.env.DATABASE_URL}?connection_limit=5&pool_timeout=20&connect_timeout=10`
-        : undefined
+      url: buildDatabaseUrl(process.env.DATABASE_URL)
     }
   },
   // Add retry logic for connection issues
