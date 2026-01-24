@@ -2416,52 +2416,64 @@ app.post('/api/tours', async (req, res) => {
       
       attempt++;
       
-      // Strategy 1: Try adding keywords from title one by one
-      if (attempt <= titleKeywords.length) {
+      // Strategy 1: Try adding keywords from title one by one (most SEO-friendly)
+      if (attempt <= titleKeywords.length && titleKeywords.length > 0) {
         const keyword = slugify(titleKeywords[attempt - 1]);
-        if (keyword && keyword !== locationSlug && keyword.length > 0) {
+        if (keyword && keyword.length > 3 && keyword !== locationSlug && keyword !== citySlug) {
+          // Try different positions for keyword
+          if (attempt % 2 === 1) {
           slug = `${locationSlug}-${keyword}-${typeSlug}`;
+          } else {
+            slug = `${citySlug}-${keyword}-${typeSlug}`;
+          }
           continue;
         }
       }
       
-      // Strategy 2: Try using city name if different from location
-      if (attempt === titleKeywords.length + 1 && citySlug && citySlug !== locationSlug) {
-        slug = `${citySlug}-${typeSlug}`;
+      // Strategy 2: Try keyword combinations (2 keywords)
+      if (attempt > titleKeywords.length && attempt <= titleKeywords.length * 2 && titleKeywords.length >= 2) {
+        const idx1 = Math.floor((attempt - titleKeywords.length - 1) / titleKeywords.length);
+        const idx2 = (attempt - titleKeywords.length - 1) % titleKeywords.length;
+        if (idx1 < titleKeywords.length && idx2 < titleKeywords.length && idx1 !== idx2) {
+          const kw1 = slugify(titleKeywords[idx1]);
+          const kw2 = slugify(titleKeywords[idx2]);
+          if (kw1 && kw2 && kw1.length > 3 && kw2.length > 3) {
+            slug = `${locationSlug}-${kw1}-${kw2}-${typeSlug}`;
         continue;
+          }
+        }
       }
       
-      // Strategy 3: Try keyword + city combination
-      if (attempt === titleKeywords.length + 2 && titleKeywords.length > 0 && citySlug && citySlug !== locationSlug) {
+      // Strategy 3: Try city + keyword + type (for city-specific tours)
+      if (attempt === titleKeywords.length * 2 + 1 && citySlug && citySlug !== locationSlug && titleKeywords.length > 0) {
         const keyword = slugify(titleKeywords[0]);
-        if (keyword && keyword !== locationSlug) {
+        if (keyword && keyword.length > 3) {
+          slug = `${citySlug}-${keyword}-${typeSlug}`;
+          continue;
+        }
+      }
+      
+      // Strategy 4: Try location + city + keyword + type
+      if (attempt === titleKeywords.length * 2 + 2 && citySlug && citySlug !== locationSlug && titleKeywords.length > 0) {
+        const keyword = slugify(titleKeywords[0]);
+        if (keyword && keyword.length > 3) {
+          slug = `${locationSlug}-${citySlug}-${keyword}-${typeSlug}`;
+          continue;
+        }
+      }
+      
+      // Strategy 5: Try different keyword + city combinations
+      if (attempt > titleKeywords.length * 2 + 2 && titleKeywords.length >= 2) {
+        const keywordIndex = (attempt - titleKeywords.length * 2 - 3) % titleKeywords.length;
+        const keyword = slugify(titleKeywords[keywordIndex]);
+        if (keyword && keyword.length > 3 && keyword !== locationSlug) {
           slug = `${keyword}-${citySlug}-${typeSlug}`;
           continue;
         }
       }
       
-      // Strategy 4: Try different keyword combinations (skip location, use other keywords)
-      if (attempt > titleKeywords.length + 2 && titleKeywords.length >= 2) {
-        const keywordIndex = (attempt - titleKeywords.length - 3) % titleKeywords.length;
-        const keyword = slugify(titleKeywords[keywordIndex]);
-        if (keyword && keyword !== locationSlug && keyword.length > 0) {
-          slug = `${keyword}-${typeSlug}`;
-          continue;
-        }
-      }
-      
-      // Strategy 5: Try combining multiple keywords
-      if (attempt > titleKeywords.length + 2 && titleKeywords.length >= 2) {
-        const keyword1 = slugify(titleKeywords[0]);
-        const keyword2 = slugify(titleKeywords[1]);
-        if (keyword1 && keyword2 && keyword1 !== locationSlug && keyword2 !== locationSlug) {
-          slug = `${locationSlug}-${keyword1}-${keyword2}-${typeSlug}`;
-          continue;
-        }
-      }
-      
-      // Strategy 6: Try location + city + type
-      if (attempt > titleKeywords.length + 3 && citySlug && citySlug !== locationSlug) {
+      // Strategy 6: Try location + city + type (simple combination)
+      if (attempt === titleKeywords.length * 2 + 3 && citySlug && citySlug !== locationSlug) {
         slug = `${locationSlug}-${citySlug}-${typeSlug}`;
         continue;
       }
