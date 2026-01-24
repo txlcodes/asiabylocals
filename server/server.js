@@ -2687,21 +2687,43 @@ app.post('/api/tours', async (req, res) => {
         });
         
         // Also ensure no IDs in nested options - remove ALL possible id fields
+        // AND ensure only valid TourOption fields are included
         if (finalTourData.options?.create) {
+          // Define ONLY valid TourOption fields (from Prisma schema)
+          const VALID_TOUR_OPTION_FIELDS = [
+            'optionTitle', 'optionDescription', 'durationHours', 'price', 'currency',
+            'language', 'pickupIncluded', 'entryTicketIncluded', 'guideIncluded',
+            'carIncluded', 'pricingType', 'maxGroupSize', 'groupPrice', 'sortOrder'
+          ];
+          
           finalTourData.options.create = finalTourData.options.create.map((opt, idx) => {
-            // Create a clean copy without any id-related fields
-            const cleanOpt = { ...opt };
+            // Create a clean object with ONLY valid TourOption fields
+            const cleanOpt = {};
+            
+            VALID_TOUR_OPTION_FIELDS.forEach(field => {
+              if (field in opt && opt[field] !== undefined) {
+                cleanOpt[field] = opt[field];
+              }
+            });
+            
+            // Explicitly remove any id-related fields (shouldn't exist, but be safe)
             delete cleanOpt.id;
             delete cleanOpt.tourId;
             delete cleanOpt.tour_id;
             
-            // Log if we found any id fields
+            // Log if we found any id fields in the original
             if (opt.id || opt.tourId || opt.tour_id) {
               console.warn(`⚠️  Option ${idx + 1} had id fields, removed:`, {
                 id: opt.id,
                 tourId: opt.tourId,
                 tour_id: opt.tour_id
               });
+            }
+            
+            // Log if we're removing any unexpected fields
+            const removedFields = Object.keys(opt).filter(key => !VALID_TOUR_OPTION_FIELDS.includes(key) && key !== 'id' && key !== 'tourId' && key !== 'tour_id');
+            if (removedFields.length > 0) {
+              console.warn(`⚠️  Option ${idx + 1} had unexpected fields removed:`, removedFields);
             }
             
             return cleanOpt;
@@ -2721,7 +2743,20 @@ app.post('/api/tours', async (req, res) => {
         const cleanFinalTourData = {};
         SAFE_TOUR_FIELDS.forEach(field => {
           if (field in finalTourData) {
-            cleanFinalTourData[field] = finalTourData[field];
+            // Special handling for 'options' field - ensure it only has 'create' property
+            if (field === 'options' && finalTourData.options) {
+              cleanFinalTourData.options = {
+                create: finalTourData.options.create || []
+              };
+              // Remove any other properties that might have leaked in
+              Object.keys(finalTourData.options).forEach(key => {
+                if (key !== 'create') {
+                  console.warn(`⚠️  Removing unexpected property '${key}' from options object`);
+                }
+              });
+            } else {
+              cleanFinalTourData[field] = finalTourData[field];
+            }
           }
         });
         
@@ -2740,6 +2775,27 @@ app.post('/api/tours', async (req, res) => {
         if (cleanFinalTourData.options?.create && cleanFinalTourData.options.create.length > 0) {
           console.log('📋 First option details:', JSON.stringify(cleanFinalTourData.options.create[0], null, 2));
         }
+        
+        // FINAL VALIDATION: Ensure no pricing-related fields exist at Tour level
+        const topLevelKeys = Object.keys(cleanFinalTourData);
+        const pricingFields = topLevelKeys.filter(key => 
+          key.toLowerCase().includes('pricing') || 
+          key.toLowerCase().includes('group') ||
+          key.toLowerCase().includes('option') && key !== 'options'
+        );
+        if (pricingFields.length > 0) {
+          console.error(`❌ CRITICAL: Found pricing/option fields at Tour level: ${pricingFields.join(', ')}`);
+          pricingFields.forEach(field => delete cleanFinalTourData[field]);
+          console.log('   ✅ Removed these fields before Prisma call');
+        }
+        
+        // Log final structure to verify
+        console.log('🔍 Final Prisma data structure:', {
+          topLevelFields: Object.keys(cleanFinalTourData),
+          hasOptions: !!cleanFinalTourData.options,
+          optionsCount: cleanFinalTourData.options?.create?.length || 0,
+          firstOptionFields: cleanFinalTourData.options?.create?.[0] ? Object.keys(cleanFinalTourData.options.create[0]) : []
+        });
         
         tour = await prisma.tour.create({
           data: cleanFinalTourData,
