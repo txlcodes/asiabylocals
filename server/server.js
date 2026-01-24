@@ -1846,6 +1846,7 @@ function generateFakeReviews(tourData) {
 }
 
 // Helper function to recursively remove all ID fields from an object
+// IMPORTANT: Does NOT remove supplierId (needed for foreign key relationship)
 function removeAllIds(obj) {
   if (obj === null || obj === undefined) return obj;
   if (Array.isArray(obj)) {
@@ -1855,13 +1856,14 @@ function removeAllIds(obj) {
   
   const cleaned = {};
   for (const [key, value] of Object.entries(obj)) {
-    // Skip all ID-related fields (case-insensitive)
+    // Skip ID-related fields (case-insensitive) BUT keep supplierId (it's needed!)
     const keyLower = key.toLowerCase();
     if (keyLower === 'id' || 
         keyLower === 'tourid' || 
         keyLower === 'tour_id' ||
-        keyLower === 'supplierid' ||
-        keyLower === 'supplier_id' ||
+        // DO NOT remove supplierId - it's a foreign key, not an auto-generated ID
+        // keyLower === 'supplierid' ||  // REMOVED - supplierId is required!
+        // keyLower === 'supplier_id' ||  // REMOVED - supplierId is required!
         keyLower === 'optionid' ||
         keyLower === 'option_id') {
       continue; // Skip this field
