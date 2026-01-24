@@ -2690,7 +2690,8 @@ app.post('/api/tours', async (req, res) => {
         const VALID_TOUR_OPTION_FIELDS = [
           'optionTitle', 'optionDescription', 'durationHours', 'price', 'currency',
           'language', 'pickupIncluded', 'entryTicketIncluded', 'guideIncluded',
-          'carIncluded', 'pricingType', 'maxGroupSize', 'groupPrice', 'sortOrder'
+          'carIncluded', 'maxGroupSize', 'groupPrice', 'sortOrder'
+          // Note: pricingType is excluded because the database column doesn't exist yet
         ];
         
         // Also ensure no IDs in nested options - remove ALL possible id fields
@@ -2902,11 +2903,24 @@ app.post('/api/tours', async (req, res) => {
         // Then create options separately if they exist
         if (optionsToCreate.length > 0) {
           console.log('🔍 Creating options separately...');
+          
+          // Filter out pricingType if the database column doesn't exist
+          // Keep only fields that exist in the TourOption model
+          // Note: pricingType is excluded because the database column doesn't exist yet
+          
           await prisma.tourOption.createMany({
-            data: optionsToCreate.map(opt => ({
-              ...opt,
-              tourId: tour.id
-            }))
+            data: optionsToCreate.map(opt => {
+              const cleanOpt = {};
+              VALID_TOUR_OPTION_FIELDS.forEach(field => {
+                if (opt[field] !== undefined) {
+                  cleanOpt[field] = opt[field];
+                }
+              });
+              return {
+                ...cleanOpt,
+                tourId: tour.id
+              };
+            })
           });
           
           // Fetch the tour again with options
