@@ -2903,12 +2903,10 @@ app.post('/api/tours', async (req, res) => {
         console.log('   Tour data keys:', Object.keys(tourDataWithoutOptions));
         console.log('   Options to create separately:', optionsToCreate.length);
         
-        // Create the tour first
+        // Create the tour first (without options to prevent schema validation issues)
         tour = await prisma.tour.create({
-          data: tourDataWithoutOptions,
-          include: {
-            options: true
-          }
+          data: tourDataWithoutOptions
+          // Don't include options here - we'll fetch them after creating separately
         });
         
         // Then create options separately if they exist
