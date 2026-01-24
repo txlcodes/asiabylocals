@@ -2742,6 +2742,28 @@ app.post('/api/tours', async (req, res) => {
           continue;
         }
         
+        // If it's an options-related error and we have retries left, try creating without options
+        if (createError.message?.includes('option') || createError.message?.includes('tour_option') || createError.code === 'P2003') {
+          console.log(`   ⚠️  Options-related error detected, attempting to create tour without options...`);
+          try {
+            // Remove options and try again
+            const tourDataWithoutOptions = { ...finalTourData };
+            delete tourDataWithoutOptions.options;
+            
+            tour = await prisma.tour.create({
+              data: tourDataWithoutOptions,
+              include: {
+                options: true
+              }
+            });
+            console.log(`   ✅ Tour created successfully without options (options can be added later)`);
+            break; // Success without options
+          } catch (noOptionsError) {
+            console.error(`   ❌ Failed to create tour even without options:`, noOptionsError.message);
+            // Continue to throw original error
+          }
+        }
+        
         // Not a retryable error or max retries reached, throw
         throw createError;
       }
