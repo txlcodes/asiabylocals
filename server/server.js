@@ -2785,9 +2785,23 @@ app.post('/api/tours', async (req, res) => {
         };
         
         // Only add options if they exist and are properly formatted
+        // CRITICAL: Create a completely fresh options array to prevent any field leakage
         if (finalTourData.options && finalTourData.options.create && Array.isArray(finalTourData.options.create)) {
           cleanFinalTourData.options = {
-            create: finalTourData.options.create
+            create: finalTourData.options.create.map(opt => {
+              // Create a completely fresh object with ONLY valid TourOption fields
+              const freshOpt = {};
+              VALID_TOUR_OPTION_FIELDS.forEach(field => {
+                if (field in opt && opt[field] !== undefined) {
+                  freshOpt[field] = opt[field];
+                }
+              });
+              // Explicitly remove any id-related fields
+              delete freshOpt.id;
+              delete freshOpt.tourId;
+              delete freshOpt.tour_id;
+              return freshOpt;
+            })
           };
         }
         
@@ -2855,16 +2869,58 @@ app.post('/api/tours', async (req, res) => {
         
         console.log('✅ Final data validated - no invalid fields found. Proceeding with Prisma create...');
         
+        // ONE MORE ABSOLUTE FINAL CHECK: Log the exact object being sent to Prisma
+        console.log('🔍 EXACT DATA BEING SENT TO PRISMA:', JSON.stringify(finalDataForPrisma, null, 2));
+        
+        // Check if pricingType exists at the TOP LEVEL (it should only exist in nested options)
+        const topLevelHasPricingType = 'pricingType' in finalDataForPrisma || 'pricing_type' in finalDataForPrisma;
+        if (topLevelHasPricingType) {
+          console.error('❌ CRITICAL: pricingType found at TOP LEVEL of finalDataForPrisma!');
+          console.error('   Top level keys:', Object.keys(finalDataForPrisma));
+          console.error('   This should not happen. Aborting Prisma call.');
+          throw new Error('pricingType detected at top level - this should not happen');
+        }
+        
+        // CRITICAL FIX: Create tour WITHOUT options first, then add options separately
+        // This prevents any possibility of field leakage from options to Tour model
+        const tourDataWithoutOptions = { ...finalDataForPrisma };
+        const optionsToCreate = tourDataWithoutOptions.options?.create || [];
+        delete tourDataWithoutOptions.options; // Remove options from tour data
+        
+        console.log('🔍 Creating tour WITHOUT options first...');
+        console.log('   Tour data keys:', Object.keys(tourDataWithoutOptions));
+        console.log('   Options to create separately:', optionsToCreate.length);
+        
+        // Create the tour first
         tour = await prisma.tour.create({
-          data: finalDataForPrisma,
+          data: tourDataWithoutOptions,
           include: {
-            options: {
-              orderBy: {
-                sortOrder: 'asc'
-              }
-            }
+            options: true
           }
         });
+        
+        // Then create options separately if they exist
+        if (optionsToCreate.length > 0) {
+          console.log('🔍 Creating options separately...');
+          await prisma.tourOption.createMany({
+            data: optionsToCreate.map(opt => ({
+              ...opt,
+              tourId: tour.id
+            }))
+          });
+          
+          // Fetch the tour again with options
+          tour = await prisma.tour.findUnique({
+            where: { id: tour.id },
+            include: {
+              options: {
+                orderBy: {
+                  sortOrder: 'asc'
+                }
+              }
+            }
+          });
+        }
         break; // Success, exit retry loop
       } catch (createError) {
         createAttempts++;
