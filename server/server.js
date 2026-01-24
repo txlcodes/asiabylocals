@@ -2569,10 +2569,19 @@ app.post('/api/tours', async (req, res) => {
         console.warn(`⚠️  Tour option ${idx + 1} is not a valid object, skipping`);
         return null;
       }
-      const { id, ...cleanOption } = opt;
-      if (id) {
-        console.warn(`⚠️  Tour option ${idx + 1} had an id field (${id}), removing it to prevent conflicts`);
+      // Aggressively remove ALL possible ID fields
+      const { id, tourId, tour_id, optionId, option_id, ...cleanOption } = opt;
+      if (id || tourId || tour_id || optionId || option_id) {
+        console.warn(`⚠️  Tour option ${idx + 1} had ID fields, removing:`, { id, tourId, tour_id, optionId, option_id });
       }
+      // Double-check: remove any remaining ID-like fields
+      Object.keys(cleanOption).forEach(key => {
+        const keyLower = key.toLowerCase();
+        if (keyLower === 'id' || keyLower.includes('id') && (keyLower.includes('tour') || keyLower.includes('option'))) {
+          delete cleanOption[key];
+          console.warn(`⚠️  Removed additional ID-like field: ${key}`);
+        }
+      });
       return cleanOption;
     }).filter(opt => opt !== null); // Remove null entries
     
@@ -2986,25 +2995,48 @@ app.post('/api/tours', async (req, res) => {
             console.warn('⚠️  Could not reset tour_options sequence (non-critical):', seqError.message);
           }
           
-          await prisma.tourOption.createMany({
-            data: optionsToCreate.map(opt => {
-              const cleanOpt = {};
-              VALID_TOUR_OPTION_FIELDS.forEach(field => {
-                // Only include field if it has a value (exclude null/undefined)
-                // This prevents Prisma from trying to validate columns that might not exist yet
-                if (opt[field] !== undefined && opt[field] !== null) {
-                  cleanOpt[field] = opt[field];
-                }
-              });
-              // CRITICAL: Ensure NO id field is included
-              delete cleanOpt.id;
-              delete cleanOpt.tourId; // Will be set explicitly below
-              return {
+          // CRITICAL: Create options one by one instead of createMany to avoid sequence issues
+          // This is more reliable than createMany with sequence resets
+          const createdOptions = [];
+          for (let i = 0; i < optionsToCreate.length; i++) {
+            const opt = optionsToCreate[i];
+            const cleanOpt = {};
+            
+            // Only include valid fields
+            VALID_TOUR_OPTION_FIELDS.forEach(field => {
+              // Only include field if it has a value (exclude null/undefined)
+              // This prevents Prisma from trying to validate columns that might not exist yet
+              if (opt[field] !== undefined && opt[field] !== null) {
+                cleanOpt[field] = opt[field];
+              }
+            });
+            
+            // CRITICAL: Aggressively remove ALL possible ID fields
+            delete cleanOpt.id;
+            delete cleanOpt.tourId;
+            delete cleanOpt.tour_id;
+            delete cleanOpt.optionId;
+            delete cleanOpt.option_id;
+            
+            // Remove any other ID-like fields
+            Object.keys(cleanOpt).forEach(key => {
+              const keyLower = key.toLowerCase();
+              if (keyLower === 'id' || (keyLower.includes('id') && (keyLower.includes('tour') || keyLower.includes('option')))) {
+                delete cleanOpt[key];
+              }
+            });
+            
+            // Create option individually (more reliable than createMany)
+            const createdOption = await prisma.tourOption.create({
+              data: {
                 ...cleanOpt,
                 tourId: tour.id
-              };
-            })
-          });
+              }
+            });
+            createdOptions.push(createdOption);
+          }
+          
+          console.log(`✅ Created ${createdOptions.length} tour options individually`);
           
           // Fetch the tour again with options
           tour = await prisma.tour.findUnique({
