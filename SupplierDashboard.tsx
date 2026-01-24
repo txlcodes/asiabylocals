@@ -303,7 +303,9 @@ const SupplierDashboard: React.FC<SupplierDashboardProps> = ({ supplier, onLogou
         <div className="max-w-7xl mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <img src="/logo.jpeg" alt="AsiaByLocals" className="h-12 w-12 object-contain" />
+              <div className="h-[77px] flex items-center">
+                <img src="/logo.jpeg" alt="AsiaByLocals" className="h-full w-auto object-contain" />
+              </div>
               <div>
                 <h1 className="text-xl font-black text-[#001A33]">Supplier Portal</h1>
                 <p className="text-[12px] text-gray-500 font-semibold">Welcome back, {currentSupplier?.fullName || supplier.fullName}</p>

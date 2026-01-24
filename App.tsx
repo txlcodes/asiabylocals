@@ -1,4 +1,4 @@
-import React, { useState, useEffect, Component } from 'react';
+import React, { useState, useEffect, useMemo, Component } from 'react';
 import { 
   Globe, 
   Search, 
@@ -442,14 +442,31 @@ const App: React.FC = () => {
   }, []);
   
   // Hero images for rotation - verified Asian city images
-  const heroImages = [
+  const heroImagesBase = [
     { url: '/kyoto-hero.jpg', city: 'Kyoto' },
     { url: '/tokyo-hero.jpg', city: 'Tokyo' },
     { url: '/agra-hero.jpg', city: 'Agra' },
     { url: 'https://images.unsplash.com/photo-1528127269322-539801943592?auto=format&fit=crop&q=80&w=2000', city: 'Bangkok' },
     { url: 'https://images.unsplash.com/photo-1537996194471-e657df975ab4?auto=format&fit=crop&q=80&w=2000', city: 'Bali' },
-    { url: '/dubai-hero.jpg', city: 'Dubai' }
+    { url: '/dubai-hero.jpg', city: 'Dubai' },
+    { url: '/yu-kato-hero.jpg', city: 'Asia' },
+    { url: '/tianshu-liu-hero.jpg', city: 'Asia' },
+    { url: '/rafa-prada-hero.jpg', city: 'Asia' },
+    { url: '/soroush-zargarbashi-hero.jpg', city: 'Asia' }
   ];
+  
+  // Shuffle function (Fisher-Yates algorithm)
+  const shuffleArray = <T,>(array: T[]): T[] => {
+    const shuffled = [...array];
+    for (let i = shuffled.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+    return shuffled;
+  };
+  
+  // Randomize hero images order (only once on mount)
+  const heroImages = useMemo(() => shuffleArray(heroImagesBase), []);
   
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   
@@ -531,8 +548,8 @@ const App: React.FC = () => {
         <div className="max-w-[1200px] mx-auto px-6 py-2 flex items-center justify-between">
           <div className="flex items-center gap-10">
             {/* Logo */}
-            <div className="flex items-center cursor-pointer">
-              <img src="/logo.jpeg" alt="Asia By Locals" className="h-16 md:h-18 lg:h-20 w-auto" />
+            <div className="flex items-center cursor-pointer h-[77px] md:h-[96px] lg:h-[115px]">
+              <img src="/logo.jpeg" alt="Asia By Locals" className="h-full w-auto object-contain" />
             </div>
 
             {/* Nav Links */}
@@ -717,7 +734,7 @@ const App: React.FC = () => {
       </header>
 
       {/* Hero Section */}
-      <section className="relative h-[480px] md:h-[520px] flex items-center justify-center overflow-hidden">
+      <section className="relative h-[600px] md:h-[650px] flex items-center justify-center overflow-hidden">
         {heroImages.map((hero, index) => (
           <img 
             key={index}
@@ -787,7 +804,7 @@ const App: React.FC = () => {
 
       <main className="flex-1">
         {/* Row 1: Things to do wherever you're going */}
-        <section className="max-w-[1200px] mx-auto px-6 md:px-6 py-16">
+        <section className="max-w-[1200px] mx-auto px-6 md:px-6 pt-[4.4rem] pb-16">
           <h2 className="text-2xl md:text-[28px] font-black text-[#001A33] mb-8">
             Things to do wherever you're going
           </h2>

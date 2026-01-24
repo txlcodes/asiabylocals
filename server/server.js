@@ -5640,10 +5640,7 @@ if (process.env.NODE_ENV === 'production') {
   }
   
   if (distPath) {
-    // Serve static assets (JS, CSS, images, etc.)
-    app.use(express.static(distPath));
-    
-    // Explicit routes for SEO files (must come before catch-all)
+    // Explicit routes for SEO files (MUST come BEFORE static middleware)
     app.get('/sitemap.xml', (req, res) => {
       // Try dist folder first, then public folder as fallback
       const distSitemapPath = path.join(distPath, 'sitemap.xml');
@@ -5686,6 +5683,9 @@ if (process.env.NODE_ENV === 'production') {
         res.status(404).send('Robots.txt not found');
       }
     });
+    
+    // Serve static assets (JS, CSS, images, etc.) - AFTER SEO routes
+    app.use(express.static(distPath));
     
     // Handle React Router - serve index.html for all non-API routes
     app.get('*', (req, res, next) => {
