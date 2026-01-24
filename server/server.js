@@ -2977,6 +2977,15 @@ app.post('/api/tours', async (req, res) => {
           // Filter to only valid TourOption fields
           // Note: pricingType removed - we infer pricing type from groupPrice/maxGroupSize presence
           
+          // CRITICAL: Reset tour_options sequence if ID conflict detected
+          // createMany can have sequence synchronization issues
+          try {
+            await prisma.$queryRaw`SELECT setval('tour_options_id_seq', COALESCE((SELECT MAX(id) FROM tour_options), 0) + 1, false)`;
+            console.log('✅ tour_options_id_seq synchronized');
+          } catch (seqError) {
+            console.warn('⚠️  Could not reset tour_options sequence (non-critical):', seqError.message);
+          }
+          
           await prisma.tourOption.createMany({
             data: optionsToCreate.map(opt => {
               const cleanOpt = {};
@@ -2987,6 +2996,9 @@ app.post('/api/tours', async (req, res) => {
                   cleanOpt[field] = opt[field];
                 }
               });
+              // CRITICAL: Ensure NO id field is included
+              delete cleanOpt.id;
+              delete cleanOpt.tourId; // Will be set explicitly below
               return {
                 ...cleanOpt,
                 tourId: tour.id
