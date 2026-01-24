@@ -19,7 +19,8 @@ import {
   Users,
   MapPin,
   Globe,
-  Home
+  Home,
+  RefreshCw
 } from 'lucide-react';
 import TourCreationForm from './TourCreationForm';
 
@@ -86,12 +87,54 @@ const SupplierDashboard: React.FC<SupplierDashboardProps> = ({ supplier, onLogou
   }, [currentSupplier]);
   const [isSavingProfile, setIsSavingProfile] = useState(false);
 
+  // Fetch latest supplier data to check for status updates
+  const fetchSupplierStatus = async () => {
+    if (!supplier?.id) return;
+    
+    try {
+      const API_URL = (import.meta as any).env?.VITE_API_URL || (typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3001');
+      const response = await fetch(`${API_URL}/api/suppliers/${supplier.id}`);
+      const data = await response.json();
+      // Handle both response formats: { supplier } or { success: true, supplier }
+      const supplierData = data.supplier || data;
+      if (supplierData && supplierData.id) {
+        const updatedSupplier = { 
+          ...supplierData, 
+          id: String(supplierData.id),
+          emailVerified: supplierData.emailVerified !== undefined ? supplierData.emailVerified : currentSupplier?.emailVerified
+        };
+        // Only update if status actually changed to avoid unnecessary re-renders
+        if (updatedSupplier.status !== currentSupplier?.status) {
+          // Update localStorage
+          localStorage.setItem('supplier', JSON.stringify(updatedSupplier));
+          // Update state
+          setCurrentSupplier(updatedSupplier);
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching supplier status:', error);
+    }
+  };
+
   // Fetch tours
   useEffect(() => {
     if (supplier && supplier.id && !showTourForm) {
       fetchTours();
+      // Also refresh supplier status to check for approval updates
+      fetchSupplierStatus();
     }
   }, [supplier?.id, showTourForm]);
+
+  // Periodically check for supplier status updates (every 10 seconds)
+  useEffect(() => {
+    if (!supplier?.id) return;
+    
+    const interval = setInterval(() => {
+      fetchSupplierStatus();
+    }, 10000); // Check every 10 seconds for faster status updates
+    
+    return () => clearInterval(interval);
+  }, [supplier?.id]);
 
   // Fetch bookings when bookings tab is active
   useEffect(() => {
@@ -337,17 +380,24 @@ const SupplierDashboard: React.FC<SupplierDashboardProps> = ({ supplier, onLogou
 
       <div className="max-w-7xl mx-auto px-6 py-8">
         {/* Status Banner */}
-        {supplier.status === 'pending' && (
+        {(currentSupplier?.status === 'pending' || supplier.status === 'pending') && (
           <div className="bg-yellow-50 border border-yellow-200 rounded-2xl p-6 mb-8">
             <div className="flex items-start gap-4">
               <Clock className="text-yellow-600 shrink-0 mt-1" size={24} />
-              <div>
+              <div className="flex-1">
                 <h3 className="font-black text-[#001A33] mb-2">Account Under Review</h3>
                 <p className="text-[14px] text-gray-600 font-semibold">
                   Your account is currently being reviewed by our team. We'll notify you once your account is approved. 
                   This usually takes 24-48 hours.
                 </p>
               </div>
+              <button
+                onClick={fetchSupplierStatus}
+                className="p-2 hover:bg-yellow-100 rounded-lg transition-colors"
+                title="Refresh status"
+              >
+                <RefreshCw size={20} className="text-yellow-600" />
+              </button>
             </div>
           </div>
         )}
@@ -392,21 +442,21 @@ const SupplierDashboard: React.FC<SupplierDashboardProps> = ({ supplier, onLogou
                 <p className="text-3xl font-black text-[#001A33]">{stats.total}</p>
                 <button 
                   onClick={() => {
-                    if (supplier.status !== 'approved') {
+                    if (currentSupplier?.status !== 'approved') {
                       alert('Your account is under review. You can create tours only after your account is approved by admin. Please wait for approval notification via email.');
                       return;
                     }
                     setShowTourForm(true);
                   }}
-                  disabled={supplier.status !== 'approved'}
+                  disabled={currentSupplier?.status !== 'approved'}
                   className={`mt-4 text-[13px] font-bold flex items-center gap-1 ${
-                    supplier.status === 'approved'
+                    currentSupplier?.status === 'approved'
                       ? 'text-[#10B981] hover:underline'
                       : 'text-gray-400 cursor-not-allowed'
                   }`}
                 >
                   <Plus size={14} />
-                  {supplier.status === 'approved' ? 'Create Tour' : 'Awaiting Approval'}
+                  {currentSupplier?.status === 'approved' ? 'Create Tour' : 'Awaiting Approval'}
                 </button>
               </div>
 
@@ -432,7 +482,7 @@ const SupplierDashboard: React.FC<SupplierDashboardProps> = ({ supplier, onLogou
               <div className="md:col-span-3 bg-white rounded-2xl p-6 border border-gray-200">
                 <h3 className="text-lg font-black text-[#001A33] mb-4">Account Status</h3>
                 <div className="flex items-center gap-4">
-                  {getStatusBadge(supplier.status)}
+                  {getStatusBadge(currentSupplier?.status || supplier.status)}
                   {supplier.emailVerified && (
                     <span className="px-3 py-1 bg-[#10B981]/10 text-[#10B981] rounded-full text-[12px] font-bold flex items-center gap-1">
                       <CheckCircle2 size={12} />
@@ -450,15 +500,15 @@ const SupplierDashboard: React.FC<SupplierDashboardProps> = ({ supplier, onLogou
                 <h2 className="text-2xl font-black text-[#001A33]">My Tours</h2>
                 <button 
                   onClick={() => {
-                    if (supplier.status !== 'approved') {
+                    if (currentSupplier?.status !== 'approved') {
                       alert('Your account is under review. You can create tours only after your account is approved by admin. Please wait for approval notification via email.');
                       return;
                     }
                     setShowTourForm(true);
                   }}
-                  disabled={supplier.status !== 'approved'}
+                  disabled={currentSupplier?.status !== 'approved'}
                   className={`font-black py-3 px-6 rounded-full text-[14px] flex items-center gap-2 transition-colors ${
-                    supplier.status === 'approved'
+                    currentSupplier?.status === 'approved'
                       ? 'bg-[#10B981] hover:bg-[#059669] text-white'
                       : 'bg-gray-300 text-gray-500 cursor-not-allowed'
                   }`}
@@ -532,15 +582,15 @@ const SupplierDashboard: React.FC<SupplierDashboardProps> = ({ supplier, onLogou
                   {filterStatus === 'all' && (
                     <button 
                       onClick={() => {
-                        if (supplier.status !== 'approved') {
+                        if (currentSupplier?.status !== 'approved') {
                           alert('Your account is under review. You can create tours only after your account is approved by admin. Please wait for approval notification via email.');
                           return;
                         }
                         setShowTourForm(true);
                       }}
-                      disabled={supplier.status !== 'approved'}
+                      disabled={currentSupplier?.status !== 'approved'}
                       className={`font-black py-3 px-6 rounded-full text-[14px] flex items-center gap-2 mx-auto transition-colors ${
-                        supplier.status === 'approved'
+                        currentSupplier?.status === 'approved'
                           ? 'bg-[#10B981] hover:bg-[#059669] text-white'
                           : 'bg-gray-300 text-gray-500 cursor-not-allowed'
                       }`}
@@ -789,7 +839,7 @@ const SupplierDashboard: React.FC<SupplierDashboardProps> = ({ supplier, onLogou
                   </button>
                 </div>
                 <div className="flex items-center gap-4 pt-4 border-t border-gray-200">
-                  {getStatusBadge(supplier.status)}
+                  {getStatusBadge(currentSupplier?.status || supplier.status)}
                   {supplier.emailVerified && (
                     <span className="px-3 py-1 bg-[#10B981]/10 text-[#10B981] rounded-full text-[12px] font-bold flex items-center gap-1">
                       <CheckCircle2 size={12} />
