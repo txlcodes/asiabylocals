@@ -3258,6 +3258,20 @@ app.post('/api/tours', async (req, res) => {
         console.log('🔍 Creating tour WITHOUT options first...');
         console.log('   Tour data keys:', Object.keys(tourDataWithoutOptions));
         console.log('   Options to create separately:', optionsToCreate.length);
+        console.log('   Final slug:', tourDataWithoutOptions.slug);
+        
+        // CRITICAL: Final uniqueness check right before creation (prevents P2002 errors)
+        const finalSlugCheck = await prisma.tour.findUnique({
+          where: { slug: tourDataWithoutOptions.slug }
+        });
+        if (finalSlugCheck) {
+          // This should NEVER happen, but if it does, generate emergency slug
+          console.error('🚨 CRITICAL: Slug collision detected right before creation!');
+          console.error('   Colliding slug:', tourDataWithoutOptions.slug);
+          const emergencySlug = `${tourDataWithoutOptions.slug}-${Date.now()}-${Math.random().toString(36).slice(-6)}`;
+          tourDataWithoutOptions.slug = emergencySlug;
+          console.log('   Generated emergency slug:', emergencySlug);
+        }
         
         // Create the tour first (without options to prevent schema validation issues)
         tour = await prisma.tour.create({
