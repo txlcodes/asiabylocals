@@ -2490,11 +2490,8 @@ app.post('/api/tours', async (req, res) => {
     });
     
     // Create tour data object - NEVER include 'id' as it's auto-generated
-    // Remove any id field that might have been sent from frontend
-    const { id, ...cleanBody } = req.body;
-    if (id) {
-      console.warn('⚠️  Frontend sent an id field in main body, ignoring it (id is auto-generated)');
-    }
+    // Note: pricingType, groupPrice, maxGroupSize are already extracted from req.body above
+    // They are used for calculations but should NOT be included in tourData
     
     const tourData = {
       supplierId: parseInt(supplierId),
@@ -2621,11 +2618,37 @@ app.post('/api/tours', async (req, res) => {
         
         // Remove fields that don't exist in Tour model (these belong to TourOption or are request-only)
         // Note: 'options' is valid (it's the relation field for nested creates)
-        const invalidFields = ['groupPrice', 'group_price', 'maxGroupSize', 'max_group_size', 'pricingType', 'pricing_type', 'tourOptions'];
+        const invalidFields = [
+          'groupPrice', 'group_price', 
+          'maxGroupSize', 'max_group_size', 
+          'pricingType', 'pricing_type', 
+          'tourOptions',
+          'optionTitle', 'option_title',
+          'optionDescription', 'option_description',
+          'durationHours', 'duration_hours',
+          'pickupIncluded', 'pickup_included',
+          'entryTicketIncluded', 'entry_ticket_included',
+          'guideIncluded', 'guide_included',
+          'carIncluded', 'car_included'
+        ];
         invalidFields.forEach(field => {
           if (field in finalTourData) {
             console.warn(`⚠️  Removing invalid field '${field}' from tourData (not in Tour model)`);
             delete finalTourData[field];
+          }
+        });
+        
+        // Double-check: ensure no option-related fields leaked into main tour data
+        const tourModelFields = [
+          'supplierId', 'title', 'slug', 'country', 'city', 'category', 'locations',
+          'duration', 'pricePerPerson', 'currency', 'shortDescription', 'fullDescription',
+          'highlights', 'included', 'notIncluded', 'meetingPoint', 'guideType',
+          'images', 'languages', 'reviews', 'status', 'options'
+        ];
+        Object.keys(finalTourData).forEach(key => {
+          if (!tourModelFields.includes(key)) {
+            console.warn(`⚠️  Unexpected field '${key}' in finalTourData, removing it`);
+            delete finalTourData[key];
           }
         });
         
