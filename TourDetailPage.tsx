@@ -328,12 +328,15 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
       return;
     }
 
-    // Calculate total amount - handle per-person vs per-group pricing
+    // Calculate total amount - infer pricing type from groupPrice/maxGroupSize presence
     let totalAmount = 0;
     let currency = selectedOption?.currency || tour.currency || 'INR';
     
     if (selectedOption) {
-      if (selectedOption.pricingType === 'per_group') {
+      // Infer pricing type: if groupPrice and maxGroupSize exist, it's per_group
+      const isPerGroup = !!(selectedOption.groupPrice && selectedOption.maxGroupSize);
+      
+      if (isPerGroup) {
         // Per group pricing - fixed price regardless of participants
         totalAmount = selectedOption.groupPrice || 0;
       } else {
@@ -735,7 +738,8 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
                   {tour.options.map((option: any) => {
                     const isSelected = selectedOption?.id === option.id;
                     const currencySymbol = option.currency === 'USD' ? '$' : option.currency === 'EUR' ? '€' : '₹';
-                    const isPerGroup = option.pricingType === 'per_group';
+                    // Infer pricing type: if groupPrice and maxGroupSize exist, it's per_group
+                    const isPerGroup = !!(option.groupPrice && option.maxGroupSize);
                     
                     return (
                       <div
@@ -1418,7 +1422,8 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
               {tour.options.map((option: any) => {
                 const isSelected = selectedOption?.id === option.id;
                 const currencySymbol = option.currency === 'USD' ? '$' : option.currency === 'EUR' ? '€' : '₹';
-                const isPerGroup = option.pricingType === 'per_group';
+                // Infer pricing type: if groupPrice and maxGroupSize exist, it's per_group
+                const isPerGroup = !!(option.groupPrice && option.maxGroupSize);
                 
                 return (
                   <div

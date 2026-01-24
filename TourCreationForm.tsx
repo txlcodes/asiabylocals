@@ -426,13 +426,14 @@ const TourCreationForm: React.FC<TourCreationFormProps> = ({
         category: formData.category.trim(),
         locations: JSON.stringify(formData.locations),
         duration: formData.duration.trim(),
-        pricePerPerson: formData.pricingType === 'per_person' 
-          ? parseFloat(formData.pricePerPerson || '0')
-          : (formData.maxGroupSize && formData.groupPrice ? parseFloat(formData.groupPrice) / parseInt(String(formData.maxGroupSize)) : 0), // Calculate per person for legacy field
+        // Infer pricing type: if groupPrice and maxGroupSize exist, it's per_group
+        pricePerPerson: (formData.groupPrice && formData.maxGroupSize)
+          ? parseFloat(formData.groupPrice) / parseInt(String(formData.maxGroupSize))
+          : parseFloat(formData.pricePerPerson || '0'),
         currency: formData.currency,
-        pricingType: formData.pricingType,
-        maxGroupSize: formData.pricingType === 'per_group' ? formData.maxGroupSize : null,
-        groupPrice: formData.pricingType === 'per_group' ? parseFloat(formData.groupPrice || '0') : null,
+        // Remove pricingType - backend will infer from groupPrice/maxGroupSize
+        maxGroupSize: formData.maxGroupSize && formData.maxGroupSize >= 1 && formData.maxGroupSize <= 20 ? formData.maxGroupSize : null,
+        groupPrice: formData.groupPrice && !isNaN(parseFloat(formData.groupPrice)) ? parseFloat(formData.groupPrice) : null,
         shortDescription: formData.shortDescription?.trim() || null,
         fullDescription: formData.fullDescription.trim(),
         highlights: JSON.stringify(formData.highlights.filter(h => h.trim()).map(h => h.trim())), // Filter empty and trim each highlight
@@ -449,16 +450,23 @@ const TourCreationForm: React.FC<TourCreationFormProps> = ({
             console.warn(`⚠️  Removing ID fields from tour option ${idx + 1} to prevent conflicts`);
           }
           
-          // Calculate price based on pricing type
+          // Infer pricing type: if groupPrice and maxGroupSize exist, it's per_group
+          const optionIsPerGroup = !!(cleanOpt.groupPrice && cleanOpt.maxGroupSize);
+          
+          // Calculate price based on inferred pricing type
           let optionPrice = 0;
-          if (cleanOpt.pricingType === 'per_group' && cleanOpt.groupPrice) {
+          if (optionIsPerGroup && cleanOpt.groupPrice) {
             optionPrice = parseFloat(cleanOpt.groupPrice) || 0;
           } else if (cleanOpt.price) {
             optionPrice = parseFloat(cleanOpt.price) || 0;
-          } else if (formData.pricingType === 'per_group' && formData.groupPrice) {
-            optionPrice = parseFloat(formData.groupPrice) || 0;
           } else {
-            optionPrice = parseFloat(formData.pricePerPerson || '0') || 0;
+            // Fallback to main tour price
+            const mainIsPerGroup = !!(formData.groupPrice && formData.maxGroupSize);
+            if (mainIsPerGroup && formData.groupPrice) {
+              optionPrice = parseFloat(formData.groupPrice) || 0;
+            } else {
+              optionPrice = parseFloat(formData.pricePerPerson || '0') || 0;
+            }
           }
           
           return {
@@ -472,9 +480,9 @@ const TourCreationForm: React.FC<TourCreationFormProps> = ({
             carIncluded: cleanOpt.carIncluded || false,
             entryTicketIncluded: cleanOpt.entryTicketIncluded || false,
             guideIncluded: cleanOpt.guideIncluded !== undefined ? cleanOpt.guideIncluded : true,
-            pricingType: cleanOpt.pricingType || 'per_person',
-            maxGroupSize: cleanOpt.pricingType === 'per_group' ? (cleanOpt.maxGroupSize || null) : null,
-            groupPrice: cleanOpt.pricingType === 'per_group' && cleanOpt.groupPrice ? (parseFloat(cleanOpt.groupPrice) || null) : null,
+            // Remove pricingType - backend will infer from groupPrice/maxGroupSize
+            maxGroupSize: cleanOpt.maxGroupSize && cleanOpt.maxGroupSize >= 1 && cleanOpt.maxGroupSize <= 20 ? cleanOpt.maxGroupSize : null,
+            groupPrice: cleanOpt.groupPrice && !isNaN(parseFloat(cleanOpt.groupPrice)) ? parseFloat(cleanOpt.groupPrice) : null,
             sortOrder: idx
           };
         })
@@ -1101,16 +1109,16 @@ const TourCreationForm: React.FC<TourCreationFormProps> = ({
                       optionTitle: '',
                       optionDescription: '',
                       durationHours: formData.duration.replace(/[^\d.]/g, '') || '3',
-                      price: formData.pricingType === 'per_person' ? (formData.pricePerPerson || '') : '',
+                      price: (formData.groupPrice && formData.maxGroupSize) ? '' : (formData.pricePerPerson || ''),
                       currency: formData.currency,
                       language: formData.languages[0] || 'English',
                       pickupIncluded: false,
                       carIncluded: false,
                       entryTicketIncluded: false,
                       guideIncluded: true,
-                      pricingType: formData.pricingType,
-                      maxGroupSize: formData.pricingType === 'per_group' ? formData.maxGroupSize : undefined,
-                      groupPrice: formData.pricingType === 'per_group' ? (formData.groupPrice || '') : undefined
+                      pricingType: (formData.groupPrice && formData.maxGroupSize) ? 'per_group' : 'per_person', // Keep for UI state
+                      maxGroupSize: (formData.groupPrice && formData.maxGroupSize) ? formData.maxGroupSize : undefined,
+                      groupPrice: (formData.groupPrice && formData.maxGroupSize) ? (formData.groupPrice || '') : undefined
                     };
                     setFormData(prev => ({
                       ...prev,
@@ -1450,16 +1458,16 @@ const TourCreationForm: React.FC<TourCreationFormProps> = ({
                       optionTitle: '',
                       optionDescription: '',
                       durationHours: formData.duration.replace(/[^\d.]/g, '') || '3',
-                      price: formData.pricingType === 'per_person' ? (formData.pricePerPerson || '') : '',
+                      price: (formData.groupPrice && formData.maxGroupSize) ? '' : (formData.pricePerPerson || ''),
                       currency: formData.currency,
                       language: formData.languages[0] || 'English',
                       pickupIncluded: false,
                       carIncluded: false,
                       entryTicketIncluded: false,
                       guideIncluded: true,
-                      pricingType: formData.pricingType,
-                      maxGroupSize: formData.pricingType === 'per_group' ? formData.maxGroupSize : undefined,
-                      groupPrice: formData.pricingType === 'per_group' ? (formData.groupPrice || '') : undefined
+                      pricingType: (formData.groupPrice && formData.maxGroupSize) ? 'per_group' : 'per_person', // Keep for UI state
+                      maxGroupSize: (formData.groupPrice && formData.maxGroupSize) ? formData.maxGroupSize : undefined,
+                      groupPrice: (formData.groupPrice && formData.maxGroupSize) ? (formData.groupPrice || '') : undefined
                     };
                     setFormData(prev => ({
                       ...prev,

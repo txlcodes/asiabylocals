@@ -1524,11 +1524,15 @@ function formatTourResponse(tour, parsedData = {}) {
     languages: parsedData.languages || JSON.parse(tour.languages || '[]'),
     highlights: parsedData.highlights || (tour.highlights ? JSON.parse(tour.highlights || '[]') : []),
     reviews: null, // Always null - reviews are not generated
-    options: tour.options && Array.isArray(tour.options) ? tour.options.map(opt => ({
-      ...opt,
-      id: String(opt.id),
-      tourId: String(opt.tourId)
-    })) : []
+    options: tour.options && Array.isArray(tour.options) ? tour.options.map(opt => {
+      // Explicitly exclude pricingType if it somehow exists
+      const { pricingType, pricing_type, ...cleanOpt } = opt;
+      return {
+        ...cleanOpt,
+        id: String(opt.id),
+        tourId: String(opt.tourId)
+      };
+    }) : []
   };
 }
 
@@ -1894,7 +1898,7 @@ app.post('/api/tours', async (req, res) => {
       locations,
       duration,
       pricePerPerson,
-      pricingType,
+      // pricingType removed - we infer from groupPrice/maxGroupSize
       maxGroupSize,
       groupPrice,
       currency,
@@ -1922,7 +1926,9 @@ app.post('/api/tours', async (req, res) => {
     console.log('  locations:', locations ? '✅' : '❌', typeof locations);
     console.log('  duration:', duration ? '✅' : '❌', duration);
     console.log('  pricePerPerson:', pricePerPerson ? '✅' : '❌', pricePerPerson);
-    console.log('  pricingType:', pricingType || 'per_person (default)');
+    // Infer pricing type from groupPrice/maxGroupSize presence
+    const inferredPricingType = (groupPrice && maxGroupSize) ? 'per_group' : 'per_person';
+    console.log('  pricingType (inferred):', inferredPricingType);
     console.log('  maxGroupSize:', maxGroupSize || 'N/A');
     console.log('  groupPrice:', groupPrice || 'N/A');
     console.log('  languages:', languages ? '✅' : '❌', typeof languages);
@@ -1947,9 +1953,11 @@ app.post('/api/tours', async (req, res) => {
       });
     }
 
-    // Validate pricing based on pricing type
-    const pricingTypeValue = pricingType || 'per_person';
-    if (pricingTypeValue === 'per_group') {
+    // Infer pricing type from groupPrice and maxGroupSize presence
+    const isPerGroupPricing = !!(groupPrice && maxGroupSize);
+    
+    // Validate pricing based on inferred pricing type
+    if (isPerGroupPricing) {
       if (!groupPrice || isNaN(parseFloat(groupPrice)) || parseFloat(groupPrice) <= 0) {
         return res.status(400).json({
           success: false,
@@ -2524,7 +2532,8 @@ app.post('/api/tours', async (req, res) => {
     });
     
     // Create tour data object - NEVER include 'id' as it's auto-generated
-    // Note: pricingType, groupPrice, maxGroupSize are already extracted from req.body above
+    // Note: groupPrice and maxGroupSize are extracted from req.body above
+    // Pricing type is inferred: if both groupPrice and maxGroupSize exist, it's per_group, otherwise per_person
     // They are used for calculations but should NOT be included in tourData
     
     const tourData = {
@@ -2537,7 +2546,7 @@ app.post('/api/tours', async (req, res) => {
       locations: JSON.stringify(locationsArray),
       duration: duration || 'Flexible',
       // Calculate pricePerPerson: if per_group, divide groupPrice by maxGroupSize; otherwise use pricePerPerson
-      pricePerPerson: pricingTypeValue === 'per_group' && groupPrice && maxGroupSize 
+      pricePerPerson: isPerGroupPricing 
         ? parseFloat(groupPrice) / parseInt(maxGroupSize)
         : parseFloat(pricePerPerson),
       currency: currency || 'INR',
@@ -2584,13 +2593,16 @@ app.post('/api/tours', async (req, res) => {
             if (tourId) {
               console.warn(`⚠️  Option ${index + 1} had a tourId field (${tourId}), removing it (will be set automatically)`);
             }
-          // Calculate price based on pricing type
+          // Infer pricing type for this option: if groupPrice and maxGroupSize exist, it's per_group
+          const optionIsPerGroup = !!(cleanOption.groupPrice && cleanOption.maxGroupSize);
+          
+          // Calculate price based on inferred pricing type
           let optionPrice = 0;
-          if (cleanOption.pricingType === 'per_group' && cleanOption.groupPrice) {
+          if (optionIsPerGroup && cleanOption.groupPrice) {
             optionPrice = parseFloat(cleanOption.groupPrice);
           } else if (cleanOption.price) {
             optionPrice = parseFloat(cleanOption.price);
-          } else if (pricingTypeValue === 'per_group' && groupPrice) {
+          } else if (isPerGroupPricing && groupPrice) {
             optionPrice = parseFloat(groupPrice);
           } else {
             optionPrice = parseFloat(pricePerPerson);
@@ -2617,7 +2629,6 @@ app.post('/api/tours', async (req, res) => {
             entryTicketIncluded: cleanOption.entryTicketIncluded || cleanOption.entry_ticket_included || false,
             guideIncluded: cleanOption.guideIncluded !== undefined ? cleanOption.guideIncluded : (cleanOption.guide_included !== undefined ? cleanOption.guide_included : true),
             carIncluded: cleanOption.carIncluded || cleanOption.car_included || false,
-            pricingType: cleanOption.pricingType || 'per_person',
             maxGroupSize: cleanOption.maxGroupSize && cleanOption.maxGroupSize >= 1 && cleanOption.maxGroupSize <= 20 ? parseInt(cleanOption.maxGroupSize) : null,
             groupPrice: cleanOption.groupPrice && !isNaN(parseFloat(cleanOption.groupPrice)) ? parseFloat(cleanOption.groupPrice) : null,
             sortOrder: index
@@ -2691,7 +2702,7 @@ app.post('/api/tours', async (req, res) => {
           'optionTitle', 'optionDescription', 'durationHours', 'price', 'currency',
           'language', 'pickupIncluded', 'entryTicketIncluded', 'guideIncluded',
           'carIncluded', 'maxGroupSize', 'groupPrice', 'sortOrder'
-          // Note: pricingType is excluded because the database column doesn't exist yet
+          // Note: pricingType removed - we infer pricing type from groupPrice/maxGroupSize presence
         ];
         
         // Also ensure no IDs in nested options - remove ALL possible id fields
@@ -2806,7 +2817,7 @@ app.post('/api/tours', async (req, res) => {
           };
         }
         
-        // Explicitly ensure NO pricingType or other invalid fields exist
+        // Explicitly ensure NO pricingType or other invalid fields exist (pricingType removed from schema)
         delete cleanFinalTourData.pricingType;
         delete cleanFinalTourData.pricing_type;
         delete cleanFinalTourData.groupPrice;
@@ -2904,9 +2915,8 @@ app.post('/api/tours', async (req, res) => {
         if (optionsToCreate.length > 0) {
           console.log('🔍 Creating options separately...');
           
-          // Filter out pricingType if the database column doesn't exist
-          // Keep only fields that exist in the TourOption model
-          // Note: pricingType is excluded because the database column doesn't exist yet
+          // Filter to only valid TourOption fields
+          // Note: pricingType removed - we infer pricing type from groupPrice/maxGroupSize presence
           
           await prisma.tourOption.createMany({
             data: optionsToCreate.map(opt => {
@@ -3291,7 +3301,6 @@ app.get('/api/tours', async (req, res) => {
           entryTicketIncluded: opt.entryTicketIncluded,
           guideIncluded: opt.guideIncluded,
           carIncluded: opt.carIncluded,
-          pricingType: opt.pricingType,
           maxGroupSize: opt.maxGroupSize,
           groupPrice: opt.groupPrice,
           sortOrder: opt.sortOrder
@@ -3330,7 +3339,6 @@ app.get('/api/tours', async (req, res) => {
             entryTicketIncluded: opt.entryTicketIncluded,
             guideIncluded: opt.guideIncluded,
             carIncluded: opt.carIncluded,
-            pricingType: opt.pricingType,
             maxGroupSize: opt.maxGroupSize,
             groupPrice: opt.groupPrice,
             sortOrder: opt.sortOrder
@@ -3434,7 +3442,6 @@ app.get('/api/tours/:id', async (req, res) => {
         entryTicketIncluded: opt.entryTicketIncluded,
         guideIncluded: opt.guideIncluded,
         carIncluded: opt.carIncluded,
-        pricingType: opt.pricingType,
         maxGroupSize: opt.maxGroupSize,
         groupPrice: opt.groupPrice,
         sortOrder: opt.sortOrder
@@ -3473,7 +3480,6 @@ app.get('/api/tours/:id', async (req, res) => {
           entryTicketIncluded: opt.entryTicketIncluded,
           guideIncluded: opt.guideIncluded,
           carIncluded: opt.carIncluded,
-          pricingType: opt.pricingType,
           maxGroupSize: opt.maxGroupSize,
           groupPrice: opt.groupPrice,
           sortOrder: opt.sortOrder
@@ -5313,8 +5319,10 @@ app.get('/api/public/tours', async (req, res) => {
             formattedOptions = tour.options.map(opt => {
               try {
                 if (!opt || !opt.id) return null;
+                // Explicitly format option fields (exclude pricingType if it somehow exists)
+                const { pricingType, pricing_type, ...cleanOpt } = opt;
                 return {
-                  ...opt,
+                  ...cleanOpt,
                   id: String(opt.id),
                   tourId: String(opt.tourId || tour.id)
                 };
