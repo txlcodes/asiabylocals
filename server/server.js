@@ -4689,40 +4689,19 @@ app.get('/api/public/tours', async (req, res) => {
 
     console.log('📋 Fetching public tours:', { city, country, category, status });
 
-    // Build where clause with case-insensitive city/country matching
+    // Build where clause - fetch all approved tours, then filter in memory for case-insensitive matching
     const where = {
       status: status
     };
 
-    // Use case-insensitive matching for city and country using Prisma's mode
-    // Fallback to exact match if mode is not supported
-    if (city) {
-      try {
-        where.city = {
-          equals: city,
-          mode: 'insensitive'
-        };
-      } catch (e) {
-        // Fallback: use exact match (will log mismatch in debug output)
-        where.city = city;
-      }
-    }
-    if (country) {
-      try {
-        where.country = {
-          equals: country,
-          mode: 'insensitive'
-        };
-      } catch (e) {
-        // Fallback: use exact match
-        where.country = country;
-      }
-    }
+    // Only add category filter (exact match is fine for category)
     if (category) {
       where.category = category;
     }
     
+    // Note: We'll filter city/country in memory for case-insensitive matching
     console.log('   Where clause:', JSON.stringify(where, null, 2));
+    console.log('   Will filter by city/country in memory:', { city, country });
 
     // Retry logic for Render free tier database connection issues
     let tours = null;
@@ -4751,53 +4730,18 @@ app.get('/api/public/tours', async (req, res) => {
             createdAt: 'desc'
           }
         });
+        // Filter city/country in memory for case-insensitive matching
+        if (tours && (city || country)) {
+          const beforeFilter = tours.length;
+          tours = tours.filter(tour => {
+            const cityMatch = !city || (tour.city && tour.city.toLowerCase() === city.toLowerCase());
+            const countryMatch = !country || (tour.country && tour.country.toLowerCase() === country.toLowerCase());
+            return cityMatch && countryMatch;
+          });
+          console.log(`   🔍 Filtered from ${beforeFilter} to ${tours.length} tours (city: ${city}, country: ${country})`);
+        }
         break; // Success, exit retry loop
       } catch (dbError) {
-        // If mode: 'insensitive' is not supported, try with exact match
-        if (dbError.message?.includes('insensitive') || dbError.message?.includes('mode')) {
-          console.log('   ⚠️  Case-insensitive mode not supported, trying exact match...');
-          const fallbackWhere = {
-            status: status
-          };
-          if (city) fallbackWhere.city = city;
-          if (country) fallbackWhere.country = country;
-          if (category) fallbackWhere.category = category;
-          
-          try {
-            tours = await prisma.tour.findMany({
-              where: fallbackWhere,
-              include: {
-                supplier: {
-                  select: {
-                    id: true,
-                    fullName: true,
-                    companyName: true
-                  }
-                },
-                options: {
-                  orderBy: {
-                    sortOrder: 'asc'
-                  }
-                }
-              },
-              orderBy: {
-                createdAt: 'desc'
-              }
-            });
-            // Filter in memory for case-insensitive match
-            if (tours && (city || country)) {
-              tours = tours.filter(tour => {
-                const cityMatch = !city || tour.city?.toLowerCase() === city.toLowerCase();
-                const countryMatch = !country || tour.country?.toLowerCase() === country.toLowerCase();
-                return cityMatch && countryMatch;
-              });
-            }
-            break; // Success with fallback
-          } catch (fallbackError) {
-            console.error('   ❌ Fallback query also failed:', fallbackError.message);
-            throw dbError; // Throw original error
-          }
-        }
         findAttempts++;
         console.error(`   Database error fetching tours (attempt ${findAttempts}/${MAX_FIND_RETRIES}):`, dbError.message);
 
@@ -4930,10 +4874,13 @@ app.get('/api/public/tours', async (req, res) => {
     });
 
     console.log(`   ✅ Formatted ${formattedTours.length} tours successfully`);
+    console.log(`   📤 Returning ${formattedTours.length} tours to frontend`);
 
+    // Ensure we always return an array, even if empty
     res.json({
       success: true,
-      tours: formattedTours
+      tours: formattedTours || [],
+      count: formattedTours?.length || 0
     });
   } catch (error) {
     console.error('❌ Get public tours error:', error);
