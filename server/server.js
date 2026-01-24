@@ -2730,6 +2730,25 @@ app.post('/api/tours', async (req, res) => {
           });
         }
         
+        // CRITICAL: Check finalTourData for any invalid fields BEFORE creating cleanFinalTourData
+        const invalidFieldsInFinalTourData = Object.keys(finalTourData).filter(key => {
+          const keyLower = key.toLowerCase();
+          return (
+            keyLower.includes('pricing') ||
+            (keyLower.includes('group') && keyLower !== 'group') ||
+            (keyLower.includes('option') && key !== 'options') ||
+            key === 'tourOptions'
+          );
+        });
+        
+        if (invalidFieldsInFinalTourData.length > 0) {
+          console.error(`❌ CRITICAL: Found invalid fields in finalTourData BEFORE cleaning: ${invalidFieldsInFinalTourData.join(', ')}`);
+          invalidFieldsInFinalTourData.forEach(field => {
+            console.error(`   Removing '${field}' from finalTourData`);
+            delete finalTourData[field];
+          });
+        }
+        
         // FINAL SAFETY CHECK: Remove ALL option-related fields that might have leaked in
         // This is a last-ditch effort to ensure no invalid fields reach Prisma
         const SAFE_TOUR_FIELDS = [
@@ -2740,25 +2759,46 @@ app.post('/api/tours', async (req, res) => {
         ];
         
         // Create a completely clean object with ONLY valid Tour model fields
-        const cleanFinalTourData = {};
-        SAFE_TOUR_FIELDS.forEach(field => {
-          if (field in finalTourData) {
-            // Special handling for 'options' field - ensure it only has 'create' property
-            if (field === 'options' && finalTourData.options) {
-              cleanFinalTourData.options = {
-                create: finalTourData.options.create || []
-              };
-              // Remove any other properties that might have leaked in
-              Object.keys(finalTourData.options).forEach(key => {
-                if (key !== 'create') {
-                  console.warn(`⚠️  Removing unexpected property '${key}' from options object`);
-                }
-              });
-            } else {
-              cleanFinalTourData[field] = finalTourData[field];
-            }
-          }
-        });
+        // Use explicit field assignment to prevent any field leakage
+        const cleanFinalTourData = {
+          supplierId: finalTourData.supplierId,
+          title: finalTourData.title,
+          slug: finalTourData.slug,
+          country: finalTourData.country,
+          city: finalTourData.city,
+          category: finalTourData.category,
+          locations: finalTourData.locations,
+          duration: finalTourData.duration,
+          pricePerPerson: finalTourData.pricePerPerson,
+          currency: finalTourData.currency,
+          shortDescription: finalTourData.shortDescription,
+          fullDescription: finalTourData.fullDescription,
+          highlights: finalTourData.highlights,
+          included: finalTourData.included,
+          notIncluded: finalTourData.notIncluded,
+          meetingPoint: finalTourData.meetingPoint,
+          guideType: finalTourData.guideType,
+          images: finalTourData.images,
+          languages: finalTourData.languages,
+          reviews: finalTourData.reviews,
+          status: finalTourData.status || 'draft'
+        };
+        
+        // Only add options if they exist and are properly formatted
+        if (finalTourData.options && finalTourData.options.create && Array.isArray(finalTourData.options.create)) {
+          cleanFinalTourData.options = {
+            create: finalTourData.options.create
+          };
+        }
+        
+        // Explicitly ensure NO pricingType or other invalid fields exist
+        delete cleanFinalTourData.pricingType;
+        delete cleanFinalTourData.pricing_type;
+        delete cleanFinalTourData.groupPrice;
+        delete cleanFinalTourData.group_price;
+        delete cleanFinalTourData.maxGroupSize;
+        delete cleanFinalTourData.max_group_size;
+        delete cleanFinalTourData.tourOptions;
         
         // Log what we're about to send
         console.log('📤 Final tourData before Prisma create:', {
@@ -2797,8 +2837,26 @@ app.post('/api/tours', async (req, res) => {
           firstOptionFields: cleanFinalTourData.options?.create?.[0] ? Object.keys(cleanFinalTourData.options.create[0]) : []
         });
         
+        // ABSOLUTE FINAL CHECK: Serialize and parse to ensure no hidden properties
+        const finalDataForPrisma = JSON.parse(JSON.stringify(cleanFinalTourData));
+        
+        // Check one more time for any pricing-related fields
+        const finalCheck = Object.keys(finalDataForPrisma).filter(key => 
+          key.toLowerCase().includes('pricing') || 
+          (key.toLowerCase().includes('group') && key !== 'group') ||
+          (key.toLowerCase().includes('option') && key !== 'options')
+        );
+        
+        if (finalCheck.length > 0) {
+          console.error(`❌ ABSOLUTE FINAL CHECK FAILED: Found invalid fields: ${finalCheck.join(', ')}`);
+          console.error('   Full object keys:', Object.keys(finalDataForPrisma));
+          throw new Error(`Invalid fields detected in final data: ${finalCheck.join(', ')}`);
+        }
+        
+        console.log('✅ Final data validated - no invalid fields found. Proceeding with Prisma create...');
+        
         tour = await prisma.tour.create({
-          data: cleanFinalTourData,
+          data: finalDataForPrisma,
           include: {
             options: {
               orderBy: {
