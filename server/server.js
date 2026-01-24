@@ -4843,8 +4843,10 @@ app.get('/api/public/tours', async (req, res) => {
       }
     }
 
+    // Ensure tours is always an array (never null)
     if (!tours) {
-      throw new Error('Failed to fetch tours after retries');
+      tours = [];
+      console.log(`   ⚠️  Tours query returned null, using empty array`);
     }
 
     console.log(`   ✅ Found ${tours.length} tours`);
@@ -4883,6 +4885,7 @@ app.get('/api/public/tours', async (req, res) => {
     }
 
     // Parse JSON fields with error handling
+    // Format tours - ensure ALL tours are returned even if formatting fails
     const formattedTours = tours.map(tour => {
       try {
         // Safe JSON parsing with fallbacks
@@ -4918,46 +4921,71 @@ app.get('/api/public/tours', async (req, res) => {
           highlights = [];
         }
 
-        return {
-          ...tour,
+        // Format options safely
+        let formattedOptions = [];
+        try {
+          if (tour.options && Array.isArray(tour.options)) {
+            formattedOptions = tour.options.map(opt => {
+              try {
+                if (!opt || !opt.id) return null;
+                return {
+                  ...opt,
+                  id: String(opt.id),
+                  tourId: String(opt.tourId || tour.id)
+                };
+              } catch (optError) {
+                console.warn(`   ⚠️  Error formatting option ${opt?.id || 'unknown'} for tour ${tour.id}:`, optError.message);
+                return null;
+              }
+            }).filter(opt => opt !== null);
+          }
+        } catch (optionsError) {
+          console.warn(`   ⚠️  Error processing options for tour ${tour.id}:`, optionsError.message);
+          formattedOptions = [];
+        }
+
+        // Build tour object - include all essential fields
+        const formattedTour = {
           id: String(tour.id),
+          supplierId: String(tour.supplierId),
+          title: tour.title || 'Untitled Tour',
+          slug: tour.slug || `tour-${tour.id}`,
+          country: tour.country || '',
+          city: tour.city || '',
+          category: tour.category || '',
           locations,
           images,
           languages,
           highlights,
+          duration: tour.duration || '',
+          pricePerPerson: tour.pricePerPerson || 0,
+          currency: tour.currency || 'INR',
+          shortDescription: tour.shortDescription || null,
+          fullDescription: tour.fullDescription || '',
+          included: tour.included || '',
+          notIncluded: tour.notIncluded || null,
+          meetingPoint: tour.meetingPoint || null,
+          guideType: tour.guideType || null,
+          status: tour.status || 'draft',
+          createdAt: tour.createdAt,
+          updatedAt: tour.updatedAt,
           supplier: tour.supplier ? {
             ...tour.supplier,
             id: String(tour.supplier.id)
           } : null,
-          options: (() => {
-            try {
-              if (tour.options && Array.isArray(tour.options)) {
-                return tour.options.map(opt => {
-                  try {
-                    return {
-                      ...opt,
-                      id: String(opt.id),
-                      tourId: String(opt.tourId)
-                    };
-                  } catch (optError) {
-                    console.warn(`   ⚠️  Error formatting option ${opt?.id || 'unknown'} for tour ${tour.id}:`, optError.message);
-                    return null;
-                  }
-                }).filter(opt => opt !== null); // Remove any null options
-              }
-              return [];
-            } catch (optionsError) {
-              console.warn(`   ⚠️  Error processing options for tour ${tour.id}:`, optionsError.message);
-              return [];
-            }
-          })()
+          options: formattedOptions
         };
+        
+        return formattedTour;
       } catch (parseError) {
         console.error(`   ❌ Error formatting tour ${tour.id}:`, parseError);
-        // Return minimal safe tour data
+        console.error(`   Stack:`, parseError.stack);
+        // Return minimal safe tour data - but still return it!
         return {
           id: String(tour.id),
+          supplierId: String(tour.supplierId || ''),
           title: tour.title || 'Untitled Tour',
+          slug: tour.slug || `tour-${tour.id}`,
           city: tour.city || '',
           country: tour.country || '',
           category: tour.category || '',
@@ -4965,11 +4993,17 @@ app.get('/api/public/tours', async (req, res) => {
           images: [],
           languages: ['English'],
           highlights: [],
+          duration: tour.duration || '',
+          pricePerPerson: tour.pricePerPerson || 0,
+          currency: tour.currency || 'INR',
+          fullDescription: tour.fullDescription || '',
+          included: tour.included || '',
+          status: tour.status || 'draft',
           supplier: null,
           options: []
         };
       }
-    });
+    }).filter(tour => tour !== null && tour !== undefined); // Remove any null/undefined tours
 
     console.log(`   ✅ Formatted ${formattedTours.length} tours successfully`);
     
