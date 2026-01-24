@@ -4848,11 +4848,28 @@ app.get('/api/public/tours', async (req, res) => {
             ...tour.supplier,
             id: String(tour.supplier.id)
           } : null,
-          options: tour.options && Array.isArray(tour.options) ? tour.options.map(opt => ({
-            ...opt,
-            id: String(opt.id),
-            tourId: String(opt.tourId)
-          })) : []
+          options: (() => {
+            try {
+              if (tour.options && Array.isArray(tour.options)) {
+                return tour.options.map(opt => {
+                  try {
+                    return {
+                      ...opt,
+                      id: String(opt.id),
+                      tourId: String(opt.tourId)
+                    };
+                  } catch (optError) {
+                    console.warn(`   ⚠️  Error formatting option ${opt?.id || 'unknown'} for tour ${tour.id}:`, optError.message);
+                    return null;
+                  }
+                }).filter(opt => opt !== null); // Remove any null options
+              }
+              return [];
+            } catch (optionsError) {
+              console.warn(`   ⚠️  Error processing options for tour ${tour.id}:`, optionsError.message);
+              return [];
+            }
+          })()
         };
       } catch (parseError) {
         console.error(`   ❌ Error formatting tour ${tour.id}:`, parseError);
@@ -4874,6 +4891,11 @@ app.get('/api/public/tours', async (req, res) => {
     });
 
     console.log(`   ✅ Formatted ${formattedTours.length} tours successfully`);
+    
+    // Log options statistics
+    const toursWithOptions = formattedTours.filter(t => t.options && t.options.length > 0).length;
+    const toursWithoutOptions = formattedTours.length - toursWithOptions;
+    console.log(`   📊 Tours with options: ${toursWithOptions}, without options: ${toursWithoutOptions}`);
     console.log(`   📤 Returning ${formattedTours.length} tours to frontend`);
 
     // Ensure we always return an array, even if empty
