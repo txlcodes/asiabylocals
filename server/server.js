@@ -2367,17 +2367,9 @@ app.post('/api/tours', async (req, res) => {
         continue;
       }
       
-      // Strategy 7: Use timestamp hash (last resort - no numbers)
-      if (attempt >= maxAttempts - 1) {
-        // Generate a short hash from timestamp (last 6 chars)
-        const timestampHash = Date.now().toString(36).slice(-6);
-        slug = `${locationSlug}-${typeSlug}-${timestampHash}`;
-        continue;
-      }
-      
-      // Strategy 8: Final fallback - use full timestamp hash
-      const timestampHash = Date.now().toString(36);
-      slug = `${locationSlug}-${typeSlug}-${timestampHash}`;
+      // If we've exhausted all keyword strategies, break to try custom words
+      // (Don't use timestamp hash here - custom words are more SEO-friendly)
+      break;
     }
     
     // Final safety check - ensure slug is unique using custom descriptive words
