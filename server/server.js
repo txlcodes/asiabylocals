@@ -2303,29 +2303,13 @@ app.post('/api/tours', async (req, res) => {
       return city;
     };
 
-    // Generate SEO-optimized slug: {primary-attraction}-{tour-type}
-    const primaryLocation = extractPrimaryLocation(locationsArray, city);
+    // Generate world-class SEO-optimized slug
+    const primaryLocation = extractPrimaryLocation(locationsArray, city, title);
     const tourType = extractTourType(title, category);
     
     let locationSlug = slugify(primaryLocation);
-    const typeSlug = tourType; // Already in slug format
+    const typeSlug = tourType;
     const citySlug = slugify(city);
-    
-    // SEO Enhancement: Ensure location slug includes important keywords
-    // If location is too generic, try to extract from title
-    if (locationSlug.length < 5 || locationSlug === citySlug) {
-      // Try to find location keywords in title
-      const locationKeywords = ['taj', 'mahal', 'fort', 'palace', 'gate', 'temple', 'museum', 'bazaar', 'market', 'bagh', 'garden'];
-      const titleLower = title.toLowerCase();
-      const foundKeyword = locationKeywords.find(kw => titleLower.includes(kw));
-      if (foundKeyword && !locationSlug.includes(foundKeyword)) {
-        // Prepend keyword to location slug for better SEO
-        const enhancedLocation = `${foundKeyword}-${locationSlug}`;
-        if (enhancedLocation.length < 30) { // Don't make it too long
-          locationSlug = slugify(enhancedLocation);
-        }
-      }
-    }
     
     // Advanced keyword extraction with NLP-like prioritization
     const extractKeywords = (text, locationSlug, citySlug) => {
@@ -2378,27 +2362,45 @@ app.post('/api/tours', async (req, res) => {
       return words;
     };
     
-    const titleKeywords = extractKeywords(title);
+    // Extract keywords AFTER we have locationSlug and citySlug
+    const titleKeywords = extractKeywords(title, locationSlug, citySlug);
     
-    // Combine: primary-attraction + tour-type
-    // SEO Enhancement: Include city if it adds value (for multi-city attractions)
-    let baseSlug = `${locationSlug}-${typeSlug}`;
-    
-    // If location is generic or same as city, consider adding city for SEO
-    // But only if it doesn't make slug too long (keep under 50 chars for base)
+    // Build intelligent base slug with SEO optimization
+    let baseSlug = '';
     const isGenericLocation = locationSlug === citySlug || locationSlug.length < 5;
-    if (isGenericLocation && citySlug && citySlug !== locationSlug && baseSlug.length < 45) {
-      // City adds SEO value for generic locations
+    
+    // Strategy 1: If location is well-known and specific, use: location-tour-type
+    if (!isGenericLocation && locationSlug.length >= 5) {
+      baseSlug = `${locationSlug}-${typeSlug}`;
+    }
+    // Strategy 2: If location is generic, use: city-location-tour-type
+    else if (isGenericLocation && citySlug && citySlug !== locationSlug) {
       baseSlug = `${citySlug}-${locationSlug}-${typeSlug}`;
     }
+    // Strategy 3: Fallback to city-tour-type
+    else {
+      baseSlug = `${citySlug}-${typeSlug}`;
+    }
     
-    // SEO: Ensure base slug is descriptive and keyword-rich
-    // If base slug is too short or generic, try to enhance it
-    if (baseSlug.length < 15 && titleKeywords.length > 0) {
+    // SEO Enhancement: Add keyword if slug is too short or generic
+    if (baseSlug.length < 20 && titleKeywords.length > 0) {
       const firstKeyword = slugify(titleKeywords[0]);
-      if (firstKeyword && firstKeyword.length > 3) {
+      if (firstKeyword && firstKeyword.length > 3 && !baseSlug.includes(firstKeyword)) {
+        // Insert keyword between location and type
+        if (baseSlug.includes(`${citySlug}-${locationSlug}`)) {
+          baseSlug = `${citySlug}-${locationSlug}-${firstKeyword}-${typeSlug}`;
+        } else if (baseSlug.startsWith(locationSlug)) {
         baseSlug = `${locationSlug}-${firstKeyword}-${typeSlug}`;
+        } else {
+          baseSlug = `${citySlug}-${firstKeyword}-${typeSlug}`;
+        }
       }
+    }
+    
+    // Ensure base slug doesn't exceed optimal length (60 chars max for SEO)
+    if (baseSlug.length > 60) {
+      const parts = baseSlug.split('-');
+      baseSlug = parts.slice(0, Math.min(parts.length, 5)).join('-'); // Max 5 parts
     }
     
     // Ensure slug is unique (try different word combinations before using counter)
