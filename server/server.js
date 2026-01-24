@@ -1845,12 +1845,43 @@ function generateFakeReviews(tourData) {
   return reviews;
 }
 
+// Helper function to recursively remove all ID fields from an object
+function removeAllIds(obj) {
+  if (obj === null || obj === undefined) return obj;
+  if (Array.isArray(obj)) {
+    return obj.map(item => removeAllIds(item));
+  }
+  if (typeof obj !== 'object') return obj;
+  
+  const cleaned = {};
+  for (const [key, value] of Object.entries(obj)) {
+    // Skip all ID-related fields (case-insensitive)
+    const keyLower = key.toLowerCase();
+    if (keyLower === 'id' || 
+        keyLower === 'tourid' || 
+        keyLower === 'tour_id' ||
+        keyLower === 'supplierid' ||
+        keyLower === 'supplier_id' ||
+        keyLower === 'optionid' ||
+        keyLower === 'option_id') {
+      continue; // Skip this field
+    }
+    // Recursively clean nested objects
+    cleaned[key] = removeAllIds(value);
+  }
+  return cleaned;
+}
+
 // Create a new tour
 app.post('/api/tours', async (req, res) => {
   try {
     console.log('📥 Received tour creation request');
     console.log('📦 Request body keys:', Object.keys(req.body));
-    console.log('📦 Request body:', JSON.stringify(req.body, null, 2));
+    
+    // CRITICAL: Remove ALL IDs from request body immediately (before any processing)
+    const cleanedBody = removeAllIds(req.body);
+    console.log('🧹 Cleaned request body (all IDs removed recursively)');
+    console.log('📦 Request body:', JSON.stringify(cleanedBody, null, 2));
     
     const {
       supplierId,
@@ -1874,7 +1905,7 @@ app.post('/api/tours', async (req, res) => {
       images,
       languages,
       highlights
-    } = req.body;
+    } = cleanedBody; // Use cleaned body instead of req.body
 
     // Debug: Log each field
     console.log('🔍 Field validation:');
@@ -2441,7 +2472,8 @@ app.post('/api/tours', async (req, res) => {
     }
 
     // Parse tour options if provided (accept both 'options' and 'tourOptions' field names)
-    let tourOptions = req.body.options || req.body.tourOptions || [];
+    // Use cleanedBody to ensure no IDs are present
+    let tourOptions = cleanedBody.options || cleanedBody.tourOptions || [];
     
     // Validate tourOptions is an array
     if (tourOptions && !Array.isArray(tourOptions)) {
