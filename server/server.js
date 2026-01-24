@@ -4748,6 +4748,27 @@ app.get('/api/public/tours', async (req, res) => {
     }
 
     console.log(`   ✅ Found ${tours.length} tours`);
+    
+    // Log tour statuses for debugging
+    if (tours.length > 0) {
+      const statusCounts = tours.reduce((acc, tour) => {
+        acc[tour.status] = (acc[tour.status] || 0) + 1;
+        return acc;
+      }, {});
+      console.log(`   📊 Tour status breakdown:`, statusCounts);
+    } else {
+      console.log(`   ⚠️  No tours found with status="${status}"`);
+      // Log what tours exist in database (for debugging)
+      try {
+        const allTours = await prisma.tour.findMany({
+          select: { id: true, title: true, status: true, city: true, country: true },
+          take: 10
+        });
+        console.log(`   🔍 Sample tours in database (first 10):`, allTours.map(t => ({ id: t.id, title: t.title, status: t.status, city: t.city })));
+      } catch (debugError) {
+        console.error(`   ❌ Could not fetch debug tour list:`, debugError.message);
+      }
+    }
 
     // Parse JSON fields with error handling
     const formattedTours = tours.map(tour => {
