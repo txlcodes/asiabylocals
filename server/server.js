@@ -2533,16 +2533,25 @@ app.post('/api/tours', async (req, res) => {
     }
     
     // Ensure slug is unique (try different word combinations before using counter)
+    // CRITICAL: This loop MUST guarantee a unique slug before proceeding
     let slug = baseSlug;
     let attempt = 0;
     const maxAttempts = 30;
+    let slugIsUnique = false;
     
-    while (attempt < maxAttempts) {
+    while (attempt < maxAttempts && !slugIsUnique) {
+      // Check if slug already exists
       const existingTour = await prisma.tour.findUnique({
         where: { slug }
       });
-      if (!existingTour) break;
       
+      if (!existingTour) {
+        // Slug is unique! Exit loop
+        slugIsUnique = true;
+        break;
+      }
+      
+      // Slug exists, try next strategy
       attempt++;
       
       // Strategy 1: Try adding keywords from title one by one (most SEO-friendly)
@@ -2613,7 +2622,8 @@ app.post('/api/tours', async (req, res) => {
     }
     
     // Final safety check - ensure slug is unique using custom descriptive words for ALL Asian cities
-    if (attempt >= maxAttempts || (attempt > 0 && slug === baseSlug)) {
+    // CRITICAL: Only proceed if slug is NOT unique yet (prevents P2002 errors)
+    if (!slugIsUnique && (attempt >= maxAttempts || (attempt > 0 && slug === baseSlug))) {
       // Comprehensive custom words for Asian tours - SEO-friendly and meaningful for entire continent
       const asianTourWords = [
         // Heritage & Culture (Universal Asian themes)
@@ -2639,12 +2649,13 @@ app.post('/api/tours', async (req, res) => {
       let wordIndex = 0;
       let finalSlug = `${baseSlug}-${asianTourWords[wordIndex]}`;
       
-      while (wordIndex < asianTourWords.length) {
+      while (wordIndex < asianTourWords.length && !slugIsUnique) {
         const existingTour = await prisma.tour.findUnique({
           where: { slug: finalSlug }
         });
         if (!existingTour) {
           slug = finalSlug;
+          slugIsUnique = true;
           break;
         }
         wordIndex++;
@@ -2654,16 +2665,17 @@ app.post('/api/tours', async (req, res) => {
       }
       
       // If all custom words are exhausted, try combining with city
-      if (wordIndex >= asianTourWords.length && citySlug && citySlug !== locationSlug) {
+      if (!slugIsUnique && wordIndex >= asianTourWords.length && citySlug && citySlug !== locationSlug) {
         let combinedWordIndex = 0;
         finalSlug = `${baseSlug}-${citySlug}-${asianTourWords[combinedWordIndex]}`;
         
-        while (combinedWordIndex < Math.min(15, asianTourWords.length)) {
+        while (combinedWordIndex < Math.min(15, asianTourWords.length) && !slugIsUnique) {
           const existingTour = await prisma.tour.findUnique({
             where: { slug: finalSlug }
           });
           if (!existingTour) {
             slug = finalSlug;
+            slugIsUnique = true;
             break;
           }
           combinedWordIndex++;
@@ -2674,26 +2686,55 @@ app.post('/api/tours', async (req, res) => {
       }
       
       // Last resort: append number only if all custom words failed
-      if (wordIndex >= asianTourWords.length) {
+      if (!slugIsUnique && wordIndex >= asianTourWords.length) {
         let counter = 1;
         finalSlug = `${baseSlug}-${counter}`;
-        while (counter < 20) {
+        while (counter < 50 && !slugIsUnique) { // Increased from 20 to 50 for more attempts
           const existingTour = await prisma.tour.findUnique({
             where: { slug: finalSlug }
           });
           if (!existingTour) {
             slug = finalSlug;
+            slugIsUnique = true;
             break;
           }
           counter++;
           finalSlug = `${baseSlug}-${counter}`;
         }
         
-        // Absolute last resort: timestamp hash
-        if (counter >= 20) {
-          const timestampHash = Date.now().toString(36).slice(-8);
-          slug = `${baseSlug}-${timestampHash}`;
+        // Absolute last resort: timestamp hash (guaranteed unique)
+        if (!slugIsUnique && counter >= 50) {
+          let timestampAttempts = 0;
+          while (timestampAttempts < 10 && !slugIsUnique) {
+            const timestampHash = Date.now().toString(36).slice(-8) + Math.random().toString(36).slice(-4);
+            const timestampSlug = `${baseSlug}-${timestampHash}`;
+            const existingTour = await prisma.tour.findUnique({
+              where: { slug: timestampSlug }
+            });
+            if (!existingTour) {
+              slug = timestampSlug;
+              slugIsUnique = true;
+              break;
+            }
+            timestampAttempts++;
+            // Small delay to ensure different timestamp
+            await new Promise(resolve => setTimeout(resolve, 10));
+          }
         }
+      }
+    }
+    
+    // CRITICAL FINAL CHECK: Verify slug is unique before proceeding (prevents P2002 errors)
+    if (!slugIsUnique) {
+      // One final check - if somehow we still don't have a unique slug, use timestamp
+      const finalCheck = await prisma.tour.findUnique({
+        where: { slug }
+      });
+      if (finalCheck) {
+        // Force unique slug with timestamp + random
+        const emergencySlug = `${baseSlug}-${Date.now()}-${Math.random().toString(36).slice(-6)}`;
+        slug = emergencySlug;
+        console.log('⚠️  Used emergency slug generation (should be rare):', slug);
       }
     }
     
