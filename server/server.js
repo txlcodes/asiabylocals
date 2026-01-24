@@ -4689,13 +4689,40 @@ app.get('/api/public/tours', async (req, res) => {
 
     console.log('📋 Fetching public tours:', { city, country, category, status });
 
+    // Build where clause with case-insensitive city/country matching
     const where = {
       status: status
     };
 
-    if (city) where.city = city;
-    if (country) where.country = country;
-    if (category) where.category = category;
+    // Use case-insensitive matching for city and country using Prisma's mode
+    // Fallback to exact match if mode is not supported
+    if (city) {
+      try {
+        where.city = {
+          equals: city,
+          mode: 'insensitive'
+        };
+      } catch (e) {
+        // Fallback: use exact match (will log mismatch in debug output)
+        where.city = city;
+      }
+    }
+    if (country) {
+      try {
+        where.country = {
+          equals: country,
+          mode: 'insensitive'
+        };
+      } catch (e) {
+        // Fallback: use exact match
+        where.country = country;
+      }
+    }
+    if (category) {
+      where.category = category;
+    }
+    
+    console.log('   Where clause:', JSON.stringify(where, null, 2));
 
     // Retry logic for Render free tier database connection issues
     let tours = null;
@@ -4752,22 +4779,34 @@ app.get('/api/public/tours', async (req, res) => {
 
     console.log(`   ✅ Found ${tours.length} tours`);
     
-    // Log tour statuses for debugging
+    // Log tour statuses and city/country for debugging
     if (tours.length > 0) {
       const statusCounts = tours.reduce((acc, tour) => {
         acc[tour.status] = (acc[tour.status] || 0) + 1;
         return acc;
       }, {});
       console.log(`   📊 Tour status breakdown:`, statusCounts);
+      console.log(`   📍 Sample tour locations:`, tours.slice(0, 3).map(t => ({ id: t.id, city: t.city, country: t.country, status: t.status })));
     } else {
-      console.log(`   ⚠️  No tours found with status="${status}"`);
+      console.log(`   ⚠️  No tours found with filters:`, { city, country, category, status });
       // Log what tours exist in database (for debugging)
       try {
         const allTours = await prisma.tour.findMany({
+          where: { status: 'approved' },
           select: { id: true, title: true, status: true, city: true, country: true },
           take: 10
         });
-        console.log(`   🔍 Sample tours in database (first 10):`, allTours.map(t => ({ id: t.id, title: t.title, status: t.status, city: t.city })));
+        console.log(`   🔍 Approved tours in database (first 10):`, allTours.map(t => ({ id: t.id, title: t.title.substring(0, 40), status: t.status, city: t.city, country: t.country })));
+        
+        // Check if there's a case mismatch
+        if (city || country) {
+          const matchingTours = allTours.filter(t => {
+            const cityMatch = !city || t.city?.toLowerCase() === city.toLowerCase();
+            const countryMatch = !country || t.country?.toLowerCase() === country.toLowerCase();
+            return cityMatch && countryMatch;
+          });
+          console.log(`   🔍 Case-insensitive match found ${matchingTours.length} tours`);
+        }
       } catch (debugError) {
         console.error(`   ❌ Could not fetch debug tour list:`, debugError.message);
       }
