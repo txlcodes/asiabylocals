@@ -2686,16 +2686,16 @@ app.post('/api/tours', async (req, res) => {
           }
         });
         
+        // Define ONLY valid TourOption fields (from Prisma schema) - moved outside if block for scope
+        const VALID_TOUR_OPTION_FIELDS = [
+          'optionTitle', 'optionDescription', 'durationHours', 'price', 'currency',
+          'language', 'pickupIncluded', 'entryTicketIncluded', 'guideIncluded',
+          'carIncluded', 'pricingType', 'maxGroupSize', 'groupPrice', 'sortOrder'
+        ];
+        
         // Also ensure no IDs in nested options - remove ALL possible id fields
         // AND ensure only valid TourOption fields are included
         if (finalTourData.options?.create) {
-          // Define ONLY valid TourOption fields (from Prisma schema)
-          const VALID_TOUR_OPTION_FIELDS = [
-            'optionTitle', 'optionDescription', 'durationHours', 'price', 'currency',
-            'language', 'pickupIncluded', 'entryTicketIncluded', 'guideIncluded',
-            'carIncluded', 'pricingType', 'maxGroupSize', 'groupPrice', 'sortOrder'
-          ];
-          
           finalTourData.options.create = finalTourData.options.create.map((opt, idx) => {
             // Create a clean object with ONLY valid TourOption fields
             const cleanOpt = {};
