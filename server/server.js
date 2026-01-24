@@ -2924,10 +2924,23 @@ app.post('/api/tours', async (req, res) => {
         break; // Success, exit retry loop
       } catch (createError) {
         createAttempts++;
-        console.error(`❌ Tour creation attempt ${createAttempts}/${MAX_CREATE_RETRIES} failed:`, createError.message);
-        console.error('   Error code:', createError.code);
-        console.error('   Error meta:', JSON.stringify(createError.meta, null, 2));
-        console.error('   Full error:', createError);
+        
+        // ENHANCED ERROR LOGGING - Make errors super visible
+        console.error('\n');
+        console.error('═══════════════════════════════════════════════════════════');
+        console.error('🚨 TOUR CREATION ERROR DETECTED 🚨');
+        console.error('═══════════════════════════════════════════════════════════');
+        console.error(`❌ Attempt ${createAttempts}/${MAX_CREATE_RETRIES} failed`);
+        console.error('');
+        console.error('📋 ERROR DETAILS:');
+        console.error('   Message:', createError.message);
+        console.error('   Code:', createError.code || 'N/A');
+        console.error('   Meta:', JSON.stringify(createError.meta, null, 2));
+        console.error('');
+        console.error('📚 FULL ERROR STACK:');
+        console.error(createError.stack || createError);
+        console.error('═══════════════════════════════════════════════════════════');
+        console.error('\n');
         
         // If it's an ID constraint violation, this is unusual - log more details
         if (createError.code === 'P2002' && createError.meta?.target?.includes('id')) {
@@ -3114,12 +3127,30 @@ app.post('/api/tours', async (req, res) => {
       ? error.message 
       : errorMessage;
     
-    res.status(500).json({
+    // ENHANCED ERROR RESPONSE - Show detailed errors in development
+    const errorResponse = {
       success: false,
       error: 'Internal server error',
       message: finalMessage,
       commonIssues: commonIssues.length > 0 ? commonIssues : undefined,
-      details: process.env.NODE_ENV === 'development' ? error.stack : undefined
+      details: process.env.NODE_ENV === 'development' ? {
+        code: error.code,
+        message: error.message,
+        meta: error.meta,
+        stack: error.stack
+      } : undefined
+    };
+    
+    // Log error to console with clear formatting
+    console.error('\n');
+    console.error('═══════════════════════════════════════════════════════════');
+    console.error('🚨 TOUR CREATION FAILED - RETURNING ERROR TO CLIENT 🚨');
+    console.error('═══════════════════════════════════════════════════════════');
+    console.error('Response:', JSON.stringify(errorResponse, null, 2));
+    console.error('═══════════════════════════════════════════════════════════');
+    console.error('\n');
+    
+    res.status(500).json(errorResponse);
     });
   }
 });
