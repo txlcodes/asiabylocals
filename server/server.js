@@ -2380,12 +2380,29 @@ app.post('/api/tours', async (req, res) => {
       slug = `${locationSlug}-${typeSlug}-${timestampHash}`;
     }
     
-    // Final safety check - ensure slug is unique by appending number
+    // Final safety check - ensure slug is unique using custom descriptive words
     if (attempt >= maxAttempts || (attempt > 0 && slug === baseSlug)) {
-      // If we've exhausted all strategies or are stuck on base slug, append a number
-      let counter = 1;
-      let finalSlug = `${baseSlug}-${counter}`;
-      while (counter < 100) {
+      // Custom descriptive words for India tours - SEO-friendly and meaningful
+      const indiaTourWords = [
+        // Heritage & Culture
+        'heritage', 'cultural', 'traditional', 'authentic', 'classic', 'royal',
+        // Experience Types
+        'premium', 'deluxe', 'exclusive', 'private', 'personalized', 'custom',
+        'express', 'detailed', 'comprehensive', 'extended', 'full-day', 'half-day',
+        // Special Features
+        'sunrise', 'sunset', 'evening', 'morning', 'afternoon', 'night',
+        'photography', 'walking', 'cycling', 'food', 'shopping', 'spiritual',
+        // Location Specific
+        'city', 'temple', 'fort', 'palace', 'bazaar', 'market', 'garden', 'monument',
+        // Quality Indicators
+        'guided', 'expert', 'local', 'native', 'certified', 'professional', 'licensed'
+      ];
+      
+      // Try custom words first (more SEO-friendly than numbers)
+      let wordIndex = 0;
+      let finalSlug = `${baseSlug}-${indiaTourWords[wordIndex]}`;
+      
+      while (wordIndex < indiaTourWords.length) {
         const existingTour = await prisma.tour.findUnique({
           where: { slug: finalSlug }
         });
@@ -2393,29 +2410,53 @@ app.post('/api/tours', async (req, res) => {
           slug = finalSlug;
           break;
         }
-        counter++;
+        wordIndex++;
+        if (wordIndex < indiaTourWords.length) {
+          finalSlug = `${baseSlug}-${indiaTourWords[wordIndex]}`;
+        }
+      }
+      
+      // If all custom words are exhausted, try combining with city
+      if (wordIndex >= indiaTourWords.length && citySlug && citySlug !== locationSlug) {
+        let combinedWordIndex = 0;
+        finalSlug = `${baseSlug}-${citySlug}-${indiaTourWords[combinedWordIndex]}`;
+        
+        while (combinedWordIndex < Math.min(10, indiaTourWords.length)) {
+          const existingTour = await prisma.tour.findUnique({
+            where: { slug: finalSlug }
+          });
+          if (!existingTour) {
+            slug = finalSlug;
+            break;
+          }
+          combinedWordIndex++;
+          if (combinedWordIndex < indiaTourWords.length) {
+            finalSlug = `${baseSlug}-${citySlug}-${indiaTourWords[combinedWordIndex]}`;
+          }
+        }
+      }
+      
+      // Last resort: append number only if all custom words failed
+      if (wordIndex >= indiaTourWords.length) {
+        let counter = 1;
         finalSlug = `${baseSlug}-${counter}`;
-      }
-      
-      // If still not unique after 100 attempts, use timestamp hash
-      if (counter >= 100) {
-        const timestampHash = Date.now().toString(36).slice(-8);
-        slug = `${baseSlug}-${timestampHash}`;
-      }
-    }
-    
-    // Additional fallback - use descriptive suffix instead of timestamp hash
-    if (attempt >= maxAttempts && slug === baseSlug) {
-      // Use descriptive suffixes instead of timestamp hash for better SEO
-      const suffixes = ['premium', 'express', 'classic', 'deluxe', 'standard', 'vip'];
-      const suffixIndex = attempt % suffixes.length;
-      slug = `${locationSlug}-${typeSlug}-${suffixes[suffixIndex]}`;
-      
-      // If still not unique after all suffixes, use supplier ID (short)
-      const existingWithSuffix = await prisma.tour.findUnique({ where: { slug } });
-      if (existingWithSuffix) {
-        const supplierSlug = slugify(supplierId.toString()).substring(0, 4);
-        slug = `${locationSlug}-${typeSlug}-${supplierSlug}`;
+        while (counter < 20) {
+          const existingTour = await prisma.tour.findUnique({
+            where: { slug: finalSlug }
+          });
+          if (!existingTour) {
+            slug = finalSlug;
+            break;
+          }
+          counter++;
+          finalSlug = `${baseSlug}-${counter}`;
+        }
+        
+        // Absolute last resort: timestamp hash
+        if (counter >= 20) {
+          const timestampHash = Date.now().toString(36).slice(-8);
+          slug = `${baseSlug}-${timestampHash}`;
+        }
       }
     }
     
