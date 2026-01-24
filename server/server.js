@@ -2380,8 +2380,32 @@ app.post('/api/tours', async (req, res) => {
       slug = `${locationSlug}-${typeSlug}-${timestampHash}`;
     }
     
-    // Final safety check - use descriptive suffix instead of timestamp hash
-    if (attempt >= maxAttempts) {
+    // Final safety check - ensure slug is unique by appending number
+    if (attempt >= maxAttempts || (attempt > 0 && slug === baseSlug)) {
+      // If we've exhausted all strategies or are stuck on base slug, append a number
+      let counter = 1;
+      let finalSlug = `${baseSlug}-${counter}`;
+      while (counter < 100) {
+        const existingTour = await prisma.tour.findUnique({
+          where: { slug: finalSlug }
+        });
+        if (!existingTour) {
+          slug = finalSlug;
+          break;
+        }
+        counter++;
+        finalSlug = `${baseSlug}-${counter}`;
+      }
+      
+      // If still not unique after 100 attempts, use timestamp hash
+      if (counter >= 100) {
+        const timestampHash = Date.now().toString(36).slice(-8);
+        slug = `${baseSlug}-${timestampHash}`;
+      }
+    }
+    
+    // Additional fallback - use descriptive suffix instead of timestamp hash
+    if (attempt >= maxAttempts && slug === baseSlug) {
       // Use descriptive suffixes instead of timestamp hash for better SEO
       const suffixes = ['premium', 'express', 'classic', 'deluxe', 'standard', 'vip'];
       const suffixIndex = attempt % suffixes.length;
