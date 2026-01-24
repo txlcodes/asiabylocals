@@ -3151,7 +3151,6 @@ app.post('/api/tours', async (req, res) => {
     console.error('\n');
     
     res.status(500).json(errorResponse);
-    });
   }
 });
 
