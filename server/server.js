@@ -4704,6 +4704,41 @@ app.get('/api/admin/bookings', verifyAdmin, async (req, res) => {
 
 // ==================== PUBLIC TOUR ENDPOINTS ====================
 
+// Diagnostic endpoint to check tours in database
+app.get('/api/debug/tours', async (req, res) => {
+  try {
+    const allTours = await prisma.tour.findMany({
+      select: {
+        id: true,
+        title: true,
+        city: true,
+        country: true,
+        status: true,
+        createdAt: true
+      },
+      orderBy: { createdAt: 'desc' },
+      take: 50
+    });
+    
+    const statusBreakdown = allTours.reduce((acc, tour) => {
+      acc[tour.status] = (acc[tour.status] || 0) + 1;
+      return acc;
+    }, {});
+    
+    res.json({
+      success: true,
+      total: allTours.length,
+      statusBreakdown,
+      tours: allTours
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
 // Get public tours by city (for public site)
 app.get('/api/public/tours', async (req, res) => {
   try {
@@ -4732,6 +4767,17 @@ app.get('/api/public/tours', async (req, res) => {
 
     while (findAttempts < MAX_FIND_RETRIES && !tours) {
       try {
+        // First, get ALL approved tours to see what we have
+        const allApprovedTours = await prisma.tour.findMany({
+          where: { status: 'approved' },
+          select: { id: true, title: true, city: true, country: true, status: true },
+          take: 20
+        });
+        console.log(`   🔍 Found ${allApprovedTours.length} approved tours in database`);
+        if (allApprovedTours.length > 0) {
+          console.log(`   📍 Sample approved tours:`, allApprovedTours.slice(0, 5).map(t => ({ id: t.id, city: t.city, country: t.country })));
+        }
+        
         tours = await prisma.tour.findMany({
           where,
           include: {
@@ -4752,12 +4798,25 @@ app.get('/api/public/tours', async (req, res) => {
             createdAt: 'desc'
           }
         });
+        
+        console.log(`   📊 Found ${tours.length} tours before city/country filter`);
+        
         // Filter city/country in memory for case-insensitive matching
         if (tours && (city || country)) {
           const beforeFilter = tours.length;
           tours = tours.filter(tour => {
-            const cityMatch = !city || (tour.city && tour.city.toLowerCase() === city.toLowerCase());
-            const countryMatch = !country || (tour.country && tour.country.toLowerCase() === country.toLowerCase());
+            const cityMatch = !city || (tour.city && tour.city.toLowerCase().trim() === city.toLowerCase().trim());
+            const countryMatch = !country || (tour.country && tour.country.toLowerCase().trim() === country.toLowerCase().trim());
+            if (!cityMatch || !countryMatch) {
+              console.log(`   ⚠️  Tour ${tour.id} filtered out:`, {
+                tourCity: tour.city,
+                requestedCity: city,
+                cityMatch,
+                tourCountry: tour.country,
+                requestedCountry: country,
+                countryMatch
+              });
+            }
             return cityMatch && countryMatch;
           });
           console.log(`   🔍 Filtered from ${beforeFilter} to ${tours.length} tours (city: ${city}, country: ${country})`);
