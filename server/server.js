@@ -3332,7 +3332,28 @@ app.post('/api/tours', async (req, res) => {
         
         // CRITICAL FIX: Create tour WITHOUT options first, then add options separately
         // Use deep clone to completely break any references
-        const tourDataWithoutOptions = JSON.parse(JSON.stringify(finalDataForPrisma));
+        // CRITICAL: Apply pricingType removal one more time before cloning
+        let tempData = JSON.parse(JSON.stringify(finalDataForPrisma));
+        // Remove pricingType recursively from tempData
+        const removePricingTypeRecursive = (obj) => {
+          if (obj === null || obj === undefined) return obj;
+          if (Array.isArray(obj)) {
+            return obj.map(item => removePricingTypeRecursive(item));
+          }
+          if (typeof obj === 'object') {
+            const cleaned = {};
+            for (const [key, value] of Object.entries(obj)) {
+              if (key.toLowerCase() === 'pricingtype' || key.toLowerCase() === 'pricing_type') {
+                continue;
+              }
+              cleaned[key] = removePricingTypeRecursive(value);
+            }
+            return cleaned;
+          }
+          return obj;
+        };
+        tempData = removePricingTypeRecursive(tempData);
+        const tourDataWithoutOptions = JSON.parse(JSON.stringify(tempData));
         
         // CRITICAL: Extract options BEFORE deleting (deep clone breaks references)
         let optionsToCreate = [];
