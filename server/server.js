@@ -4778,6 +4778,38 @@ app.get('/api/admin/tours', verifyAdmin, async (req, res) => {
   }
 });
 
+// Regenerate sitemap (admin endpoint)
+app.post('/api/admin/sitemap/regenerate', verifyAdmin, async (req, res) => {
+  try {
+    console.log('🔄 Admin requested sitemap regeneration');
+    const { exec } = await import('child_process');
+    const { promisify } = await import('util');
+    const execAsync = promisify(exec);
+    
+    // Run sitemap generation script
+    const { stdout, stderr } = await execAsync('node server/generate-sitemap.js');
+    
+    console.log('✅ Sitemap regenerated successfully');
+    console.log('   Output:', stdout);
+    if (stderr) {
+      console.warn('   Warnings:', stderr);
+    }
+    
+    res.json({
+      success: true,
+      message: 'Sitemap regenerated successfully',
+      output: stdout
+    });
+  } catch (error) {
+    console.error('❌ Sitemap regeneration failed:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to regenerate sitemap',
+      message: error.message
+    });
+  }
+});
+
 // Get all pending tours (admin) - for backward compatibility
 app.get('/api/admin/tours/pending', verifyAdmin, async (req, res) => {
   try {
