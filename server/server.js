@@ -66,8 +66,16 @@ app.get('/api/health', async (req, res) => {
   }
 });
 
-// Quick email test endpoint (for testing only)
+// Quick email test endpoint (for testing only - DISABLED in production)
 app.post('/api/test-email', async (req, res) => {
+  // SECURITY: Disable in production
+  if (process.env.NODE_ENV === 'production') {
+    return res.status(403).json({
+      success: false,
+      error: 'Forbidden',
+      message: 'This endpoint is disabled in production'
+    });
+  }
   try {
     const { email } = req.body;
     const testEmail = email || 'txlweb3@gmail.com'; // Default test email
@@ -5834,7 +5842,16 @@ app.get('/api/admin/bookings', verifyAdmin, async (req, res) => {
 // ==================== PUBLIC TOUR ENDPOINTS ====================
 
 // Diagnostic endpoint to check tours in database
+// Debug endpoint (DISABLED in production for security)
 app.get('/api/debug/tours', async (req, res) => {
+  // SECURITY: Disable in production
+  if (process.env.NODE_ENV === 'production') {
+    return res.status(403).json({
+      success: false,
+      error: 'Forbidden',
+      message: 'This endpoint is disabled in production'
+    });
+  }
   try {
     const allTours = await prisma.tour.findMany({
       select: {
