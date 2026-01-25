@@ -2998,7 +2998,8 @@ app.post('/api/tours', async (req, res) => {
           const optionDesc = (cleanOption.optionDescription || cleanOption.description || '').trim();
           const finalOptionDesc = optionDesc || `Tour option ${index + 1}`;
           
-          return {
+          // Build return object WITHOUT pricingType (backend infers from groupPrice/maxGroupSize)
+          const returnOption = {
             optionTitle: (cleanOption.optionTitle || cleanOption.title || `Option ${index + 1}`).trim(),
             optionDescription: finalOptionDesc,
             durationHours: parseFloat(cleanOption.durationHours || cleanOption.duration || duration?.replace(/[^\d.]/g, '') || 3) || 3,
@@ -3013,6 +3014,12 @@ app.post('/api/tours', async (req, res) => {
             groupPrice: cleanOption.groupPrice && !isNaN(parseFloat(cleanOption.groupPrice)) ? parseFloat(cleanOption.groupPrice) : null,
             sortOrder: index
           };
+          
+          // CRITICAL: Final check - ensure pricingType is NOT in return object
+          delete returnOption.pricingType;
+          delete returnOption.pricing_type;
+          
+          return returnOption;
         })
       };
       }
