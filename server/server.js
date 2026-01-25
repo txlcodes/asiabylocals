@@ -3014,7 +3014,8 @@ app.post('/api/tours', async (req, res) => {
           const optionDesc = (cleanOption.optionDescription || cleanOption.description || '').trim();
           const finalOptionDesc = optionDesc || `Tour option ${index + 1}`;
           
-          // Build return object WITHOUT pricingType (backend infers from groupPrice/maxGroupSize)
+          // Build return object WITHOUT pricingType, maxGroupSize, and groupPrice
+          // maxGroupSize and groupPrice are excluded because columns don't exist in production DB yet
           const returnOption = {
             optionTitle: (cleanOption.optionTitle || cleanOption.title || `Option ${index + 1}`).trim(),
             optionDescription: finalOptionDesc,
@@ -3026,14 +3027,17 @@ app.post('/api/tours', async (req, res) => {
             entryTicketIncluded: cleanOption.entryTicketIncluded || cleanOption.entry_ticket_included || false,
             guideIncluded: cleanOption.guideIncluded !== undefined ? cleanOption.guideIncluded : (cleanOption.guide_included !== undefined ? cleanOption.guide_included : true),
             carIncluded: cleanOption.carIncluded || cleanOption.car_included || false,
-            maxGroupSize: cleanOption.maxGroupSize && cleanOption.maxGroupSize >= 1 && cleanOption.maxGroupSize <= 20 ? parseInt(cleanOption.maxGroupSize) : null,
-            groupPrice: cleanOption.groupPrice && !isNaN(parseFloat(cleanOption.groupPrice)) ? parseFloat(cleanOption.groupPrice) : null,
+            // maxGroupSize and groupPrice EXCLUDED - columns don't exist in production DB yet
             sortOrder: index
           };
           
-          // CRITICAL: Final check - ensure pricingType is NOT in return object
+          // CRITICAL: Final check - ensure pricingType, maxGroupSize, and groupPrice are NOT in return object
           delete returnOption.pricingType;
           delete returnOption.pricing_type;
+          delete returnOption.maxGroupSize;
+          delete returnOption.max_group_size;
+          delete returnOption.groupPrice;
+          delete returnOption.group_price;
           
           return returnOption;
         })
