@@ -4672,7 +4672,7 @@ app.post('/api/admin/tours/:id/approve', verifyAdmin, async (req, res) => {
       console.error('⚠️ Sitemap regeneration setup failed (non-critical):', sitemapError.message);
     }
 
-    // Send approval email to supplier (non-blocking)
+    // Send approval email to supplier using Resend (non-blocking)
     try {
       const supplierEmail = updatedTour.supplier.email;
       const supplierName = updatedTour.supplier.fullName || 'Supplier';
@@ -4682,7 +4682,13 @@ app.post('/api/admin/tours/:id/approve', verifyAdmin, async (req, res) => {
       const country = updatedTour.country;
 
       if (supplierEmail && supplierEmail.includes('@')) {
-        console.log(`📧 Sending tour approval email to supplier: ${supplierEmail}`);
+        console.log(`📧 Tour approved - Sending approval email to supplier via Resend:`);
+        console.log(`   Supplier: ${supplierName}`);
+        console.log(`   Email: ${supplierEmail}`);
+        console.log(`   Tour: ${tourTitle}`);
+        console.log(`   Location: ${city}, ${country}`);
+        
+        // Send email using Resend (will use Resend SDK if RESEND_API_KEY is configured)
         sendTourApprovalEmail(
           supplierEmail,
           supplierName,
@@ -4690,10 +4696,13 @@ app.post('/api/admin/tours/:id/approve', verifyAdmin, async (req, res) => {
           tourSlug,
           city,
           country
-        ).catch(err => {
+        ).then(result => {
+          console.log(`✅ Tour approval email sent successfully via Resend`);
+          console.log(`   Message ID: ${result.messageId}`);
+        }).catch(err => {
           console.error('⚠️ Failed to send tour approval email (non-critical):', err.message);
+          console.error('   Error details:', err);
         });
-        console.log('✅ Tour approval email queued for sending');
       } else {
         console.warn(`⚠️ Invalid supplier email, skipping approval email: ${supplierEmail}`);
       }

@@ -1266,6 +1266,8 @@ export const sendAdminPaymentNotificationEmail = async (bookingDetails) => {
 
 /**
  * Send tour approval notification email to supplier/guide
+ * Uses Resend SDK (preferred) if RESEND_API_KEY is configured, otherwise falls back to SendGrid/Gmail SMTP
+ * 
  * @param {string} supplierEmail - Supplier's email address
  * @param {string} supplierName - Supplier's full name
  * @param {string} tourTitle - Tour title
@@ -1275,9 +1277,9 @@ export const sendAdminPaymentNotificationEmail = async (bookingDetails) => {
  * @returns {Promise<Object>}
  */
 export const sendTourApprovalEmail = async (supplierEmail, supplierName, tourTitle, tourSlug, city, country) => {
-  // Check if email is configured
+  // Check if email is configured (Resend is preferred, then SendGrid, then Gmail SMTP)
   if (!resendApiKey && !sendGridApiKey && (!emailUser || !emailPassword)) {
-    const errorMsg = 'Email not configured. Please set RESEND_API_KEY (easiest), SENDGRID_API_KEY, or EMAIL_USER + EMAIL_APP_PASSWORD in Render environment variables.';
+    const errorMsg = 'Email not configured. Please set RESEND_API_KEY (recommended - most reliable), SENDGRID_API_KEY, or EMAIL_USER + EMAIL_APP_PASSWORD in Render environment variables.';
     console.error('❌', errorMsg);
     throw new Error(errorMsg);
   }
@@ -1475,11 +1477,13 @@ export const sendTourApprovalEmail = async (supplierEmail, supplierName, tourTit
   };
 
   try {
-    // Use Resend SDK if available (more reliable than SMTP)
+    // PRIORITY 1: Use Resend SDK if available (most reliable - recommended)
     if (resendClient) {
-      console.log(`📧 Sending tour approval email via Resend SDK to: ${supplierEmail}`);
+      console.log(`📧 Sending tour approval email via Resend SDK (preferred method)`);
+      console.log(`   To: ${supplierEmail}`);
       console.log(`   From: ${fromEmail}`);
-      console.log(`   Service: ${serviceName}`);
+      console.log(`   Service: Resend`);
+      console.log(`   Subject: ✅ Your Tour Has Been Approved: ${tourTitle}`);
       
       const result = await resendClient.emails.send({
         from: `AsiaByLocals <${fromEmail}>`,
@@ -1496,8 +1500,10 @@ export const sendTourApprovalEmail = async (supplierEmail, supplierName, tourTit
         throw new Error(`Resend API Error: ${JSON.stringify(result.error)}`);
       }
       
-      console.log(`✅ Tour approval email sent successfully to ${supplierEmail}`);
-      console.log('📬 Message ID:', result.data?.id);
+      console.log(`✅ Tour approval email sent successfully via Resend`);
+      console.log(`   Message ID: ${result.data?.id}`);
+      console.log(`   Supplier: ${supplierName}`);
+      console.log(`   Tour: ${tourTitle}`);
       return { success: true, messageId: result.data?.id };
     }
     
