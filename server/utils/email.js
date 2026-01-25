@@ -1373,20 +1373,6 @@ export const sendTourApprovalEmail = async (supplierEmail, supplierName, tourTit
                         <li style="margin-bottom: 10px;">You can manage your tour from your supplier dashboard</li>
                       </ul>
                       
-                      <!-- CTA Buttons -->
-                      <table role="presentation" style="width: 100%; border-collapse: collapse; margin: 30px 0;">
-                        <tr>
-                          <td align="center" style="padding: 0;">
-                            <a href="${tourUrl}" style="display: inline-block; background-color: #10B981; color: #ffffff; text-decoration: none; padding: 16px 40px; border-radius: 6px; font-size: 16px; font-weight: 600; text-align: center; margin: 0 10px 10px 10px;">
-                              View Your Tour
-                            </a>
-                            <a href="${dashboardUrl}" style="display: inline-block; background-color: #0071EB; color: #ffffff; text-decoration: none; padding: 16px 40px; border-radius: 6px; font-size: 16px; font-weight: 600; text-align: center; margin: 0 10px 10px 10px;">
-                              Go to Dashboard
-                            </a>
-                          </td>
-                        </tr>
-                      </table>
-                      
                       <p style="margin: 30px 0 20px 0; font-size: 16px; line-height: 1.6; color: #001A33;">
                         <strong>Tips for success:</strong>
                       </p>
