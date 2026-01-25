@@ -3574,8 +3574,24 @@ app.post('/api/tours', async (req, res) => {
             VALID_TOUR_OPTION_FIELDS.forEach(field => {
               // Only include field if it has a value (exclude null/undefined)
               // This prevents Prisma from trying to validate columns that might not exist yet
+              // CRITICAL: For maxGroupSize and groupPrice, also check they're valid numbers
               if (opt[field] !== undefined && opt[field] !== null) {
-                cleanOpt[field] = opt[field];
+                // Extra validation for group pricing fields to ensure they're valid
+                if (field === 'maxGroupSize' || field === 'max_group_size') {
+                  const value = parseInt(opt[field]);
+                  if (!isNaN(value) && value >= 1 && value <= 20) {
+                    cleanOpt[field] = value;
+                  }
+                  // Skip invalid maxGroupSize values
+                } else if (field === 'groupPrice' || field === 'group_price') {
+                  const value = parseFloat(opt[field]);
+                  if (!isNaN(value) && value > 0) {
+                    cleanOpt[field] = value;
+                  }
+                  // Skip invalid groupPrice values
+                } else {
+                  cleanOpt[field] = opt[field];
+                }
               }
             });
             
@@ -3611,13 +3627,46 @@ app.post('/api/tours', async (req, res) => {
             }
             
             // Create option individually (more reliable than createMany)
-            const createdOption = await prisma.tourOption.create({
-              data: {
-                ...cleanOpt,
-                tourId: tour.id
+            // CRITICAL: Handle missing column errors gracefully (migration might not be run yet)
+            try {
+              const createdOption = await prisma.tourOption.create({
+                data: {
+                  ...cleanOpt,
+                  tourId: tour.id
+                }
+              });
+              createdOptions.push(createdOption);
+            } catch (optionError) {
+              // If error is about missing max_group_size or group_price columns, retry without them
+              if (optionError.code === 'P2022' && 
+                  (optionError.meta?.column?.includes('max_group_size') || 
+                   optionError.meta?.column?.includes('group_price'))) {
+                console.warn(`⚠️  Column missing for option ${i + 1}, retrying without group pricing fields...`);
+                // Remove group pricing fields and retry
+                const fallbackOpt = { ...cleanOpt };
+                delete fallbackOpt.maxGroupSize;
+                delete fallbackOpt.groupPrice;
+                delete fallbackOpt.max_group_size;
+                delete fallbackOpt.group_price;
+                
+                try {
+                  const createdOption = await prisma.tourOption.create({
+                    data: {
+                      ...fallbackOpt,
+                      tourId: tour.id
+                    }
+                  });
+                  createdOptions.push(createdOption);
+                  console.log(`✅ Created option ${i + 1} without group pricing fields (migration may need to be run)`);
+                } catch (fallbackError) {
+                  console.error(`❌ Failed to create option ${i + 1} even without group pricing:`, fallbackError.message);
+                  throw fallbackError; // Re-throw if fallback also fails
+                }
+              } else {
+                // Other errors should be thrown normally
+                throw optionError;
               }
-            });
-            createdOptions.push(createdOption);
+            }
           }
           
           console.log(`✅ Created ${createdOptions.length} tour options individually`);
