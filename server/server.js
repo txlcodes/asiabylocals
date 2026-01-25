@@ -3061,6 +3061,10 @@ app.post('/api/tours', async (req, res) => {
         // AND ensure only valid TourOption fields are included
         if (finalTourData.options?.create) {
           finalTourData.options.create = finalTourData.options.create.map((opt, idx) => {
+            // CRITICAL: Remove pricingType FIRST before any processing (prevents P2022 errors)
+            delete opt.pricingType;
+            delete opt.pricing_type;
+            
             // Create a clean object with ONLY valid TourOption fields
             const cleanOpt = {};
             
@@ -3076,6 +3080,10 @@ app.post('/api/tours', async (req, res) => {
             delete cleanOpt.id;
             delete cleanOpt.tourId;
             delete cleanOpt.tour_id;
+            
+            // CRITICAL: Remove pricingType from cleanOpt as well (double safety)
+            delete cleanOpt.pricingType;
+            delete cleanOpt.pricing_type;
             
             // Log if we found any id fields in the original
             if (opt.id || opt.tourId || opt.tour_id) {
@@ -3155,6 +3163,10 @@ app.post('/api/tours', async (req, res) => {
         if (finalTourData.options && finalTourData.options.create && Array.isArray(finalTourData.options.create)) {
           cleanFinalTourData.options = {
             create: finalTourData.options.create.map(opt => {
+              // CRITICAL: Remove pricingType FIRST before any processing (prevents P2022 errors)
+              delete opt.pricingType;
+              delete opt.pricing_type;
+              
               // Create a completely fresh object with ONLY valid TourOption fields
               const freshOpt = {};
               VALID_TOUR_OPTION_FIELDS.forEach(field => {
@@ -3168,6 +3180,11 @@ app.post('/api/tours', async (req, res) => {
               delete freshOpt.id;
               delete freshOpt.tourId;
               delete freshOpt.tour_id;
+              
+              // CRITICAL: Remove pricingType from freshOpt as well (double safety)
+              delete freshOpt.pricingType;
+              delete freshOpt.pricing_type;
+              
               return freshOpt;
             })
           };
