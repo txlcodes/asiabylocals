@@ -229,7 +229,6 @@ const TourCreationForm: React.FC<TourCreationFormProps> = ({
     included: '',
     notIncluded: '',
     meetingPoint: '',
-    guideType: '',
     images: [] as string[],
     languages: [] as string[],
     tourOptions: [] as Array<{
@@ -440,7 +439,6 @@ const TourCreationForm: React.FC<TourCreationFormProps> = ({
         included: formData.included.trim(),
         notIncluded: formData.notIncluded?.trim() || null,
         meetingPoint: formData.meetingPoint?.trim() || null,
-        guideType: formData.guideType?.trim() || null,
         images: JSON.stringify(formData.images),
         languages: JSON.stringify(formData.languages),
         tourOptions: formData.tourOptions.map((opt, idx) => {
@@ -1059,23 +1057,6 @@ const TourCreationForm: React.FC<TourCreationFormProps> = ({
                       Total price for the entire group
                     </p>
                   </div>
-                </div>
-              )}
-
-              {formData.category === 'Guided Tour' && (
-                <div>
-                  <label className="block text-[14px] font-bold text-[#001A33] mb-3">
-                    Guide Type
-                  </label>
-                  <select
-                    value={formData.guideType}
-                    onChange={(e) => handleInputChange('guideType', e.target.value)}
-                    className="w-full bg-gray-50 border-none rounded-2xl py-4 px-4 font-bold text-[#001A33] text-[14px] focus:ring-2 focus:ring-[#10B981] outline-none"
-                  >
-                    <option value="">Select Guide Type</option>
-                    <option value="Tour Guide">Tour Guide</option>
-                    <option value="Host/Greeter">Host/Greeter</option>
-                  </select>
                 </div>
               )}
             </div>
