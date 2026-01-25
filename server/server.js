@@ -125,6 +125,74 @@ app.post('/api/test-email', async (req, res) => {
   }
 });
 
+// Test tour approval email endpoint
+app.post('/api/test-tour-approval-email', async (req, res) => {
+  try {
+    const { email } = req.body;
+    const testEmail = email || 'txlweb3@gmail.com';
+    
+    console.log('🧪 Testing tour approval email sending to:', testEmail);
+    
+    // Sample tour data for testing
+    const sampleTourData = {
+      supplierEmail: testEmail,
+      supplierName: 'Mohd Shahnawaz',
+      tourTitle: 'Book Tour Guide For Taj Mahal, Agra Fort & Baby Taj',
+      tourSlug: 'book-tour-guide-for-taj-mahal-agra-fort-baby-taj',
+      city: 'Agra',
+      country: 'India'
+    };
+    
+    const result = await sendTourApprovalEmail(
+      sampleTourData.supplierEmail,
+      sampleTourData.supplierName,
+      sampleTourData.tourTitle,
+      sampleTourData.tourSlug,
+      sampleTourData.city,
+      sampleTourData.country
+    );
+    
+    res.json({
+      success: true,
+      message: 'Tour approval test email sent successfully!',
+      email: testEmail,
+      messageId: result.messageId,
+      tourData: sampleTourData,
+      note: 'Check your inbox (and spam folder) for the tour approval email'
+    });
+  } catch (error) {
+    console.error('❌ Test tour approval email failed:', error);
+    const resendApiKey = process.env.RESEND_API_KEY;
+    const sendGridApiKey = process.env.SENDGRID_API_KEY;
+    const emailUser = process.env.EMAIL_USER;
+    
+    let details = 'Unknown error - check server logs';
+    if (error.code === 'EAUTH') {
+      details = 'Authentication failed - check API key or credentials';
+    } else if (error.code === 'ETIMEDOUT' || error.code === 'ECONNECTION') {
+      if (!resendApiKey && !sendGridApiKey && !emailUser) {
+        details = 'No email service configured. Add RESEND_API_KEY (recommended), SENDGRID_API_KEY, or EMAIL_USER + EMAIL_APP_PASSWORD to Render environment variables';
+      } else if (emailUser && !resendApiKey && !sendGridApiKey) {
+        details = 'Connection timeout - Gmail SMTP is blocked on Render. Add RESEND_API_KEY or SENDGRID_API_KEY instead';
+      } else {
+        details = 'Connection timeout - check network/firewall settings';
+      }
+    }
+    
+    res.status(500).json({
+      success: false,
+      error: 'Failed to send test tour approval email',
+      message: error.message,
+      details: details,
+      configured: {
+        resend: !!resendApiKey,
+        sendgrid: !!sendGridApiKey,
+        gmail: !!emailUser
+      }
+    });
+  }
+});
+
 // Check email configuration endpoint
 app.get('/api/email-config', (req, res) => {
   const resendApiKey = process.env.RESEND_API_KEY;
