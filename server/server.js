@@ -3312,13 +3312,50 @@ app.post('/api/tours', async (req, res) => {
         // CRITICAL FIX: Create tour WITHOUT options first, then add options separately
         // This prevents any possibility of field leakage from options to Tour model
         const tourDataWithoutOptions = { ...finalDataForPrisma };
-        const optionsToCreate = tourDataWithoutOptions.options?.create || [];
+        let optionsToCreate = tourDataWithoutOptions.options?.create || [];
         delete tourDataWithoutOptions.options; // Remove options from tour data
+        
+        // CRITICAL: Final safety check - remove pricingType from optionsToCreate array
+        if (Array.isArray(optionsToCreate) && optionsToCreate.length > 0) {
+          optionsToCreate = optionsToCreate.map(opt => {
+            if (opt && typeof opt === 'object') {
+              const { pricingType, pricing_type, ...cleanOpt } = opt;
+              delete cleanOpt.pricingType;
+              delete cleanOpt.pricing_type;
+              // Remove any pricing-related keys
+              Object.keys(cleanOpt).forEach(key => {
+                if (key.toLowerCase().includes('pricing')) {
+                  delete cleanOpt[key];
+                }
+              });
+              return cleanOpt;
+            }
+            return opt;
+          });
+          console.log('✅ Final pricingType removal from optionsToCreate completed');
+        }
         
         console.log('🔍 Creating tour WITHOUT options first...');
         console.log('   Tour data keys:', Object.keys(tourDataWithoutOptions));
         console.log('   Options to create separately:', optionsToCreate.length);
         console.log('   Final slug:', tourDataWithoutOptions.slug);
+        
+        // CRITICAL: Verify no pricingType in optionsToCreate
+        const hasPricingType = optionsToCreate.some(opt => 
+          opt && typeof opt === 'object' && ('pricingType' in opt || 'pricing_type' in opt)
+        );
+        if (hasPricingType) {
+          console.error('🚨 CRITICAL: pricingType still found in optionsToCreate after all removals!');
+          console.error('   Options:', JSON.stringify(optionsToCreate, null, 2));
+          // Force remove one more time
+          optionsToCreate = optionsToCreate.map(opt => {
+            if (opt && typeof opt === 'object') {
+              delete opt.pricingType;
+              delete opt.pricing_type;
+            }
+            return opt;
+          });
+        }
         
         // CRITICAL: Final uniqueness check right before creation (prevents P2002 errors)
         // This is a safety net - slug should already be unique from generation logic above
