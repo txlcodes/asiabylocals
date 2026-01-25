@@ -710,18 +710,6 @@ const TourCreationForm: React.FC<TourCreationFormProps> = ({
         </div>
       )}
 
-      {/* Contact Info Notice (when info is present) */}
-      {hasRequiredContactInfo && (
-        <div className="bg-blue-50 border-b border-blue-200">
-          <div className="max-w-4xl mx-auto px-6 py-3">
-            <div className="flex items-center gap-2 text-[14px] text-blue-800 font-semibold">
-              <CheckCircle2 size={16} />
-              <span>Your contact information (email and phone/WhatsApp) will be shared with customers when they book this tour.</span>
-            </div>
-          </div>
-        </div>
-      )}
-
       <div className="max-w-4xl mx-auto px-6 py-8">
         {/* Step 1: Country */}
         {step === 1 && (
