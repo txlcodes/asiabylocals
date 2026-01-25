@@ -3310,52 +3310,110 @@ app.post('/api/tours', async (req, res) => {
         }
         
         // CRITICAL FIX: Create tour WITHOUT options first, then add options separately
-        // This prevents any possibility of field leakage from options to Tour model
-        const tourDataWithoutOptions = { ...finalDataForPrisma };
-        let optionsToCreate = tourDataWithoutOptions.options?.create || [];
-        delete tourDataWithoutOptions.options; // Remove options from tour data
+        // Use deep clone to completely break any references
+        const tourDataWithoutOptions = JSON.parse(JSON.stringify(finalDataForPrisma));
         
-        // CRITICAL: Final safety check - remove pricingType from optionsToCreate array
+        // CRITICAL: Extract options BEFORE deleting (deep clone breaks references)
+        let optionsToCreate = [];
+        if (tourDataWithoutOptions.options?.create) {
+          optionsToCreate = JSON.parse(JSON.stringify(tourDataWithoutOptions.options.create));
+        } else if (tourDataWithoutOptions.tourOptions) {
+          optionsToCreate = JSON.parse(JSON.stringify(tourDataWithoutOptions.tourOptions));
+        }
+        
+        // CRITICAL: Aggressively remove ALL possible option-related fields
+        delete tourDataWithoutOptions.options;
+        delete tourDataWithoutOptions.tourOptions;
+        delete tourDataWithoutOptions.option;
+        
+        // CRITICAL: Verify options are completely gone
+        if ('options' in tourDataWithoutOptions || 'tourOptions' in tourDataWithoutOptions) {
+          console.error('🚨 CRITICAL: options still exist after delete!');
+          console.error('   Keys:', Object.keys(tourDataWithoutOptions));
+          // Force remove again
+          delete tourDataWithoutOptions.options;
+          delete tourDataWithoutOptions.tourOptions;
+        }
+        
+        // CRITICAL: Deep clean optionsToCreate - remove pricingType completely
         if (Array.isArray(optionsToCreate) && optionsToCreate.length > 0) {
-          optionsToCreate = optionsToCreate.map(opt => {
-            if (opt && typeof opt === 'object') {
-              const { pricingType, pricing_type, ...cleanOpt } = opt;
-              delete cleanOpt.pricingType;
-              delete cleanOpt.pricing_type;
-              // Remove any pricing-related keys
-              Object.keys(cleanOpt).forEach(key => {
-                if (key.toLowerCase().includes('pricing')) {
-                  delete cleanOpt[key];
-                }
-              });
-              return cleanOpt;
+          optionsToCreate = optionsToCreate.map((opt, idx) => {
+            if (!opt || typeof opt !== 'object') return opt;
+            
+            // Deep clone to break any references
+            let cleaned = JSON.parse(JSON.stringify(opt));
+            
+            // Remove pricingType in multiple ways
+            delete cleaned.pricingType;
+            delete cleaned.pricing_type;
+            
+            // Remove any key that contains "pricing" (case insensitive)
+            Object.keys(cleaned).forEach(key => {
+              if (key.toLowerCase().includes('pricing')) {
+                console.warn(`⚠️  Removing pricing-related key from option ${idx + 1}: ${key}`);
+                delete cleaned[key];
+              }
+            });
+            
+            // Final verification
+            if ('pricingType' in cleaned || 'pricing_type' in cleaned) {
+              console.error(`🚨 CRITICAL: pricingType STILL EXISTS in option ${idx + 1} after all removals!`);
+              console.error('   Option keys:', Object.keys(cleaned));
+              // Force remove one more time
+              delete cleaned.pricingType;
+              delete cleaned.pricing_type;
             }
-            return opt;
+            
+            return cleaned;
           });
           console.log('✅ Final pricingType removal from optionsToCreate completed');
         }
         
         console.log('🔍 Creating tour WITHOUT options first...');
         console.log('   Tour data keys:', Object.keys(tourDataWithoutOptions));
+        console.log('   Has options field?', 'options' in tourDataWithoutOptions);
+        console.log('   Has tourOptions field?', 'tourOptions' in tourDataWithoutOptions);
         console.log('   Options to create separately:', optionsToCreate.length);
         console.log('   Final slug:', tourDataWithoutOptions.slug);
         
         // CRITICAL: Verify no pricingType in optionsToCreate
-        const hasPricingType = optionsToCreate.some(opt => 
-          opt && typeof opt === 'object' && ('pricingType' in opt || 'pricing_type' in opt)
-        );
+        const hasPricingType = optionsToCreate.some(opt => {
+          if (!opt || typeof opt !== 'object') return false;
+          return 'pricingType' in opt || 'pricing_type' in opt || 
+                 Object.keys(opt).some(k => k.toLowerCase().includes('pricing'));
+        });
         if (hasPricingType) {
-          console.error('🚨 CRITICAL: pricingType still found in optionsToCreate after all removals!');
+          console.error('🚨 CRITICAL: pricingType still found in optionsToCreate!');
           console.error('   Options:', JSON.stringify(optionsToCreate, null, 2));
-          // Force remove one more time
-          optionsToCreate = optionsToCreate.map(opt => {
+          // Force remove with another deep clone
+          optionsToCreate = JSON.parse(JSON.stringify(optionsToCreate)).map(opt => {
             if (opt && typeof opt === 'object') {
               delete opt.pricingType;
               delete opt.pricing_type;
+              Object.keys(opt).forEach(k => {
+                if (k.toLowerCase().includes('pricing')) delete opt[k];
+              });
             }
             return opt;
           });
         }
+        
+        // ABSOLUTE FINAL CHECK: Ensure no options field exists
+        if ('options' in tourDataWithoutOptions) {
+          console.error('🚨 CRITICAL: options field STILL EXISTS right before Prisma create!');
+          console.error('   Keys:', Object.keys(tourDataWithoutOptions));
+          delete tourDataWithoutOptions.options;
+        }
+        
+        // Log exactly what we're sending to Prisma
+        console.log('═══════════════════════════════════════════════════════════');
+        console.log('🔍 FINAL CHECK BEFORE prisma.tour.create()');
+        console.log('═══════════════════════════════════════════════════════════');
+        console.log('📋 tourDataWithoutOptions keys:', Object.keys(tourDataWithoutOptions));
+        console.log('❓ Has options?', 'options' in tourDataWithoutOptions);
+        console.log('❓ Has tourOptions?', 'tourOptions' in tourDataWithoutOptions);
+        console.log('📦 Full object:', JSON.stringify(tourDataWithoutOptions, null, 2));
+        console.log('═══════════════════════════════════════════════════════════');
         
         // CRITICAL: Final uniqueness check right before creation (prevents P2002 errors)
         // This is a safety net - slug should already be unique from generation logic above
@@ -3414,11 +3472,32 @@ app.post('/api/tours', async (req, res) => {
           }
         }
         
-        // Create the tour first (without options to prevent schema validation issues)
+        // ABSOLUTE FINAL CHECK: Ensure no options field exists
+        if ('options' in tourDataWithoutOptions) {
+          console.error('🚨 CRITICAL: options field STILL EXISTS right before Prisma create!');
+          console.error('   Keys:', Object.keys(tourDataWithoutOptions));
+          delete tourDataWithoutOptions.options;
+        }
+        
+        try {
+          // Create the tour first (without options to prevent schema validation issues)
         tour = await prisma.tour.create({
-          data: tourDataWithoutOptions
-          // Don't include options here - we'll fetch them after creating separately
-        });
+            data: tourDataWithoutOptions
+            // Don't include options here - we'll fetch them after creating separately
+          });
+        } catch (prismaError) {
+          console.error('═══════════════════════════════════════════════════════════');
+          console.error('🚨 PRISMA ERROR DURING tour.create()');
+          console.error('═══════════════════════════════════════════════════════════');
+          console.error('Error code:', prismaError.code);
+          console.error('Error message:', prismaError.message);
+          console.error('Error meta:', JSON.stringify(prismaError.meta, null, 2));
+          console.error('Data sent to Prisma:', JSON.stringify(tourDataWithoutOptions, null, 2));
+          console.error('Has options?', 'options' in tourDataWithoutOptions);
+          console.error('All keys:', Object.keys(tourDataWithoutOptions));
+          console.error('═══════════════════════════════════════════════════════════');
+          throw prismaError;
+        }
         
         // Then create options separately if they exist
         if (optionsToCreate.length > 0) {
