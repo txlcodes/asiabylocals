@@ -3261,16 +3261,42 @@ app.post('/api/tours', async (req, res) => {
         console.log('   Final slug:', tourDataWithoutOptions.slug);
         
         // CRITICAL: Final uniqueness check right before creation (prevents P2002 errors)
-        const finalSlugCheck = await prisma.tour.findUnique({
-          where: { slug: tourDataWithoutOptions.slug }
-        });
-        if (finalSlugCheck) {
-          // This should NEVER happen, but if it does, generate emergency slug
-          console.error('🚨 CRITICAL: Slug collision detected right before creation!');
-          console.error('   Colliding slug:', tourDataWithoutOptions.slug);
-          const emergencySlug = `${tourDataWithoutOptions.slug}-${Date.now()}-${Math.random().toString(36).slice(-6)}`;
-          tourDataWithoutOptions.slug = emergencySlug;
-          console.log('   Generated emergency slug:', emergencySlug);
+        // This is a safety net - slug should already be unique from generation logic above
+        let finalSlug = tourDataWithoutOptions.slug;
+        let emergencyAttempts = 0;
+        const MAX_EMERGENCY_ATTEMPTS = 10;
+        
+        while (emergencyAttempts < MAX_EMERGENCY_ATTEMPTS) {
+          const finalSlugCheck = await prisma.tour.findUnique({
+            where: { slug: finalSlug }
+          });
+          
+          if (!finalSlugCheck) {
+            // Slug is unique! Update and proceed
+            tourDataWithoutOptions.slug = finalSlug;
+            if (emergencyAttempts > 0) {
+              console.log(`✅ Emergency slug generated after ${emergencyAttempts} attempts:`, finalSlug);
+            }
+            break;
+          }
+          
+          // Collision detected - generate new emergency slug
+          emergencyAttempts++;
+          console.warn(`⚠️  Slug collision detected (attempt ${emergencyAttempts}/${MAX_EMERGENCY_ATTEMPTS}):`, finalSlug);
+          const timestamp = Date.now();
+          const random = Math.random().toString(36).slice(-6);
+          finalSlug = `${tourDataWithoutOptions.slug}-${timestamp}-${random}`;
+          
+          // Small delay to ensure different timestamp
+          if (emergencyAttempts < MAX_EMERGENCY_ATTEMPTS) {
+            await new Promise(resolve => setTimeout(resolve, 10));
+          }
+        }
+        
+        // If we exhausted all attempts, use the last generated slug (should be unique due to timestamp)
+        if (emergencyAttempts >= MAX_EMERGENCY_ATTEMPTS) {
+          tourDataWithoutOptions.slug = finalSlug;
+          console.error('🚨 Used final emergency slug after all attempts:', finalSlug);
         }
         
         // Create the tour first (without options to prevent schema validation issues)
