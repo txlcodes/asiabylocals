@@ -3280,7 +3280,28 @@ app.post('/api/tours', async (req, res) => {
         });
         
         // ABSOLUTE FINAL CHECK: Serialize and parse to ensure no hidden properties
-        const finalDataForPrisma = JSON.parse(JSON.stringify(cleanFinalTourData));
+        // CRITICAL: Deep clone to break ALL references and ensure clean data
+        let finalDataForPrisma = JSON.parse(JSON.stringify(cleanFinalTourData));
+        
+        // CRITICAL: Remove pricingType from finalDataForPrisma recursively one more time
+        const removePricingTypeFromFinal = (obj) => {
+          if (obj === null || obj === undefined) return obj;
+          if (Array.isArray(obj)) {
+            return obj.map(item => removePricingTypeFromFinal(item));
+          }
+          if (typeof obj === 'object') {
+            const cleaned = {};
+            for (const [key, value] of Object.entries(obj)) {
+              if (key.toLowerCase() === 'pricingtype' || key.toLowerCase() === 'pricing_type') {
+                continue; // Skip pricingType fields
+              }
+              cleaned[key] = removePricingTypeFromFinal(value);
+            }
+            return cleaned;
+          }
+          return obj;
+        };
+        finalDataForPrisma = removePricingTypeFromFinal(finalDataForPrisma);
         
         // Check one more time for any pricing-related fields
         const finalCheck = Object.keys(finalDataForPrisma).filter(key => 
