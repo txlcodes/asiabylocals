@@ -1264,5 +1264,271 @@ export const sendAdminPaymentNotificationEmail = async (bookingDetails) => {
   }
 };
 
+/**
+ * Send tour approval notification email to supplier/guide
+ * @param {string} supplierEmail - Supplier's email address
+ * @param {string} supplierName - Supplier's full name
+ * @param {string} tourTitle - Tour title
+ * @param {string} tourSlug - Tour slug for URL
+ * @param {string} city - City name
+ * @param {string} country - Country name
+ * @returns {Promise<Object>}
+ */
+export const sendTourApprovalEmail = async (supplierEmail, supplierName, tourTitle, tourSlug, city, country) => {
+  // Check if email is configured
+  if (!resendApiKey && !sendGridApiKey && (!emailUser || !emailPassword)) {
+    const errorMsg = 'Email not configured. Please set RESEND_API_KEY (easiest), SENDGRID_API_KEY, or EMAIL_USER + EMAIL_APP_PASSWORD in Render environment variables.';
+    console.error('❌', errorMsg);
+    throw new Error(errorMsg);
+  }
+
+  // Validate email parameter
+  if (!supplierEmail || typeof supplierEmail !== 'string' || !supplierEmail.includes('@')) {
+    console.error('❌ Invalid email address provided:', supplierEmail);
+    throw new Error('Invalid email address');
+  }
+
+  console.log(`📧 Attempting to send tour approval email to: ${supplierEmail}`);
+  console.log(`   Tour: ${tourTitle}`);
+  console.log(`   Supplier: ${supplierName}`);
+
+  const fromEmail = (resendApiKey || sendGridApiKey) ? 'info@asiabylocals.com' : (emailUser || 'asiabylocals@gmail.com');
+  const serviceName = resendApiKey ? 'Resend' : (sendGridApiKey ? 'SendGrid' : 'Gmail SMTP');
+  
+  // Build tour URL
+  const countrySlug = country.toLowerCase().replace(/\s+/g, '-');
+  const citySlug = city.toLowerCase().replace(/\s+/g, '-');
+  const tourUrl = `${process.env.FRONTEND_URL || 'https://www.asiabylocals.com'}/${countrySlug}/${citySlug}/${tourSlug}`;
+  const dashboardUrl = `${process.env.FRONTEND_URL || 'https://www.asiabylocals.com'}/supplier/dashboard`;
+
+  const mailOptions = {
+    from: `"AsiaByLocals" <${fromEmail}>`,
+    to: supplierEmail,
+    subject: `✅ Your Tour Has Been Approved: ${tourTitle}`,
+    html: `
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <meta charset="utf-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>Tour Approved</title>
+        </head>
+        <body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #f5f5f5;">
+          <table role="presentation" style="width: 100%; border-collapse: collapse; background-color: #f5f5f5;">
+            <tr>
+              <td align="center" style="padding: 40px 20px;">
+                <table role="presentation" style="width: 100%; max-width: 600px; background-color: #ffffff; border-collapse: collapse;">
+                  <!-- Header -->
+                  <tr>
+                    <td style="padding: 40px 40px 30px 40px; text-align: center; background-color: #10B981;">
+                      <div style="margin-bottom: 20px;">
+                        <h1 style="margin: 0; font-size: 32px; font-weight: 800; color: #ffffff; letter-spacing: -0.5px; line-height: 1.2;">
+                          ✅ Tour Approved!
+                        </h1>
+                      </div>
+                      <p style="margin: 10px 0 0 0; font-size: 18px; color: #ffffff; opacity: 0.95;">
+                        Your tour is now live on AsiaByLocals
+                      </p>
+                    </td>
+                  </tr>
+                  
+                  <!-- Body Content -->
+                  <tr>
+                    <td style="padding: 0 40px 40px 40px;">
+                      <p style="margin: 30px 0 20px 0; font-size: 16px; line-height: 1.6; color: #001A33;">
+                        Dear ${supplierName},
+                      </p>
+                      
+                      <p style="margin: 0 0 20px 0; font-size: 16px; line-height: 1.6; color: #001A33;">
+                        Great news! Your tour <strong>"${tourTitle}"</strong> has been reviewed and approved by our team. Your tour is now live on AsiaByLocals and visible to travelers searching for experiences in ${city}, ${country}.
+                      </p>
+                      
+                      <!-- Tour Details Card -->
+                      <div style="background-color: #f8f9fa; border-radius: 8px; padding: 24px; margin: 30px 0; border-left: 4px solid #10B981;">
+                        <h2 style="margin: 0 0 20px 0; font-size: 20px; font-weight: 700; color: #001A33;">Tour Details</h2>
+                        
+                        <table style="width: 100%; border-collapse: collapse;">
+                          <tr>
+                            <td style="padding: 8px 0; font-weight: 600; color: #666; width: 40%;">Tour Title:</td>
+                            <td style="padding: 8px 0; color: #001A33; font-weight: 600;">${tourTitle}</td>
+                          </tr>
+                          <tr>
+                            <td style="padding: 8px 0; font-weight: 600; color: #666;">Location:</td>
+                            <td style="padding: 8px 0; color: #001A33;">${city}, ${country}</td>
+                          </tr>
+                          <tr>
+                            <td style="padding: 8px 0; font-weight: 600; color: #666;">Status:</td>
+                            <td style="padding: 8px 0; color: #10B981; font-weight: 700; font-size: 16px;">✅ Approved & Live</td>
+                          </tr>
+                        </table>
+                      </div>
+                      
+                      <p style="margin: 30px 0 20px 0; font-size: 16px; line-height: 1.6; color: #001A33;">
+                        <strong>What happens next?</strong>
+                      </p>
+                      <ul style="margin: 0 0 30px 0; padding-left: 20px; font-size: 16px; line-height: 1.8; color: #001A33;">
+                        <li style="margin-bottom: 10px;">Your tour is now visible on the AsiaByLocals website</li>
+                        <li style="margin-bottom: 10px;">Travelers can discover and book your tour</li>
+                        <li style="margin-bottom: 10px;">You'll receive email notifications when bookings come in</li>
+                        <li style="margin-bottom: 10px;">You can manage your tour from your supplier dashboard</li>
+                      </ul>
+                      
+                      <!-- CTA Buttons -->
+                      <table role="presentation" style="width: 100%; border-collapse: collapse; margin: 30px 0;">
+                        <tr>
+                          <td align="center" style="padding: 0;">
+                            <a href="${tourUrl}" style="display: inline-block; background-color: #10B981; color: #ffffff; text-decoration: none; padding: 16px 40px; border-radius: 6px; font-size: 16px; font-weight: 600; text-align: center; margin: 0 10px 10px 10px;">
+                              View Your Tour
+                            </a>
+                            <a href="${dashboardUrl}" style="display: inline-block; background-color: #0071EB; color: #ffffff; text-decoration: none; padding: 16px 40px; border-radius: 6px; font-size: 16px; font-weight: 600; text-align: center; margin: 0 10px 10px 10px;">
+                              Go to Dashboard
+                            </a>
+                          </td>
+                        </tr>
+                      </table>
+                      
+                      <p style="margin: 30px 0 20px 0; font-size: 16px; line-height: 1.6; color: #001A33;">
+                        <strong>Tips for success:</strong>
+                      </p>
+                      <ul style="margin: 0 0 30px 0; padding-left: 20px; font-size: 16px; line-height: 1.8; color: #001A33;">
+                        <li style="margin-bottom: 10px;">Share your tour link on social media to attract more bookings</li>
+                        <li style="margin-bottom: 10px;">Respond quickly to booking inquiries to build trust</li>
+                        <li style="margin-bottom: 10px;">Keep your tour information up to date in your dashboard</li>
+                        <li style="margin-bottom: 10px;">Consider adding more tours to increase your visibility</li>
+                      </ul>
+                      
+                      <p style="margin: 30px 0 0 0; font-size: 16px; line-height: 1.6; color: #001A33;">
+                        If you have any questions or need assistance, please don't hesitate to reach out to our support team via the <a href="${process.env.FRONTEND_URL || 'https://www.asiabylocals.com'}/contact" style="color: #0071EB; text-decoration: none;">contact form</a>.
+                      </p>
+                      
+                      <p style="margin: 20px 0 0 0; font-size: 16px; line-height: 1.6; color: #001A33;">
+                        Best regards,<br>
+                        <strong>The AsiaByLocals Team</strong>
+                      </p>
+                    </td>
+                  </tr>
+                  
+                  <!-- Footer -->
+                  <tr>
+                    <td style="background-color: #10B981; padding: 40px; text-align: center;">
+                      <div style="margin-bottom: 30px;">
+                        <h2 style="margin: 0; font-size: 24px; font-weight: 800; color: #ffffff; letter-spacing: -0.5px; line-height: 1.2;">
+                          ASIA<br>BY<br>LOCALS
+                        </h2>
+                      </div>
+                      
+                      <!-- Social Media Icons -->
+                      <table role="presentation" style="width: 100%; border-collapse: collapse; margin-bottom: 30px;">
+                        <tr>
+                          <td align="center" style="padding: 0;">
+                            <a href="https://facebook.com/asiabylocals" style="display: inline-block; margin: 0 10px; color: #ffffff; text-decoration: none; font-size: 20px; font-weight: 600;">f</a>
+                            <a href="https://twitter.com/asiabylocals" style="display: inline-block; margin: 0 10px; color: #ffffff; text-decoration: none; font-size: 20px; font-weight: 600;">🐦</a>
+                            <a href="https://instagram.com/asiabylocals" style="display: inline-block; margin: 0 10px; color: #ffffff; text-decoration: none; font-size: 20px; font-weight: 600;">📷</a>
+                            <a href="https://linkedin.com/company/asiabylocals" style="display: inline-block; margin: 0 10px; color: #ffffff; text-decoration: none; font-size: 20px; font-weight: 600;">in</a>
+                          </td>
+                        </tr>
+                      </table>
+                      
+                      <p style="margin: 0 0 20px 0; font-size: 12px; color: #ffffff; opacity: 0.9;">
+                        2025 © All rights reserved.
+                      </p>
+                      
+                      <!-- Footer Links -->
+                      <table role="presentation" style="width: 100%; border-collapse: collapse;">
+                        <tr>
+                          <td align="center" style="padding: 0;">
+                            <a href="${process.env.FRONTEND_URL || 'https://www.asiabylocals.com'}/become-a-supplier" style="display: inline-block; margin: 0 8px; color: #ffffff; text-decoration: none; font-size: 12px; opacity: 0.9;">Become a Supply Partner</a>
+                            <span style="color: #ffffff; opacity: 0.5;">|</span>
+                            <a href="${process.env.FRONTEND_URL || 'https://www.asiabylocals.com'}/contact" style="display: inline-block; margin: 0 8px; color: #ffffff; text-decoration: none; font-size: 12px; opacity: 0.9;">Contact us</a>
+                            <span style="color: #ffffff; opacity: 0.5;">|</span>
+                            <a href="${process.env.FRONTEND_URL || 'https://www.asiabylocals.com'}/faq" style="display: inline-block; margin: 0 8px; color: #ffffff; text-decoration: none; font-size: 12px; opacity: 0.9;">FAQ</a>
+                          </td>
+                        </tr>
+                      </table>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+          </table>
+        </body>
+      </html>
+    `,
+    text: `
+      Tour Approved - ${tourTitle}
+      
+      Dear ${supplierName},
+      
+      Great news! Your tour "${tourTitle}" has been reviewed and approved by our team. Your tour is now live on AsiaByLocals and visible to travelers searching for experiences in ${city}, ${country}.
+      
+      Tour Details:
+      - Title: ${tourTitle}
+      - Location: ${city}, ${country}
+      - Status: ✅ Approved & Live
+      
+      What happens next?
+      - Your tour is now visible on the AsiaByLocals website
+      - Travelers can discover and book your tour
+      - You'll receive email notifications when bookings come in
+      - You can manage your tour from your supplier dashboard
+      
+      View your tour: ${tourUrl}
+      Go to dashboard: ${dashboardUrl}
+      
+      Tips for success:
+      - Share your tour link on social media to attract more bookings
+      - Respond quickly to booking inquiries to build trust
+      - Keep your tour information up to date in your dashboard
+      - Consider adding more tours to increase your visibility
+      
+      If you have any questions, please contact our support team.
+      
+      Best regards,
+      The AsiaByLocals Team
+    `
+  };
+
+  try {
+    // Use Resend SDK if available (more reliable than SMTP)
+    if (resendClient) {
+      console.log(`📧 Sending tour approval email via Resend SDK to: ${supplierEmail}`);
+      console.log(`   From: ${fromEmail}`);
+      console.log(`   Service: ${serviceName}`);
+      
+      const result = await resendClient.emails.send({
+        from: `AsiaByLocals <${fromEmail}>`,
+        to: supplierEmail,
+        subject: `✅ Your Tour Has Been Approved: ${tourTitle}`,
+        html: mailOptions.html,
+        text: mailOptions.text
+      });
+      
+      // Check if Resend returned an error
+      if (result.error) {
+        console.error(`❌ Resend API Error:`);
+        console.error('   Error:', result.error);
+        throw new Error(`Resend API Error: ${JSON.stringify(result.error)}`);
+      }
+      
+      console.log(`✅ Tour approval email sent successfully to ${supplierEmail}`);
+      console.log('📬 Message ID:', result.data?.id);
+      return { success: true, messageId: result.data?.id };
+    }
+    
+    // Fallback to nodemailer for SendGrid/Gmail
+    const info = await transporter.sendMail(mailOptions);
+    console.log(`✅ Tour approval email sent successfully to ${supplierEmail}`);
+    console.log('📬 Message ID:', info.messageId);
+    console.log('📧 Response:', info.response);
+    return { success: true, messageId: info.messageId };
+  } catch (error) {
+    console.error(`❌ Error sending tour approval email to ${supplierEmail}:`);
+    console.error('   Error message:', error.message);
+    console.error('   Error code:', error.code);
+    console.error('   Full error:', error);
+    throw error;
+  }
+};
+
 export default transporter;
 

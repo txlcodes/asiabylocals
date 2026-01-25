@@ -6,7 +6,7 @@ import fs from 'fs';
 import prisma from './db.js';
 import bcrypt from 'bcrypt';
 import { randomBytes } from 'crypto';
-import { sendVerificationEmail, sendWelcomeEmail, sendBookingNotificationEmail, sendBookingConfirmationEmail, sendAdminPaymentNotificationEmail } from './utils/email.js';
+import { sendVerificationEmail, sendWelcomeEmail, sendBookingNotificationEmail, sendBookingConfirmationEmail, sendAdminPaymentNotificationEmail, sendTourApprovalEmail } from './utils/email.js';
 import { uploadMultipleImages } from './utils/cloudinary.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -4602,6 +4602,35 @@ app.post('/api/admin/tours/:id/approve', verifyAdmin, async (req, res) => {
       console.log('✅ Sitemap regeneration triggered after tour approval');
     } catch (sitemapError) {
       console.error('⚠️ Sitemap regeneration setup failed (non-critical):', sitemapError.message);
+    }
+
+    // Send approval email to supplier (non-blocking)
+    try {
+      const supplierEmail = updatedTour.supplier.email;
+      const supplierName = updatedTour.supplier.fullName || 'Supplier';
+      const tourTitle = updatedTour.title;
+      const tourSlug = updatedTour.slug;
+      const city = updatedTour.city;
+      const country = updatedTour.country;
+
+      if (supplierEmail && supplierEmail.includes('@')) {
+        console.log(`📧 Sending tour approval email to supplier: ${supplierEmail}`);
+        sendTourApprovalEmail(
+          supplierEmail,
+          supplierName,
+          tourTitle,
+          tourSlug,
+          city,
+          country
+        ).catch(err => {
+          console.error('⚠️ Failed to send tour approval email (non-critical):', err.message);
+        });
+        console.log('✅ Tour approval email queued for sending');
+      } else {
+        console.warn(`⚠️ Invalid supplier email, skipping approval email: ${supplierEmail}`);
+      }
+    } catch (emailError) {
+      console.error('⚠️ Tour approval email setup failed (non-critical):', emailError.message);
     }
 
     // Parse JSON fields
