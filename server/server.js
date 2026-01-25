@@ -1886,8 +1886,29 @@ app.post('/api/tours', async (req, res) => {
     
     // CRITICAL: Remove ALL IDs from request body immediately (before any processing)
     const cleanedBody = removeAllIds(req.body);
-    console.log('🧹 Cleaned request body (all IDs removed recursively)');
-    console.log('📦 Request body:', JSON.stringify(cleanedBody, null, 2));
+    
+    // CRITICAL: Also remove pricingType from request body recursively (prevents P2022 errors)
+    const removePricingType = (obj: any): any => {
+      if (obj === null || obj === undefined) return obj;
+      if (Array.isArray(obj)) {
+        return obj.map(item => removePricingType(item));
+      }
+      if (typeof obj === 'object') {
+        const cleaned: any = {};
+        for (const [key, value] of Object.entries(obj)) {
+          if (key.toLowerCase() === 'pricingtype' || key.toLowerCase() === 'pricing_type') {
+            continue; // Skip pricingType fields
+          }
+          cleaned[key] = removePricingType(value);
+        }
+        return cleaned;
+      }
+      return obj;
+    };
+    const finalCleanedBody = removePricingType(cleanedBody);
+    
+    console.log('🧹 Cleaned request body (all IDs and pricingType removed recursively)');
+    console.log('📦 Request body:', JSON.stringify(finalCleanedBody, null, 2));
     
     const {
       supplierId,
@@ -1911,7 +1932,7 @@ app.post('/api/tours', async (req, res) => {
       images,
       languages,
       highlights
-    } = cleanedBody; // Use cleaned body instead of req.body
+    } = finalCleanedBody; // Use final cleaned body (IDs and pricingType removed)
 
     // Debug: Log each field
     console.log('🔍 Field validation:');

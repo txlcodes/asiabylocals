@@ -444,11 +444,15 @@ const TourCreationForm: React.FC<TourCreationFormProps> = ({
         images: JSON.stringify(formData.images),
         languages: JSON.stringify(formData.languages),
         tourOptions: formData.tourOptions.map((opt, idx) => {
-          // CRITICAL: Remove any ID fields to prevent database conflicts
-          const { id, tourId, ...cleanOpt } = opt;
-          if (id || tourId) {
-            console.warn(`⚠️  Removing ID fields from tour option ${idx + 1} to prevent conflicts`);
+          // CRITICAL: Remove any ID fields AND pricingType to prevent database conflicts
+          const { id, tourId, pricingType, pricing_type, ...cleanOpt } = opt;
+          if (id || tourId || pricingType || pricing_type) {
+            console.warn(`⚠️  Removing ID fields and pricingType from tour option ${idx + 1} to prevent conflicts`);
           }
+          
+          // CRITICAL: Explicitly remove pricingType from cleanOpt as well (double safety)
+          delete cleanOpt.pricingType;
+          delete cleanOpt.pricing_type;
           
           // Infer pricing type: if groupPrice and maxGroupSize exist, it's per_group
           const optionIsPerGroup = !!(cleanOpt.groupPrice && cleanOpt.maxGroupSize);
@@ -469,7 +473,8 @@ const TourCreationForm: React.FC<TourCreationFormProps> = ({
             }
           }
           
-          return {
+          // Build return object WITHOUT pricingType (backend will infer from groupPrice/maxGroupSize)
+          const returnOpt: any = {
             optionTitle: cleanOpt.optionTitle.trim(),
             optionDescription: cleanOpt.optionDescription.trim(),
             durationHours: parseFloat(cleanOpt.durationHours) || 3,
@@ -480,11 +485,16 @@ const TourCreationForm: React.FC<TourCreationFormProps> = ({
             carIncluded: cleanOpt.carIncluded || false,
             entryTicketIncluded: cleanOpt.entryTicketIncluded || false,
             guideIncluded: cleanOpt.guideIncluded !== undefined ? cleanOpt.guideIncluded : true,
-            // Remove pricingType - backend will infer from groupPrice/maxGroupSize
             maxGroupSize: cleanOpt.maxGroupSize && cleanOpt.maxGroupSize >= 1 && cleanOpt.maxGroupSize <= 20 ? cleanOpt.maxGroupSize : null,
             groupPrice: cleanOpt.groupPrice && !isNaN(parseFloat(cleanOpt.groupPrice)) ? parseFloat(cleanOpt.groupPrice) : null,
             sortOrder: idx
           };
+          
+          // CRITICAL: Final check - ensure pricingType is NOT in return object
+          delete returnOpt.pricingType;
+          delete returnOpt.pricing_type;
+          
+          return returnOpt;
         })
       };
 
