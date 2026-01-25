@@ -2846,8 +2846,8 @@ app.post('/api/tours', async (req, res) => {
     }
 
     // Parse tour options if provided (accept both 'options' and 'tourOptions' field names)
-    // Use cleanedBody to ensure no IDs are present
-    let tourOptions = cleanedBody.options || cleanedBody.tourOptions || [];
+    // CRITICAL: Use finalCleanedBody (NOT cleanedBody) to ensure pricingType is removed
+    let tourOptions = finalCleanedBody.options || finalCleanedBody.tourOptions || [];
     
     // Validate tourOptions is an array
     if (tourOptions && !Array.isArray(tourOptions)) {
