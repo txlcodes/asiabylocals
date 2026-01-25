@@ -3101,10 +3101,14 @@ app.post('/api/tours', async (req, res) => {
         });
         
         // Define ONLY valid TourOption fields (from Prisma schema) - moved outside if block for scope
+        // CRITICAL: maxGroupSize and groupPrice are EXCLUDED because they may not exist in production DB
+        // The migration to add these columns may not have been run yet
+        // These fields will be handled separately with error handling if they exist
         const VALID_TOUR_OPTION_FIELDS = [
           'optionTitle', 'optionDescription', 'durationHours', 'price', 'currency',
           'language', 'pickupIncluded', 'entryTicketIncluded', 'guideIncluded',
-          'carIncluded', 'maxGroupSize', 'groupPrice', 'sortOrder'
+          'carIncluded', 'sortOrder'
+          // maxGroupSize and groupPrice EXCLUDED - handled separately with error handling
           // Note: pricingType removed - we infer pricing type from groupPrice/maxGroupSize presence
         ];
         
@@ -3578,30 +3582,28 @@ app.post('/api/tours', async (req, res) => {
             
             const cleanOpt = {};
             
-            // Only include valid fields
+            // Only include valid fields (maxGroupSize and groupPrice are EXCLUDED from VALID_TOUR_OPTION_FIELDS)
             VALID_TOUR_OPTION_FIELDS.forEach(field => {
               // Only include field if it has a value (exclude null/undefined)
               // This prevents Prisma from trying to validate columns that might not exist yet
-              // CRITICAL: For maxGroupSize and groupPrice, also check they're valid numbers
               if (opt[field] !== undefined && opt[field] !== null) {
-                // Extra validation for group pricing fields to ensure they're valid
-                if (field === 'maxGroupSize' || field === 'max_group_size') {
-                  const value = parseInt(opt[field]);
-                  if (!isNaN(value) && value >= 1 && value <= 20) {
-                    cleanOpt[field] = value;
-                  }
-                  // Skip invalid maxGroupSize values
-                } else if (field === 'groupPrice' || field === 'group_price') {
-                  const value = parseFloat(opt[field]);
-                  if (!isNaN(value) && value > 0) {
-                    cleanOpt[field] = value;
-                  }
-                  // Skip invalid groupPrice values
-                } else {
-                  cleanOpt[field] = opt[field];
-                }
+                cleanOpt[field] = opt[field];
               }
             });
+            
+            // CRITICAL: Explicitly remove maxGroupSize and groupPrice to prevent Prisma validation
+            // These columns may not exist in production DB if migration hasn't been run
+            // They are NOT in VALID_TOUR_OPTION_FIELDS, so they won't be added above
+            // But we explicitly remove them here as a safety measure
+            delete cleanOpt.maxGroupSize;
+            delete cleanOpt.max_group_size;
+            delete cleanOpt.groupPrice;
+            delete cleanOpt.group_price;
+            
+            // Log if we're skipping group pricing fields (for debugging)
+            if (opt.maxGroupSize || opt.groupPrice) {
+              console.log(`   ℹ️  Skipping group pricing fields for option ${i + 1} (columns may not exist in DB)`);
+            }
             
             // CRITICAL: Aggressively remove ALL possible ID fields
             delete cleanOpt.id;
