@@ -3344,6 +3344,12 @@ app.post('/api/tours', async (req, res) => {
           const createdOptions = [];
           for (let i = 0; i < optionsToCreate.length; i++) {
             const opt = optionsToCreate[i];
+            
+            // CRITICAL: Remove pricingType FIRST before any processing (prevents P2022 errors)
+            // This field does NOT exist in the database and MUST be removed
+            delete opt.pricingType;
+            delete opt.pricing_type;
+            
             const cleanOpt = {};
             
             // Only include valid fields
@@ -3362,13 +3368,29 @@ app.post('/api/tours', async (req, res) => {
             delete cleanOpt.optionId;
             delete cleanOpt.option_id;
             
+            // CRITICAL: Remove pricingType from cleanOpt as well (double safety)
+            delete cleanOpt.pricingType;
+            delete cleanOpt.pricing_type;
+            
             // Remove any other ID-like fields
             Object.keys(cleanOpt).forEach(key => {
               const keyLower = key.toLowerCase();
               if (keyLower === 'id' || (keyLower.includes('id') && (keyLower.includes('tour') || keyLower.includes('option')))) {
                 delete cleanOpt[key];
               }
+              // Also remove any pricing-related fields
+              if (keyLower.includes('pricing')) {
+                delete cleanOpt[key];
+              }
             });
+            
+            // Final check: Log if pricingType somehow still exists
+            if ('pricingType' in cleanOpt || 'pricing_type' in cleanOpt) {
+              console.error('🚨 CRITICAL: pricingType still exists in cleanOpt after all removals!');
+              console.error('   cleanOpt keys:', Object.keys(cleanOpt));
+              delete cleanOpt.pricingType;
+              delete cleanOpt.pricing_type;
+            }
             
             // Create option individually (more reliable than createMany)
             const createdOption = await prisma.tourOption.create({
