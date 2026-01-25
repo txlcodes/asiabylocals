@@ -2876,17 +2876,25 @@ app.post('/api/tours', async (req, res) => {
         console.warn(`⚠️  Tour option ${idx + 1} is not a valid object, skipping`);
         return null;
       }
-      // Aggressively remove ALL possible ID fields
-      const { id, tourId, tour_id, optionId, option_id, ...cleanOption } = opt;
-      if (id || tourId || tour_id || optionId || option_id) {
-        console.warn(`⚠️  Tour option ${idx + 1} had ID fields, removing:`, { id, tourId, tour_id, optionId, option_id });
+      // Aggressively remove ALL possible ID fields AND pricingType
+      const { id, tourId, tour_id, optionId, option_id, pricingType, pricing_type, ...cleanOption } = opt;
+      if (id || tourId || tour_id || optionId || option_id || pricingType || pricing_type) {
+        console.warn(`⚠️  Tour option ${idx + 1} had ID fields or pricingType, removing:`, { id, tourId, tour_id, optionId, option_id, pricingType, pricing_type });
       }
-      // Double-check: remove any remaining ID-like fields
+      // CRITICAL: Explicitly remove pricingType from cleanOption as well (double safety)
+      delete cleanOption.pricingType;
+      delete cleanOption.pricing_type;
+      // Double-check: remove any remaining ID-like fields AND pricing-related fields
       Object.keys(cleanOption).forEach(key => {
         const keyLower = key.toLowerCase();
         if (keyLower === 'id' || keyLower.includes('id') && (keyLower.includes('tour') || keyLower.includes('option'))) {
           delete cleanOption[key];
           console.warn(`⚠️  Removed additional ID-like field: ${key}`);
+        }
+        // Also remove any pricing-related fields
+        if (keyLower.includes('pricing')) {
+          delete cleanOption[key];
+          console.warn(`⚠️  Removed pricing-related field: ${key}`);
         }
       });
       return cleanOption;
