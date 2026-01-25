@@ -93,8 +93,10 @@ model TourOption {
   entryTicketIncluded Boolean   @default(false) @map("entry_ticket_included")
   guideIncluded       Boolean   @default(true) @map("guide_included")
   carIncluded         Boolean   @default(false) @map("car_included")
-  maxGroupSize        Int?      @map("max_group_size") // Max people per group (1-20). If set with groupPrice, indicates per-group pricing
-  groupPrice          Float?    @map("group_price") // Price for entire group. If set with maxGroupSize, indicates per-group pricing
+  // TEMPORARILY COMMENTED OUT - These columns don't exist in production DB yet
+  // Uncomment after running migration: npx prisma migrate deploy
+  // maxGroupSize        Int?      @map("max_group_size") // Max people per group (1-20). If set with groupPrice, indicates per-group pricing
+  // groupPrice          Float?    @map("group_price") // Price for entire group. If set with maxGroupSize, indicates per-group pricing
   sortOrder           Int       @default(0) @map("sort_order")
   createdAt           DateTime  @default(now()) @map("created_at")
   updatedAt           DateTime  @updatedAt @map("updated_at")
