@@ -1888,13 +1888,13 @@ app.post('/api/tours', async (req, res) => {
     const cleanedBody = removeAllIds(req.body);
     
     // CRITICAL: Also remove pricingType from request body recursively (prevents P2022 errors)
-    const removePricingType = (obj: any): any => {
+    const removePricingType = (obj) => {
       if (obj === null || obj === undefined) return obj;
       if (Array.isArray(obj)) {
         return obj.map(item => removePricingType(item));
       }
       if (typeof obj === 'object') {
-        const cleaned: any = {};
+        const cleaned = {};
         for (const [key, value] of Object.entries(obj)) {
           if (key.toLowerCase() === 'pricingtype' || key.toLowerCase() === 'pricing_type') {
             continue; // Skip pricingType fields
