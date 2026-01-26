@@ -4822,17 +4822,25 @@ app.post('/api/admin/tours/:id/reject', verifyAdmin, async (req, res) => {
 });
 
 // Get all tours (admin) - can filter by status
+// NOTE: Drafts are NEVER shown to admins - only suppliers can see their own drafts
 app.get('/api/admin/tours', verifyAdmin, async (req, res) => {
   try {
     const { status } = req.query;
     const where = {};
-    if (status && status !== 'all') {
+    
+    // If filtering by specific status (and it's not 'all'), use that status
+    // But NEVER allow 'draft' status - admins should never see drafts
+    if (status && status !== 'all' && status !== 'draft') {
       where.status = status;
+    } else {
+      // For 'all' or no status specified, show all tours EXCEPT drafts
+      where.status = { not: 'draft' };
     }
     
     console.log('📋 Fetching tours for admin dashboard');
     console.log('   Filter status:', status || 'all');
     console.log('   Where clause:', JSON.stringify(where));
+    console.log('   ⚠️ Drafts are excluded - only suppliers can see their own drafts');
     
     const tours = await prisma.tour.findMany({
       where,
