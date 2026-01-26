@@ -6,7 +6,7 @@ import fs from 'fs';
 import prisma from './db.js';
 import bcrypt from 'bcrypt';
 import { randomBytes } from 'crypto';
-import { sendVerificationEmail, sendWelcomeEmail, sendBookingNotificationEmail, sendBookingConfirmationEmail, sendAdminPaymentNotificationEmail, sendTourApprovalEmail } from './utils/email.js';
+import { sendVerificationEmail, sendWelcomeEmail, sendBookingNotificationEmail, sendBookingConfirmationEmail, sendAdminPaymentNotificationEmail, sendTourApprovalEmail, sendTourRejectionEmail } from './utils/email.js';
 import { uploadMultipleImages } from './utils/cloudinary.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -4793,6 +4793,44 @@ app.post('/api/admin/tours/:id/reject', verifyAdmin, async (req, res) => {
         }
       }
     });
+
+    // Send rejection email to supplier using Resend (non-blocking)
+    try {
+      const supplierEmail = updatedTour.supplier.email;
+      const supplierName = updatedTour.supplier.fullName || 'Supplier';
+      const tourTitle = updatedTour.title;
+      const city = updatedTour.city;
+      const country = updatedTour.country;
+
+      if (supplierEmail && supplierEmail.includes('@')) {
+        console.log(`📧 Tour rejected - Sending rejection email to supplier via Resend:`);
+        console.log(`   Supplier: ${supplierName}`);
+        console.log(`   Email: ${supplierEmail}`);
+        console.log(`   Tour: ${tourTitle}`);
+        console.log(`   Location: ${city}, ${country}`);
+        console.log(`   Rejection Reason: ${rejectionReason.trim()}`);
+        
+        // Send email using Resend (will use Resend SDK if RESEND_API_KEY is configured)
+        sendTourRejectionEmail(
+          supplierEmail,
+          supplierName,
+          tourTitle,
+          rejectionReason.trim(),
+          city,
+          country
+        ).then(result => {
+          console.log(`✅ Tour rejection email sent successfully via Resend`);
+          console.log(`   Message ID: ${result.messageId}`);
+        }).catch(err => {
+          console.error('⚠️ Failed to send tour rejection email (non-critical):', err.message);
+          console.error('   Error details:', err);
+        });
+      } else {
+        console.warn(`⚠️ Invalid supplier email, skipping rejection email: ${supplierEmail}`);
+      }
+    } catch (emailError) {
+      console.error('⚠️ Tour rejection email setup failed (non-critical):', emailError.message);
+    }
 
     // Parse JSON fields
     const formattedTour = {

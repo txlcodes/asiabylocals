@@ -1522,5 +1522,239 @@ export const sendTourApprovalEmail = async (supplierEmail, supplierName, tourTit
   }
 };
 
+/**
+ * Send tour rejection notification email to supplier/guide
+ * Uses Resend SDK (preferred) if RESEND_API_KEY is configured, otherwise falls back to SendGrid/Gmail SMTP
+ * 
+ * @param {string} supplierEmail - Supplier's email address
+ * @param {string} supplierName - Supplier's full name
+ * @param {string} tourTitle - Tour title
+ * @param {string} rejectionReason - Reason for rejection provided by admin
+ * @param {string} city - City name
+ * @param {string} country - Country name
+ * @returns {Promise<Object>}
+ */
+export const sendTourRejectionEmail = async (supplierEmail, supplierName, tourTitle, rejectionReason, city, country) => {
+  // Check if email is configured (Resend is preferred, then SendGrid, then Gmail SMTP)
+  if (!resendApiKey && !sendGridApiKey && (!emailUser || !emailPassword)) {
+    const errorMsg = 'Email not configured. Please set RESEND_API_KEY (recommended - most reliable), SENDGRID_API_KEY, or EMAIL_USER + EMAIL_APP_PASSWORD in Render environment variables.';
+    console.error('❌', errorMsg);
+    throw new Error(errorMsg);
+  }
+
+  // Validate email parameter
+  if (!supplierEmail || typeof supplierEmail !== 'string' || !supplierEmail.includes('@')) {
+    console.error('❌ Invalid email address provided:', supplierEmail);
+    throw new Error('Invalid email address');
+  }
+
+  console.log(`📧 Attempting to send tour rejection email to: ${supplierEmail}`);
+  console.log(`   Tour: ${tourTitle}`);
+  console.log(`   Supplier: ${supplierName}`);
+  console.log(`   Rejection Reason: ${rejectionReason}`);
+
+  const fromEmail = (resendApiKey || sendGridApiKey) ? 'info@asiabylocals.com' : (emailUser || 'asiabylocals@gmail.com');
+  const serviceName = resendApiKey ? 'Resend' : (sendGridApiKey ? 'SendGrid' : 'Gmail SMTP');
+  
+  // Build dashboard URL
+  const dashboardUrl = `${process.env.FRONTEND_URL || 'https://www.asiabylocals.com'}/supplier/dashboard`;
+
+  const mailOptions = {
+    from: `"AsiaByLocals" <${fromEmail}>`,
+    to: supplierEmail,
+    subject: `❌ Tour Review Update: ${tourTitle}`,
+    html: `
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <meta charset="utf-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>Tour Review Update</title>
+        </head>
+        <body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #f5f5f5;">
+          <table role="presentation" style="width: 100%; border-collapse: collapse; background-color: #f5f5f5;">
+            <tr>
+              <td align="center" style="padding: 40px 20px;">
+                <table role="presentation" style="width: 100%; max-width: 600px; background-color: #ffffff; border-collapse: collapse;">
+                  <!-- Header -->
+                  <tr>
+                    <td style="padding: 40px 40px 30px 40px; text-align: center; background-color: #EF4444;">
+                      <div style="margin-bottom: 20px;">
+                        <h1 style="margin: 0; font-size: 32px; font-weight: 800; color: #ffffff; letter-spacing: -0.5px; line-height: 1.2;">
+                          Tour Review Update
+                        </h1>
+                      </div>
+                      <p style="margin: 10px 0 0 0; font-size: 18px; color: #ffffff; opacity: 0.95;">
+                        Your tour needs some adjustments
+                      </p>
+                    </td>
+                  </tr>
+                  
+                  <!-- Body Content -->
+                  <tr>
+                    <td style="padding: 0 40px 40px 40px;">
+                      <p style="margin: 30px 0 20px 0; font-size: 16px; line-height: 1.6; color: #001A33;">
+                        Dear ${supplierName},
+                      </p>
+                      
+                      <p style="margin: 0 0 20px 0; font-size: 16px; line-height: 1.6; color: #001A33;">
+                        Thank you for submitting your tour <strong>"${tourTitle}"</strong> for review. After careful consideration, our team has determined that some adjustments are needed before we can approve your tour.
+                      </p>
+                      
+                      <!-- Tour Details Card -->
+                      <div style="background-color: #f8f9fa; border-radius: 8px; padding: 24px; margin: 30px 0; border-left: 4px solid #EF4444;">
+                        <h2 style="margin: 0 0 20px 0; font-size: 20px; font-weight: 700; color: #001A33;">Tour Details</h2>
+                        
+                        <table style="width: 100%; border-collapse: collapse;">
+                          <tr>
+                            <td style="padding: 8px 0; font-weight: 600; color: #666; width: 40%;">Tour Title:</td>
+                            <td style="padding: 8px 0; color: #001A33; font-weight: 600;">${tourTitle}</td>
+                          </tr>
+                          <tr>
+                            <td style="padding: 8px 0; font-weight: 600; color: #666;">Location:</td>
+                            <td style="padding: 8px 0; color: #001A33;">${city}, ${country}</td>
+                          </tr>
+                          <tr>
+                            <td style="padding: 8px 0; font-weight: 600; color: #666;">Status:</td>
+                            <td style="padding: 8px 0; color: #EF4444; font-weight: 700; font-size: 16px;">❌ Needs Revision</td>
+                          </tr>
+                        </table>
+                      </div>
+                      
+                      <!-- Rejection Reason Card -->
+                      <div style="background-color: #FEF2F2; border-radius: 8px; padding: 24px; margin: 30px 0; border-left: 4px solid #EF4444;">
+                        <h2 style="margin: 0 0 15px 0; font-size: 20px; font-weight: 700; color: #001A33;">Feedback from Our Review Team</h2>
+                        <p style="margin: 0; font-size: 16px; line-height: 1.8; color: #001A33; white-space: pre-wrap;">${rejectionReason.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</p>
+                      </div>
+                      
+                      <p style="margin: 30px 0 20px 0; font-size: 16px; line-height: 1.6; color: #001A33;">
+                        <strong>What happens next?</strong>
+                      </p>
+                      <ul style="margin: 0 0 30px 0; padding-left: 20px; font-size: 16px; line-height: 1.8; color: #001A33;">
+                        <li style="margin-bottom: 10px;">Please review the feedback above and make the necessary adjustments to your tour</li>
+                        <li style="margin-bottom: 10px;">You can edit your tour in your supplier dashboard</li>
+                        <li style="margin-bottom: 10px;">Once you've made the changes, you can resubmit your tour for review</li>
+                        <li style="margin-bottom: 10px;">Our team will review your updated tour submission</li>
+                      </ul>
+                      
+                      <div style="background-color: #F0F9FF; border-radius: 8px; padding: 20px; margin: 30px 0; border: 1px solid #BFDBFE;">
+                        <p style="margin: 0 0 10px 0; font-size: 16px; font-weight: 600; color: #001A33;">
+                          💡 Need Help?
+                        </p>
+                        <p style="margin: 0; font-size: 14px; line-height: 1.6; color: #001A33;">
+                          If you have any questions about the feedback or need assistance making changes, please don't hesitate to reach out to our support team via the <a href="${process.env.FRONTEND_URL || 'https://www.asiabylocals.com'}/contact" style="color: #0071EB; text-decoration: none;">contact form</a>.
+                        </p>
+                      </div>
+                      
+                      <div style="text-align: center; margin: 40px 0 20px 0;">
+                        <a href="${dashboardUrl}" style="display: inline-block; padding: 14px 32px; background-color: #0071EB; color: #ffffff; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 16px;">
+                          Go to Supplier Dashboard
+                        </a>
+                      </div>
+                      
+                      <p style="margin: 30px 0 0 0; font-size: 16px; line-height: 1.6; color: #001A33;">
+                        Best regards,<br>
+                        <strong>The AsiaByLocals Team</strong>
+                      </p>
+                    </td>
+                  </tr>
+                  
+                  <!-- Footer -->
+                  <tr>
+                    <td style="background-color: #001A33; padding: 40px; text-align: center;">
+                      <div style="margin-bottom: 30px;">
+                        <h2 style="margin: 0; font-size: 24px; font-weight: 800; color: #ffffff; letter-spacing: -0.5px; line-height: 1.2;">
+                          ASIA<br>BY<br>LOCALS
+                        </h2>
+                      </div>
+                      
+                      <p style="margin: 0 0 20px 0; font-size: 14px; color: #ffffff; opacity: 0.8;">
+                        Connecting travelers with authentic local experiences across Asia
+                      </p>
+                      
+                      <p style="margin: 0; font-size: 12px; color: #ffffff; opacity: 0.6;">
+                        © ${new Date().getFullYear()} AsiaByLocals. All rights reserved.
+                      </p>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+          </table>
+        </body>
+      </html>
+    `,
+    text: `Tour Review Update
+
+Dear ${supplierName},
+
+Thank you for submitting your tour "${tourTitle}" for review. After careful consideration, our team has determined that some adjustments are needed before we can approve your tour.
+
+Tour Details:
+- Tour Title: ${tourTitle}
+- Location: ${city}, ${country}
+- Status: Needs Revision
+
+Feedback from Our Review Team:
+${rejectionReason}
+
+What happens next?
+- Please review the feedback above and make the necessary adjustments to your tour
+- You can edit your tour in your supplier dashboard: ${dashboardUrl}
+- Once you've made the changes, you can resubmit your tour for review
+- Our team will review your updated tour submission
+
+If you have any questions about the feedback or need assistance, please contact our support team.
+
+Best regards,
+The AsiaByLocals Team`
+  };
+
+  try {
+    // PRIORITY 1: Use Resend SDK if available (most reliable - recommended)
+    if (resendClient) {
+      console.log(`📧 Sending tour rejection email via Resend SDK (preferred method)`);
+      console.log(`   To: ${supplierEmail}`);
+      console.log(`   From: ${fromEmail}`);
+      console.log(`   Service: Resend`);
+      console.log(`   Subject: ❌ Tour Review Update: ${tourTitle}`);
+      
+      const result = await resendClient.emails.send({
+        from: `AsiaByLocals <${fromEmail}>`,
+        to: supplierEmail,
+        subject: `❌ Tour Review Update: ${tourTitle}`,
+        html: mailOptions.html,
+        text: mailOptions.text
+      });
+      
+      // Check if Resend returned an error
+      if (result.error) {
+        console.error(`❌ Resend API Error:`);
+        console.error('   Error:', result.error);
+        throw new Error(`Resend API Error: ${JSON.stringify(result.error)}`);
+      }
+      
+      console.log(`✅ Tour rejection email sent successfully via Resend`);
+      console.log(`   Message ID: ${result.data?.id}`);
+      console.log(`   Supplier: ${supplierName}`);
+      console.log(`   Tour: ${tourTitle}`);
+      return { success: true, messageId: result.data?.id };
+    }
+    
+    // Fallback to nodemailer for SendGrid/Gmail
+    const info = await transporter.sendMail(mailOptions);
+    console.log(`✅ Tour rejection email sent successfully to ${supplierEmail}`);
+    console.log('📬 Message ID:', info.messageId);
+    console.log('📧 Response:', info.response);
+    return { success: true, messageId: info.messageId };
+  } catch (error) {
+    console.error(`❌ Error sending tour rejection email to ${supplierEmail}:`);
+    console.error('   Error message:', error.message);
+    console.error('   Error code:', error.code);
+    console.error('   Full error:', error);
+    throw error;
+  }
+};
+
 export default transporter;
 
