@@ -1461,7 +1461,6 @@ export const sendTourApprovalEmail = async (supplierEmail, supplierName, tourTit
       - You can manage your tour from your supplier dashboard
       
       View your tour: ${tourUrl}
-      Go to dashboard: ${dashboardUrl}
       
       Tips for success:
       - Share your tour link on social media to attract more bookings
@@ -1646,12 +1645,6 @@ export const sendTourRejectionEmail = async (supplierEmail, supplierName, tourTi
                         </p>
                       </div>
                       
-                      <div style="text-align: center; margin: 40px 0 20px 0;">
-                        <a href="${dashboardUrl}" style="display: inline-block; padding: 14px 32px; background-color: #0071EB; color: #ffffff; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 16px;">
-                          Go to Supplier Dashboard
-                        </a>
-                      </div>
-                      
                       <p style="margin: 30px 0 0 0; font-size: 16px; line-height: 1.6; color: #001A33;">
                         Best regards,<br>
                         <strong>The AsiaByLocals Team</strong>
@@ -1700,7 +1693,7 @@ ${rejectionReason}
 
 What happens next?
 - Please review the feedback above and make the necessary adjustments to your tour
-- You can edit your tour in your supplier dashboard: ${dashboardUrl}
+- You can edit your tour in your supplier dashboard
 - Once you've made the changes, you can resubmit your tour for review
 - Our team will review your updated tour submission
 
