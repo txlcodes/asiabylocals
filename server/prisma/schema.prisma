@@ -58,6 +58,7 @@ model Tour {
   notIncluded      String?   @map("not_included")
   meetingPoint     String?   @map("meeting_point")
   guideType        String?   @map("guide_type")
+  tourTypes        String?   @map("tour_types") // JSON array of tour types/tags
   images           String
   languages        String
   reviews          String?   // JSON array of fake reviews

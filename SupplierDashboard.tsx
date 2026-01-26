@@ -67,6 +67,7 @@ const SupplierDashboard: React.FC<SupplierDashboardProps> = ({ supplier, onLogou
   const [isLoading, setIsLoading] = useState(false);
   const [isLoadingBookings, setIsLoadingBookings] = useState(false);
   const [showTourForm, setShowTourForm] = useState(false);
+  const [editingTour, setEditingTour] = useState<any>(null);
   const [filterStatus, setFilterStatus] = useState<string>('all');
   // Now supplier is guaranteed to exist, safe to access
   const [profileData, setProfileData] = useState({
@@ -209,6 +210,11 @@ const SupplierDashboard: React.FC<SupplierDashboardProps> = ({ supplier, onLogou
     }
   };
 
+  const handleEditTour = (tour: any) => {
+    setEditingTour(tour);
+    setShowTourForm(true);
+  };
+
   const handleSaveProfile = async () => {
     if (!supplier?.id) return;
     
@@ -325,9 +331,14 @@ const SupplierDashboard: React.FC<SupplierDashboardProps> = ({ supplier, onLogou
         supplierEmail={supplier.email || ''}
         supplierPhone={supplier.phone || ''}
         supplierWhatsApp={supplier.whatsapp || ''}
-        onClose={() => setShowTourForm(false)}
+        tour={editingTour}
+        onClose={() => {
+          setShowTourForm(false);
+          setEditingTour(null);
+        }}
         onSuccess={() => {
           setShowTourForm(false);
+          setEditingTour(null);
           fetchTours();
         }}
         onProfileRequired={() => {
@@ -631,26 +642,32 @@ const SupplierDashboard: React.FC<SupplierDashboardProps> = ({ supplier, onLogou
                           <span className="text-gray-500 font-semibold">{tour.duration}</span>
                         </div>
                         <div className="flex items-center gap-2">
-                          {tour.status === 'draft' && (
+                          {(tour.status === 'draft' || tour.status === 'pending') && (
                             <>
                               <button
-                                onClick={() => handleSubmitTour(tour.id)}
-                                className="flex-1 bg-[#10B981] hover:bg-[#059669] text-white font-black py-2 px-4 rounded-full text-[12px] transition-colors"
+                                onClick={() => handleEditTour(tour)}
+                                className="flex-1 bg-blue-500 hover:bg-blue-600 text-white font-black py-2 px-4 rounded-full text-[12px] transition-colors flex items-center justify-center gap-2"
                               >
-                                Submit
+                                <Edit size={14} />
+                                Edit
                               </button>
-                              <button
-                                onClick={() => handleDeleteTour(tour.id)}
-                                className="p-2 text-red-500 hover:bg-red-50 rounded-full transition-colors"
-                              >
-                                <Trash2 size={16} />
-                              </button>
+                              {tour.status === 'draft' && (
+                                <>
+                                  <button
+                                    onClick={() => handleSubmitTour(tour.id)}
+                                    className="flex-1 bg-[#10B981] hover:bg-[#059669] text-white font-black py-2 px-4 rounded-full text-[12px] transition-colors"
+                                  >
+                                    Submit
+                                  </button>
+                                  <button
+                                    onClick={() => handleDeleteTour(tour.id)}
+                                    className="p-2 text-red-500 hover:bg-red-50 rounded-full transition-colors"
+                                  >
+                                    <Trash2 size={16} />
+                                  </button>
+                                </>
+                              )}
                             </>
-                          )}
-                          {tour.status === 'pending' && (
-                            <div className="w-full text-center text-[12px] text-gray-500 font-semibold py-2">
-                              Under Review
-                            </div>
                           )}
                           {tour.status === 'approved' && (
                             <div className="w-full text-center text-[12px] text-[#10B981] font-bold py-2">

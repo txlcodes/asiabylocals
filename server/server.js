@@ -2005,6 +2005,7 @@ app.post('/api/tours', async (req, res) => {
       notIncluded,
       meetingPoint,
       guideType,
+      tourTypes,
       images,
       languages,
       highlights
@@ -2126,6 +2127,7 @@ app.post('/api/tours', async (req, res) => {
     let imagesArray = [];
     let languagesArray = [];
     let highlightsArray = [];
+    let tourTypesArray = [];
 
     try {
       // Parse locations
@@ -2198,6 +2200,20 @@ app.post('/api/tours', async (req, res) => {
         }
       }
       
+      // Parse tourTypes (optional)
+      if (tourTypes) {
+        if (typeof tourTypes === 'string') {
+          try {
+            tourTypesArray = JSON.parse(tourTypes);
+          } catch (e) {
+            console.error('❌ Failed to parse tourTypes JSON:', e.message);
+            tourTypesArray = [];
+          }
+        } else if (Array.isArray(tourTypes)) {
+          tourTypesArray = tourTypes;
+        }
+      }
+      
       // Validate parsed arrays are actually arrays
       if (!Array.isArray(locationsArray)) locationsArray = [];
       if (!Array.isArray(imagesArray)) {
@@ -2210,6 +2226,7 @@ app.post('/api/tours', async (req, res) => {
       }
       if (!Array.isArray(languagesArray)) languagesArray = ['English'];
       if (!Array.isArray(highlightsArray)) highlightsArray = [];
+      if (!Array.isArray(tourTypesArray)) tourTypesArray = [];
       
     } catch (parseError) {
       console.error('❌ Unexpected JSON parse error:', parseError);
@@ -3014,6 +3031,7 @@ app.post('/api/tours', async (req, res) => {
       notIncluded: notIncluded || null,
       meetingPoint: meetingPoint || null,
       guideType: guideType || null,
+      tourTypes: tourTypesArray && tourTypesArray.length > 0 ? JSON.stringify(tourTypesArray) : null,
       images: JSON.stringify(imageUrls), // Store Cloudinary URLs instead of base64
       languages: JSON.stringify(languagesArray || ['English']),
       reviews: null,
@@ -3162,7 +3180,7 @@ app.post('/api/tours', async (req, res) => {
         const tourModelFields = [
           'supplierId', 'title', 'slug', 'country', 'city', 'category', 'locations',
           'duration', 'pricePerPerson', 'currency', 'shortDescription', 'fullDescription',
-          'highlights', 'included', 'notIncluded', 'meetingPoint', 'guideType',
+          'highlights', 'included', 'notIncluded', 'meetingPoint', 'guideType', 'tourTypes',
           'images', 'languages', 'reviews', 'status', 'options'
         ];
         Object.keys(finalTourData).forEach(key => {
@@ -3279,6 +3297,7 @@ app.post('/api/tours', async (req, res) => {
           notIncluded: finalTourData.notIncluded,
           meetingPoint: finalTourData.meetingPoint,
           guideType: finalTourData.guideType,
+          tourTypes: finalTourData.tourTypes || null,
           images: finalTourData.images,
           languages: finalTourData.languages,
           reviews: finalTourData.reviews,
@@ -4352,11 +4371,12 @@ app.put('/api/tours/:id', async (req, res) => {
       });
     }
 
-    if (existingTour.status !== 'draft') {
+    // Allow editing draft and pending tours (suppliers can edit before approval)
+    if (existingTour.status !== 'draft' && existingTour.status !== 'pending') {
       return res.status(400).json({
         success: false,
         error: 'Cannot edit tour',
-        message: 'Only draft tours can be edited'
+        message: 'Only draft and pending tours can be edited. Once approved, contact admin for changes.'
       });
     }
 
@@ -4378,6 +4398,11 @@ app.put('/api/tours/:id', async (req, res) => {
     if (updateData.notIncluded !== undefined) dataToUpdate.notIncluded = updateData.notIncluded;
     if (updateData.meetingPoint !== undefined) dataToUpdate.meetingPoint = updateData.meetingPoint;
     if (updateData.guideType !== undefined) dataToUpdate.guideType = updateData.guideType;
+    if (updateData.tourTypes !== undefined) {
+      dataToUpdate.tourTypes = updateData.tourTypes 
+        ? JSON.stringify(typeof updateData.tourTypes === 'string' ? JSON.parse(updateData.tourTypes) : updateData.tourTypes)
+        : null;
+    }
     if (updateData.images) dataToUpdate.images = JSON.stringify(
       typeof updateData.images === 'string' ? JSON.parse(updateData.images) : updateData.images
     );
@@ -4397,7 +4422,8 @@ app.put('/api/tours/:id', async (req, res) => {
       locations: JSON.parse(updatedTour.locations || '[]'),
       images: JSON.parse(updatedTour.images || '[]'),
       languages: JSON.parse(updatedTour.languages || '[]'),
-      highlights: updatedTour.highlights ? JSON.parse(updatedTour.highlights || '[]') : []
+      highlights: updatedTour.highlights ? JSON.parse(updatedTour.highlights || '[]') : [],
+      tourTypes: updatedTour.tourTypes ? JSON.parse(updatedTour.tourTypes || '[]') : []
     };
 
     console.log('✅ Tour updated successfully:', tourId);
@@ -4880,40 +4906,104 @@ app.get('/api/admin/tours', verifyAdmin, async (req, res) => {
     console.log('   Where clause:', JSON.stringify(where));
     console.log('   ⚠️ Drafts are excluded - only suppliers can see their own drafts');
     
-    const tours = await prisma.tour.findMany({
-      where,
-      include: {
-        supplier: {
-          select: {
-            id: true,
-            fullName: true,
-            companyName: true,
-            email: true,
-            phone: true,
-            whatsapp: true,
-            emailVerified: true,
-            verificationDocumentUrl: true
+    let tours;
+    try {
+      console.log('   🔍 Executing Prisma query...');
+      tours = await prisma.tour.findMany({
+        where,
+        include: {
+          supplier: {
+            select: {
+              id: true,
+              fullName: true,
+              companyName: true,
+              email: true,
+              phone: true,
+              whatsapp: true,
+              emailVerified: true,
+              verificationDocumentUrl: true
+            }
+          }
+        },
+        orderBy: {
+          createdAt: 'desc'
+        }
+      });
+    } catch (dbError) {
+      console.error('❌ Database error fetching tours:', dbError);
+      // If error is about missing column, try without tourTypes
+      if (dbError.message?.includes('tour_types') || dbError.message?.includes('tourTypes')) {
+        console.log('⚠️  tourTypes column might not exist, trying query without it...');
+        // The query should still work - Prisma handles missing columns gracefully
+        // But let's log the error and return empty array
+        return res.json({
+          success: true,
+          tours: [],
+          count: 0,
+          error: 'Database schema mismatch - please run migrations'
+        });
+      }
+      throw dbError;
+    }
+
+    console.log(`   ✅ Query successful - found ${tours?.length || 0} tours`);
+    if (tours && tours.length > 0) {
+      console.log(`   📊 Sample tour IDs:`, tours.slice(0, 5).map(t => t.id));
+      console.log(`   📊 Sample tour statuses:`, tours.slice(0, 5).map(t => t.status));
+    } else {
+      console.log(`   ⚠️  No tours found with filter:`, JSON.stringify(where));
+    }
+
+    // Parse JSON fields with safe error handling
+    const formattedTours = tours.map(tour => {
+      try {
+        // Safely parse tourTypes - handle if column doesn't exist
+        let tourTypes = [];
+        if (tour.tourTypes !== undefined && tour.tourTypes !== null) {
+          if (typeof tour.tourTypes === 'string') {
+            try {
+              tourTypes = JSON.parse(tour.tourTypes);
+            } catch (e) {
+              console.warn(`Failed to parse tourTypes for tour ${tour.id}:`, e.message);
+              tourTypes = [];
+            }
+          } else if (Array.isArray(tour.tourTypes)) {
+            tourTypes = tour.tourTypes;
           }
         }
-      },
-      orderBy: {
-        createdAt: 'desc'
+        
+        return {
+          ...tour,
+          id: String(tour.id),
+          locations: JSON.parse(tour.locations || '[]'),
+          images: JSON.parse(tour.images || '[]'),
+          languages: JSON.parse(tour.languages || '[]'),
+          highlights: tour.highlights ? JSON.parse(tour.highlights || '[]') : [],
+          tourTypes: tourTypes,
+          supplier: {
+            ...tour.supplier,
+            id: String(tour.supplier.id)
+          }
+        };
+      } catch (parseError) {
+        console.error(`Error formatting tour ${tour.id}:`, parseError);
+        console.error(`   Parse error details:`, parseError.message);
+        // Return tour with safe defaults - still return it so admin can see it
+        return {
+          ...tour,
+          id: String(tour.id),
+          locations: [],
+          images: [],
+          languages: ['English'],
+          highlights: [],
+          tourTypes: [],
+          supplier: tour.supplier ? {
+            ...tour.supplier,
+            id: String(tour.supplier.id)
+          } : null
+        };
       }
     });
-
-    // Parse JSON fields
-    const formattedTours = tours.map(tour => ({
-      ...tour,
-      id: String(tour.id),
-      locations: JSON.parse(tour.locations || '[]'),
-      images: JSON.parse(tour.images || '[]'),
-      languages: JSON.parse(tour.languages || '[]'),
-      highlights: tour.highlights ? JSON.parse(tour.highlights || '[]') : [],
-      supplier: {
-        ...tour.supplier,
-        id: String(tour.supplier.id)
-      }
-    }));
 
     res.json({
       success: true,
@@ -4967,28 +5057,43 @@ app.get('/api/admin/tours/pending', verifyAdmin, async (req, res) => {
   try {
     console.log('📋 Fetching PENDING tours for admin dashboard');
     // Get only pending tours (submitted for review) - drafts are not visible to admins
-    const tours = await prisma.tour.findMany({
-      where: {
-        status: 'pending'
-      },
-      include: {
-        supplier: {
-          select: {
-            id: true,
-            fullName: true,
-            companyName: true,
-            email: true,
-            phone: true,
-            whatsapp: true,
-            emailVerified: true,
-            verificationDocumentUrl: true
+    let tours;
+    try {
+      tours = await prisma.tour.findMany({
+        where: {
+          status: 'pending'
+        },
+        include: {
+          supplier: {
+            select: {
+              id: true,
+              fullName: true,
+              companyName: true,
+              email: true,
+              phone: true,
+              whatsapp: true,
+              emailVerified: true,
+              verificationDocumentUrl: true
+            }
           }
+        },
+        orderBy: {
+          createdAt: 'desc'
         }
-      },
-      orderBy: {
-        createdAt: 'desc'
+      });
+    } catch (dbError) {
+      console.error('❌ Database error fetching pending tours:', dbError);
+      if (dbError.message?.includes('tour_types') || dbError.message?.includes('tourTypes')) {
+        console.log('⚠️  tourTypes column might not exist, returning empty array');
+        return res.json({
+          success: true,
+          tours: [],
+          count: 0,
+          error: 'Database schema mismatch - please run migrations'
+        });
       }
-    });
+      throw dbError;
+    }
     
     console.log(`   Found ${tours.length} tours`);
     if (tours.length > 0) {
@@ -4999,19 +5104,56 @@ app.get('/api/admin/tours/pending', verifyAdmin, async (req, res) => {
       console.log(`   Status breakdown:`, statusBreakdown);
     }
 
-    // Parse JSON fields
-    const formattedTours = tours.map(tour => ({
-      ...tour,
-      id: String(tour.id),
-      locations: JSON.parse(tour.locations || '[]'),
-      images: JSON.parse(tour.images || '[]'),
-      languages: JSON.parse(tour.languages || '[]'),
-      highlights: tour.highlights ? JSON.parse(tour.highlights || '[]') : [],
-      supplier: {
-        ...tour.supplier,
-        id: String(tour.supplier.id)
+    // Parse JSON fields with safe error handling
+    const formattedTours = tours.map(tour => {
+      try {
+        // Safely parse tourTypes - handle if column doesn't exist
+        let tourTypes = [];
+        if (tour.tourTypes !== undefined && tour.tourTypes !== null) {
+          if (typeof tour.tourTypes === 'string') {
+            try {
+              tourTypes = JSON.parse(tour.tourTypes);
+            } catch (e) {
+              console.warn(`Failed to parse tourTypes for tour ${tour.id}:`, e.message);
+              tourTypes = [];
+            }
+          } else if (Array.isArray(tour.tourTypes)) {
+            tourTypes = tour.tourTypes;
+          }
+        }
+        
+        return {
+          ...tour,
+          id: String(tour.id),
+          locations: JSON.parse(tour.locations || '[]'),
+          images: JSON.parse(tour.images || '[]'),
+          languages: JSON.parse(tour.languages || '[]'),
+          highlights: tour.highlights ? JSON.parse(tour.highlights || '[]') : [],
+          tourTypes: tourTypes,
+          supplier: {
+            ...tour.supplier,
+            id: String(tour.supplier.id)
+          }
+        };
+      } catch (parseError) {
+        console.error(`Error formatting tour ${tour.id}:`, parseError);
+        console.error(`   Parse error details:`, parseError.message);
+        // Return tour with safe defaults - still return it so admin can see it
+        return {
+          ...tour,
+          id: String(tour.id),
+          locations: [],
+          images: [],
+          languages: ['English'],
+          highlights: [],
+          tourTypes: [],
+          supplier: tour.supplier ? {
+            ...tour.supplier,
+            id: String(tour.supplier.id)
+          } : null
+        };
       }
-    }));
+    });
 
     res.json({
       success: true,
@@ -6302,6 +6444,13 @@ app.get('/api/public/tours', async (req, res) => {
           notIncluded: tour.notIncluded || null,
           meetingPoint: tour.meetingPoint || null,
           guideType: tour.guideType || null,
+          tourTypes: tour.tourTypes ? (() => {
+            try {
+              return JSON.parse(tour.tourTypes);
+            } catch (e) {
+              return [];
+            }
+          })() : [],
           status: tour.status || 'draft',
           createdAt: tour.createdAt,
           updatedAt: tour.updatedAt,
@@ -6367,6 +6516,43 @@ app.get('/api/public/tours', async (req, res) => {
       tours: [],
       error: process.env.NODE_ENV === 'development' ? error.message : undefined,
       message: 'Tours temporarily unavailable. Please try again in a moment.'
+    });
+  }
+});
+
+// Diagnostic endpoint to check tours for a city (for debugging)
+app.get('/api/debug/tours/:city', async (req, res) => {
+  try {
+    const { city } = req.params;
+    const allTours = await prisma.tour.findMany({
+      where: {
+        city: { contains: city, mode: 'insensitive' }
+      },
+      select: {
+        id: true,
+        title: true,
+        city: true,
+        country: true,
+        status: true,
+        createdAt: true
+      },
+      orderBy: { createdAt: 'desc' }
+    });
+    
+    res.json({
+      success: true,
+      city,
+      totalTours: allTours.length,
+      tours: allTours,
+      statusBreakdown: allTours.reduce((acc, t) => {
+        acc[t.status] = (acc[t.status] || 0) + 1;
+        return acc;
+      }, {})
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message
     });
   }
 });

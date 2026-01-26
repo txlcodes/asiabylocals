@@ -1043,6 +1043,29 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
                   </div>
                 </div>
                 <div className="text-[14px] text-gray-600 font-semibold">per person</div>
+                {/* Tour Types */}
+                {tour.tourTypes && (() => {
+                  try {
+                    const tourTypesArray = typeof tour.tourTypes === 'string' ? JSON.parse(tour.tourTypes) : tour.tourTypes;
+                    if (Array.isArray(tourTypesArray) && tourTypesArray.length > 0) {
+                      return (
+                        <div className="flex flex-wrap gap-2 mt-3">
+                          {tourTypesArray.map((type: string, idx: number) => (
+                            <span
+                              key={idx}
+                              className="px-2 py-1 bg-gray-100 text-gray-700 text-[11px] font-semibold rounded"
+                            >
+                              {type}
+                            </span>
+                          ))}
+                        </div>
+                      );
+                    }
+                  } catch (e) {
+                    console.error('Error parsing tourTypes:', e);
+                  }
+                  return null;
+                })()}
               </div>
 
               {/* Date Selector - Premium Calendar */}

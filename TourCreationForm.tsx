@@ -7,6 +7,7 @@ interface TourCreationFormProps {
   supplierEmail?: string;
   supplierPhone?: string;
   supplierWhatsApp?: string;
+  tour?: any; // Tour data when editing
   onClose: () => void;
   onSuccess: () => void;
   onProfileRequired?: () => void;
@@ -190,11 +191,35 @@ const DURATION_OPTIONS = [
 
 const LANGUAGE_OPTIONS = ['English', 'Hindi', 'Spanish', 'French', 'German', 'Japanese', 'Chinese', 'Korean'];
 
+const TOUR_TYPES = [
+  'Guided Tour',
+  'Private Tour',
+  'Group Tour',
+  'Walking Tour',
+  'Day Trip',
+  'Multi-Day Tour',
+  'City Tour',
+  'Cultural Tour',
+  'Heritage Tour',
+  'Food Tour',
+  'Adventure Tour',
+  'Nature Tour',
+  'Safari / Wildlife Tour',
+  'Beach / Island Tour',
+  'Cruise / Boat Tour',
+  'Train / Rail Tour',
+  'Spiritual / Pilgrimage Tour',
+  'Photography Tour',
+  'Luxury Tour',
+  'Custom / Tailor-Made Tour'
+];
+
 const TourCreationForm: React.FC<TourCreationFormProps> = ({ 
   supplierId, 
   supplierEmail,
   supplierPhone,
   supplierWhatsApp,
+  tour,
   onClose, 
   onSuccess,
   onProfileRequired
@@ -207,45 +232,86 @@ const TourCreationForm: React.FC<TourCreationFormProps> = ({
     return null;
   }
 
+  const isEditing = !!tour;
   const [step, setStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
   
+  // Parse tour data for editing
+  const parseTourData = (tour: any) => {
+    if (!tour) return null;
+    try {
+      return {
+        country: tour.country || '',
+        city: tour.city || '',
+        category: tour.category || '',
+        title: tour.title || '',
+        locations: Array.isArray(tour.locations) ? tour.locations : (typeof tour.locations === 'string' ? JSON.parse(tour.locations || '[]') : []),
+        duration: tour.duration || '',
+        pricePerPerson: tour.pricePerPerson?.toString() || '',
+        pricingType: (tour.groupPrice && tour.maxGroupSize) ? 'per_group' as const : 'per_person' as const,
+        maxGroupSize: tour.maxGroupSize || undefined,
+        groupPrice: tour.groupPrice?.toString() || '',
+        currency: tour.currency || 'INR',
+        shortDescription: tour.shortDescription || '',
+        fullDescription: tour.fullDescription || '',
+        highlights: Array.isArray(tour.highlights) ? tour.highlights : (typeof tour.highlights === 'string' ? JSON.parse(tour.highlights || '[]') : ['', '', '']),
+        included: tour.included || '',
+        notIncluded: tour.notIncluded || '',
+        meetingPoint: tour.meetingPoint || '',
+        images: Array.isArray(tour.images) ? tour.images : (typeof tour.images === 'string' ? JSON.parse(tour.images || '[]') : []),
+        languages: Array.isArray(tour.languages) ? tour.languages : (typeof tour.languages === 'string' ? JSON.parse(tour.languages || '[]') : []),
+        tourTypes: Array.isArray(tour.tourTypes) ? tour.tourTypes : (typeof tour.tourTypes === 'string' ? JSON.parse(tour.tourTypes || '[]') : []),
+        tourOptions: tour.options || []
+      };
+    } catch (e) {
+      console.error('Error parsing tour data:', e);
+      return null;
+    }
+  };
+  
   // Form data
-  const [formData, setFormData] = useState({
-    country: '',
-    city: '',
-    category: '',
-    title: '',
-    locations: [] as string[],
-    duration: '',
-    pricePerPerson: '',
-    pricingType: 'per_person' as 'per_person' | 'per_group',
-    maxGroupSize: undefined as number | undefined,
-    groupPrice: '',
-    currency: 'INR',
-    shortDescription: '',
-    fullDescription: '',
-    highlights: ['', '', ''] as string[], // 3-5 highlights, each max 80 chars
-    included: '',
-    notIncluded: '',
-    meetingPoint: '',
-    images: [] as string[],
-    languages: [] as string[],
-    tourOptions: [] as Array<{
-      optionTitle: string;
-      optionDescription: string;
-      durationHours: string;
-      price: string;
-      currency: string;
-      language: string;
-      pickupIncluded: boolean;
-      carIncluded: boolean;
-      entryTicketIncluded: boolean;
-      guideIncluded: boolean;
-      pricingType: 'per_person' | 'per_group';
-      maxGroupSize?: number;
-      groupPrice?: string;
-    }>
+  const [formData, setFormData] = useState(() => {
+    if (tour) {
+      const parsed = parseTourData(tour);
+      if (parsed) return parsed;
+    }
+    return {
+      country: '',
+      city: '',
+      category: '',
+      title: '',
+      locations: [] as string[],
+      duration: '',
+      pricePerPerson: '',
+      pricingType: 'per_person' as 'per_person' | 'per_group',
+      maxGroupSize: undefined as number | undefined,
+      groupPrice: '',
+      currency: 'INR',
+      shortDescription: '',
+      fullDescription: '',
+      highlights: ['', '', ''] as string[], // 3-5 highlights, each max 80 chars
+      included: '',
+      notIncluded: '',
+      meetingPoint: '',
+      images: [] as string[],
+      languages: [] as string[],
+      tourTypes: [] as string[],
+      tourOptions: [] as Array<{
+        optionTitle: string;
+        optionDescription: string;
+        durationHours: string;
+        price: string;
+        currency: string;
+        language: string;
+        pickupIncluded: boolean;
+        carIncluded: boolean;
+        entryTicketIncluded: boolean;
+        guideIncluded: boolean;
+        pricingType: 'per_person' | 'per_group';
+        maxGroupSize?: number;
+        groupPrice?: string;
+      }>
+    };
   });
 
   const [editingOptionIndex, setEditingOptionIndex] = useState<number | null>(null);
@@ -274,6 +340,15 @@ const TourCreationForm: React.FC<TourCreationFormProps> = ({
       languages: prev.languages.includes(language)
         ? prev.languages.filter(l => l !== language)
         : [...prev.languages, language]
+    }));
+  };
+
+  const handleTourTypeToggle = (tourType: string) => {
+    setFormData(prev => ({
+      ...prev,
+      tourTypes: prev.tourTypes.includes(tourType)
+        ? prev.tourTypes.filter(t => t !== tourType)
+        : [...prev.tourTypes, tourType]
     }));
   };
 
@@ -441,6 +516,7 @@ const TourCreationForm: React.FC<TourCreationFormProps> = ({
         meetingPoint: formData.meetingPoint?.trim() || null,
         images: JSON.stringify(formData.images),
         languages: JSON.stringify(formData.languages),
+        tourTypes: formData.tourTypes.length > 0 ? JSON.stringify(formData.tourTypes) : null,
         tourOptions: formData.tourOptions.map((opt, idx) => {
           // CRITICAL: Remove any ID fields AND pricingType to prevent database conflicts
           const { id, tourId, pricingType, pricing_type, ...cleanOpt } = opt;
@@ -518,8 +594,11 @@ const TourCreationForm: React.FC<TourCreationFormProps> = ({
       });
 
       const API_URL = import.meta.env.VITE_API_URL || (typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3001');
-      const response = await fetch(`${API_URL}/api/tours`, {
-        method: 'POST',
+      const url = isEditing ? `${API_URL}/api/tours/${tour.id}` : `${API_URL}/api/tours`;
+      const method = isEditing ? 'PUT' : 'POST';
+      
+      const response = await fetch(url, {
+        method,
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(tourData)
       });
@@ -561,7 +640,11 @@ const TourCreationForm: React.FC<TourCreationFormProps> = ({
       const data = await response.json();
 
       if (data.success) {
-        if (submitForReview) {
+        if (isEditing) {
+          alert('Tour updated successfully!');
+          onSuccess();
+          onClose();
+        } else if (submitForReview) {
           // Submit for review
           const submitResponse = await fetch(`${API_URL}/api/tours/${data.tour.id}/submit`, {
             method: 'POST',
@@ -588,7 +671,7 @@ const TourCreationForm: React.FC<TourCreationFormProps> = ({
         }
       } else {
         // Use server's error message directly, don't add prefix
-        throw new Error(data.message || data.error || 'Failed to create tour');
+        throw new Error(data.message || data.error || (isEditing ? 'Failed to update tour' : 'Failed to create tour'));
       }
     } catch (error: any) {
       console.error('Tour creation error:', error);
@@ -641,7 +724,7 @@ const TourCreationForm: React.FC<TourCreationFormProps> = ({
       <header className="bg-white border-b border-gray-200 sticky top-0 z-50">
         <div className="max-w-4xl mx-auto px-6 py-4 flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-black text-[#001A33]">Create a new tour</h1>
+            <h1 className="text-2xl font-black text-[#001A33]">{isEditing ? 'Edit Tour' : 'Create a new tour'}</h1>
             <p className="text-[14px] text-gray-500 font-semibold mt-1">
               Step {step} of {totalSteps}
             </p>
@@ -1059,6 +1142,37 @@ const TourCreationForm: React.FC<TourCreationFormProps> = ({
                   </div>
                 </div>
               )}
+
+              {/* Tour Types Selection */}
+              <div>
+                <label className="block text-[14px] font-bold text-[#001A33] mb-3">
+                  Tour Types (Select all that apply)
+                </label>
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+                  {TOUR_TYPES.map((tourType) => {
+                    const isSelected = formData.tourTypes.includes(tourType);
+                    return (
+                      <button
+                        key={tourType}
+                        type="button"
+                        onClick={() => handleTourTypeToggle(tourType)}
+                        className={`p-3 rounded-xl border-2 transition-all text-left text-[13px] font-semibold ${
+                          isSelected
+                            ? 'border-[#10B981] bg-[#10B981]/10 text-[#10B981]'
+                            : 'border-gray-200 hover:border-[#10B981]/50 text-gray-700'
+                        }`}
+                      >
+                        {tourType}
+                      </button>
+                    );
+                  })}
+                </div>
+                {formData.tourTypes.length > 0 && (
+                  <p className="text-[12px] text-gray-500 font-semibold mt-2">
+                    {formData.tourTypes.length} tour type{formData.tourTypes.length > 1 ? 's' : ''} selected
+                  </p>
+                )}
+              </div>
             </div>
           </div>
         )}
