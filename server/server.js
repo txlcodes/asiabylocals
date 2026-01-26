@@ -4919,13 +4919,11 @@ app.post('/api/admin/sitemap/regenerate', verifyAdmin, async (req, res) => {
 // Get all pending tours (admin) - for backward compatibility
 app.get('/api/admin/tours/pending', verifyAdmin, async (req, res) => {
   try {
-    console.log('📋 Fetching PENDING and DRAFT tours for admin dashboard');
-    // Get pending and draft tours (both need approval)
+    console.log('📋 Fetching PENDING tours for admin dashboard');
+    // Get only pending tours (submitted for review) - drafts are not visible to admins
     const tours = await prisma.tour.findMany({
       where: {
-        status: {
-          in: ['pending', 'draft']
-        }
+        status: 'pending'
       },
       include: {
         supplier: {

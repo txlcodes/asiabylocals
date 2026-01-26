@@ -54,7 +54,7 @@ const AdminDashboard: React.FC = () => {
       const API_URL = import.meta.env.VITE_API_URL || (typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3001');
       let url;
       if (tourFilter === 'pending') {
-        // Pending endpoint includes both pending and draft tours
+        // Pending endpoint returns only tours submitted for review (not drafts)
         url = `${API_URL}/api/admin/tours/pending`;
       } else {
         url = `${API_URL}/api/admin/tours${tourFilter !== 'all' ? `?status=${tourFilter}` : ''}`;
