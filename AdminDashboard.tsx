@@ -7,7 +7,7 @@ const AdminDashboard: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'tours' | 'suppliers' | 'bookings'>('suppliers');
   const [pendingTours, setPendingTours] = useState<any[]>([]);
   const [pendingSuppliers, setPendingSuppliers] = useState<any[]>([]);
-  const [tourFilter, setTourFilter] = useState<'pending' | 'approved' | 'draft' | 'all'>('pending');
+  const [tourFilter, setTourFilter] = useState<'pending' | 'approved' | 'all'>('pending');
   const [bookings, setBookings] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadingBookings, setLoadingBookings] = useState(false);
@@ -747,16 +747,6 @@ const AdminDashboard: React.FC = () => {
                     }`}
                   >
                     Pending
-                  </button>
-                  <button
-                    onClick={() => setTourFilter('draft')}
-                    className={`px-4 py-2 rounded-full text-[12px] font-black transition-all ${
-                      tourFilter === 'draft'
-                        ? 'bg-blue-500 text-white'
-                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                    }`}
-                  >
-                    Draft
                   </button>
                   <button
                     onClick={() => setTourFilter('approved')}
