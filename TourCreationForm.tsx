@@ -841,39 +841,53 @@ const TourCreationForm: React.FC<TourCreationFormProps> = ({
       )}
 
       {/* English Only Notice */}
-      <div className="bg-blue-50 border-b-2 border-blue-400">
-        <div className="max-w-4xl mx-auto px-6 py-4">
-          <div className="flex items-start gap-3">
-            <AlertCircle className="text-blue-600 shrink-0 mt-1" size={24} />
-            <div className="flex-1">
-              {language === 'ja' ? (
-                <>
-                  <h3 className="font-black text-[#001A33] text-[16px] mb-2">
-                    📝 重要：ツアーは英語のみで作成してください
-                  </h3>
-                  <p className="text-[14px] text-gray-700 font-semibold leading-relaxed mb-3">
-                    <strong>すべてのツアーコンテンツは英語のみで記入してください</strong>（タイトル、説明、ハイライトなど）。
-                  </p>
-                  <div className="bg-white rounded-xl p-4 border border-blue-200">
-                    <p className="text-[13px] text-gray-600 font-semibold leading-relaxed">
-                      <strong>English:</strong> All tour content (titles, descriptions, highlights) must be written in English only.
+      {showEnglishNotice && (
+        <div className="bg-blue-50 border-b-2 border-blue-400">
+          <div className="max-w-4xl mx-auto px-6 py-4">
+            <div className="flex items-start gap-3 relative">
+              <AlertCircle className="text-blue-600 shrink-0 mt-1" size={24} />
+              <div className="flex-1">
+                {language === 'ja' ? (
+                  <>
+                    <h3 className="font-black text-[#001A33] text-[16px] mb-2">
+                      📝 重要：ツアーは英語のみで作成してください
+                    </h3>
+                    <p className="text-[14px] text-gray-700 font-semibold leading-relaxed mb-3">
+                      <strong>すべてのツアーコンテンツは英語のみで記入してください</strong>（タイトル、説明、ハイライトなど）。
                     </p>
-                  </div>
-                </>
-              ) : (
-                <>
-                  <h3 className="font-black text-[#001A33] text-[16px] mb-2">
-                    📝 Important: Tours Must Be Created in English Only
-                  </h3>
-                  <p className="text-[14px] text-gray-700 font-semibold leading-relaxed">
-                    <strong>All tour content must be written in English only</strong> (titles, descriptions, highlights, etc.).
-                  </p>
-                </>
-              )}
+                    <div className="bg-white rounded-xl p-4 border border-blue-200">
+                      <p className="text-[13px] text-gray-600 font-semibold leading-relaxed">
+                        <strong>English:</strong> All tour content (titles, descriptions, highlights) must be written in English only.
+                      </p>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <h3 className="font-black text-[#001A33] text-[16px] mb-2">
+                      📝 Important: Tours Must Be Created in English Only
+                    </h3>
+                    <p className="text-[14px] text-gray-700 font-semibold leading-relaxed">
+                      <strong>All tour content must be written in English only</strong> (titles, descriptions, highlights, etc.).
+                    </p>
+                  </>
+                )}
+              </div>
+              <button
+                onClick={() => {
+                  setShowEnglishNotice(false);
+                  if (typeof window !== 'undefined') {
+                    localStorage.setItem('englishNoticeDismissed', 'true');
+                  }
+                }}
+                className="absolute top-0 right-0 p-1 hover:bg-blue-100 rounded-full transition-colors text-gray-500 hover:text-gray-700"
+                aria-label="Close notice"
+              >
+                <X size={18} />
+              </button>
             </div>
           </div>
         </div>
-      </div>
+      )}
 
       <div className="max-w-4xl mx-auto px-6 py-8">
         {/* Step 1: Country */}
