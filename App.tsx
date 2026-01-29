@@ -734,7 +734,7 @@ const App: React.FC = () => {
       </header>
 
       {/* Hero Section */}
-      <section className="relative h-[600px] md:h-[650px] flex items-center justify-center overflow-hidden">
+      <section className="relative h-[600px] md:h-[750px] lg:h-[850px] flex items-center justify-center overflow-hidden">
         {heroImages.map((hero, index) => (
           <img 
             key={index}
