@@ -840,10 +840,28 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
                               {isPerGroup ? (
                                 <>
                                   <div className="font-black text-[#001A33] text-[20px] mb-1">
-                                    From {currencySymbol}{option.groupPrice?.toLocaleString()}
+                                    {(() => {
+                                      const currentParticipants = isCustomParticipants ? customParticipants : participants;
+                                      const groupPrice = calculateGroupPrice(option, currentParticipants);
+                                      
+                                      if (groupPrice !== null) {
+                                        return `${currencySymbol}${groupPrice.toLocaleString()}`;
+                                      }
+                                      
+                                      return `From ${currencySymbol}${option.groupPrice?.toLocaleString() || '0'}`;
+                                    })()}
                                   </div>
                                   <div className="text-[12px] text-gray-600 font-semibold">
-                                    per group (up to {option.maxGroupSize} people)
+                                    {(() => {
+                                      const currentParticipants = isCustomParticipants ? customParticipants : participants;
+                                      const groupPrice = calculateGroupPrice(option, currentParticipants);
+                                      
+                                      if (groupPrice !== null) {
+                                        return `for ${currentParticipants} ${currentParticipants === 1 ? 'person' : 'people'}`;
+                                      }
+                                      
+                                      return `per group (up to ${option.maxGroupSize} people)`;
+                                    })()}
                                   </div>
                                 </>
                               ) : (
