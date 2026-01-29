@@ -155,6 +155,19 @@
             color: var(--gyg-navy);
             background: #FFFFFF;
         }
+        /* Improve SVG logo rendering quality */
+        img[src*="logo.svg"], img[alt*="Asia"] {
+            image-rendering: auto;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            backface-visibility: hidden;
+            transform: translateZ(0);
+        }
+        svg {
+            shape-rendering: geometricPrecision;
+            text-rendering: geometricPrecision;
+            image-rendering: auto;
+        }
         .no-scrollbar::-webkit-scrollbar {
             display: none;
         }

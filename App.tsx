@@ -25,6 +25,9 @@ import EmailVerificationWaiting from './EmailVerificationWaiting';
 import TourDetailPage from './TourDetailPage';
 import CityPage from './CityPage';
 import AdminDashboard from './AdminDashboard';
+import SafetyGuidelines from './SafetyGuidelines';
+import PrivacyPolicy from './PrivacyPolicy';
+import TermsAndConditions from './TermsAndConditions';
 
 // Error Boundary Component
 class ErrorBoundary extends Component<
@@ -340,6 +343,10 @@ const App: React.FC = () => {
   const isSupplierPageFromUrl = window.location.pathname === '/supplier';
   // Check if we're on the admin dashboard
   const isAdminPage = window.location.pathname === '/admin' || window.location.pathname === '/secure-panel-abl';
+  // Check for policy/legal pages
+  const isSafetyGuidelinesPage = window.location.pathname === '/safety-guidelines';
+  const isPrivacyPolicyPage = window.location.pathname === '/privacy-policy';
+  const isTermsAndConditionsPage = window.location.pathname === '/terms-and-conditions';
   
   // Check for city page: /india/agra, /thailand/bangkok, etc.
   const cityPageMatch = window.location.pathname.match(/^\/([^\/]+)\/([^\/]+)$/);
@@ -493,6 +500,21 @@ const App: React.FC = () => {
     return <AdminDashboard />;
   }
 
+  // Show Safety Guidelines page
+  if (isSafetyGuidelinesPage) {
+    return <SafetyGuidelines />;
+  }
+
+  // Show Privacy Policy page
+  if (isPrivacyPolicyPage) {
+    return <PrivacyPolicy />;
+  }
+
+  // Show Terms & Conditions page
+  if (isTermsAndConditionsPage) {
+    return <TermsAndConditions />;
+  }
+
   // Show tour detail page (SEO-friendly URL: /country/city/slug)
   if (tourPageMatch && tourSlug) {
     console.log('App.tsx - Routing to TourDetailPage', { 
@@ -549,7 +571,7 @@ const App: React.FC = () => {
           <div className="flex items-center gap-3 pl-3 md:pl-6">
             {/* Logo */}
             <div className="flex items-center cursor-pointer mt-2 md:mt-3">
-              <img src="/logo.svg?v=3" alt="Asia By Locals" className="h-[140px] md:h-[96px] lg:h-[115px] w-auto object-contain" />
+              <img src="/logo.svg?v=4" alt="Asia By Locals" className="h-[140px] md:h-[96px] lg:h-[115px] w-auto object-contain" />
             </div>
 
             {/* Nav Links */}
@@ -962,9 +984,6 @@ const App: React.FC = () => {
         <div className="max-w-[1200px] mx-auto">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-16 mb-20">
             <div className="col-span-1 lg:col-span-1">
-              <div className="flex items-center mb-8">
-                <img src="/logo.svg?v=3" alt="AsiaByLocals - Authentic Local Tours and Cultural Experiences in Asia" className="h-20 md:h-24 lg:h-28 w-auto" />
-              </div>
               <p className="text-gray-400 text-[14px] leading-relaxed">
                 Empowering local experts across Asia to share their heritage directly with curious travelers.
               </p>
@@ -984,30 +1003,25 @@ const App: React.FC = () => {
             <div>
               <h5 className="font-black text-xs uppercase tracking-widest text-gray-500 mb-8">Support</h5>
               <ul className="space-y-4 text-sm font-bold text-gray-400">
-                <li className="hover:text-white cursor-pointer">Contact</li>
-                <li className="hover:text-white cursor-pointer">Safety Guidelines</li>
-                <li className="hover:text-white cursor-pointer">Privacy Policy</li>
-                <li className="hover:text-white cursor-pointer">Terms & Conditions</li>
+                <li className="mb-4">
+                  <div className="text-white mb-2">24/7 WhatsApp Support:</div>
+                  <a href="https://wa.me/918449538716" target="_blank" rel="noopener noreferrer" className="text-[#10B981] hover:text-white block mb-1">+91 84495 38716</a>
+                  <a href="https://wa.me/919897873562" target="_blank" rel="noopener noreferrer" className="text-[#10B981] hover:text-white block">+91 98978 73562</a>
+                </li>
+                <li onClick={() => window.location.href = '/safety-guidelines'} className="hover:text-white cursor-pointer">Safety Guidelines</li>
+                <li onClick={() => window.location.href = '/privacy-policy'} className="hover:text-white cursor-pointer">Privacy Policy</li>
+                <li onClick={() => window.location.href = '/terms-and-conditions'} className="hover:text-white cursor-pointer">Terms & Conditions</li>
               </ul>
             </div>
 
             <div>
               <h5 className="font-black text-xs uppercase tracking-widest text-gray-500 mb-8">Company</h5>
               <ul className="space-y-4 text-sm font-bold text-gray-400">
-                <li className="hover:text-white cursor-pointer">Our Vetting Process</li>
                 <li 
                   onClick={() => setShowSupplierPage(true)}
                   className="hover:text-white cursor-pointer"
                 >
                   Become a Supplier
-                </li>
-                <li className="hover:text-white cursor-pointer">Sustainability</li>
-                <li className="hover:text-white cursor-pointer">Careers</li>
-                <li 
-                  onClick={() => window.location.href = '/admin'}
-                  className="hover:text-white cursor-pointer opacity-60"
-                >
-                  Admin Panel
                 </li>
               </ul>
             </div>
