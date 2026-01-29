@@ -67,7 +67,9 @@ const COUNTRY_CITIES: Record<string, string[]> = {
     'Nara',
     'Sapporo',
     'Yokohama',
-    'Fukuoka'
+    'Fukuoka',
+    'Nagoya',
+    'Okinawa'
   ],
   'Singapore': [
     'Singapore'

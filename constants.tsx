@@ -144,5 +144,56 @@ export const CITY_LOCATIONS: Record<string, string[]> = {
     'Tiger Hill', 'Darjeeling Himalayan Railway', 'Batasia Loop', 'Peace Pagoda',
     'Tea Gardens', 'Observatory Hill', 'Padmaja Naidu Himalayan Zoological Park'
   ],
+  // Japan - Top 10 attractions for each city
+  'Tokyo': [
+    'Senso-ji Temple', 'Tokyo Skytree', 'Shibuya Crossing', 'Meiji Shrine',
+    'Tsukiji Outer Market', 'Imperial Palace', 'Harajuku', 'Ueno Park',
+    'Tokyo Tower', 'Ginza District'
+  ],
+  'Kyoto': [
+    'Fushimi Inari Shrine', 'Kiyomizu-dera Temple', 'Arashiyama Bamboo Grove', 'Kinkaku-ji (Golden Pavilion)',
+    'Gion District', 'Nijo Castle', 'Philosopher\'s Path', 'Tenryu-ji Temple',
+    'Sanjusangendo Temple', 'Nishiki Market'
+  ],
+  'Osaka': [
+    'Osaka Castle', 'Dotonbori', 'Universal Studios Japan', 'Shitennoji Temple',
+    'Osaka Aquarium Kaiyukan', 'Umeda Sky Building', 'Shinsaibashi Shopping Street', 'Sumiyoshi Taisha',
+    'Tempozan Ferris Wheel', 'Osaka Museum of History'
+  ],
+  'Hiroshima': [
+    'Hiroshima Peace Memorial Park', 'Atomic Bomb Dome', 'Itsukushima Shrine (Miyajima)', 'Hiroshima Castle',
+    'Shukkeien Garden', 'Mazda Museum', 'Hiroshima Peace Memorial Museum', 'Miyajima Island',
+    'Okunoshima (Rabbit Island)', 'Hiroshima Museum of Art'
+  ],
+  'Nara': [
+    'Todai-ji Temple', 'Nara Park', 'Kasuga Taisha Shrine', 'Kofuku-ji Temple',
+    'Isuien Garden', 'Nara National Museum', 'Yoshikien Garden', 'Horyu-ji Temple',
+    'Naramachi District', 'Mount Wakakusa'
+  ],
+  'Sapporo': [
+    'Sapporo Snow Festival Site', 'Odori Park', 'Sapporo Beer Museum', 'Mount Moiwa',
+    'Sapporo Clock Tower', 'Hokkaido Shrine', 'Sapporo TV Tower', 'Maruyama Park',
+    'Susukino District', 'Historical Village of Hokkaido'
+  ],
+  'Yokohama': [
+    'Yokohama Chinatown', 'Minato Mirai 21', 'Yokohama Landmark Tower', 'Sankeien Garden',
+    'Yokohama Red Brick Warehouse', 'Yamashita Park', 'Yokohama Cosmo World', 'Yokohama Hakkeijima Sea Paradise',
+    'Yokohama Museum of Art', 'Yokohama Port Museum'
+  ],
+  'Fukuoka': [
+    'Fukuoka Castle Ruins', 'Ohori Park', 'Canal City Hakata', 'Dazaifu Tenmangu Shrine',
+    'Fukuoka Tower', 'Kushida Shrine', 'Yatai Food Stalls', 'Uminonakamichi Seaside Park',
+    'Fukuoka Asian Art Museum', 'Momochi Seaside Park'
+  ],
+  'Nagoya': [
+    'Nagoya Castle', 'Atsuta Shrine', 'SCMAGLEV and Railway Park', 'Nagoya City Science Museum',
+    'Osu Kannon Temple', 'Noritake Garden', 'Port of Nagoya Public Aquarium', 'Tokugawa Art Museum',
+    'Shirotori Garden', 'Nagoya TV Tower'
+  ],
+  'Okinawa': [
+    'Shuri Castle', 'Okinawa Churaumi Aquarium', 'Kokusai Street', 'Okinawa World',
+    'Manza Beach', 'Nakagusuku Castle Ruins', 'Sefa Utaki', 'Okinawa Peace Memorial Park',
+    'Cape Manzamo', 'Ryukyu Mura'
+  ],
   // Add more cities as needed
 };
