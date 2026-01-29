@@ -366,23 +366,39 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
     // Calculate total amount - infer pricing type from groupPrice/maxGroupSize presence
     let totalAmount = 0;
     let currency = selectedOption?.currency || tour.currency || 'INR';
+    const currentParticipants = isCustomParticipants ? customParticipants : participants;
     
     if (selectedOption) {
-      // Infer pricing type: if groupPrice and maxGroupSize exist, it's per_group
-      const isPerGroup = !!(selectedOption.groupPrice && selectedOption.maxGroupSize);
+      // Check for group pricing tiers first
+      const groupPrice = calculateGroupPrice(selectedOption, currentParticipants);
       
-      if (isPerGroup) {
-        // Per group pricing - fixed price regardless of participants
-        totalAmount = selectedOption.groupPrice || 0;
+      if (groupPrice !== null) {
+        // Use tiered group pricing
+        totalAmount = groupPrice;
       } else {
-        // Per person pricing
-        const pricePerPerson = selectedOption.price || 0;
-        totalAmount = pricePerPerson * participants;
+        // Infer pricing type: if groupPrice and maxGroupSize exist, it's per_group
+        const isPerGroup = !!(selectedOption.groupPrice && selectedOption.maxGroupSize);
+        
+        if (isPerGroup) {
+          // Per group pricing - fixed price regardless of participants
+          totalAmount = selectedOption.groupPrice || 0;
+        } else {
+          // Per person pricing
+          const pricePerPerson = selectedOption.price || 0;
+          totalAmount = pricePerPerson * currentParticipants;
+        }
       }
     } else {
-      // Fallback to tour price (per person)
-      const pricePerPerson = tour.pricePerPerson || 0;
-      totalAmount = pricePerPerson * participants;
+      // Fallback to tour price
+      const groupPrice = calculateGroupPrice(tour, currentParticipants);
+      
+      if (groupPrice !== null) {
+        totalAmount = groupPrice;
+      } else {
+        // Per person pricing
+        const pricePerPerson = tour.pricePerPerson || 0;
+        totalAmount = pricePerPerson * currentParticipants;
+      }
     }
     
     // Create booking via API
