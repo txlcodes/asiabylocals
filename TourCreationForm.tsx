@@ -641,7 +641,13 @@ const TourCreationForm: React.FC<TourCreationFormProps> = ({
 
       if (data.success) {
         if (isEditing) {
-          alert('Tour updated successfully!');
+          // Check if tour was approved and is now pending (needs review again)
+          const wasApproved = tour?.status === 'approved';
+          if (wasApproved) {
+            alert('Tour updated successfully! It has been sent back to admin for review.');
+          } else {
+            alert('Tour updated successfully!');
+          }
           onSuccess();
           onClose();
         } else if (submitForReview) {

@@ -642,7 +642,7 @@ const SupplierDashboard: React.FC<SupplierDashboardProps> = ({ supplier, onLogou
                           <span className="text-gray-500 font-semibold">{tour.duration}</span>
                         </div>
                         <div className="flex items-center gap-2">
-                          {(tour.status === 'draft' || tour.status === 'pending') && (
+                          {(tour.status === 'draft' || tour.status === 'pending' || tour.status === 'approved') && (
                             <>
                               <button
                                 onClick={() => handleEditTour(tour)}

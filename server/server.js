@@ -4371,17 +4371,24 @@ app.put('/api/tours/:id', async (req, res) => {
       });
     }
 
-    // Allow editing draft and pending tours (suppliers can edit before approval)
-    if (existingTour.status !== 'draft' && existingTour.status !== 'pending') {
+    // Allow editing draft, pending, and approved tours
+    // If approved tour is edited, it goes back to pending for admin review
+    if (existingTour.status !== 'draft' && existingTour.status !== 'pending' && existingTour.status !== 'approved') {
       return res.status(400).json({
         success: false,
         error: 'Cannot edit tour',
-        message: 'Only draft and pending tours can be edited. Once approved, contact admin for changes.'
+        message: 'Only draft, pending, and approved tours can be edited.'
       });
     }
 
     // Prepare update data
     const dataToUpdate = {};
+    
+    // If approved tour is being edited, change status back to pending for review
+    if (existingTour.status === 'approved') {
+      dataToUpdate.status = 'pending';
+      console.log(`   ⚠️  Approved tour edited - changing status to 'pending' for admin review`);
+    }
 
     if (updateData.title) dataToUpdate.title = updateData.title;
     if (updateData.city) dataToUpdate.city = updateData.city;
