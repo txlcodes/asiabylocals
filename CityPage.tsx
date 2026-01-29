@@ -664,7 +664,7 @@ const CityPage: React.FC<CityPageProps> = ({ country, city }) => {
 
             {/* Right Actions */}
             <div className="flex items-center gap-4">
-              <a href="/supplier" className="text-[14px] font-semibold text-[#001A33] hover:text-[#10B981] transition-colors">
+              <a href="/supplier" className="hidden md:block text-[14px] font-semibold text-[#001A33] hover:text-[#10B981] transition-colors">
                 Become a supplier
               </a>
               <button className="p-2 hover:bg-gray-100 rounded-full transition-colors">

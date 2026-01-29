@@ -750,9 +750,9 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
                             : 'border-gray-200 hover:border-[#10B981]/50 hover:shadow-md'
                         }`}
                       >
-                        <div className="flex items-start justify-between gap-6">
+                        <div className="flex flex-col md:flex-row items-start justify-between gap-4 md:gap-6">
                           {/* Left: Option Details */}
-                          <div className="flex-1">
+                          <div className="flex-1 w-full md:w-auto">
                             <h3 className="font-black text-[#001A33] text-[18px] mb-2">{option.optionTitle}</h3>
                             <p className="text-[14px] text-gray-600 font-semibold mb-4 leading-relaxed">
                               {option.optionDescription}
@@ -762,7 +762,7 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
                             </p>
                             
                             {/* Key Details Row */}
-                            <div className="flex items-center gap-6 text-[13px] text-gray-600 font-semibold">
+                            <div className="flex flex-wrap items-center gap-4 md:gap-6 text-[13px] text-gray-600 font-semibold">
                               <div className="flex items-center gap-2">
                                 <Clock size={16} className="text-gray-500" />
                                 <span>{option.durationHours} {option.durationHours === 1 ? 'hour' : 'hours'}</span>
@@ -781,7 +781,7 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
                           </div>
 
                           {/* Right: Pricing & Select Button */}
-                          <div className="text-right flex flex-col items-end min-w-[200px]">
+                          <div className="text-left md:text-right flex flex-col items-start md:items-end w-full md:w-auto md:min-w-[200px]">
                             <div className="mb-3">
                               {isPerGroup ? (
                                 <>
@@ -806,7 +806,7 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
                             
                             <button
                               onClick={() => setSelectedOption(option)}
-                              className={`w-full px-6 py-3 rounded-xl font-black text-[14px] transition-all mb-2 ${
+                              className={`w-full md:w-auto px-6 py-3 rounded-xl font-black text-[14px] transition-all mb-2 ${
                                 isSelected
                                   ? 'bg-[#10B981] text-white'
                                   : 'bg-[#0071EB] text-white hover:bg-[#0056b3]'
@@ -816,7 +816,7 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
                             </button>
                             
                             {/* Free Cancellation Badge */}
-                            <div className="flex items-center gap-1 text-[12px] text-gray-600">
+                            <div className="flex items-center gap-1 text-[12px] text-gray-600 w-full md:w-auto">
                               <CheckCircle2 size={14} className="text-[#10B981]" />
                               <span className="font-semibold">Free cancellation</span>
                             </div>
@@ -1722,6 +1722,22 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
                 </p>
               </div>
             </form>
+
+            {/* Support Section - Outside Form */}
+            <div className="mt-6 pt-4 border-t border-gray-200">
+              <div className="bg-[#F0FDF4] border-2 border-[#10B981] rounded-xl p-5">
+                <p className="text-[14px] text-gray-800 font-black text-center mb-2">Need help? Contact our support:</p>
+                <p className="text-[13px] text-[#10B981] font-black text-center mb-4">Available 24/7 on WhatsApp support</p>
+                <div className="flex flex-col items-center gap-3">
+                  <a href="https://wa.me/918449538716" target="_blank" rel="noopener noreferrer" className="w-full max-w-[280px] text-[15px] text-[#10B981] font-black hover:underline flex items-center justify-center gap-2 px-5 py-3 bg-white rounded-lg border-2 border-[#10B981] hover:bg-[#10B981] hover:text-white transition-all shadow-sm">
+                    <span>+91 84495 38716</span>
+                  </a>
+                  <a href="https://wa.me/919897873562" target="_blank" rel="noopener noreferrer" className="w-full max-w-[280px] text-[15px] text-[#10B981] font-black hover:underline flex items-center justify-center gap-2 px-5 py-3 bg-white rounded-lg border-2 border-[#10B981] hover:bg-[#10B981] hover:text-white transition-all shadow-sm">
+                    <span>+91 98978 73562</span>
+                  </a>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       )}

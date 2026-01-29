@@ -1238,17 +1238,15 @@ const App: React.FC = () => {
               ) : (
                 <div className="text-center py-8">
                   <User size={64} className="mx-auto text-gray-300 mb-4" />
-                  <p className="text-gray-500 font-semibold text-lg mb-2">Not signed in</p>
-                  <p className="text-gray-400 text-sm mb-6">Sign in to access your bookings and preferences</p>
+                  <p className="text-gray-500 font-semibold text-lg mb-2">Guest User</p>
+                  <p className="text-gray-400 text-sm mb-6">You can book tours directly without signing in. Your booking confirmation will be sent to your email.</p>
                   <button
                     onClick={() => {
                       setShowProfileModal(false);
-                      window.location.href = '/supplier';
                     }}
                     className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-[#10B981] hover:bg-[#059669] text-white font-black rounded-lg transition-colors"
                   >
-                    <LogIn size={18} />
-                    Sign In / Sign Up
+                    Continue Browsing
                   </button>
                 </div>
               )}
