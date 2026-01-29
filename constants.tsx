@@ -105,20 +105,26 @@ export const ATTRACTIONS: AttractionCard[] = [
 export const CITY_LOCATIONS: Record<string, string[]> = {
   // India
   'Delhi': [
-    'India Gate', 'Jama Masjid', 'Qutb Minar', 'Red Fort', "Humayun's Tomb",
-    'Lotus Temple', 'Chandni Chowk', 'Connaught Place', 'Rashtrapati Bhavan', 'Old Delhi'
+    'India Gate', 'Jama Masjid', 'Qutb Minar', 'Chandni Chowk', "Humayun's Tomb",
+    'Mehrauli New Delhi', 'Lotus Temple', 'Nizamuddin East New Delhi', 'Old Delhi',
+    'Red Fort', 'Central Secretariat New Delhi', 'Rashtrapati Bhavan', 'Indira Gandhi International Airport',
+    'Mahipalpur New Delhi', 'Raj Ghat', 'Connaught Place', 'Farash Khana New Delhi',
+    'Gurudwara Bangla Sahib', 'Khari Baoli', 'Agrasen ki Baoli'
   ],
   'Mumbai': [
     'Gateway of India', 'Marine Drive', 'Elephanta Caves', 'Chhatrapati Shivaji Terminus',
     'Haji Ali Dargah', 'Juhu Beach', 'Colaba Causeway', 'Bandra-Worli Sea Link'
   ],
   'Agra': [
-    'Taj Mahal', 'Agra Fort', 'Baby Taj', 'Mehtab Bagh', 'Fatehpur Sikri',
-    'Tomb of Akbar the Great', 'Itmad-ud-Daulah', 'Jama Masjid', 'Kinari Bazaar', 'Chini Ka Rauza'
+    'Taj Mahal', 'Agra Fort', 'Baby Taj', 'Mehtab Bagh', 'Jama Masjid',
+    'Handicraft Store Agra', 'Agra Railway Station', 'Agra Airport',
+    'Tomb of Akbar the Great', 'Shri Mankameshwar Temple', 'Sadar Bazar', 'Kinari Bazar'
   ],
   'Jaipur': [
-    'Hawa Mahal', 'City Palace', 'Jantar Mantar', 'Amber Fort', 'Jal Mahal',
-    'Nahargarh Fort', 'Albert Hall Museum', 'Bapu Bazaar', 'Birla Temple', 'Patrika Gate'
+    'Hawa Mahal', 'City Palace', 'Amber Fort', 'Jantar Mantar', 'Jal Mahal',
+    'Man Sagar Lake', 'Panna Meena ka Kund', 'Albert Hall Museum', 'Gaitor Ki Chhatriyan',
+    'Jaipur International Airport', 'Nahargarh Fort', 'Bapu Bazaar', 'Chandra Mahal',
+    'Monkey Temple', 'Maota Lake', 'Jaigarh Fort', 'Patrika Gate', 'Chokhi Dhani', 'Birla Mandir'
   ],
   'Goa': [
     'Calangute Beach', 'Baga Beach', 'Anjuna Beach', 'Dudhsagar Falls',
@@ -197,3 +203,98 @@ export const CITY_LOCATIONS: Record<string, string[]> = {
   ],
   // Add more cities as needed
 };
+
+// Transportation types available during activities
+export const TRANSPORTATION_TYPES: string[] = [
+  'Bike',
+  'Segway',
+  'Electric bike',
+  'Mountain bike',
+  'Motorcycle',
+  'Scooter',
+  'Car',
+  'Limousine',
+  'Jeep / SUV',
+  'Van',
+  'Bus / coach',
+  'Electric car',
+  'Vintage car',
+  'Black cab',
+  'Sailboat',
+  'Ferry',
+  'Gondola',
+  'Duck boat',
+  'Sightseeing cruise',
+  'Water taxi',
+  'Jetski',
+  'Riverboat',
+  'Kayak',
+  'Raft',
+  'Catamaran',
+  'Speedboat',
+  'Yacht',
+  'Canoe',
+  'Paddleboard',
+  'Surfboard',
+  'Submarine',
+  'Other water transport',
+  'Glass bottom boat',
+  'Lake cruise',
+  'Banana boat',
+  'Beer boat',
+  'Airboat',
+  'Dhow',
+  'Train',
+  'Tram',
+  'Subway',
+  'Helicopter',
+  'Airplane',
+  'Balloon',
+  'Glider',
+  'Public transportation',
+  'Cable car',
+  'Quad ATV',
+  'Pedicab / rickshaw',
+  'Horse carriage',
+  'Camel',
+  'Snowmobile',
+  'Sled',
+  'Other animal',
+  'Beer bike',
+  'Trike',
+  'Tuk tuk',
+  'Motorized tuk tuk',
+  'Golf cart',
+  'On foot',
+  'Horse'
+];
+
+// Entry ticket options for attractions
+export type EntryTicketOption = 'paid_included' | 'paid_not_included' | 'free_entry' | 'exterior_only';
+
+export const ENTRY_TICKET_OPTIONS: Array<{
+  value: EntryTicketOption;
+  label: string;
+  description: string;
+}> = [
+  {
+    value: 'paid_included',
+    label: 'Paid entry: ticket included',
+    description: 'The activity enters the location, and the ticket is included in the activity price.'
+  },
+  {
+    value: 'paid_not_included',
+    label: 'Paid entry: ticket not included',
+    description: 'The activity enters the location, but the ticket is not included in the activity price. Customers must pay the entrance fee during the activity.'
+  },
+  {
+    value: 'free_entry',
+    label: 'Free entry: no ticket required',
+    description: 'The location is free to enter. No ticket is required.'
+  },
+  {
+    value: 'exterior_only',
+    label: 'No entry: exterior visit only',
+    description: 'The activity does not enter the location, but it is part of the experience (e.g. the attraction\'s exterior is visited or detailed during a guided tour, etc).'
+  }
+];

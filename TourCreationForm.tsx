@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { X, ChevronRight, ChevronLeft, Upload, ArrowUp, ArrowDown, Trash2, CheckCircle2, AlertCircle, Phone, Mail, Plus, MapPin } from 'lucide-react';
-import { CITY_LOCATIONS } from './constants';
+import { CITY_LOCATIONS, TRANSPORTATION_TYPES, ENTRY_TICKET_OPTIONS, EntryTicketOption } from './constants';
 
 interface TourCreationFormProps {
   supplierId: string;
@@ -240,6 +240,7 @@ const TourCreationForm: React.FC<TourCreationFormProps> = ({
   const isEditing = !!tour;
   const [step, setStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [transportationSearch, setTransportationSearch] = useState('');
   
   // Parse tour data for editing
   const parseTourData = (tour: any) => {
@@ -266,6 +267,10 @@ const TourCreationForm: React.FC<TourCreationFormProps> = ({
         images: Array.isArray(tour.images) ? tour.images : (typeof tour.images === 'string' ? JSON.parse(tour.images || '[]') : []),
         languages: Array.isArray(tour.languages) ? tour.languages : (typeof tour.languages === 'string' ? JSON.parse(tour.languages || '[]') : []),
         tourTypes: Array.isArray(tour.tourTypes) ? tour.tourTypes : (typeof tour.tourTypes === 'string' ? JSON.parse(tour.tourTypes || '[]') : []),
+        locationEntryTickets: tour.locationEntryTickets ? (typeof tour.locationEntryTickets === 'string' ? JSON.parse(tour.locationEntryTickets) : tour.locationEntryTickets) : {},
+        usesTransportation: tour.usesTransportation || false,
+        transportationTypes: Array.isArray(tour.transportationTypes) ? tour.transportationTypes : (typeof tour.transportationTypes === 'string' ? JSON.parse(tour.transportationTypes || '[]') : []),
+        multiCityTravel: tour.multiCityTravel || false,
         tourOptions: tour.options || []
       };
     } catch (e) {
@@ -286,6 +291,7 @@ const TourCreationForm: React.FC<TourCreationFormProps> = ({
       category: '',
       title: '',
       locations: [] as string[],
+      locationEntryTickets: {} as Record<string, EntryTicketOption>, // Entry ticket option for each location
       duration: '',
       pricePerPerson: '',
       pricingType: 'per_person' as 'per_person' | 'per_group',
@@ -301,6 +307,9 @@ const TourCreationForm: React.FC<TourCreationFormProps> = ({
       images: [] as string[],
       languages: [] as string[],
       tourTypes: [] as string[],
+      usesTransportation: false,
+      transportationTypes: [] as string[],
+      multiCityTravel: false,
       tourOptions: [] as Array<{
         optionTitle: string;
         optionDescription: string;
@@ -331,12 +340,27 @@ const TourCreationForm: React.FC<TourCreationFormProps> = ({
   };
 
   const handleLocationToggle = (location: string) => {
-    setFormData(prev => ({
-      ...prev,
-      locations: prev.locations.includes(location)
+    setFormData(prev => {
+      const isRemoving = prev.locations.includes(location);
+      const newLocations = isRemoving
         ? prev.locations.filter(l => l !== location)
-        : [...prev.locations, location]
-    }));
+        : [...prev.locations, location];
+      
+      // Remove entry ticket option if location is being removed
+      const newEntryTickets = { ...prev.locationEntryTickets };
+      if (isRemoving) {
+        delete newEntryTickets[location];
+      } else {
+        // Set default entry ticket option when adding a location
+        newEntryTickets[location] = 'paid_included';
+      }
+      
+      return {
+        ...prev,
+        locations: newLocations,
+        locationEntryTickets: newEntryTickets
+      };
+    });
   };
 
   const handleLanguageToggle = (language: string) => {
@@ -420,7 +444,10 @@ const TourCreationForm: React.FC<TourCreationFormProps> = ({
       case 2:
         return formData.city && formData.category;
       case 3:
-        return formData.title && formData.locations.length > 0;
+        // Check that title exists, locations are selected, and entry ticket options are set for all locations
+        const hasAllEntryTickets = formData.locations.length > 0 && 
+          formData.locations.every(loc => formData.locationEntryTickets[loc]);
+        return formData.title && formData.locations.length > 0 && hasAllEntryTickets;
       case 4:
         if (!formData.duration) return false;
         if (formData.pricingType === 'per_person') {
@@ -522,6 +549,10 @@ const TourCreationForm: React.FC<TourCreationFormProps> = ({
         images: JSON.stringify(formData.images),
         languages: JSON.stringify(formData.languages),
         tourTypes: formData.tourTypes.length > 0 ? JSON.stringify(formData.tourTypes) : null,
+        locationEntryTickets: JSON.stringify(formData.locationEntryTickets),
+        usesTransportation: formData.usesTransportation || false,
+        transportationTypes: JSON.stringify(formData.transportationTypes),
+        multiCityTravel: formData.multiCityTravel || false,
         tourOptions: formData.tourOptions.map((opt, idx) => {
           // CRITICAL: Remove any ID fields AND pricingType to prevent database conflicts
           const { id, tourId, pricingType, pricing_type, ...cleanOpt } = opt;
@@ -1035,6 +1066,184 @@ const TourCreationForm: React.FC<TourCreationFormProps> = ({
                   </div>
                 )}
               </div>
+
+              {/* Entry Ticket Options for Selected Locations */}
+              {formData.locations.length > 0 && (
+                <div className="mt-6">
+                  <label className="block text-[14px] font-bold text-[#001A33] mb-3">
+                    Entry Ticket Options for Each Location *
+                  </label>
+                  <p className="text-[12px] text-gray-500 font-semibold mb-4">
+                    Specify how entry to each location is handled
+                  </p>
+                  <div className="space-y-4">
+                    {formData.locations.map((location) => (
+                      <div key={location} className="bg-gray-50 rounded-xl p-4 border border-gray-200">
+                        <label className="block text-[13px] font-bold text-[#001A33] mb-2">
+                          {location}
+                        </label>
+                        <select
+                          value={formData.locationEntryTickets[location] || 'paid_included'}
+                          onChange={(e) => {
+                            setFormData(prev => ({
+                              ...prev,
+                              locationEntryTickets: {
+                                ...prev.locationEntryTickets,
+                                [location]: e.target.value as EntryTicketOption
+                              }
+                            }));
+                          }}
+                          className="w-full bg-white border border-gray-300 rounded-xl py-3 px-4 font-semibold text-[#001A33] text-[13px] focus:ring-2 focus:ring-[#10B981] outline-none"
+                        >
+                          {ENTRY_TICKET_OPTIONS.map(option => (
+                            <option key={option.value} value={option.value}>
+                              {option.label}
+                            </option>
+                          ))}
+                        </select>
+                        <p className="text-[11px] text-gray-500 mt-1">
+                          {ENTRY_TICKET_OPTIONS.find(opt => opt.value === (formData.locationEntryTickets[location] || 'paid_included'))?.description}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Multi-City Travel Option */}
+              <div className="mt-6">
+                <label className="block text-[14px] font-bold text-[#001A33] mb-3">
+                  Do customers travel to a different city/town during the activity?
+                </label>
+                <div className="flex gap-6">
+                  <label className="flex items-center gap-3 cursor-pointer">
+                    <input
+                      type="radio"
+                      name="multiCityTravel"
+                      checked={formData.multiCityTravel === true}
+                      onChange={() => handleInputChange('multiCityTravel', true)}
+                      className="w-5 h-5 text-[#10B981] focus:ring-[#10B981] cursor-pointer"
+                    />
+                    <div>
+                      <span className="text-[14px] font-semibold text-[#001A33]">Yes</span>
+                      <p className="text-[11px] text-gray-500 mt-0.5">Example: going from Paris to Versailles</p>
+                    </div>
+                  </label>
+                  <label className="flex items-center gap-3 cursor-pointer">
+                    <input
+                      type="radio"
+                      name="multiCityTravel"
+                      checked={formData.multiCityTravel === false}
+                      onChange={() => handleInputChange('multiCityTravel', false)}
+                      className="w-5 h-5 text-[#10B981] focus:ring-[#10B981] cursor-pointer"
+                    />
+                    <div>
+                      <span className="text-[14px] font-semibold text-[#001A33]">No</span>
+                      <p className="text-[11px] text-gray-500 mt-0.5">Example: going from one part of Paris to another part of Paris</p>
+                    </div>
+                  </label>
+                </div>
+              </div>
+
+              {/* Transportation During Activity */}
+              <div className="mt-6">
+                <label className="block text-[14px] font-bold text-[#001A33] mb-3">
+                  Is transportation used during this activity?
+                </label>
+                <p className="text-[12px] text-gray-500 font-semibold mb-3">
+                  Provide the main transportation type(s) that customers use during the experience, like a Segway or bike. Transportation used for pickup and drop-off will be added later.
+                </p>
+                <div className="flex gap-6 mb-4">
+                  <label className="flex items-center gap-3 cursor-pointer">
+                    <input
+                      type="radio"
+                      name="usesTransportation"
+                      checked={formData.usesTransportation === true}
+                      onChange={() => handleInputChange('usesTransportation', true)}
+                      className="w-5 h-5 text-[#10B981] focus:ring-[#10B981] cursor-pointer"
+                    />
+                    <span className="text-[14px] font-semibold text-[#001A33]">Yes</span>
+                  </label>
+                  <label className="flex items-center gap-3 cursor-pointer">
+                    <input
+                      type="radio"
+                      name="usesTransportation"
+                      checked={formData.usesTransportation === false}
+                      onChange={() => handleInputChange('usesTransportation', false)}
+                      className="w-5 h-5 text-[#10B981] focus:ring-[#10B981] cursor-pointer"
+                    />
+                    <span className="text-[14px] font-semibold text-[#001A33]">No</span>
+                  </label>
+                </div>
+                {formData.usesTransportation && (
+                  <div>
+                    <div className="relative mb-3">
+                      <input
+                        type="text"
+                        id="transportationSearch"
+                        placeholder="Search for items"
+                        value={transportationSearch}
+                        onChange={(e) => setTransportationSearch(e.target.value)}
+                        className="w-full bg-white border border-gray-300 rounded-xl py-3 px-4 pl-10 font-semibold text-[#001A33] text-[13px] focus:ring-2 focus:ring-[#10B981] outline-none"
+                      />
+                      <svg className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                      </svg>
+                    </div>
+                    <div className="max-h-60 overflow-y-auto border border-gray-200 rounded-xl bg-white">
+                      {TRANSPORTATION_TYPES.filter(transport => 
+                        transport.toLowerCase().includes(transportationSearch.toLowerCase())
+                      ).map((transport) => {
+                        const isSelected = formData.transportationTypes.includes(transport);
+                        return (
+                          <div
+                            key={transport}
+                            onClick={() => {
+                              setFormData(prev => ({
+                                ...prev,
+                                transportationTypes: prev.transportationTypes.includes(transport)
+                                  ? prev.transportationTypes.filter(t => t !== transport)
+                                  : [...prev.transportationTypes, transport]
+                              }));
+                            }}
+                            className={`p-3 cursor-pointer hover:bg-gray-50 border-b border-gray-100 last:border-b-0 ${
+                              isSelected ? 'bg-[#10B981]/10' : ''
+                            }`}
+                          >
+                            <span className={`text-[13px] font-semibold ${isSelected ? 'text-[#10B981]' : 'text-[#001A33]'}`}>
+                              {transport}
+                            </span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                    {formData.transportationTypes.length > 0 && (
+                      <div className="mt-3 flex flex-wrap gap-2">
+                        {formData.transportationTypes.map((transport) => (
+                          <span
+                            key={transport}
+                            className="px-3 py-1 bg-[#10B981] text-white text-[12px] font-bold rounded-full flex items-center gap-2"
+                          >
+                            {transport}
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setFormData(prev => ({
+                                  ...prev,
+                                  transportationTypes: prev.transportationTypes.filter(t => t !== transport)
+                                }));
+                              }}
+                              className="hover:bg-white/20 rounded-full p-0.5"
+                            >
+                              <X size={12} />
+                            </button>
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         )}
@@ -1078,6 +1287,11 @@ const TourCreationForm: React.FC<TourCreationFormProps> = ({
                         // Clear group pricing fields when switching to per person
                         handleInputChange('maxGroupSize', undefined);
                         handleInputChange('groupPrice', '');
+                        // Remove "Group Tour" from tour types if it exists
+                        setFormData(prev => ({
+                          ...prev,
+                          tourTypes: prev.tourTypes.filter(t => t !== 'Group Tour')
+                        }));
                       }}
                       className="w-5 h-5 text-[#10B981] focus:ring-[#10B981] cursor-pointer"
                     />
@@ -1093,12 +1307,24 @@ const TourCreationForm: React.FC<TourCreationFormProps> = ({
                         handleInputChange('pricingType', e.target.value);
                         // Clear per person price when switching to per group
                         handleInputChange('pricePerPerson', '');
+                        // Automatically add "Group Tour" to tour types
+                        setFormData(prev => ({
+                          ...prev,
+                          tourTypes: prev.tourTypes.includes('Group Tour') 
+                            ? prev.tourTypes 
+                            : [...prev.tourTypes, 'Group Tour']
+                        }));
                       }}
                       className="w-5 h-5 text-[#10B981] focus:ring-[#10B981] cursor-pointer"
                     />
                     <span className="text-[14px] font-semibold text-[#001A33]">Per Group</span>
                   </label>
                 </div>
+                {formData.pricingType === 'per_group' && (
+                  <p className="text-[12px] text-[#10B981] font-semibold mt-2">
+                    ✓ This tour will be automatically labeled as "Group Tour"
+                  </p>
+                )}
               </div>
 
               {/* Per Person Pricing */}
