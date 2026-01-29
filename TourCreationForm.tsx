@@ -849,7 +849,7 @@ const TourCreationForm: React.FC<TourCreationFormProps> = ({
                   </p>
                   <div className="bg-white rounded-xl p-4 border border-blue-200">
                     <p className="text-[13px] text-gray-600 font-semibold leading-relaxed">
-                      <strong>English:</strong> While you can use any language to navigate this form, all tour content must be written in English only. This includes tour titles, descriptions, highlights, and all other information. Tours will be displayed to customers in English only.
+                      <strong>English:</strong> All tour content (titles, descriptions, highlights) must be written in English only.
                     </p>
                   </div>
                 </>
@@ -859,7 +859,7 @@ const TourCreationForm: React.FC<TourCreationFormProps> = ({
                     📝 Important: Tours Must Be Created in English Only
                   </h3>
                   <p className="text-[14px] text-gray-700 font-semibold leading-relaxed">
-                    While you can use any language to navigate this form, <strong>all tour content must be written in English only</strong>. This includes tour titles, descriptions, highlights, and all other information. Tours will be displayed to customers in English only. Please ensure all text fields are filled in English.
+                    <strong>All tour content must be written in English only</strong> (titles, descriptions, highlights, etc.).
                   </p>
                 </>
               )}
