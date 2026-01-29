@@ -1018,7 +1018,7 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
 
           {/* Right Column - Booking Panel */}
           <div className="lg:col-span-1">
-            <div className="sticky top-24 bg-white rounded-2xl p-6 border-2 border-gray-200 shadow-sm">
+            <div className="sticky top-24 bg-white rounded-2xl p-6 border-2 border-gray-200 shadow-sm min-w-0">
               {/* Share */}
               <div className="flex items-center justify-end gap-4 mb-6">
                 <a href="#" className="text-[14px] text-gray-600 font-semibold hover:text-[#10B981] transition-colors">
@@ -1068,8 +1068,8 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
                     onClick={() => setShowCalendarModal(true)}
                     className="w-full bg-white border-2 border-gray-200 rounded-2xl py-4 px-4 pr-10 font-bold text-[#001A33] text-[14px] focus:ring-2 focus:ring-[#10B981] focus:border-[#10B981] outline-none text-left flex items-center justify-between hover:border-[#10B981] transition-colors"
                   >
-                    <span>{selectedDate ? new Date(selectedDate).toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' }) : 'Select date'}</span>
-                    <Calendar className="text-gray-400" size={20} />
+                    <span className="flex-1 min-w-0 truncate pr-2">{selectedDate ? new Date(selectedDate).toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' }) : 'Select date'}</span>
+                    <Calendar className="text-gray-400 shrink-0" size={20} />
                   </button>
                 </div>
               </div>
@@ -1138,18 +1138,18 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
               <div className="space-y-4 mb-6 pb-6 border-b border-gray-200">
                 <div className="flex items-start gap-3">
                   <CheckCircle2 className="text-[#10B981] shrink-0 mt-1" size={18} />
-                  <div>
-                    <div className="font-black text-[#001A33] text-[14px] mb-1">Free cancellation</div>
-                    <div className="text-[12px] text-gray-600 font-semibold">
+                  <div className="min-w-0 flex-1">
+                    <div className="font-black text-[#001A33] text-[14px] mb-1 break-words">Free cancellation</div>
+                    <div className="text-[12px] text-gray-600 font-semibold break-words">
                       Cancel up to 24 hours in advance for a full refund
                     </div>
                   </div>
                 </div>
                 <div className="flex items-start gap-3">
                   <CheckCircle2 className="text-[#10B981] shrink-0 mt-1" size={18} />
-                  <div>
-                    <div className="font-black text-[#001A33] text-[14px] mb-1">Reserve now & pay later</div>
-                    <div className="text-[12px] text-gray-600 font-semibold">
+                  <div className="min-w-0 flex-1">
+                    <div className="font-black text-[#001A33] text-[14px] mb-1 break-words">Reserve now & pay later</div>
+                    <div className="text-[12px] text-gray-600 font-semibold break-words">
                       Keep your travel plans flexible — book your spot and pay nothing today.{' '}
                       <a href="#" className="text-[#10B981] underline">Read more</a>
                     </div>
