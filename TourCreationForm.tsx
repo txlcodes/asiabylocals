@@ -333,6 +333,7 @@ const TourCreationForm: React.FC<TourCreationFormProps> = ({
         pricingType: 'per_person' | 'per_group';
         maxGroupSize?: number;
         groupPrice?: string;
+        groupPricingTiers?: Array<{ minPeople: number; maxPeople: number; price: string }>;
       }>
     };
   });
@@ -473,7 +474,11 @@ const TourCreationForm: React.FC<TourCreationFormProps> = ({
           if (opt.pricingType === 'per_person') {
             return hasBasicFields && opt.price;
           } else {
-            return hasBasicFields && opt.maxGroupSize && opt.maxGroupSize >= 1 && opt.maxGroupSize <= 20 && opt.groupPrice;
+            // For group pricing, check that maxGroupSize is set and all tiers have prices
+            if (!hasBasicFields) return false;
+            if (!opt.maxGroupSize || opt.maxGroupSize < 1 || opt.maxGroupSize > 20) return false;
+            if (!opt.groupPricingTiers || opt.groupPricingTiers.length === 0) return false;
+            return opt.groupPricingTiers.every(tier => tier.price && tier.price.trim() !== '' && !isNaN(parseFloat(tier.price)));
           }
         });
       case 6:
@@ -584,19 +589,25 @@ const TourCreationForm: React.FC<TourCreationFormProps> = ({
           delete cleanOpt.pricingType;
           delete cleanOpt.pricing_type;
           
-          // Infer pricing type: if groupPrice and maxGroupSize exist, it's per_group
-          const optionIsPerGroup = !!(cleanOpt.groupPrice && cleanOpt.maxGroupSize);
+          // Check if option has group pricing tiers
+          const hasGroupPricingTiers = cleanOpt.groupPricingTiers && Array.isArray(cleanOpt.groupPricingTiers) && cleanOpt.groupPricingTiers.length > 0;
+          const optionIsPerGroup = !!(cleanOpt.groupPrice && cleanOpt.maxGroupSize) || hasGroupPricingTiers;
           
           // Calculate price based on inferred pricing type
           let optionPrice = 0;
-          if (optionIsPerGroup && cleanOpt.groupPrice) {
+          if (hasGroupPricingTiers && cleanOpt.groupPricingTiers.length > 0) {
+            // Use first tier price as base, or last tier for max group size
+            optionPrice = parseFloat(cleanOpt.groupPricingTiers[cleanOpt.groupPricingTiers.length - 1].price || '0') || 0;
+          } else if (optionIsPerGroup && cleanOpt.groupPrice) {
             optionPrice = parseFloat(cleanOpt.groupPrice) || 0;
           } else if (cleanOpt.price) {
             optionPrice = parseFloat(cleanOpt.price) || 0;
           } else {
             // Fallback to main tour price
-            const mainIsPerGroup = !!(formData.groupPrice && formData.maxGroupSize);
-            if (mainIsPerGroup && formData.groupPrice) {
+            const mainIsPerGroup = !!(formData.groupPrice && formData.maxGroupSize) || (formData.groupPricingTiers && formData.groupPricingTiers.length > 0);
+            if (mainIsPerGroup && formData.groupPricingTiers && formData.groupPricingTiers.length > 0) {
+              optionPrice = parseFloat(formData.groupPricingTiers[formData.groupPricingTiers.length - 1].price || '0') || 0;
+            } else if (mainIsPerGroup && formData.groupPrice) {
               optionPrice = parseFloat(formData.groupPrice) || 0;
             } else {
               optionPrice = parseFloat(formData.pricePerPerson || '0') || 0;
@@ -616,7 +627,10 @@ const TourCreationForm: React.FC<TourCreationFormProps> = ({
             entryTicketIncluded: cleanOpt.entryTicketIncluded || false,
             guideIncluded: cleanOpt.guideIncluded !== undefined ? cleanOpt.guideIncluded : true,
             maxGroupSize: cleanOpt.maxGroupSize && cleanOpt.maxGroupSize >= 1 && cleanOpt.maxGroupSize <= 20 ? cleanOpt.maxGroupSize : null,
-            groupPrice: cleanOpt.groupPrice && !isNaN(parseFloat(cleanOpt.groupPrice)) ? parseFloat(cleanOpt.groupPrice) : null,
+            groupPrice: hasGroupPricingTiers && cleanOpt.groupPricingTiers.length > 0
+              ? parseFloat(cleanOpt.groupPricingTiers[cleanOpt.groupPricingTiers.length - 1].price || '0')
+              : (cleanOpt.groupPrice && !isNaN(parseFloat(cleanOpt.groupPrice)) ? parseFloat(cleanOpt.groupPrice) : null),
+            groupPricingTiers: hasGroupPricingTiers ? JSON.stringify(cleanOpt.groupPricingTiers) : null,
             sortOrder: idx
           };
           
@@ -1722,6 +1736,10 @@ const TourCreationForm: React.FC<TourCreationFormProps> = ({
                               onChange={(e) => {
                                 const newOptions = [...formData.tourOptions];
                                 newOptions[index].pricingType = 'per_person';
+                                // Clear group pricing fields when switching to per person
+                                newOptions[index].maxGroupSize = undefined;
+                                newOptions[index].groupPrice = '';
+                                newOptions[index].groupPricingTiers = [];
                                 setFormData(prev => ({ ...prev, tourOptions: newOptions }));
                               }}
                               className="w-4 h-4 text-[#10B981] focus:ring-[#10B981]"
@@ -1743,6 +1761,9 @@ const TourCreationForm: React.FC<TourCreationFormProps> = ({
                                 if (!newOptions[index].groupPrice) {
                                   newOptions[index].groupPrice = '';
                                 }
+                                if (!newOptions[index].groupPricingTiers) {
+                                  newOptions[index].groupPricingTiers = [];
+                                }
                                 setFormData(prev => ({ ...prev, tourOptions: newOptions }));
                               }}
                               className="w-4 h-4 text-[#10B981] focus:ring-[#10B981]"
@@ -1752,49 +1773,215 @@ const TourCreationForm: React.FC<TourCreationFormProps> = ({
                         </div>
                       </div>
 
-                      {/* Group Pricing Fields (shown only when pricingType is 'per_group') */}
+                      {/* Group Pricing Fields - Tiered (shown only when pricingType is 'per_group') */}
                       {option.pricingType === 'per_group' && (
-                        <div className="grid grid-cols-2 gap-4 bg-green-50 p-4 rounded-xl border border-green-200">
-                          <div>
-                            <label className="block text-[14px] font-bold text-[#001A33] mb-2">
-                              Max Group Size (1-20) *
-                            </label>
-                            <input
-                              type="number"
-                              value={option.maxGroupSize || ''}
-                              onChange={(e) => {
-                                const newOptions = [...formData.tourOptions];
-                                const value = parseInt(e.target.value);
-                                if (value >= 1 && value <= 20) {
-                                  newOptions[index].maxGroupSize = value;
-                                } else if (e.target.value === '') {
-                                  newOptions[index].maxGroupSize = undefined;
-                                }
-                                setFormData(prev => ({ ...prev, tourOptions: newOptions }));
-                              }}
-                              placeholder="e.g., 20"
-                              min="1"
-                              max="20"
-                              className="w-full bg-white border-none rounded-xl py-3 px-4 font-semibold text-[#001A33] text-[14px] focus:ring-2 focus:ring-[#10B981] outline-none"
-                            />
+                        <div className="bg-green-50 p-4 rounded-xl border border-green-200 space-y-4">
+                          <div className="grid grid-cols-2 gap-4">
+                            <div>
+                              <label className="block text-[14px] font-bold text-[#001A33] mb-2">
+                                Maximum Group Size *
+                              </label>
+                              <input
+                                type="number"
+                                value={option.maxGroupSize || ''}
+                                onChange={(e) => {
+                                  const newOptions = [...formData.tourOptions];
+                                  const maxSize = e.target.value ? parseInt(e.target.value) : undefined;
+                                  if (maxSize && maxSize >= 1 && maxSize <= 20) {
+                                    newOptions[index].maxGroupSize = maxSize;
+                                    // Initialize or adjust group pricing tiers
+                                    if (!newOptions[index].groupPricingTiers || newOptions[index].groupPricingTiers.length === 0) {
+                                      newOptions[index].groupPricingTiers = [];
+                                    } else {
+                                      // Adjust existing tiers to fit within new max size
+                                      newOptions[index].groupPricingTiers = newOptions[index].groupPricingTiers.map((tier: any) => ({
+                                        ...tier,
+                                        maxPeople: Math.min(tier.maxPeople, maxSize)
+                                      })).filter((tier: any) => tier.minPeople <= maxSize);
+                                    }
+                                  } else if (e.target.value === '') {
+                                    newOptions[index].maxGroupSize = undefined;
+                                    newOptions[index].groupPricingTiers = [];
+                                  }
+                                  setFormData(prev => ({ ...prev, tourOptions: newOptions }));
+                                }}
+                                placeholder="1-20"
+                                min="1"
+                                max="20"
+                                className="w-full bg-white border-none rounded-xl py-3 px-4 font-semibold text-[#001A33] text-[14px] focus:ring-2 focus:ring-[#10B981] outline-none"
+                              />
+                              <p className="text-[11px] text-gray-400 mt-1">
+                                Maximum number of people per group (1-20)
+                              </p>
+                            </div>
+                            <div>
+                              <label className="block text-[14px] font-bold text-[#001A33] mb-2">
+                                Currency
+                              </label>
+                              <select
+                                value={option.currency}
+                                onChange={(e) => {
+                                  const newOptions = [...formData.tourOptions];
+                                  newOptions[index].currency = e.target.value;
+                                  setFormData(prev => ({ ...prev, tourOptions: newOptions }));
+                                }}
+                                className="w-full bg-white border-none rounded-xl py-3 px-4 font-bold text-[#001A33] text-[14px] focus:ring-2 focus:ring-[#10B981] outline-none"
+                              >
+                                <option value="INR">INR (₹)</option>
+                                <option value="USD">USD ($)</option>
+                                <option value="EUR">EUR (€)</option>
+                              </select>
+                            </div>
                           </div>
-                          <div>
-                            <label className="block text-[14px] font-bold text-[#001A33] mb-2">
-                              Group Price *
-                            </label>
-                            <input
-                              type="number"
-                              value={option.groupPrice || ''}
-                              onChange={(e) => {
-                                const newOptions = [...formData.tourOptions];
-                                newOptions[index].groupPrice = e.target.value;
-                                setFormData(prev => ({ ...prev, tourOptions: newOptions }));
-                              }}
-                              placeholder="e.g., 5000"
-                              min="0"
-                              className="w-full bg-white border-none rounded-xl py-3 px-4 font-semibold text-[#001A33] text-[14px] focus:ring-2 focus:ring-[#10B981] outline-none"
-                            />
-                          </div>
+                          
+                          {/* Group Pricing Tiers - Custom Ranges */}
+                          {option.maxGroupSize && option.maxGroupSize >= 1 && option.maxGroupSize <= 20 && (
+                            <div className="space-y-3">
+                              <div className="flex items-center justify-between">
+                                <label className="block text-[14px] font-bold text-[#001A33]">
+                                  Set Price for Group Size Ranges *
+                                </label>
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    const newOptions = [...formData.tourOptions];
+                                    const lastTier = newOptions[index].groupPricingTiers?.[newOptions[index].groupPricingTiers.length - 1];
+                                    const nextMin = lastTier ? lastTier.maxPeople + 1 : 1;
+                                    const nextMax = Math.min(nextMin + 3, newOptions[index].maxGroupSize || 20);
+                                    
+                                    if (!newOptions[index].groupPricingTiers) {
+                                      newOptions[index].groupPricingTiers = [];
+                                    }
+                                    newOptions[index].groupPricingTiers = [
+                                      ...newOptions[index].groupPricingTiers,
+                                      {
+                                        minPeople: nextMin,
+                                        maxPeople: nextMax,
+                                        price: ''
+                                      }
+                                    ];
+                                    setFormData(prev => ({ ...prev, tourOptions: newOptions }));
+                                  }}
+                                  className="flex items-center gap-2 px-3 py-2 bg-[#10B981] text-white rounded-xl text-[12px] font-bold hover:bg-[#059669] transition-colors"
+                                >
+                                  <Plus size={14} />
+                                  Add Range
+                                </button>
+                              </div>
+                              <div className="space-y-3">
+                                {(!option.groupPricingTiers || option.groupPricingTiers.length === 0) ? (
+                                  <div className="text-center py-6 bg-white rounded-xl border-2 border-dashed border-gray-300">
+                                    <p className="text-[13px] text-gray-500 font-semibold mb-2">No pricing ranges added yet</p>
+                                    <button
+                                      type="button"
+                                      onClick={() => {
+                                        const newOptions = [...formData.tourOptions];
+                                        newOptions[index].groupPricingTiers = [{
+                                          minPeople: 1,
+                                          maxPeople: Math.min(4, newOptions[index].maxGroupSize || 20),
+                                          price: ''
+                                        }];
+                                        setFormData(prev => ({ ...prev, tourOptions: newOptions }));
+                                      }}
+                                      className="text-[#10B981] font-bold text-[13px] hover:underline"
+                                    >
+                                      Click to add first range
+                                    </button>
+                                  </div>
+                                ) : (
+                                  option.groupPricingTiers.map((tier: any, tierIndex: number) => (
+                                    <div key={tierIndex} className="bg-white rounded-xl p-4 border border-gray-200">
+                                      <div className="flex items-center gap-4">
+                                        <div className="flex items-center gap-2 flex-shrink-0">
+                                          <div className="w-20">
+                                            <input
+                                              type="number"
+                                              value={tier.minPeople}
+                                              onChange={(e) => {
+                                                const min = parseInt(e.target.value) || 1;
+                                                const newOptions = [...formData.tourOptions];
+                                                if (!newOptions[index].groupPricingTiers) return;
+                                                newOptions[index].groupPricingTiers[tierIndex] = {
+                                                  ...newOptions[index].groupPricingTiers[tierIndex],
+                                                  minPeople: Math.max(1, Math.min(min, tier.maxPeople - 1))
+                                                };
+                                                setFormData(prev => ({ ...prev, tourOptions: newOptions }));
+                                              }}
+                                              min="1"
+                                              max={tier.maxPeople - 1}
+                                              className="w-full bg-gray-50 border border-gray-300 rounded-xl py-2 px-3 text-center font-bold text-[#001A33] text-[13px] focus:ring-2 focus:ring-[#10B981] outline-none"
+                                            />
+                                          </div>
+                                          <span className="text-[14px] font-bold text-gray-600">-</span>
+                                          <div className="w-20">
+                                            <input
+                                              type="number"
+                                              value={tier.maxPeople}
+                                              onChange={(e) => {
+                                                const max = parseInt(e.target.value) || tier.minPeople + 1;
+                                                const newOptions = [...formData.tourOptions];
+                                                if (!newOptions[index].groupPricingTiers) return;
+                                                const nextTierMin = tierIndex < (newOptions[index].groupPricingTiers.length - 1)
+                                                  ? newOptions[index].groupPricingTiers[tierIndex + 1].minPeople
+                                                  : (newOptions[index].maxGroupSize || 20) + 1;
+                                                newOptions[index].groupPricingTiers[tierIndex] = {
+                                                  ...newOptions[index].groupPricingTiers[tierIndex],
+                                                  maxPeople: Math.min(Math.max(max, tier.minPeople + 1), nextTierMin - 1, newOptions[index].maxGroupSize || 20)
+                                                };
+                                                setFormData(prev => ({ ...prev, tourOptions: newOptions }));
+                                              }}
+                                              min={tier.minPeople + 1}
+                                              max={option.maxGroupSize || 20}
+                                              className="w-full bg-gray-50 border border-gray-300 rounded-xl py-2 px-3 text-center font-bold text-[#001A33] text-[13px] focus:ring-2 focus:ring-[#10B981] outline-none"
+                                            />
+                                          </div>
+                                          <span className="text-[13px] font-semibold text-gray-600 ml-1">people</span>
+                                        </div>
+                                        <div className="flex-1 flex items-center gap-2">
+                                          <span className="text-[14px] font-semibold text-gray-600">
+                                            {option.currency === 'INR' ? '₹' : option.currency === 'USD' ? '$' : '€'}
+                                          </span>
+                                          <input
+                                            type="number"
+                                            value={tier.price}
+                                            onChange={(e) => {
+                                              const newOptions = [...formData.tourOptions];
+                                              if (!newOptions[index].groupPricingTiers) return;
+                                              newOptions[index].groupPricingTiers[tierIndex] = {
+                                                ...newOptions[index].groupPricingTiers[tierIndex],
+                                                price: e.target.value
+                                              };
+                                              setFormData(prev => ({ ...prev, tourOptions: newOptions }));
+                                            }}
+                                            placeholder="Enter price"
+                                            min="0"
+                                            step="0.01"
+                                            className="flex-1 bg-gray-50 border border-gray-300 rounded-xl py-2 px-4 font-bold text-[#001A33] text-[14px] focus:ring-2 focus:ring-[#10B981] outline-none"
+                                          />
+                                        </div>
+                                        <button
+                                          type="button"
+                                          onClick={() => {
+                                            const newOptions = [...formData.tourOptions];
+                                            if (!newOptions[index].groupPricingTiers) return;
+                                            newOptions[index].groupPricingTiers = newOptions[index].groupPricingTiers.filter((_: any, i: number) => i !== tierIndex);
+                                            setFormData(prev => ({ ...prev, tourOptions: newOptions }));
+                                          }}
+                                          className="p-2 hover:bg-red-100 rounded-full transition-colors text-gray-400 hover:text-red-600"
+                                          aria-label="Remove range"
+                                        >
+                                          <X size={18} />
+                                        </button>
+                                      </div>
+                                    </div>
+                                  ))
+                                )}
+                              </div>
+                              <p className="text-[11px] text-gray-400">
+                                Define custom group size ranges and set prices for each. For example: 1-4 people = ₹5,000, 5-9 people = ₹8,000
+                              </p>
+                            </div>
+                          )}
                         </div>
                       )}
 
