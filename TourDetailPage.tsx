@@ -726,6 +726,28 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
               </div>
             </div>
 
+            {/* Short Description */}
+            <div className="mb-8">
+              <p className="text-[16px] text-gray-700 font-semibold leading-relaxed">
+                {tour.shortDescription || tour.fullDescription}
+              </p>
+            </div>
+
+            {/* Highlights Section */}
+            {tour.highlights && Array.isArray(tour.highlights) && tour.highlights.length > 0 && (
+              <div className="mb-8">
+                <h2 className="text-2xl font-black text-[#001A33] mb-4">Highlights</h2>
+                <ul className="space-y-2">
+                  {tour.highlights.map((highlight: string, index: number) => (
+                    <li key={index} className="flex items-start gap-3">
+                      <div className="w-2 h-2 bg-[#10B981] rounded-full mt-2 shrink-0"></div>
+                      <span className="text-[16px] text-gray-700 font-semibold leading-relaxed">{highlight}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
             {/* Tour Options Section - GetYourGuide Style */}
             {tour.options && Array.isArray(tour.options) && tour.options.length > 0 && (
               <div className="mb-8">
@@ -822,28 +844,6 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
                     );
                   })}
                 </div>
-              </div>
-            )}
-
-            {/* Short Description */}
-            <div className="mb-8">
-              <p className="text-[16px] text-gray-700 font-semibold leading-relaxed">
-                {tour.shortDescription || tour.fullDescription}
-              </p>
-            </div>
-
-            {/* Highlights Section */}
-            {tour.highlights && Array.isArray(tour.highlights) && tour.highlights.length > 0 && (
-              <div className="mb-8">
-                <h2 className="text-2xl font-black text-[#001A33] mb-4">Highlights</h2>
-                <ul className="space-y-2">
-                  {tour.highlights.map((highlight: string, index: number) => (
-                    <li key={index} className="flex items-start gap-3">
-                      <div className="w-2 h-2 bg-[#10B981] rounded-full mt-2 shrink-0"></div>
-                      <span className="text-[16px] text-gray-700 font-semibold leading-relaxed">{highlight}</span>
-                    </li>
-                  ))}
-                </ul>
               </div>
             )}
 
