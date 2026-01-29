@@ -238,7 +238,7 @@ const SupplierLogin: React.FC<SupplierLoginProps> = ({ language = 'en', onClose,
           <img 
             src="/logo.svg" 
             alt="AsiaByLocals Logo" 
-            className="h-16 w-auto"
+            className="h-24 md:h-32 w-auto"
           />
           <p className="text-[11px] font-black uppercase tracking-[0.2em] text-gray-400">
             © 2025 AsiaByLocals Singapore Pte. Ltd. • Professional Partner Program
