@@ -845,7 +845,7 @@ const TourCreationForm: React.FC<TourCreationFormProps> = ({
                     📝 重要：ツアーは英語のみで作成してください
                   </h3>
                   <p className="text-[14px] text-gray-700 font-semibold leading-relaxed mb-3">
-                    このフォームの操作には任意の言語を使用できますが、<strong>すべてのツアーコンテンツは英語のみで記入する必要があります</strong>。これには、ツアータイトル、説明、ハイライト、およびその他のすべての情報が含まれます。ツアーは顧客に英語のみで表示されます。すべてのテキストフィールドを英語で記入してください。
+                    <strong>すべてのツアーコンテンツは英語のみで記入してください</strong>（タイトル、説明、ハイライトなど）。
                   </p>
                   <div className="bg-white rounded-xl p-4 border border-blue-200">
                     <p className="text-[13px] text-gray-600 font-semibold leading-relaxed">
