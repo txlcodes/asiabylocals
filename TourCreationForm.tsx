@@ -304,6 +304,7 @@ const TourCreationForm: React.FC<TourCreationFormProps> = ({
       pricingType: 'per_person' as 'per_person' | 'per_group',
       maxGroupSize: undefined as number | undefined,
       groupPrice: '',
+      groupPricingTiers: [] as Array<{ minPeople: number; maxPeople: number; price: string }>,
       currency: 'INR',
       shortDescription: '',
       fullDescription: '',
@@ -460,7 +461,10 @@ const TourCreationForm: React.FC<TourCreationFormProps> = ({
         if (formData.pricingType === 'per_person') {
           return !!formData.pricePerPerson;
         } else {
-          return !!(formData.maxGroupSize && formData.maxGroupSize >= 1 && formData.maxGroupSize <= 20 && formData.groupPrice);
+          // For group pricing, check that maxGroupSize is set and all tiers have prices
+          if (!formData.maxGroupSize || formData.maxGroupSize < 1 || formData.maxGroupSize > 20) return false;
+          if (!formData.groupPricingTiers || formData.groupPricingTiers.length === 0) return false;
+          return formData.groupPricingTiers.every(tier => tier.price && tier.price.trim() !== '' && !isNaN(parseFloat(tier.price)));
         }
       case 5:
         return formData.tourOptions.length > 0 && formData.tourOptions.every(opt => {
@@ -518,7 +522,12 @@ const TourCreationForm: React.FC<TourCreationFormProps> = ({
       if (!formData.pricePerPerson || formData.pricePerPerson.trim() === '') missingFields.push('pricePerPerson');
     } else {
       if (!formData.maxGroupSize || formData.maxGroupSize < 1 || formData.maxGroupSize > 20) missingFields.push('maxGroupSize (1-20)');
-      if (!formData.groupPrice || formData.groupPrice.trim() === '') missingFields.push('groupPrice');
+      if (!formData.groupPricingTiers || formData.groupPricingTiers.length === 0) {
+        missingFields.push('group pricing tiers');
+      } else {
+        const missingPrices = formData.groupPricingTiers.filter(tier => !tier.price || tier.price.trim() === '').length;
+        if (missingPrices > 0) missingFields.push(`group pricing (${missingPrices} tier${missingPrices > 1 ? 's' : ''} missing prices)`);
+      }
     }
     if (!formData.languages || formData.languages.length === 0) missingFields.push('languages');
     if (!formData.highlights || formData.highlights.filter(h => h.trim()).length < 3) missingFields.push('highlights (need at least 3)');
@@ -539,14 +548,17 @@ const TourCreationForm: React.FC<TourCreationFormProps> = ({
         category: formData.category.trim(),
         locations: JSON.stringify(formData.locations),
         duration: formData.duration.trim(),
-        // Infer pricing type: if groupPrice and maxGroupSize exist, it's per_group
-        pricePerPerson: (formData.groupPrice && formData.maxGroupSize)
-          ? parseFloat(formData.groupPrice) / parseInt(String(formData.maxGroupSize))
+        // For group pricing, use the first tier price as base, or calculate average
+        pricePerPerson: formData.pricingType === 'per_group' && formData.groupPricingTiers && formData.groupPricingTiers.length > 0
+          ? parseFloat(formData.groupPricingTiers[0].price || '0') / formData.groupPricingTiers[0].maxPeople
           : parseFloat(formData.pricePerPerson || '0'),
         currency: formData.currency,
-        // Remove pricingType - backend will infer from groupPrice/maxGroupSize
+        // Store group pricing tiers
         maxGroupSize: formData.maxGroupSize && formData.maxGroupSize >= 1 && formData.maxGroupSize <= 20 ? formData.maxGroupSize : null,
-        groupPrice: formData.groupPrice && !isNaN(parseFloat(formData.groupPrice)) ? parseFloat(formData.groupPrice) : null,
+        groupPrice: formData.pricingType === 'per_group' && formData.groupPricingTiers && formData.groupPricingTiers.length > 0
+          ? parseFloat(formData.groupPricingTiers[formData.groupPricingTiers.length - 1].price || '0')
+          : (formData.groupPrice && !isNaN(parseFloat(formData.groupPrice)) ? parseFloat(formData.groupPrice) : null),
+        groupPricingTiers: formData.pricingType === 'per_group' && formData.groupPricingTiers ? JSON.stringify(formData.groupPricingTiers) : null,
         shortDescription: formData.shortDescription?.trim() || null,
         fullDescription: formData.fullDescription.trim(),
         highlights: JSON.stringify(formData.highlights.filter(h => h.trim()).map(h => h.trim())), // Filter empty and trim each highlight
@@ -1327,6 +1339,7 @@ const TourCreationForm: React.FC<TourCreationFormProps> = ({
                         // Clear group pricing fields when switching to per person
                         handleInputChange('maxGroupSize', undefined);
                         handleInputChange('groupPrice', '');
+                        handleInputChange('groupPricingTiers', []);
                         // Remove "Group Tour" from tour types if it exists
                         setFormData(prev => ({
                           ...prev,
@@ -1400,18 +1413,39 @@ const TourCreationForm: React.FC<TourCreationFormProps> = ({
                 </div>
               )}
 
-              {/* Per Group Pricing */}
+              {/* Per Group Pricing - Tiered */}
               {formData.pricingType === 'per_group' && (
                 <div className="space-y-4">
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <label className="block text-[14px] font-bold text-[#001A33] mb-3">
-                        Max Group Size *
+                        Maximum Group Size *
                       </label>
                       <input
                         type="number"
                         value={formData.maxGroupSize || ''}
-                        onChange={(e) => handleInputChange('maxGroupSize', e.target.value ? parseInt(e.target.value) : undefined)}
+                        onChange={(e) => {
+                          const maxSize = e.target.value ? parseInt(e.target.value) : undefined;
+                          handleInputChange('maxGroupSize', maxSize);
+                          // Initialize or update group pricing tiers
+                          if (maxSize && maxSize >= 1 && maxSize <= 20) {
+                            setFormData(prev => {
+                              const newTiers = [];
+                              for (let i = 1; i <= maxSize; i++) {
+                                const existingTier = prev.groupPricingTiers.find(t => t.maxPeople === i);
+                                newTiers.push({
+                                  minPeople: 1,
+                                  maxPeople: i,
+                                  price: existingTier?.price || ''
+                                });
+                              }
+                              return {
+                                ...prev,
+                                groupPricingTiers: newTiers
+                              };
+                            });
+                          }
+                        }}
                         placeholder="1-20"
                         min="1"
                         max="20"
@@ -1435,23 +1469,62 @@ const TourCreationForm: React.FC<TourCreationFormProps> = ({
                       </select>
                     </div>
                   </div>
-                  <div>
-                    <label className="block text-[14px] font-bold text-[#001A33] mb-3">
-                      Group Price *
-                    </label>
-                    <input
-                      type="number"
-                      value={formData.groupPrice}
-                      onChange={(e) => handleInputChange('groupPrice', e.target.value)}
-                      placeholder="0"
-                      min="0"
-                      step="0.01"
-                      className="w-full bg-gray-50 border-none rounded-2xl py-4 px-4 font-bold text-[#001A33] text-[14px] focus:ring-2 focus:ring-[#10B981] outline-none"
-                    />
-                    <p className="text-[11px] text-gray-400 mt-1">
-                      Total price for the entire group
-                    </p>
-                  </div>
+                  
+                  {/* Group Pricing Tiers */}
+                  {formData.maxGroupSize && formData.maxGroupSize >= 1 && formData.maxGroupSize <= 20 && (
+                    <div className="space-y-3">
+                      <label className="block text-[14px] font-bold text-[#001A33] mb-3">
+                        Set Price for Each Group Size *
+                      </label>
+                      <div className="space-y-3">
+                        {formData.groupPricingTiers.map((tier, index) => (
+                          <div key={index} className="flex items-center gap-4">
+                            <div className="w-32 flex-shrink-0">
+                              <div className="bg-gray-100 rounded-xl py-3 px-4 text-center">
+                                <span className="text-[14px] font-black text-[#001A33]">
+                                  1-{tier.maxPeople}
+                                </span>
+                                <span className="text-[11px] text-gray-500 font-semibold block mt-0.5">
+                                  {tier.maxPeople === 1 ? 'person' : 'people'}
+                                </span>
+                              </div>
+                            </div>
+                            <div className="flex-1">
+                              <input
+                                type="number"
+                                value={tier.price}
+                                onChange={(e) => {
+                                  setFormData(prev => {
+                                    const newTiers = [...prev.groupPricingTiers];
+                                    newTiers[index] = {
+                                      ...newTiers[index],
+                                      price: e.target.value
+                                    };
+                                    return {
+                                      ...prev,
+                                      groupPricingTiers: newTiers
+                                    };
+                                  });
+                                }}
+                                placeholder="Enter price"
+                                min="0"
+                                step="0.01"
+                                className="w-full bg-gray-50 border-none rounded-2xl py-4 px-4 font-bold text-[#001A33] text-[14px] focus:ring-2 focus:ring-[#10B981] outline-none"
+                              />
+                            </div>
+                            <div className="w-20 flex-shrink-0 text-right">
+                              <span className="text-[14px] font-semibold text-gray-600">
+                                {formData.currency === 'INR' ? '₹' : '$'}
+                              </span>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                      <p className="text-[11px] text-gray-400 mt-2">
+                        Set the total price for groups of each size. For example, 1-2 people = ₹5,000, 1-3 people = ₹7,000, etc.
+                      </p>
+                    </div>
+                  )}
                 </div>
               )}
 
