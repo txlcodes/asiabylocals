@@ -264,6 +264,7 @@ const TourCreationForm: React.FC<TourCreationFormProps> = ({
         pricingType: (tour.groupPrice && tour.maxGroupSize) ? 'per_group' as const : 'per_person' as const,
         maxGroupSize: tour.maxGroupSize || undefined,
         groupPrice: tour.groupPrice?.toString() || '',
+        groupPricingTiers: tour.groupPricingTiers ? (typeof tour.groupPricingTiers === 'string' ? JSON.parse(tour.groupPricingTiers) : tour.groupPricingTiers) : [],
         currency: tour.currency || 'INR',
         shortDescription: tour.shortDescription || '',
         fullDescription: tour.fullDescription || '',
