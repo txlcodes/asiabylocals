@@ -57,6 +57,42 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
     specialRequests: ''
   });
 
+  // Calculate price based on group pricing tiers and number of participants
+  const calculateGroupPrice = (tourData: any, numParticipants: number): number | null => {
+    if (!tourData) return null;
+    
+    // Check if tour has group pricing tiers
+    let groupPricingTiers = null;
+    if (tourData.groupPricingTiers) {
+      try {
+        groupPricingTiers = typeof tourData.groupPricingTiers === 'string' 
+          ? JSON.parse(tourData.groupPricingTiers) 
+          : tourData.groupPricingTiers;
+      } catch (e) {
+        console.error('Error parsing groupPricingTiers:', e);
+      }
+    }
+    
+    // If group pricing tiers exist, find the matching tier
+    if (groupPricingTiers && Array.isArray(groupPricingTiers) && groupPricingTiers.length > 0) {
+      // Find the tier that matches the number of participants
+      const matchingTier = groupPricingTiers.find((tier: any) => 
+        numParticipants >= tier.minPeople && numParticipants <= tier.maxPeople
+      );
+      
+      if (matchingTier && matchingTier.price) {
+        return parseFloat(matchingTier.price) || null;
+      }
+    }
+    
+    // Fallback to legacy groupPrice if available
+    if (tourData.groupPrice && tourData.maxGroupSize && numParticipants <= tourData.maxGroupSize) {
+      return parseFloat(tourData.groupPrice) || null;
+    }
+    
+    return null;
+  };
+
   useEffect(() => {
     console.log('TourDetailPage - useEffect triggered', { tourId, tourSlug, country, city });
     fetchTour();
@@ -1032,10 +1068,36 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
                     From {tour.currency === 'INR' ? '₹' : '$'}1,300
                   </span>
                   <div className="text-3xl font-black text-red-600">
-                    {(selectedOption?.currency || tour.currency || 'INR') === 'INR' ? '₹' : '$'}{selectedOption?.price || tour.pricePerPerson}
+                    {(selectedOption?.currency || tour.currency || 'INR') === 'INR' ? '₹' : '$'}
+                    {(() => {
+                      const currentParticipants = isCustomParticipants ? customParticipants : participants;
+                      const tourData = selectedOption || tour;
+                      
+                      // Check if it's a group tour with pricing tiers
+                      const groupPrice = calculateGroupPrice(tourData, currentParticipants);
+                      
+                      if (groupPrice !== null) {
+                        return groupPrice.toLocaleString();
+                      }
+                      
+                      // Fallback to per person pricing
+                      const pricePerPerson = selectedOption?.price || tour.pricePerPerson || 0;
+                      return (pricePerPerson * currentParticipants).toLocaleString();
+                    })()}
                   </div>
                 </div>
-                <div className="text-[14px] text-gray-600 font-semibold">per person</div>
+                <div className="text-[14px] text-gray-600 font-semibold">
+                  {(() => {
+                    const currentParticipants = isCustomParticipants ? customParticipants : participants;
+                    const tourData = selectedOption || tour;
+                    const groupPrice = calculateGroupPrice(tourData, currentParticipants);
+                    
+                    if (groupPrice !== null) {
+                      return `for ${currentParticipants} ${currentParticipants === 1 ? 'person' : 'people'}`;
+                    }
+                    return 'per person';
+                  })()}
+                </div>
                 {/* Tour Types */}
                 {tour.tourTypes && (() => {
                   try {
