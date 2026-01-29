@@ -899,13 +899,32 @@ const SupplierRegistration: React.FC<SupplierRegistrationProps> = ({ language = 
                         <option value="Mysore">Mysore</option>
                         <option value="Amritsar">Amritsar</option>
                       </select>
+                    ) : mainHub === 'Japan' ? (
+                      <select 
+                        value={city}
+                        onChange={(e) => setCity(e.target.value)}
+                        required
+                        className="bg-gray-50 border-none rounded-2xl py-4 px-4 font-bold text-[#001A33] text-[14px] focus:ring-2 focus:ring-[#10B981] outline-none cursor-pointer"
+                      >
+                        <option value="">{t('city')}</option>
+                        <option value="Tokyo">Tokyo</option>
+                        <option value="Kyoto">Kyoto</option>
+                        <option value="Osaka">Osaka</option>
+                        <option value="Hiroshima">Hiroshima</option>
+                        <option value="Nara">Nara</option>
+                        <option value="Sapporo">Sapporo</option>
+                        <option value="Yokohama">Yokohama</option>
+                        <option value="Fukuoka">Fukuoka</option>
+                        <option value="Nagoya">Nagoya</option>
+                        <option value="Okinawa">Okinawa</option>
+                      </select>
                     ) : (
                       <input 
                         type="text" 
                         required
                         value={city}
                         onChange={(e) => setCity(e.target.value)}
-                        placeholder="City"
+                        placeholder={t('cityPlaceholder')}
                         className="bg-gray-50 border-none rounded-2xl py-4 px-4 font-bold text-[#001A33] text-[14px] focus:ring-2 focus:ring-[#10B981] outline-none"
                       />
                     )}
