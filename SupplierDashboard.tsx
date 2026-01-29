@@ -366,7 +366,7 @@ const SupplierDashboard: React.FC<SupplierDashboardProps> = ({ supplier, onLogou
             
             {/* Center - Logo */}
             <div className="absolute left-1/2 transform -translate-x-1/2">
-              <img src="/logo.svg?v=4" alt="AsiaByLocals" className="h-24 md:h-28 w-auto object-contain" />
+              <img src="/logo.svg?v=4" alt="AsiaByLocals" className="h-32 md:h-40 w-auto object-contain" />
             </div>
             
             {/* Right side - Actions */}
