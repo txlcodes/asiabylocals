@@ -643,12 +643,12 @@ const CityPage: React.FC<CityPageProps> = ({ country, city }) => {
             {/* Logo */}
             <a href="/" className="flex items-center gap-3">
               <img src="/logo.svg?v=3" alt="AsiaByLocals" className="h-10 w-10 object-contain" />
-              <span className="font-black text-[#001A33] text-lg">ASIA BY LOCALS</span>
+              <span className="hidden md:inline font-black text-[#001A33] text-lg">ASIA BY LOCALS</span>
             </a>
 
             {/* Search Bar - Large and Prominent */}
-            <div className="flex-1 max-w-2xl mx-8">
-              <div className="relative">
+            <div className="hidden md:flex flex-1 max-w-2xl mx-8">
+              <div className="relative w-full">
                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
                 <input
                   type="text"

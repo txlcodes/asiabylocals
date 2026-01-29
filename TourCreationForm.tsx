@@ -1705,7 +1705,7 @@ const TourCreationForm: React.FC<TourCreationFormProps> = ({
 
               <div>
                 <label className="block text-[14px] font-bold text-[#001A33] mb-3">
-                  What's Not Included (Optional - One item per line)
+                  Excludes (Optional - One item per line)
                 </label>
                 <textarea
                   value={formData.notIncluded}

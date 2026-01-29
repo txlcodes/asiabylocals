@@ -877,7 +877,7 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
             {/* Not Included Section */}
             {tour.notIncluded && (
               <div className="mb-8">
-                <h2 className="text-2xl font-black text-[#001A33] mb-4">Not suitable for</h2>
+                <h2 className="text-2xl font-black text-[#001A33] mb-4">Excludes</h2>
                 <ul className="space-y-3">
                   {tour.notIncluded.split('\n').filter((item: string) => item.trim()).map((item: string, index: number) => (
                     <li key={index} className="flex items-start gap-3">

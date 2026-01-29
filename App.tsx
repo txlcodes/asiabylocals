@@ -546,10 +546,10 @@ const App: React.FC = () => {
       {/* Header Navigation */}
       <header className="sticky top-0 z-50 bg-white border-b border-gray-100 shadow-sm">
         <div className="w-full pt-2 pb-1 flex items-center justify-between">
-          <div className="flex items-center gap-3 pl-6">
+          <div className="flex items-center gap-3 pl-3 md:pl-6">
             {/* Logo */}
-            <div className="flex items-center cursor-pointer h-[77px] md:h-[96px] lg:h-[115px] mt-2 md:mt-3">
-              <img src="/logo.svg?v=3" alt="Asia By Locals" className="h-full w-auto object-contain" />
+            <div className="flex items-center cursor-pointer mt-2 md:mt-3">
+              <img src="/logo.svg?v=3" alt="Asia By Locals" className="h-[140px] md:h-[96px] lg:h-[115px] w-auto object-contain" />
             </div>
 
             {/* Nav Links */}
@@ -685,14 +685,14 @@ const App: React.FC = () => {
             </nav>
           </div>
 
-          <div className="flex items-center gap-6 text-[13px] font-semibold text-[#001A33] pr-6">
+          <div className="flex items-center gap-3 md:gap-6 text-[13px] font-semibold text-[#001A33] pr-2 md:pr-6">
             <button 
               onClick={() => setShowSupplierPage(true)}
-              className="hidden md:block hover:text-[#10B981]"
+              className="text-[12px] md:text-[13px] hover:text-[#10B981] whitespace-nowrap"
             >
               Become a supplier
             </button>
-            <div className="flex items-center gap-5">
+            <div className="flex items-center gap-3 md:gap-5">
               <button 
                 onClick={() => setShowWishlistModal(true)}
                 className="flex flex-col items-center gap-1 hover:text-[#10B981] relative"
@@ -748,14 +748,14 @@ const App: React.FC = () => {
         ))}
         <div className="absolute inset-0 hero-overlay z-10"></div>
         
-        <div className="relative z-10 w-full max-w-[800px] px-6 text-center">
+        <div className="relative z-10 w-full max-w-[800px] px-1 md:px-6 text-center">
           <h1 className="text-4xl md:text-6xl font-black text-white mb-10 tracking-tight">
             Discover Authentic Local Tours & Cultural Experiences Across Asia
           </h1>
           
-          <div className="bg-white p-2 rounded-full shadow-2xl flex flex-col md:flex-row items-center gap-2 relative">
-            <div className="flex-1 flex items-center gap-4 px-6 py-3 w-full relative">
-              <Search size={20} className="text-gray-400 shrink-0" />
+          <div className="bg-white p-1 md:p-2 rounded-full shadow-2xl flex flex-row flex-nowrap items-stretch gap-1 md:gap-2 relative" style={{ minWidth: '280px' }}>
+            <div className="flex-1 flex items-center gap-1 md:gap-4 px-2 md:px-6 py-2 md:py-3 min-w-0 relative">
+              <Search size={16} className="text-gray-400 shrink-0 md:w-5 md:h-5" />
               <input 
                 type="text" 
                 value={searchQuery}
@@ -770,7 +770,7 @@ const App: React.FC = () => {
                 }}
                 onFocus={() => setShowSuggestions(searchQuery.length > 0)}
                 placeholder="Search Agra, Delhi, Jaipur..." 
-                className="w-full outline-none border-none ring-0 focus:ring-0 focus:border-none bg-transparent text-[#001A33] font-bold text-lg placeholder:text-gray-400 placeholder:font-medium"
+                className="flex-1 outline-none border-none ring-0 focus:ring-0 focus:border-none bg-transparent text-[#001A33] font-bold text-xs md:text-lg placeholder:text-gray-400 placeholder:font-medium min-w-0 truncate"
               />
               
               {/* Search Suggestions Dropdown */}
@@ -794,7 +794,8 @@ const App: React.FC = () => {
             </div>
             <button 
               onClick={() => handleSearch()}
-              className="bg-[#10B981] hover:bg-[#059669] text-white font-black px-12 py-4 rounded-full text-lg w-full md:w-auto transition-all shadow-lg active:scale-95"
+              className="bg-[#10B981] hover:bg-[#059669] text-white font-black px-6 md:px-12 py-3 md:py-4 rounded-full text-base md:text-lg transition-all shadow-lg active:scale-95 shrink-0 whitespace-nowrap flex-shrink-0"
+              style={{ minWidth: '85px' }}
             >
               Search
             </button>
