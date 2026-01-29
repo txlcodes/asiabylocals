@@ -356,17 +356,15 @@ const SupplierDashboard: React.FC<SupplierDashboardProps> = ({ supplier, onLogou
       <header className="bg-white border-b border-gray-200 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
-            {/* Left side - empty for centering */}
+            {/* Left side - Logo */}
             <div className="flex items-center gap-4 flex-1">
-              <div>
-                <h1 className="text-xl font-black text-[#001A33]">Supplier Portal</h1>
-                <p className="text-[12px] text-gray-500 font-semibold">Welcome back, {currentSupplier?.fullName || supplier.fullName}</p>
-              </div>
+              <img src="/logo.svg?v=4" alt="AsiaByLocals" className="h-32 md:h-40 w-auto object-contain" />
             </div>
             
-            {/* Center - Logo */}
-            <div className="absolute left-1/2 transform -translate-x-1/2">
-              <img src="/logo.svg?v=4" alt="AsiaByLocals" className="h-32 md:h-40 w-auto object-contain" />
+            {/* Center - Supplier Portal */}
+            <div className="absolute left-1/2 transform -translate-x-1/2 text-center">
+              <h1 className="text-xl font-black text-[#001A33]">Supplier Portal</h1>
+              <p className="text-[12px] text-gray-500 font-semibold">Welcome back, {currentSupplier?.fullName || supplier.fullName}</p>
             </div>
             
             {/* Right side - Actions */}
