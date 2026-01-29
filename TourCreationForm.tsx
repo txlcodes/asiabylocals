@@ -1428,21 +1428,19 @@ const TourCreationForm: React.FC<TourCreationFormProps> = ({
                         onChange={(e) => {
                           const maxSize = e.target.value ? parseInt(e.target.value) : undefined;
                           handleInputChange('maxGroupSize', maxSize);
-                          // Initialize or update group pricing tiers
-                          if (maxSize && maxSize >= 1 && maxSize <= 20) {
+                          // Clear tiers if max size is cleared, or adjust existing tiers
+                          if (!maxSize) {
+                            handleInputChange('groupPricingTiers', []);
+                          } else if (maxSize >= 1 && maxSize <= 20) {
                             setFormData(prev => {
-                              const newTiers = [];
-                              for (let i = 1; i <= maxSize; i++) {
-                                const existingTier = prev.groupPricingTiers.find(t => t.maxPeople === i);
-                                newTiers.push({
-                                  minPeople: 1,
-                                  maxPeople: i,
-                                  price: existingTier?.price || ''
-                                });
-                              }
+                              // Keep existing tiers but adjust max values if needed
+                              const adjustedTiers = prev.groupPricingTiers.map(tier => ({
+                                ...tier,
+                                maxPeople: Math.min(tier.maxPeople, maxSize)
+                              })).filter(tier => tier.minPeople <= maxSize);
                               return {
                                 ...prev,
-                                groupPricingTiers: newTiers
+                                groupPricingTiers: adjustedTiers.length > 0 ? adjustedTiers : []
                               };
                             });
                           }
@@ -1471,58 +1469,164 @@ const TourCreationForm: React.FC<TourCreationFormProps> = ({
                     </div>
                   </div>
                   
-                  {/* Group Pricing Tiers */}
+                  {/* Group Pricing Tiers - Custom Ranges */}
                   {formData.maxGroupSize && formData.maxGroupSize >= 1 && formData.maxGroupSize <= 20 && (
                     <div className="space-y-3">
-                      <label className="block text-[14px] font-bold text-[#001A33] mb-3">
-                        Set Price for Each Group Size *
-                      </label>
+                      <div className="flex items-center justify-between mb-3">
+                        <label className="block text-[14px] font-bold text-[#001A33]">
+                          Set Price for Group Size Ranges *
+                        </label>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setFormData(prev => {
+                              const lastTier = prev.groupPricingTiers[prev.groupPricingTiers.length - 1];
+                              const nextMin = lastTier ? lastTier.maxPeople + 1 : 1;
+                              const nextMax = Math.min(nextMin + 3, prev.maxGroupSize || 20);
+                              
+                              return {
+                                ...prev,
+                                groupPricingTiers: [
+                                  ...prev.groupPricingTiers,
+                                  {
+                                    minPeople: nextMin,
+                                    maxPeople: nextMax,
+                                    price: ''
+                                  }
+                                ]
+                              };
+                            });
+                          }}
+                          className="flex items-center gap-2 px-3 py-2 bg-[#10B981] text-white rounded-xl text-[12px] font-bold hover:bg-[#059669] transition-colors"
+                        >
+                          <Plus size={14} />
+                          Add Range
+                        </button>
+                      </div>
                       <div className="space-y-3">
-                        {formData.groupPricingTiers.map((tier, index) => (
-                          <div key={index} className="flex items-center gap-4">
-                            <div className="w-32 flex-shrink-0">
-                              <div className="bg-gray-100 rounded-xl py-3 px-4 text-center">
-                                <span className="text-[14px] font-black text-[#001A33]">
-                                  1-{tier.maxPeople}
-                                </span>
-                                <span className="text-[11px] text-gray-500 font-semibold block mt-0.5">
-                                  {tier.maxPeople === 1 ? 'person' : 'people'}
-                                </span>
+                        {formData.groupPricingTiers.length === 0 ? (
+                          <div className="text-center py-8 bg-gray-50 rounded-xl border-2 border-dashed border-gray-300">
+                            <p className="text-[13px] text-gray-500 font-semibold mb-2">No pricing ranges added yet</p>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setFormData(prev => ({
+                                  ...prev,
+                                  groupPricingTiers: [{
+                                    minPeople: 1,
+                                    maxPeople: Math.min(4, prev.maxGroupSize || 20),
+                                    price: ''
+                                  }]
+                                }));
+                              }}
+                              className="text-[#10B981] font-bold text-[13px] hover:underline"
+                            >
+                              Click to add first range
+                            </button>
+                          </div>
+                        ) : (
+                          formData.groupPricingTiers.map((tier, index) => (
+                            <div key={index} className="bg-gray-50 rounded-xl p-4 border border-gray-200">
+                              <div className="flex items-center gap-4">
+                                <div className="flex items-center gap-2 flex-shrink-0">
+                                  <div className="w-20">
+                                    <input
+                                      type="number"
+                                      value={tier.minPeople}
+                                      onChange={(e) => {
+                                        const min = parseInt(e.target.value) || 1;
+                                        setFormData(prev => {
+                                          const newTiers = [...prev.groupPricingTiers];
+                                          newTiers[index] = {
+                                            ...newTiers[index],
+                                            minPeople: Math.max(1, Math.min(min, newTiers[index].maxPeople - 1))
+                                          };
+                                          return {
+                                            ...prev,
+                                            groupPricingTiers: newTiers
+                                          };
+                                        });
+                                      }}
+                                      min="1"
+                                      max={tier.maxPeople - 1}
+                                      className="w-full bg-white border border-gray-300 rounded-xl py-2 px-3 text-center font-bold text-[#001A33] text-[13px] focus:ring-2 focus:ring-[#10B981] outline-none"
+                                    />
+                                  </div>
+                                  <span className="text-[14px] font-bold text-gray-600">-</span>
+                                  <div className="w-20">
+                                    <input
+                                      type="number"
+                                      value={tier.maxPeople}
+                                      onChange={(e) => {
+                                        const max = parseInt(e.target.value) || tier.minPeople + 1;
+                                        setFormData(prev => {
+                                          const newTiers = [...prev.groupPricingTiers];
+                                          const nextTierMin = index < prev.groupPricingTiers.length - 1 
+                                            ? prev.groupPricingTiers[index + 1].minPeople 
+                                            : (prev.maxGroupSize || 20) + 1;
+                                          newTiers[index] = {
+                                            ...newTiers[index],
+                                            maxPeople: Math.min(Math.max(max, tier.minPeople + 1), nextTierMin - 1, prev.maxGroupSize || 20)
+                                          };
+                                          return {
+                                            ...prev,
+                                            groupPricingTiers: newTiers
+                                          };
+                                        });
+                                      }}
+                                      min={tier.minPeople + 1}
+                                      max={formData.maxGroupSize || 20}
+                                      className="w-full bg-white border border-gray-300 rounded-xl py-2 px-3 text-center font-bold text-[#001A33] text-[13px] focus:ring-2 focus:ring-[#10B981] outline-none"
+                                    />
+                                  </div>
+                                  <span className="text-[13px] font-semibold text-gray-600 ml-1">people</span>
+                                </div>
+                                <div className="flex-1 flex items-center gap-2">
+                                  <span className="text-[14px] font-semibold text-gray-600">
+                                    {formData.currency === 'INR' ? '₹' : '$'}
+                                  </span>
+                                  <input
+                                    type="number"
+                                    value={tier.price}
+                                    onChange={(e) => {
+                                      setFormData(prev => {
+                                        const newTiers = [...prev.groupPricingTiers];
+                                        newTiers[index] = {
+                                          ...newTiers[index],
+                                          price: e.target.value
+                                        };
+                                        return {
+                                          ...prev,
+                                          groupPricingTiers: newTiers
+                                        };
+                                      });
+                                    }}
+                                    placeholder="Enter price"
+                                    min="0"
+                                    step="0.01"
+                                    className="flex-1 bg-white border border-gray-300 rounded-xl py-2 px-4 font-bold text-[#001A33] text-[14px] focus:ring-2 focus:ring-[#10B981] outline-none"
+                                  />
+                                </div>
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    setFormData(prev => ({
+                                      ...prev,
+                                      groupPricingTiers: prev.groupPricingTiers.filter((_, i) => i !== index)
+                                    }));
+                                  }}
+                                  className="p-2 hover:bg-red-100 rounded-full transition-colors text-gray-400 hover:text-red-600"
+                                  aria-label="Remove range"
+                                >
+                                  <X size={18} />
+                                </button>
                               </div>
                             </div>
-                            <div className="flex-1">
-                              <input
-                                type="number"
-                                value={tier.price}
-                                onChange={(e) => {
-                                  setFormData(prev => {
-                                    const newTiers = [...prev.groupPricingTiers];
-                                    newTiers[index] = {
-                                      ...newTiers[index],
-                                      price: e.target.value
-                                    };
-                                    return {
-                                      ...prev,
-                                      groupPricingTiers: newTiers
-                                    };
-                                  });
-                                }}
-                                placeholder="Enter price"
-                                min="0"
-                                step="0.01"
-                                className="w-full bg-gray-50 border-none rounded-2xl py-4 px-4 font-bold text-[#001A33] text-[14px] focus:ring-2 focus:ring-[#10B981] outline-none"
-                              />
-                            </div>
-                            <div className="w-20 flex-shrink-0 text-right">
-                              <span className="text-[14px] font-semibold text-gray-600">
-                                {formData.currency === 'INR' ? '₹' : '$'}
-                              </span>
-                            </div>
-                          </div>
-                        ))}
+                          ))
+                        )}
                       </div>
                       <p className="text-[11px] text-gray-400 mt-2">
-                        Set the total price for groups of each size. For example, 1-2 people = ₹5,000, 1-3 people = ₹7,000, etc.
+                        Define custom group size ranges and set prices for each. For example: 1-4 people = ₹5,000, 5-9 people = ₹8,000, 10-15 people = ₹12,000
                       </p>
                     </div>
                   )}
