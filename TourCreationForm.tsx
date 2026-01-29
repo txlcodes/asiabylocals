@@ -232,6 +232,9 @@ const TourCreationForm: React.FC<TourCreationFormProps> = ({
     return null;
   }
 
+  // Get language preference from localStorage
+  const language = (typeof window !== 'undefined' && localStorage.getItem('supplierLanguage')) === 'ja' ? 'ja' : 'en';
+
   const isEditing = !!tour;
   const [step, setStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -796,6 +799,41 @@ const TourCreationForm: React.FC<TourCreationFormProps> = ({
           </div>
         </div>
       )}
+
+      {/* English Only Notice */}
+      <div className="bg-blue-50 border-b-2 border-blue-400">
+        <div className="max-w-4xl mx-auto px-6 py-4">
+          <div className="flex items-start gap-3">
+            <AlertCircle className="text-blue-600 shrink-0 mt-1" size={24} />
+            <div className="flex-1">
+              {language === 'ja' ? (
+                <>
+                  <h3 className="font-black text-[#001A33] text-[16px] mb-2">
+                    📝 重要：ツアーは英語のみで作成してください
+                  </h3>
+                  <p className="text-[14px] text-gray-700 font-semibold leading-relaxed mb-3">
+                    このフォームの操作には任意の言語を使用できますが、<strong>すべてのツアーコンテンツは英語のみで記入する必要があります</strong>。これには、ツアータイトル、説明、ハイライト、およびその他のすべての情報が含まれます。ツアーは顧客に英語のみで表示されます。すべてのテキストフィールドを英語で記入してください。
+                  </p>
+                  <div className="bg-white rounded-xl p-4 border border-blue-200">
+                    <p className="text-[13px] text-gray-600 font-semibold leading-relaxed">
+                      <strong>English:</strong> While you can use any language to navigate this form, all tour content must be written in English only. This includes tour titles, descriptions, highlights, and all other information. Tours will be displayed to customers in English only.
+                    </p>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <h3 className="font-black text-[#001A33] text-[16px] mb-2">
+                    📝 Important: Tours Must Be Created in English Only
+                  </h3>
+                  <p className="text-[14px] text-gray-700 font-semibold leading-relaxed">
+                    While you can use any language to navigate this form, <strong>all tour content must be written in English only</strong>. This includes tour titles, descriptions, highlights, and all other information. Tours will be displayed to customers in English only. Please ensure all text fields are filled in English.
+                  </p>
+                </>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
 
       <div className="max-w-4xl mx-auto px-6 py-8">
         {/* Step 1: Country */}

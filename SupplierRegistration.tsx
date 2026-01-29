@@ -21,33 +21,36 @@ import {
   RefreshCw
 } from 'lucide-react';
 import { API_URL } from '@/src/config';
+import { getTranslation, Language, translations } from './src/translations/supplier';
 
 interface SupplierRegistrationProps {
+  language?: Language;
   onClose: () => void;
 }
 
-const BUSINESS_TYPES = [
-  {
-    id: 'company',
-    title: 'As a registered company',
-    description: 'Legally incorporated entities operating under formal business registration.',
-    icon: Building2
-  },
-  {
-    id: 'individual',
-    title: 'As a registered individual',
-    description: 'Single person businesses operating under personal name.',
-    icon: Users
-  },
-  {
-    id: 'other',
-    title: 'Other business type',
-    description: 'Entities operating outside standard business registries.',
-    icon: FileText
-  }
-];
-
-const SupplierRegistration: React.FC<SupplierRegistrationProps> = ({ onClose }) => {
+const SupplierRegistration: React.FC<SupplierRegistrationProps> = ({ language = 'en', onClose }) => {
+  const t = (key: keyof typeof translations.en) => getTranslation(language, key);
+  
+  const BUSINESS_TYPES = [
+    {
+      id: 'company',
+      title: t('asRegisteredCompany'),
+      description: t('companyDesc'),
+      icon: Building2
+    },
+    {
+      id: 'individual',
+      title: t('asRegisteredIndividual'),
+      description: t('individualDesc'),
+      icon: Users
+    },
+    {
+      id: 'other',
+      title: t('otherBusinessType'),
+      description: t('otherDesc'),
+      icon: FileText
+    }
+  ];
   const [step, setStep] = useState(1);
   const [selectedBusinessType, setSelectedBusinessType] = useState<string>('');
   const [companyEmployees, setCompanyEmployees] = useState<string>('');
@@ -283,7 +286,8 @@ const SupplierRegistration: React.FC<SupplierRegistrationProps> = ({ onClose }) 
       tourLanguages: tourLanguages || null,
       phone: phone || null,
       whatsapp: whatsapp || null,
-      verificationDocumentUrl: documentBase64 // Include license document in registration
+      verificationDocumentUrl: documentBase64, // Include license document in registration
+      language: language // Include language preference for email
     };
 
     // Log registration data (without password)
@@ -616,7 +620,7 @@ const SupplierRegistration: React.FC<SupplierRegistrationProps> = ({ onClose }) 
               alt="AsiaByLocals" 
               className="h-10 w-10 object-contain"
             />
-            <span className="font-black tracking-tight text-lg">Partner Registration</span>
+            <span className="font-black tracking-tight text-lg">{t('createSupplierAccount')}</span>
           </div>
           <button 
             onClick={onClose}
@@ -723,13 +727,13 @@ const SupplierRegistration: React.FC<SupplierRegistrationProps> = ({ onClose }) 
             {step === 2 && selectedBusinessType === 'company' && (
               <div className="space-y-8">
                 <div>
-                  <h3 className="text-2xl font-black text-[#001A33] mb-2">Company Information</h3>
-                  <p className="text-[14px] text-gray-400 font-semibold">Tell us more about your company.</p>
+                  <h3 className="text-2xl font-black text-[#001A33] mb-2">{t('companyDetails')}</h3>
+                  <p className="text-[14px] text-gray-400 font-semibold">{language === 'ja' ? '会社について詳しく教えてください。' : 'Tell us more about your company.'}</p>
                 </div>
 
                 <div className="space-y-6">
                   <div>
-                    <label className="block text-[14px] font-black text-[#001A33] mb-3">How many employees does your company have?</label>
+                    <label className="block text-[14px] font-black text-[#001A33] mb-3">{t('howManyEmployees')}</label>
                     <div className="grid grid-cols-5 gap-2">
                       {['Up to 2', '3 - 10', '11 - 20', '21 - 50', '+50'].map((option) => (
                         <button
@@ -805,13 +809,13 @@ const SupplierRegistration: React.FC<SupplierRegistrationProps> = ({ onClose }) 
             {step === 2 && selectedBusinessType === 'other' && (
               <div className="space-y-8">
                 <div>
-                  <h3 className="text-2xl font-black text-[#001A33] mb-2">Business Information</h3>
-                  <p className="text-[14px] text-gray-400 font-semibold">Tell us more about your business.</p>
+                  <h3 className="text-2xl font-black text-[#001A33] mb-2">{t('individualDetails')}</h3>
+                  <p className="text-[14px] text-gray-400 font-semibold">{language === 'ja' ? 'あなたのビジネスについて詳しく教えてください。' : 'Tell us more about your business.'}</p>
                 </div>
 
                 <div className="space-y-6">
                   <div>
-                    <label className="block text-[14px] font-black text-[#001A33] mb-3">How many activities of any type do you offer?</label>
+                    <label className="block text-[14px] font-black text-[#001A33] mb-3">{t('howManyActivitiesIndividual')}</label>
                     <div className="grid grid-cols-5 gap-2">
                       {['Up to 2', '3 - 6', '7 - 15', '16 - 35', '+35'].map((option) => (
                         <button
@@ -836,8 +840,8 @@ const SupplierRegistration: React.FC<SupplierRegistrationProps> = ({ onClose }) 
             {step === ((selectedBusinessType === 'company' || selectedBusinessType === 'individual' || selectedBusinessType === 'other') ? 3 : 2) && (
               <div className="space-y-6">
                 <div>
-                  <h3 className="text-2xl font-black text-[#001A33] mb-2">Business details</h3>
-                  <p className="text-[14px] text-gray-400 font-semibold">Tell us about where you operate.</p>
+                  <h3 className="text-2xl font-black text-[#001A33] mb-2">{t('businessInformation')}</h3>
+                  <p className="text-[14px] text-gray-400 font-semibold">{language === 'ja' ? '営業場所について教えてください。' : 'Tell us about where you operate.'}</p>
                 </div>
                 
                 <div className="space-y-4">
@@ -848,7 +852,7 @@ const SupplierRegistration: React.FC<SupplierRegistrationProps> = ({ onClose }) 
                       required={selectedBusinessType === 'company'}
                       value={companyName}
                       onChange={(e) => setCompanyName(e.target.value)}
-                      placeholder={selectedBusinessType === 'individual' ? 'Business Name (Optional)' : 'Company Name (or Legal Name)'}
+                      placeholder={selectedBusinessType === 'individual' ? (language === 'ja' ? 'ビジネス名（任意）' : 'Business Name (Optional)') : t('companyNamePlaceholder')}
                       className="w-full bg-gray-50 border-none rounded-2xl py-4 pl-12 pr-4 font-bold text-[#001A33] text-[14px] focus:ring-2 focus:ring-[#10B981] transition-all outline-none"
                     />
                   </div>
@@ -862,7 +866,7 @@ const SupplierRegistration: React.FC<SupplierRegistrationProps> = ({ onClose }) 
                       required
                       className="bg-gray-50 border-none rounded-2xl py-4 px-4 font-bold text-[#001A33] text-[14px] focus:ring-2 focus:ring-[#10B981] outline-none cursor-pointer"
                     >
-                      <option value="">Select Country</option>
+                      <option value="">{language === 'ja' ? '国を選択' : 'Select Country'}</option>
                       <option value="India">India</option>
                       <option value="Japan">Japan</option>
                       <option value="Thailand">Thailand</option>
@@ -883,7 +887,7 @@ const SupplierRegistration: React.FC<SupplierRegistrationProps> = ({ onClose }) 
                         required
                         className="bg-gray-50 border-none rounded-2xl py-4 px-4 font-bold text-[#001A33] text-[14px] focus:ring-2 focus:ring-[#10B981] outline-none cursor-pointer"
                       >
-                        <option value="">City</option>
+                        <option value="">{t('city')}</option>
                         <option value="Agra">Agra</option>
                         <option value="Jaipur">Jaipur</option>
                         <option value="Udaipur">Udaipur</option>
@@ -1043,8 +1047,8 @@ const SupplierRegistration: React.FC<SupplierRegistrationProps> = ({ onClose }) 
             {step === ((selectedBusinessType === 'company' || selectedBusinessType === 'individual' || selectedBusinessType === 'other') ? 5 : 4) && (
               <div className="space-y-6">
                 <div>
-                  <h3 className="text-2xl font-black text-[#001A33] mb-2">Create your account</h3>
-                  <p className="text-[14px] text-gray-400 font-semibold">Use your business email for faster verification.</p>
+                  <h3 className="text-2xl font-black text-[#001A33] mb-2">{t('accountCreation')}</h3>
+                  <p className="text-[14px] text-gray-400 font-semibold">{language === 'ja' ? 'ビジネスメールを使用すると、確認が速くなります。' : 'Use your business email for faster verification.'}</p>
                 </div>
 
                 {/* Company Information Section */}
@@ -1138,7 +1142,7 @@ const SupplierRegistration: React.FC<SupplierRegistrationProps> = ({ onClose }) 
                         required
                         value={firstName}
                         onChange={(e) => setFirstName(e.target.value)}
-                        placeholder="First name"
+                        placeholder={t('firstNamePlaceholder')}
                         className="w-full bg-gray-50 border-none rounded-2xl py-4 pl-12 pr-4 font-bold text-[#001A33] text-[14px] focus:ring-2 focus:ring-[#10B981] transition-all outline-none"
                       />
                     </div>
@@ -1149,7 +1153,7 @@ const SupplierRegistration: React.FC<SupplierRegistrationProps> = ({ onClose }) 
                         required
                         value={lastName}
                         onChange={(e) => setLastName(e.target.value)}
-                        placeholder="Last name"
+                        placeholder={t('lastNamePlaceholder')}
                         className="w-full bg-gray-50 border-none rounded-2xl py-4 pl-12 pr-4 font-bold text-[#001A33] text-[14px] focus:ring-2 focus:ring-[#10B981] transition-all outline-none"
                       />
                     </div>
@@ -1161,7 +1165,7 @@ const SupplierRegistration: React.FC<SupplierRegistrationProps> = ({ onClose }) 
                       required
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
-                      placeholder="Email"
+                      placeholder={t('emailPlaceholder')}
                       className="w-full bg-gray-50 border-none rounded-2xl py-4 pl-12 pr-4 font-bold text-[#001A33] text-[14px] focus:ring-2 focus:ring-[#10B981] transition-all outline-none"
                     />
                     <p className="text-[11px] text-gray-400 mt-1 ml-4">
@@ -1179,7 +1183,7 @@ const SupplierRegistration: React.FC<SupplierRegistrationProps> = ({ onClose }) 
                       required
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
-                      placeholder="Password"
+                      placeholder={t('passwordPlaceholder')}
                       className="w-full bg-gray-50 border-none rounded-2xl py-4 pl-12 pr-12 font-bold text-[#001A33] text-[14px] focus:ring-2 focus:ring-[#10B981] transition-all outline-none"
                     />
                     <button
@@ -1384,6 +1388,7 @@ const SupplierRegistration: React.FC<SupplierRegistrationProps> = ({ onClose }) 
                   className="px-8 py-5 rounded-full border border-gray-100 font-black text-[#001A33] text-[14px] hover:bg-gray-50 transition-all flex items-center gap-2"
                 >
                   <ChevronLeft size={18} />
+                  {t('previous')}
                 </button>
               )}
               <button 
@@ -1411,7 +1416,7 @@ const SupplierRegistration: React.FC<SupplierRegistrationProps> = ({ onClose }) 
                   <Loader2 className="animate-spin" size={20} />
                 ) : (
                   <>
-                    {step === maxSteps ? 'Submit Application' : 'Continue'}
+                    {step === maxSteps ? t('submitRegistration') : t('next')}
                     {step < maxSteps && <ChevronRight size={18} className="group-hover:translate-x-1 transition-transform" />}
                   </>
                 )}

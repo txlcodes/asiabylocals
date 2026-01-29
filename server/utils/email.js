@@ -107,9 +107,10 @@ if (!resendClient) {
  * @param {string} email - Recipient email address
  * @param {string} fullName - Supplier's full name
  * @param {string} verificationToken - Email verification token
+ * @param {string} language - Language code ('en' or 'ja'), defaults to 'en'
  * @returns {Promise<Object>}
  */
-export const sendVerificationEmail = async (email, fullName, verificationToken) => {
+export const sendVerificationEmail = async (email, fullName, verificationToken, language = 'en') => {
   // Check if email is configured
   if (!resendApiKey && !sendGridApiKey && (!emailUser || !emailPassword)) {
     const errorMsg = 'Email not configured. Please set RESEND_API_KEY (easiest), SENDGRID_API_KEY, or EMAIL_USER + EMAIL_APP_PASSWORD in Render environment variables.';
@@ -138,10 +139,48 @@ export const sendVerificationEmail = async (email, fullName, verificationToken) 
   const encodedToken = encodeURIComponent(verificationToken);
   const verificationUrl = `${process.env.FRONTEND_URL || process.env.VITE_FRONTEND_URL || 'http://localhost:3000'}/verify-email?token=${encodedToken}`;
 
+  // Email content based on language
+  const isJapanese = language === 'ja';
+  
+  const emailContent = {
+    en: {
+      subject: 'AsiaByLocals Registration Confirmation',
+      greeting: 'Dear supply partner,',
+      body1: `Thanks for setting up your account — we're thrilled that you're partnering with us. This is the first step in your journey towards becoming an AsiaByLocals supply partner and delivering amazing travel experiences across Asia.`,
+      body2: 'Once you confirm your email address below, you can already create activities on the AsiaByLocals Supplier Portal.',
+      body3: `In the meantime, if you have any questions, please don't hesitate to reach out to us via the <a href="${process.env.FRONTEND_URL || 'http://localhost:3000'}/contact" style="color: #0071EB; text-decoration: none;">contact form</a> in the <a href="${process.env.FRONTEND_URL || 'http://localhost:3000'}/help" style="color: #0071EB; text-decoration: none;">Help Center</a>.`,
+      englishNote: '', // Not needed for English emails
+      buttonText: 'Confirm your email',
+      fallbackText: 'If the above link does not work, please copy the following link into your browser\'s address bar:',
+      closing: 'Best regards,<br><strong>The AsiaByLocals Team</strong>',
+      footerLink1: 'Become a Supply Partner',
+      footerLink2: 'Contact us',
+      footerLink3: 'FAQ',
+      textBody: `Welcome to AsiaByLocals!\n\nHi ${fullName},\n\nThank you for registering with AsiaByLocals! Please verify your email address by clicking the link below:\n\n${verificationUrl}\n\nThis link will expire in 48 hours.\n\nIf you didn't create an account with AsiaByLocals, please ignore this email.\n\n© 2025 AsiaByLocals`
+    },
+    ja: {
+      subject: 'AsiaByLocals 登録確認',
+      greeting: 'サプライパートナーの皆様へ',
+      body1: 'アカウントの設定ありがとうございます。私たちと提携していただき、大変嬉しく思います。これは、AsiaByLocalsのサプライパートナーとなり、アジア全体で素晴らしい旅行体験を提供するための旅の第一歩です。',
+      body2: '以下のメールアドレスを確認すると、AsiaByLocalsサプライヤーポータルでアクティビティを作成できるようになります。',
+      body3: `ご質問がございましたら、<a href="${process.env.FRONTEND_URL || 'http://localhost:3000'}/contact" style="color: #0071EB; text-decoration: none;">ヘルプセンター</a>の<a href="${process.env.FRONTEND_URL || 'http://localhost:3000'}/help" style="color: #0071EB; text-decoration: none;">お問い合わせフォーム</a>からお気軽にお問い合わせください。`,
+      englishNote: '<strong>重要：</strong>ツアーやアクティビティの作成時は、必ず英語でご入力ください。タイトル、説明、その他すべての情報を英語で作成していただく必要があります。',
+      buttonText: 'メールアドレスを確認',
+      fallbackText: '上記のリンクが機能しない場合は、以下のリンクをブラウザのアドレスバーにコピーしてください：',
+      closing: '敬具<br><strong>AsiaByLocalsチーム</strong>',
+      footerLink1: 'サプライパートナーになる',
+      footerLink2: 'お問い合わせ',
+      footerLink3: 'よくある質問',
+      textBody: `AsiaByLocalsへようこそ！\n\n${fullName}様\n\nAsiaByLocalsにご登録いただき、ありがとうございます！以下のリンクをクリックしてメールアドレスを確認してください：\n\n${verificationUrl}\n\nこのリンクは48時間で期限切れになります。\n\n重要：ツアーやアクティビティの作成時は、必ず英語でご入力ください。タイトル、説明、その他すべての情報を英語で作成していただく必要があります。\n\nAsiaByLocalsでアカウントを作成していない場合は、このメールを無視してください。\n\n© 2025 AsiaByLocals`
+    }
+  };
+  
+  const content = emailContent[isJapanese ? 'ja' : 'en'];
+
   const mailOptions = {
     from: `"AsiaByLocals Registration" <${fromEmail}>`,
     to: email,
-    subject: 'AsiaByLocals Registration Confirmation',
+    subject: content.subject,
     html: `
       <!DOCTYPE html>
       <html>
@@ -170,27 +209,36 @@ export const sendVerificationEmail = async (email, fullName, verificationToken) 
                   <tr>
                     <td style="padding: 0 40px 40px 40px;">
                       <p style="margin: 0 0 20px 0; font-size: 16px; line-height: 1.6; color: #001A33;">
-                        Dear supply partner,
+                        ${content.greeting}
                       </p>
                       
                       <p style="margin: 0 0 20px 0; font-size: 16px; line-height: 1.6; color: #001A33;">
-                        Thanks for setting up your account — we're thrilled that you're partnering with us. This is the first step in your journey towards becoming an AsiaByLocals supply partner and delivering amazing travel experiences across Asia.
+                        ${content.body1}
                       </p>
                       
                       <p style="margin: 0 0 30px 0; font-size: 16px; line-height: 1.6; color: #001A33;">
-                        Once you confirm your email address below, you can already create activities on the AsiaByLocals Supplier Portal.
+                        ${content.body2}
                       </p>
                       
                       <p style="margin: 0 0 30px 0; font-size: 16px; line-height: 1.6; color: #001A33;">
-                        In the meantime, if you have any questions, please don't hesitate to reach out to us via the <a href="${process.env.FRONTEND_URL || 'http://localhost:3000'}/contact" style="color: #0071EB; text-decoration: none;">contact form</a> in the <a href="${process.env.FRONTEND_URL || 'http://localhost:3000'}/help" style="color: #0071EB; text-decoration: none;">Help Center</a>.
+                        ${content.body3}
                       </p>
+                      
+                      ${isJapanese ? `
+                      <!-- Important Note for Japanese Suppliers -->
+                      <div style="margin: 30px 0; padding: 20px; background-color: #FFF4E6; border-left: 4px solid #FFA500; border-radius: 4px;">
+                        <p style="margin: 0; font-size: 15px; line-height: 1.7; color: #001A33;">
+                          ${content.englishNote}
+                        </p>
+                      </div>
+                      ` : ''}
                       
                       <!-- CTA Button -->
                       <table role="presentation" style="width: 100%; border-collapse: collapse; margin: 30px 0;">
                         <tr>
                           <td align="center" style="padding: 0;">
                             <a href="${verificationUrl}" style="display: inline-block; background-color: #10B981; color: #ffffff; text-decoration: none; padding: 16px 40px; border-radius: 6px; font-size: 16px; font-weight: 600; text-align: center;">
-                              Confirm your email
+                              ${content.buttonText}
                             </a>
                           </td>
                         </tr>
@@ -198,15 +246,14 @@ export const sendVerificationEmail = async (email, fullName, verificationToken) 
                       
                       <!-- Fallback Link -->
                       <p style="margin: 30px 0 10px 0; font-size: 14px; line-height: 1.6; color: #666666;">
-                        If the above link does not work, please copy the following link into your browser's address bar:
+                        ${content.fallbackText}
                       </p>
                       <p style="margin: 0 0 30px 0; font-size: 12px; line-height: 1.5; color: #0071EB; word-break: break-all; background-color: #f8f9fa; padding: 12px; border-radius: 4px; border: 1px solid #e9ecef;">
                         ${verificationUrl}
                       </p>
                       
                       <p style="margin: 0; font-size: 16px; line-height: 1.6; color: #001A33;">
-                        Best regards,<br>
-                        <strong>The AsiaByLocals Team</strong>
+                        ${content.closing}
                       </p>
                     </td>
                   </tr>
@@ -240,11 +287,11 @@ export const sendVerificationEmail = async (email, fullName, verificationToken) 
                       <table role="presentation" style="width: 100%; border-collapse: collapse;">
                         <tr>
                           <td align="center" style="padding: 0;">
-                            <a href="${process.env.FRONTEND_URL || 'http://localhost:3000'}/become-a-supplier" style="display: inline-block; margin: 0 8px; color: #ffffff; text-decoration: none; font-size: 12px; opacity: 0.9;">Become a Supply Partner</a>
+                            <a href="${process.env.FRONTEND_URL || 'http://localhost:3000'}/become-a-supplier" style="display: inline-block; margin: 0 8px; color: #ffffff; text-decoration: none; font-size: 12px; opacity: 0.9;">${content.footerLink1}</a>
                             <span style="color: #ffffff; opacity: 0.5;">|</span>
-                            <a href="${process.env.FRONTEND_URL || 'http://localhost:3000'}/contact" style="display: inline-block; margin: 0 8px; color: #ffffff; text-decoration: none; font-size: 12px; opacity: 0.9;">Contact us</a>
+                            <a href="${process.env.FRONTEND_URL || 'http://localhost:3000'}/contact" style="display: inline-block; margin: 0 8px; color: #ffffff; text-decoration: none; font-size: 12px; opacity: 0.9;">${content.footerLink2}</a>
                             <span style="color: #ffffff; opacity: 0.5;">|</span>
-                            <a href="${process.env.FRONTEND_URL || 'http://localhost:3000'}/faq" style="display: inline-block; margin: 0 8px; color: #ffffff; text-decoration: none; font-size: 12px; opacity: 0.9;">FAQ</a>
+                            <a href="${process.env.FRONTEND_URL || 'http://localhost:3000'}/faq" style="display: inline-block; margin: 0 8px; color: #ffffff; text-decoration: none; font-size: 12px; opacity: 0.9;">${content.footerLink3}</a>
                           </td>
                         </tr>
                       </table>
@@ -257,21 +304,7 @@ export const sendVerificationEmail = async (email, fullName, verificationToken) 
         </body>
       </html>
     `,
-    text: `
-      Welcome to AsiaByLocals!
-      
-      Hi ${fullName},
-      
-      Thank you for registering with AsiaByLocals! Please verify your email address by clicking the link below:
-      
-      ${verificationUrl}
-      
-      This link will expire in 48 hours.
-      
-      If you didn't create an account with AsiaByLocals, please ignore this email.
-      
-      © 2025 AsiaByLocals
-    `
+    text: content.textBody
   };
 
   try {
@@ -288,7 +321,7 @@ export const sendVerificationEmail = async (email, fullName, verificationToken) 
       const result = await resendClient.emails.send({
         from: `AsiaByLocals Registration <${fromEmail}>`,
         to: email,
-        subject: 'AsiaByLocals Registration Confirmation',
+        subject: content.subject,
         html: mailOptions.html,
         text: mailOptions.text
       });
@@ -475,11 +508,11 @@ export const sendWelcomeEmail = async (email, fullName) => {
                       <table role="presentation" style="width: 100%; border-collapse: collapse;">
                         <tr>
                           <td align="center" style="padding: 0;">
-                            <a href="${process.env.FRONTEND_URL || 'http://localhost:3000'}/become-a-supplier" style="display: inline-block; margin: 0 8px; color: #ffffff; text-decoration: none; font-size: 12px; opacity: 0.9;">Become a Supply Partner</a>
+                            <a href="${process.env.FRONTEND_URL || 'http://localhost:3000'}/become-a-supplier" style="display: inline-block; margin: 0 8px; color: #ffffff; text-decoration: none; font-size: 12px; opacity: 0.9;">${content.footerLink1}</a>
                             <span style="color: #ffffff; opacity: 0.5;">|</span>
-                            <a href="${process.env.FRONTEND_URL || 'http://localhost:3000'}/contact" style="display: inline-block; margin: 0 8px; color: #ffffff; text-decoration: none; font-size: 12px; opacity: 0.9;">Contact us</a>
+                            <a href="${process.env.FRONTEND_URL || 'http://localhost:3000'}/contact" style="display: inline-block; margin: 0 8px; color: #ffffff; text-decoration: none; font-size: 12px; opacity: 0.9;">${content.footerLink2}</a>
                             <span style="color: #ffffff; opacity: 0.5;">|</span>
-                            <a href="${process.env.FRONTEND_URL || 'http://localhost:3000'}/faq" style="display: inline-block; margin: 0 8px; color: #ffffff; text-decoration: none; font-size: 12px; opacity: 0.9;">FAQ</a>
+                            <a href="${process.env.FRONTEND_URL || 'http://localhost:3000'}/faq" style="display: inline-block; margin: 0 8px; color: #ffffff; text-decoration: none; font-size: 12px; opacity: 0.9;">${content.footerLink3}</a>
                           </td>
                         </tr>
                       </table>

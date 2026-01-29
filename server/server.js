@@ -230,7 +230,8 @@ app.post('/api/suppliers/register', async (req, res) => {
       tourLanguages,
       verificationDocumentUrl,
       phone,
-      whatsapp
+      whatsapp,
+      language
     } = req.body;
 
     // Trim and normalize email
@@ -320,7 +321,7 @@ app.post('/api/suppliers/register', async (req, res) => {
           console.log(`   User entered: ${rawEmail}`);
           console.log(`   Email in DB: ${existingSupplier.email}`);
           console.log(`   Email to send to: ${email}`);
-          await sendVerificationEmail(email, existingSupplier.fullName, verificationToken);
+          await sendVerificationEmail(email, existingSupplier.fullName, verificationToken, language || 'en');
           console.log(`✅ Verification email resent to ${email}`);
           console.log(`   ⚠️ IMPORTANT: Verify email address matches what user entered!`);
         } catch (emailError) {
@@ -517,7 +518,7 @@ app.post('/api/suppliers/register', async (req, res) => {
             // Resend verification email
             let emailSent = false;
             try {
-              await sendVerificationEmail(email, raceConditionSupplier.fullName || fullName, newToken);
+              await sendVerificationEmail(email, raceConditionSupplier.fullName || fullName, newToken, language || 'en');
               emailSent = true;
             } catch (emailError) {
               console.error('   Failed to send verification email:', emailError);
@@ -595,7 +596,7 @@ app.post('/api/suppliers/register', async (req, res) => {
           // Resend verification email
           let emailSent = false;
           try {
-            await sendVerificationEmail(email, raceConditionSupplier.fullName || fullName, newToken);
+            await sendVerificationEmail(email, raceConditionSupplier.fullName || fullName, newToken, language || 'en');
             emailSent = true;
           } catch (emailError) {
             console.error('   Failed to send verification email:', emailError);
@@ -629,7 +630,7 @@ app.post('/api/suppliers/register', async (req, res) => {
     let emailSent = false;
     
     try {
-      const emailResult = await sendVerificationEmail(email, fullName, verificationToken);
+      const emailResult = await sendVerificationEmail(email, fullName, verificationToken, language || 'en');
       console.log(`✅ Verification email sent successfully to: ${email}`);
       console.log(`   Message ID: ${emailResult.messageId}`);
       console.log(`   ⚠️ IMPORTANT: Verify email address matches what user entered!`);
@@ -1531,9 +1532,10 @@ app.post('/api/suppliers/resend-verification', async (req, res) => {
       }
     });
 
-    // Send verification email
+    // Send verification email (try to get language from request, default to 'en')
+    const { language: requestLanguage } = req.body || {};
     try {
-      await sendVerificationEmail(supplier.email, supplier.fullName, verificationToken);
+      await sendVerificationEmail(supplier.email, supplier.fullName, verificationToken, requestLanguage || 'en');
       console.log(`✅ Verification email resent to ${supplier.email}`);
     } catch (emailError) {
       console.error('❌ Failed to resend verification email:', emailError);
