@@ -233,8 +233,17 @@ const SupplierLogin: React.FC<SupplierLoginProps> = ({ language = 'en', onClose,
         </div>
       </main>
 
-      <footer className="py-8 text-center text-[11px] font-black uppercase tracking-[0.2em] text-gray-400 border-t border-gray-100 bg-white">
-        © 2025 AsiaByLocals Singapore Pte. Ltd. • Professional Partner Program
+      <footer className="py-8 text-center border-t border-gray-100 bg-white">
+        <div className="flex flex-col items-center gap-4">
+          <img 
+            src="/logo.svg" 
+            alt="AsiaByLocals Logo" 
+            className="h-16 w-auto"
+          />
+          <p className="text-[11px] font-black uppercase tracking-[0.2em] text-gray-400">
+            © 2025 AsiaByLocals Singapore Pte. Ltd. • Professional Partner Program
+          </p>
+        </div>
       </footer>
     </div>
   );
