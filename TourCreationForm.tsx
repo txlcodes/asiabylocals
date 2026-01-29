@@ -1099,8 +1099,27 @@ const TourCreationForm: React.FC<TourCreationFormProps> = ({
                   </p>
                   <div className="space-y-4">
                     {formData.locations.map((location) => (
-                      <div key={location} className="bg-gray-50 rounded-xl p-4 border border-gray-200">
-                        <label className="block text-[13px] font-bold text-[#001A33] mb-2">
+                      <div key={location} className="bg-gray-50 rounded-xl p-4 border border-gray-200 relative">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setFormData(prev => {
+                              const newLocations = prev.locations.filter(l => l !== location);
+                              const newEntryTickets = { ...prev.locationEntryTickets };
+                              delete newEntryTickets[location];
+                              return {
+                                ...prev,
+                                locations: newLocations,
+                                locationEntryTickets: newEntryTickets
+                              };
+                            });
+                          }}
+                          className="absolute top-3 right-3 p-1 hover:bg-red-100 rounded-full transition-colors text-gray-400 hover:text-red-600"
+                          aria-label={`Remove ${location}`}
+                        >
+                          <X size={16} />
+                        </button>
+                        <label className="block text-[13px] font-bold text-[#001A33] mb-2 pr-8">
                           {location}
                         </label>
                         <select
