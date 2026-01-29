@@ -241,6 +241,13 @@ const TourCreationForm: React.FC<TourCreationFormProps> = ({
   const [step, setStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [transportationSearch, setTransportationSearch] = useState('');
+  const [showEnglishNotice, setShowEnglishNotice] = useState(() => {
+    // Check if notice was previously dismissed
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('englishNoticeDismissed') !== 'true';
+    }
+    return true;
+  });
   
   // Parse tour data for editing
   const parseTourData = (tour: any) => {
