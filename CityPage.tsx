@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { MapPin, Star, Clock, Users, Search, Filter, Heart, ShoppingCart, User, Globe, ChevronDown, Calendar, ChevronUp } from 'lucide-react';
+import { MapPin, Star, Clock, Users, Search, Filter, ShoppingCart, User, Globe, ChevronDown, Calendar, ChevronUp } from 'lucide-react';
 import { CITY_LOCATIONS } from './constants';
 
 interface CityPageProps {
@@ -442,6 +442,8 @@ const ThingsToDoSection: React.FC<ThingsToDoSectionProps> = ({ city }) => {
 };
 
 const CityPage: React.FC<CityPageProps> = ({ country, city }) => {
+  console.log('CityPage rendered', { country, city });
+  
   const [tours, setTours] = useState<any[]>([]);
   const [showPlacesDropdown, setShowPlacesDropdown] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -541,36 +543,6 @@ const CityPage: React.FC<CityPageProps> = ({ country, city }) => {
     return 0;
   });
 
-  // SEO Structured Data (JSON-LD)
-  const structuredData = {
-    "@context": "https://schema.org",
-    "@type": "TravelAgency",
-    "name": `AsiaByLocals - ${city} Tours`,
-    "description": cityInfo.description,
-    "url": `https://asiabylocals.com/${countrySlug}/${citySlug}`,
-    "address": {
-      "@type": "PostalAddress",
-      "addressLocality": city,
-      "addressCountry": country
-    },
-    "areaServed": {
-      "@type": "City",
-      "name": city,
-      "containedIn": {
-        "@type": "Country",
-        "name": country
-      }
-    },
-    "offers": tours.map(tour => ({
-      "@type": "Offer",
-      "name": tour.title,
-      "description": tour.shortDescription || tour.fullDescription,
-      "price": tour.pricePerPerson,
-      "priceCurrency": tour.currency,
-      "availability": tour.status === 'approved' ? "https://schema.org/InStock" : "https://schema.org/OutOfStock"
-    }))
-  };
-
   // Update SEO meta tags
   useEffect(() => {
     // Update title
@@ -622,16 +594,61 @@ const CityPage: React.FC<CityPageProps> = ({ country, city }) => {
     });
     
     // Add structured data
-    let existingScript = document.querySelector('script[type="application/ld+json"][data-city-page]');
-    if (existingScript) {
-      existingScript.remove();
+    try {
+      const structuredData = {
+        "@context": "https://schema.org",
+        "@type": "TravelAgency",
+        "name": `AsiaByLocals - ${city} Tours`,
+        "description": cityInfo?.description || `${city} Tours`,
+        "url": `https://asiabylocals.com/${countrySlug}/${citySlug}`,
+        "address": {
+          "@type": "PostalAddress",
+          "addressLocality": city,
+          "addressCountry": country
+        },
+        "areaServed": {
+          "@type": "City",
+          "name": city,
+          "containedIn": {
+            "@type": "Country",
+            "name": country
+          }
+        },
+        "offers": Array.isArray(tours) ? tours.map(tour => ({
+          "@type": "Offer",
+          "name": tour.title || "Tour",
+          "description": tour.shortDescription || tour.fullDescription || "",
+          "price": tour.pricePerPerson || 0,
+          "priceCurrency": tour.currency || "INR",
+          "availability": tour.status === 'approved' ? "https://schema.org/InStock" : "https://schema.org/OutOfStock"
+        })) : []
+      };
+      
+      let existingScript = document.querySelector('script[type="application/ld+json"][data-city-page]');
+      if (existingScript) {
+        existingScript.remove();
+      }
+      const script = document.createElement('script');
+      script.type = 'application/ld+json';
+      script.setAttribute('data-city-page', 'true');
+      script.textContent = JSON.stringify(structuredData);
+      document.head.appendChild(script);
+    } catch (error) {
+      console.error('Error creating structured data:', error);
     }
-    const script = document.createElement('script');
-    script.type = 'application/ld+json';
-    script.setAttribute('data-city-page', 'true');
-    script.textContent = JSON.stringify(structuredData);
-    document.head.appendChild(script);
-  }, [city, country, cityInfo, countrySlug, citySlug, structuredData]);
+  }, [city, country, cityInfo, countrySlug, citySlug, tours]);
+
+  // Error boundary - if tours fail to load, still show the page
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#10B981] mx-auto mb-4"></div>
+          <p className="text-[14px] text-gray-500 font-semibold">Loading tours...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-white">
@@ -667,9 +684,6 @@ const CityPage: React.FC<CityPageProps> = ({ country, city }) => {
               <a href="/supplier" className="hidden md:block text-[14px] font-semibold text-[#001A33] hover:text-[#10B981] transition-colors">
                 Become a supplier
               </a>
-              <button className="p-2 hover:bg-gray-100 rounded-full transition-colors">
-                <Heart size={20} className="text-gray-600" />
-              </button>
               <button className="p-2 hover:bg-gray-100 rounded-full transition-colors">
                 <ShoppingCart size={20} className="text-gray-600" />
               </button>
@@ -747,6 +761,19 @@ const CityPage: React.FC<CityPageProps> = ({ country, city }) => {
                 const hasSkipLine = tour.included && tour.included.toLowerCase().includes('skip');
                 const hasPickup = tour.meetingPoint || (tour.included && tour.included.toLowerCase().includes('pickup'));
                 
+                // Parse images safely - handle both array and JSON string formats
+                let tourImages: string[] = [];
+                try {
+                  if (tour.images) {
+                    tourImages = Array.isArray(tour.images) 
+                      ? tour.images 
+                      : (typeof tour.images === 'string' ? JSON.parse(tour.images) : []);
+                  }
+                } catch (e) {
+                  console.error('Error parsing tour images:', e);
+                  tourImages = [];
+                }
+                
                 // Calculate rating (random between 4.0 and 5.0, unique per tour)
                 const rating = calculateRating(tour);
                 const displayRating = rating.toFixed(1);
@@ -770,10 +797,10 @@ const CityPage: React.FC<CityPageProps> = ({ country, city }) => {
                     className="bg-white rounded-xl overflow-hidden border border-gray-200 hover:shadow-lg transition-all group"
                   >
                     {/* Image Section */}
-                    {tour.images && tour.images.length > 0 && (
+                    {tourImages && tourImages.length > 0 && (
                       <div className="relative h-56 overflow-hidden">
                         <img
-                          src={tour.images[0]}
+                          src={tourImages[0]}
                           alt={`${tour.title} in ${city} - ${cityInfo.description}`}
                           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                         />
@@ -785,16 +812,6 @@ const CityPage: React.FC<CityPageProps> = ({ country, city }) => {
                             </span>
                           </div>
                         )}
-                        {/* Wishlist Heart */}
-                        <button
-                          onClick={(e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                          }}
-                          className="absolute top-3 right-3 p-2 bg-white/90 hover:bg-white rounded-full transition-colors"
-                        >
-                          <Heart size={18} className="text-gray-600" />
-                        </button>
                       </div>
                     )}
                     

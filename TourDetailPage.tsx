@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { 
   Star, 
-  Heart, 
   Share2, 
   Calendar, 
   Users, 
@@ -605,9 +604,6 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
           </div>
           <div className="flex items-center gap-4">
             <button className="p-2 hover:bg-gray-100 rounded-full transition-colors">
-              <Heart size={20} className="text-gray-600" />
-            </button>
-            <button className="p-2 hover:bg-gray-100 rounded-full transition-colors">
               <Share2 size={20} className="text-gray-600" />
             </button>
           </div>
@@ -1023,11 +1019,8 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
           {/* Right Column - Booking Panel */}
           <div className="lg:col-span-1">
             <div className="sticky top-24 bg-white rounded-2xl p-6 border-2 border-gray-200 shadow-sm">
-              {/* Add to wishlist & Share */}
+              {/* Share */}
               <div className="flex items-center justify-end gap-4 mb-6">
-                <a href="#" className="text-[14px] text-gray-600 font-semibold hover:text-[#10B981] transition-colors">
-                  Add to wishlist
-                </a>
                 <a href="#" className="text-[14px] text-gray-600 font-semibold hover:text-[#10B981] transition-colors">
                   Share
                 </a>

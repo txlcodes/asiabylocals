@@ -155,3 +155,15 @@ model Message {
   @@index([senderEmail])
   @@map("messages")
 }
+
+model Tourist {
+  id           Int      @id @default(autoincrement())
+  name         String
+  email        String   @unique
+  passwordHash String   @map("password_hash")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  @@index([email])
+  @@map("tourists")
+}

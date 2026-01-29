@@ -28,6 +28,8 @@ import AdminDashboard from './AdminDashboard';
 import SafetyGuidelines from './SafetyGuidelines';
 import PrivacyPolicy from './PrivacyPolicy';
 import TermsAndConditions from './TermsAndConditions';
+import TouristLogin from './TouristLogin';
+import TouristSignup from './TouristSignup';
 
 // Error Boundary Component
 class ErrorBoundary extends Component<
@@ -211,6 +213,11 @@ const App: React.FC = () => {
   const [cart, setCart] = useState<any[]>([]);
   const [user, setUser] = useState<any>(null);
   
+  // Tourist authentication modals
+  const [showTouristLogin, setShowTouristLogin] = useState(false);
+  const [showTouristSignup, setShowTouristSignup] = useState(false);
+  const [pendingWishlistTour, setPendingWishlistTour] = useState<any>(null);
+  
   // Focus cities: Agra, Delhi, Jaipur (India)
   const focusCities = [
     { name: 'Agra', country: 'India', slug: 'agra' },
@@ -271,11 +278,17 @@ const App: React.FC = () => {
     
     if (savedUser) {
       try {
-        setUser(JSON.parse(savedUser));
+        const userData = JSON.parse(savedUser);
+        setUser(userData);
       } catch (e) {
         console.error('Error loading user:', e);
       }
     }
+    
+    // Set up initial placeholder function immediately
+    (window as any).addToWishlist = (tour: any) => {
+      console.log('addToWishlist called (placeholder - will be replaced)', { tour });
+    };
   }, []);
 
   // Save wishlist and cart to localStorage when they change
@@ -289,23 +302,64 @@ const App: React.FC = () => {
 
   // Expose functions globally so tour pages can add items
   useEffect(() => {
-    (window as any).addToWishlist = addToWishlist;
-    (window as any).addToCart = addToCart;
+    const wishlistHandler = (tour: any) => {
+      console.log('addToWishlist called', { tour, tourId: tour?.id, user, wishlistLength: wishlist.length });
+      
+      if (!tour || !tour.id) {
+        console.error('Invalid tour object:', tour);
+        alert('Unable to add tour to wishlist. Please try again.');
+        return;
+      }
+      
+      // Check if user is logged in
+      if (!user || user.type !== 'tourist') {
+        console.log('User not logged in, showing login modal');
+        // Store the tour they want to add and show login modal
+        setPendingWishlistTour(tour);
+        setShowTouristLogin(true);
+        return;
+      }
+      
+      console.log('User logged in, adding to wishlist');
+      // User is logged in, add to wishlist
+      if (!wishlist.find((item: any) => item.id === tour.id)) {
+        setWishlist((prev: any[]) => [...prev, tour]);
+        console.log('Tour added to wishlist');
+      } else {
+        console.log('Tour already in wishlist');
+      }
+    };
+    
+    (window as any).addToWishlist = wishlistHandler;
+    (window as any).addToCart = (tour: any) => {
+      if (!cart.find((item: any) => item.id === tour.id)) {
+        setCart((prev: any[]) => [...prev, tour]);
+      }
+    };
     (window as any).openWishlist = () => setShowWishlistModal(true);
     (window as any).openCart = () => setShowCartModal(true);
+    (window as any).user = user; // Expose user state
+    (window as any).wishlist = wishlist; // Expose wishlist state for checking
     
     return () => {
       delete (window as any).addToWishlist;
       delete (window as any).addToCart;
       delete (window as any).openWishlist;
       delete (window as any).openCart;
+      delete (window as any).user;
+      delete (window as any).wishlist;
     };
-  }, [wishlist, cart]);
+  }, [wishlist, cart, user]);
 
-  // Wishlist functions
-  const addToWishlist = (tour: any) => {
-    if (!wishlist.find((item: any) => item.id === tour.id)) {
-      setWishlist([...wishlist, tour]);
+  // Handle successful tourist login/signup
+  const handleTouristAuthSuccess = (userData: any) => {
+    setUser(userData);
+    // If there was a pending wishlist tour, add it now
+    if (pendingWishlistTour) {
+      if (!wishlist.find((item: any) => item.id === pendingWishlistTour.id)) {
+        setWishlist([...wishlist, pendingWishlistTour]);
+      }
+      setPendingWishlistTour(null);
     }
   };
 
@@ -544,12 +598,32 @@ const App: React.FC = () => {
   
   // Show city page (SEO-friendly URL: /country/city)
   if (cityPageMatch && countrySlug && citySlug) {
-    return (
-      <CityPage 
-        country={slugToTitle(countrySlug)} 
-        city={slugToTitle(citySlug)} 
-      />
-    );
+    try {
+      return (
+        <ErrorBoundary>
+          <CityPage 
+            country={slugToTitle(countrySlug)} 
+            city={slugToTitle(citySlug)} 
+          />
+        </ErrorBoundary>
+      );
+    } catch (error) {
+      console.error('Error rendering CityPage:', error);
+      return (
+        <div className="min-h-screen bg-white flex items-center justify-center">
+          <div className="text-center">
+            <h2 className="text-2xl font-black text-[#001A33] mb-4">Error loading page</h2>
+            <p className="text-gray-500 font-semibold mb-6">Please try refreshing the page.</p>
+            <button
+              onClick={() => window.location.reload()}
+              className="px-6 py-2 bg-[#10B981] text-white font-bold rounded-lg hover:bg-[#059669] transition-colors"
+            >
+              Refresh Page
+            </button>
+          </div>
+        </div>
+      );
+    }
   }
 
   // Show supplier page if URL is /supplier or if showSupplierPage is true
@@ -715,18 +789,6 @@ const App: React.FC = () => {
               Become a supplier
             </button>
             <div className="flex items-center gap-3 md:gap-5">
-              <button 
-                onClick={() => setShowWishlistModal(true)}
-                className="flex flex-col items-center gap-1 hover:text-[#10B981] relative"
-              >
-                <Heart size={20} />
-                <span className="hidden lg:block text-[11px]">Wishlist</span>
-                {wishlist.length > 0 && (
-                  <span className="absolute -top-1 -right-1 bg-[#10B981] text-white text-[10px] font-black rounded-full w-5 h-5 flex items-center justify-center">
-                    {wishlist.length}
-                  </span>
-                )}
-              </button>
               <button 
                 onClick={() => setShowCartModal(true)}
                 className="flex flex-col items-center gap-1 hover:text-[#10B981] relative"
@@ -1267,6 +1329,36 @@ const App: React.FC = () => {
             </div>
           </div>
         </div>
+      )}
+
+      {/* Tourist Login Modal */}
+      {showTouristLogin && (
+        <TouristLogin
+          onClose={() => {
+            setShowTouristLogin(false);
+            setPendingWishlistTour(null);
+          }}
+          onLoginSuccess={handleTouristAuthSuccess}
+          onSwitchToSignup={() => {
+            setShowTouristLogin(false);
+            setShowTouristSignup(true);
+          }}
+        />
+      )}
+
+      {/* Tourist Signup Modal */}
+      {showTouristSignup && (
+        <TouristSignup
+          onClose={() => {
+            setShowTouristSignup(false);
+            setPendingWishlistTour(null);
+          }}
+          onSignupSuccess={handleTouristAuthSuccess}
+          onSwitchToLogin={() => {
+            setShowTouristSignup(false);
+            setShowTouristLogin(true);
+          }}
+        />
       )}
     </div>
   );

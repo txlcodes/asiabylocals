@@ -896,6 +896,139 @@ app.post('/api/suppliers/login', async (req, res) => {
   }
 });
 
+// Tourist Signup endpoint
+app.post('/api/tourists/signup', async (req, res) => {
+  try {
+    const { name, email: rawEmail, password } = req.body;
+
+    // Trim and normalize email
+    const email = rawEmail ? rawEmail.trim().toLowerCase() : null;
+
+    // Validate required fields
+    if (!name || !email || !password) {
+      return res.status(400).json({ 
+        error: 'Missing required fields',
+        message: 'Name, email, and password are required'
+      });
+    }
+
+    // Validate password length
+    if (password.length < 6) {
+      return res.status(400).json({ 
+        error: 'Password too short',
+        message: 'Password must be at least 6 characters'
+      });
+    }
+
+    // Check if email already exists
+    const existingTourist = await prisma.tourist.findUnique({
+      where: { email }
+    });
+
+    if (existingTourist) {
+      return res.status(400).json({ 
+        error: 'Email already exists',
+        message: 'An account with this email already exists. Please sign in instead.'
+      });
+    }
+
+    // Hash password
+    const passwordHash = await bcrypt.hash(password, 10);
+
+    // Create tourist
+    const tourist = await prisma.tourist.create({
+      data: {
+        name,
+        email,
+        passwordHash
+      },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        createdAt: true
+      }
+    });
+
+    res.json({
+      success: true,
+      tourist: {
+        id: String(tourist.id),
+        name: tourist.name,
+        email: tourist.email
+      }
+    });
+  } catch (error) {
+    console.error('Tourist signup error:', error);
+    res.status(500).json({ 
+      error: 'Internal server error',
+      message: 'Failed to create account. Please try again later.'
+    });
+  }
+});
+
+// Tourist Login endpoint
+app.post('/api/tourists/login', async (req, res) => {
+  try {
+    const { email: rawEmail, password } = req.body;
+
+    // Normalize email
+    const email = rawEmail ? rawEmail.trim().toLowerCase() : null;
+
+    if (!email || !password) {
+      return res.status(400).json({ 
+        error: 'Email and password are required'
+      });
+    }
+
+    // Find tourist
+    const tourist = await prisma.tourist.findUnique({
+      where: { email },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        passwordHash: true
+      }
+    });
+
+    if (!tourist) {
+      return res.status(401).json({ 
+        error: 'Invalid credentials',
+        message: 'Email or password is incorrect'
+      });
+    }
+
+    // Compare password
+    const passwordMatch = await bcrypt.compare(password, tourist.passwordHash);
+
+    if (!passwordMatch) {
+      return res.status(401).json({ 
+        error: 'Invalid credentials',
+        message: 'Email or password is incorrect'
+      });
+    }
+
+    // Remove password hash from response
+    const { passwordHash, ...touristData } = tourist;
+
+    res.json({
+      success: true,
+      tourist: {
+        id: String(touristData.id),
+        name: touristData.name,
+        email: touristData.email
+      }
+    });
+  } catch (error) {
+    console.error('Tourist login error:', error);
+    res.status(500).json({ 
+      error: 'Internal server error',
+      message: 'Failed to login. Please try again later.'
+    });
+  }
+});
+
 // Verify email endpoint - MUST come before /api/suppliers/:id route
 app.get('/api/suppliers/verify-email', async (req, res) => {
   try {
