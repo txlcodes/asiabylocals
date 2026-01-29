@@ -235,7 +235,7 @@ function generateSitemap() {
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
     <image:image>
-      <image:loc>https://www.asiabylocals.com/logo.jpeg</image:loc>
+      <image:loc>https://www.asiabylocals.com/logo.svg</image:loc>
       <image:title>AsiaByLocals Logo</image:title>
     </image:image>
   </url>

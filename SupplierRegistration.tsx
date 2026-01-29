@@ -612,7 +612,7 @@ const SupplierRegistration: React.FC<SupplierRegistrationProps> = ({ onClose }) 
         <div className="max-w-4xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3">
             <img 
-              src="/logo.jpeg" 
+              src="/logo.svg?v=3" 
               alt="AsiaByLocals" 
               className="h-10 w-10 object-contain"
             />

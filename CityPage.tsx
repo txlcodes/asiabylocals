@@ -642,7 +642,7 @@ const CityPage: React.FC<CityPageProps> = ({ country, city }) => {
           <div className="flex items-center justify-between mb-4">
             {/* Logo */}
             <a href="/" className="flex items-center gap-3">
-              <img src="/logo.jpeg" alt="AsiaByLocals" className="h-10 w-10 object-contain" />
+              <img src="/logo.svg?v=3" alt="AsiaByLocals" className="h-10 w-10 object-contain" />
               <span className="font-black text-[#001A33] text-lg">ASIA BY LOCALS</span>
             </a>
 

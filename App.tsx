@@ -545,11 +545,11 @@ const App: React.FC = () => {
     <div className="flex flex-col min-h-screen">
       {/* Header Navigation */}
       <header className="sticky top-0 z-50 bg-white border-b border-gray-100 shadow-sm">
-        <div className="max-w-[1200px] mx-auto px-6 py-2 flex items-center justify-between">
-          <div className="flex items-center gap-10">
+        <div className="w-full pt-2 pb-1 flex items-center justify-between">
+          <div className="flex items-center gap-3 pl-6">
             {/* Logo */}
-            <div className="flex items-center cursor-pointer h-[77px] md:h-[96px] lg:h-[115px]">
-              <img src="/logo.jpeg" alt="Asia By Locals" className="h-full w-auto object-contain" />
+            <div className="flex items-center cursor-pointer h-[77px] md:h-[96px] lg:h-[115px] mt-2 md:mt-3">
+              <img src="/logo.svg?v=3" alt="Asia By Locals" className="h-full w-auto object-contain" />
             </div>
 
             {/* Nav Links */}
@@ -685,7 +685,7 @@ const App: React.FC = () => {
             </nav>
           </div>
 
-          <div className="flex items-center gap-6 text-[13px] font-semibold text-[#001A33]">
+          <div className="flex items-center gap-6 text-[13px] font-semibold text-[#001A33] pr-6">
             <button 
               onClick={() => setShowSupplierPage(true)}
               className="hidden md:block hover:text-[#10B981]"
@@ -962,7 +962,7 @@ const App: React.FC = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-16 mb-20">
             <div className="col-span-1 lg:col-span-1">
               <div className="flex items-center mb-8">
-                <img src="/logo.jpeg" alt="AsiaByLocals - Authentic Local Tours and Cultural Experiences in Asia" className="h-20 md:h-24 lg:h-28 w-auto" />
+                <img src="/logo.svg?v=3" alt="AsiaByLocals - Authentic Local Tours and Cultural Experiences in Asia" className="h-20 md:h-24 lg:h-28 w-auto" />
               </div>
               <p className="text-gray-400 text-[14px] leading-relaxed">
                 Empowering local experts across Asia to share their heritage directly with curious travelers.

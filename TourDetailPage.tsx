@@ -598,7 +598,7 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
               </button>
             ) : (
               <a href="/" className="flex items-center gap-3">
-                <img src="/logo.jpeg" alt="AsiaByLocals" className="h-12 w-12 object-contain" />
+                <img src="/logo.svg?v=3" alt="AsiaByLocals" className="h-12 w-12 object-contain" />
                 <span className="font-black text-[#001A33] text-lg">AsiaByLocals</span>
               </a>
             )}
