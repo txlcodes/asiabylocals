@@ -1132,21 +1132,24 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
                     return 'per person';
                   })()}
                 </div>
-                {/* Tour Types */}
+                {/* Tour Types - More Prominent Display */}
                 {tour.tourTypes && (() => {
                   try {
                     const tourTypesArray = typeof tour.tourTypes === 'string' ? JSON.parse(tour.tourTypes) : tour.tourTypes;
                     if (Array.isArray(tourTypesArray) && tourTypesArray.length > 0) {
                       return (
-                        <div className="flex flex-wrap gap-2 mt-3">
-                          {tourTypesArray.map((type: string, idx: number) => (
-                            <span
-                              key={idx}
-                              className="px-2 py-1 bg-gray-100 text-gray-700 text-[11px] font-semibold rounded"
-                            >
-                              {type}
-                            </span>
-                          ))}
+                        <div className="mt-4">
+                          <div className="text-[12px] font-bold text-gray-500 uppercase tracking-wider mb-2">Tour Type</div>
+                          <div className="flex flex-wrap gap-2">
+                            {tourTypesArray.map((type: string, idx: number) => (
+                              <span
+                                key={idx}
+                                className="px-3 py-1.5 bg-[#10B981]/10 text-[#10B981] text-[12px] font-black rounded-full border border-[#10B981]/20"
+                              >
+                                {type}
+                              </span>
+                            ))}
+                          </div>
                         </div>
                       );
                     }
