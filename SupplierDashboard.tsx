@@ -306,19 +306,52 @@ const SupplierDashboard: React.FC<SupplierDashboardProps> = ({ supplier, onLogou
   const handleSubmitTour = async (tourId: string) => {
     try {
       const API_URL = (import.meta as any).env?.VITE_API_URL || (typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3001');
-      const response = await fetch(`${API_URL}/api/tours/${tourId}/submit`, {
-        method: 'POST'
-      });
+      
+      console.log(`📤 Submitting tour ${tourId} for review...`);
+      
+      // Add timeout handling
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
+      
+      let response;
+      try {
+        response = await fetch(`${API_URL}/api/tours/${tourId}/submit`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          signal: controller.signal
+        });
+        clearTimeout(timeoutId);
+      } catch (fetchError: any) {
+        clearTimeout(timeoutId);
+        if (fetchError.name === 'AbortError') {
+          console.error('❌ Submit tour timed out');
+          alert('Request timed out. The server is taking too long to respond. Please try again.');
+          return;
+        }
+        throw fetchError;
+      }
+      
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ message: 'Failed to submit tour' }));
+        console.error('❌ Submit tour failed:', errorData);
+        alert(errorData.message || errorData.error || `Failed to submit tour (${response.status})`);
+        return;
+      }
+      
       const data = await response.json();
+      console.log('✅ Submit tour response:', data);
+      
       if (data.success) {
-        fetchTours();
+        // Refresh tours list to show updated status
+        await fetchTours();
         alert('Tour submitted for review! We\'ll review it within 24-48 hours.');
       } else {
-        alert(data.message || 'Failed to submit tour');
+        console.error('❌ Submit tour failed:', data);
+        alert(data.message || data.error || 'Failed to submit tour');
       }
-    } catch (error) {
-      console.error('Error submitting tour:', error);
-      alert('Failed to submit tour. Please try again.');
+    } catch (error: any) {
+      console.error('❌ Error submitting tour:', error);
+      alert(`Failed to submit tour: ${error.message || 'Please try again.'}`);
     }
   };
 
