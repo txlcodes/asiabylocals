@@ -4542,23 +4542,52 @@ app.get('/api/tours/:id', async (req, res) => {
     let formattedTour;
     try {
       // Format options
-      const formattedOptions = (tour.options || []).map(opt => ({
-        id: String(opt.id),
-        tourId: String(opt.tourId),
-        optionTitle: opt.optionTitle,
-        optionDescription: opt.optionDescription,
-        durationHours: opt.durationHours,
-        price: opt.price,
-        currency: opt.currency,
-        language: opt.language,
-        pickupIncluded: opt.pickupIncluded,
-        entryTicketIncluded: opt.entryTicketIncluded,
-        guideIncluded: opt.guideIncluded,
-        carIncluded: opt.carIncluded,
-        maxGroupSize: opt.maxGroupSize,
-        groupPrice: opt.groupPrice,
-        sortOrder: opt.sortOrder
-      }));
+      const formattedOptions = (tour.options || []).map(opt => {
+        // Parse groupPricingTiers if it exists
+        let groupPricingTiers = null;
+        if (opt.groupPricingTiers) {
+          try {
+            groupPricingTiers = typeof opt.groupPricingTiers === 'string' 
+              ? JSON.parse(opt.groupPricingTiers) 
+              : opt.groupPricingTiers;
+          } catch (e) {
+            console.warn(`   ⚠️  Failed to parse groupPricingTiers for option ${opt.id}:`, e.message);
+            groupPricingTiers = null;
+          }
+        }
+        
+        return {
+          id: String(opt.id),
+          tourId: String(opt.tourId),
+          optionTitle: opt.optionTitle,
+          optionDescription: opt.optionDescription,
+          durationHours: opt.durationHours,
+          price: opt.price,
+          currency: opt.currency,
+          language: opt.language,
+          pickupIncluded: opt.pickupIncluded,
+          entryTicketIncluded: opt.entryTicketIncluded,
+          guideIncluded: opt.guideIncluded,
+          carIncluded: opt.carIncluded,
+          maxGroupSize: opt.maxGroupSize,
+          groupPrice: opt.groupPrice,
+          groupPricingTiers: groupPricingTiers,
+          sortOrder: opt.sortOrder
+        };
+      });
+
+      // Parse groupPricingTiers for main tour if it exists
+      let groupPricingTiers = null;
+      if (tour.groupPricingTiers) {
+        try {
+          groupPricingTiers = typeof tour.groupPricingTiers === 'string' 
+            ? JSON.parse(tour.groupPricingTiers) 
+            : tour.groupPricingTiers;
+        } catch (e) {
+          console.warn(`   ⚠️  Failed to parse groupPricingTiers for tour ${tour.id}:`, e.message);
+          groupPricingTiers = null;
+        }
+      }
 
       formattedTour = {
         ...tour,
@@ -4568,6 +4597,8 @@ app.get('/api/tours/:id', async (req, res) => {
         images: JSON.parse(tour.images || '[]'),
         languages: JSON.parse(tour.languages || '[]'),
         highlights: tour.highlights ? JSON.parse(tour.highlights || '[]') : [],
+        tourTypes: tour.tourTypes ? JSON.parse(tour.tourTypes || '[]') : [],
+        groupPricingTiers: groupPricingTiers,
         options: formattedOptions
       };
     } catch (parseError) {

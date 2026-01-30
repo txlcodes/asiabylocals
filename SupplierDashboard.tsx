@@ -687,7 +687,20 @@ const SupplierDashboard: React.FC<SupplierDashboardProps> = ({ supplier, onLogou
                         </div>
                         <div className="flex items-center justify-between text-[14px] font-black text-[#001A33] mb-4">
                           <span>
-                            {tour.currency === 'INR' ? '₹' : '$'}{tour.pricePerPerson}
+                            {(() => {
+                              // Check for group pricing tiers first
+                              if (tour.groupPricingTiers && Array.isArray(tour.groupPricingTiers) && tour.groupPricingTiers.length > 0) {
+                                // Show lowest tier price for group tours
+                                const lowestTier = tour.groupPricingTiers[0];
+                                return `${tour.currency === 'INR' ? '₹' : '$'}${parseFloat(lowestTier.price || 0).toLocaleString()} (${lowestTier.minPeople}-${lowestTier.maxPeople} people)`;
+                              }
+                              // Check for legacy group pricing
+                              if (tour.groupPrice && tour.maxGroupSize) {
+                                return `${tour.currency === 'INR' ? '₹' : '$'}${parseFloat(tour.groupPrice).toLocaleString()} (up to ${tour.maxGroupSize} people)`;
+                              }
+                              // Fallback to per person pricing
+                              return `${tour.currency === 'INR' ? '₹' : '$'}${parseFloat(tour.pricePerPerson || 0).toLocaleString()}/person`;
+                            })()}
                           </span>
                           <span className="text-gray-500 font-semibold">{tour.duration}</span>
                         </div>
