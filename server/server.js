@@ -1302,23 +1302,52 @@ app.get('/api/suppliers/:id', async (req, res) => {
       return res.status(400).json({ error: 'Invalid supplier ID' });
     }
 
-    const supplier = await prisma.supplier.findUnique({
-      where: { id: supplierId },
-      select: {
-        id: true,
-        email: true,
-        fullName: true,
-        businessType: true,
-        status: true,
-        createdAt: true,
-        companyName: true,
-        mainHub: true,
-        city: true,
-        tourLanguages: true,
-        phone: true,
-        whatsapp: true
+    // Retry logic for Render free tier database connection issues
+    let supplier = null;
+    let findAttempts = 0;
+    const MAX_FIND_RETRIES = 3;
+
+    while (findAttempts < MAX_FIND_RETRIES && !supplier) {
+      try {
+        supplier = await prisma.supplier.findUnique({
+          where: { id: supplierId },
+          select: {
+            id: true,
+            email: true,
+            fullName: true,
+            businessType: true,
+            status: true,
+            createdAt: true,
+            companyName: true,
+            mainHub: true,
+            city: true,
+            tourLanguages: true,
+            phone: true,
+            whatsapp: true
+          }
+        });
+        break; // Success, exit retry loop
+      } catch (dbError) {
+        findAttempts++;
+        console.error(`   Database error finding supplier (attempt ${findAttempts}/${MAX_FIND_RETRIES}):`, dbError.message);
+
+        // If it's a connection error and we have retries left, wait and retry
+        if (findAttempts < MAX_FIND_RETRIES && (
+          dbError.message?.includes('connection') ||
+          dbError.message?.includes('timeout') ||
+          dbError.message?.includes('closed') ||
+          dbError.code === 'P1001' ||
+          dbError.code === 'P1017' ||
+          dbError.code === 'P1008'
+        )) {
+          console.log(`   Retrying in ${findAttempts * 500}ms...`);
+          await new Promise(resolve => setTimeout(resolve, findAttempts * 500));
+          continue;
+        }
+        // Not a retryable error, throw
+        throw dbError;
       }
-    });
+    }
 
     if (!supplier) {
       return res.status(404).json({ error: 'Supplier not found' });
