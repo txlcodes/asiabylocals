@@ -1320,13 +1320,13 @@ const TourCreationForm: React.FC<TourCreationFormProps> = ({
                             });
                           }
                         }}
-                        placeholder="1-20"
+                        placeholder="e.g., 10"
                         min="1"
                         max="20"
                         className="w-full bg-gray-50 border-none rounded-2xl py-4 px-4 font-bold text-[#001A33] text-[14px] focus:ring-2 focus:ring-[#10B981] outline-none"
                       />
                       <p className="text-[11px] text-gray-400 mt-1">
-                        Maximum number of people per group (1-20)
+                        Enter a single number (between 1 and 20) for maximum group size
                       </p>
                     </div>
                     <div>
@@ -1800,13 +1800,13 @@ const TourCreationForm: React.FC<TourCreationFormProps> = ({
                                 }
                                 setFormData(prev => ({ ...prev, tourOptions: newOptions }));
                               }}
-                              placeholder="1-20"
+                              placeholder="e.g., 10"
                               min="1"
                               max="20"
                               className="w-full bg-white border-none rounded-xl py-3 px-4 font-semibold text-[#001A33] text-[14px] focus:ring-2 focus:ring-[#10B981] outline-none"
                             />
                             <p className="text-[11px] text-gray-400 mt-1">
-                              Maximum number of people per group (1-20)
+                              Enter a single number (between 1 and 20) for maximum group size
                             </p>
                           </div>
                           
