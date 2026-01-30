@@ -175,13 +175,37 @@ const SupplierDashboard: React.FC<SupplierDashboardProps> = ({ supplier, onLogou
     setIsLoading(true);
     try {
       const API_URL = (import.meta as any).env?.VITE_API_URL || (typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3001');
-      const response = await fetch(`${API_URL}/api/tours?supplierId=${supplier.id}`);
+      
+      // Add timeout handling
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
+      
+      let response;
+      try {
+        response = await fetch(`${API_URL}/api/tours?supplierId=${supplier.id}`, {
+          signal: controller.signal
+        });
+        clearTimeout(timeoutId);
+      } catch (fetchError: any) {
+        clearTimeout(timeoutId);
+        if (fetchError.name === 'AbortError') {
+          console.error('❌ Fetch tours timed out');
+          alert('Loading tours timed out. Please refresh the page.');
+          return;
+        }
+        throw fetchError;
+      }
+      
       const data = await response.json();
       if (data.success) {
-        setTours(data.tours);
+        setTours(data.tours || []);
+      } else {
+        console.error('Error fetching tours:', data.error || data.message);
+        setTours([]);
       }
     } catch (error) {
       console.error('Error fetching tours:', error);
+      setTours([]);
     } finally {
       setIsLoading(false);
     }
