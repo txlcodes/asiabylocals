@@ -5989,13 +5989,17 @@ app.post('/api/tours/:id/submit', async (req, res) => {
       });
     }
 
+    console.log(`📝 Updating tour ${tourId} status to pending...`);
+    
     // Update status to pending
+    const updateStartTime = Date.now();
     const updatedTour = await prisma.tour.update({
       where: { id: tourId },
       data: {
         status: 'pending'
       }
     });
+    console.log(`   ✅ Status updated (took ${Date.now() - updateStartTime}ms)`);
 
     // Parse JSON fields
     const formattedTour = {
@@ -6004,10 +6008,11 @@ app.post('/api/tours/:id/submit', async (req, res) => {
       locations: JSON.parse(updatedTour.locations || '[]'),
       images: JSON.parse(updatedTour.images || '[]'),
       languages: JSON.parse(updatedTour.languages || '[]'),
-      highlights: updatedTour.highlights ? JSON.parse(updatedTour.highlights || '[]') : []
+      highlights: updatedTour.highlights ? JSON.parse(updatedTour.highlights || '[]') : [],
+      tourTypes: updatedTour.tourTypes ? JSON.parse(updatedTour.tourTypes || '[]') : []
     };
 
-    console.log('✅ Tour submitted for review:', tourId);
+    console.log(`✅ Tour submitted for review: ${tourId}`);
 
     res.json({
       success: true,
