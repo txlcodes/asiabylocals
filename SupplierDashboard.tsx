@@ -234,9 +234,32 @@ const SupplierDashboard: React.FC<SupplierDashboardProps> = ({ supplier, onLogou
     }
   };
 
-  const handleEditTour = (tour: any) => {
-    setEditingTour(tour);
-    setShowTourForm(true);
+  const handleEditTour = async (tour: any) => {
+    // Fetch full tour data including images when editing
+    // The list view doesn't include images for performance, so we need to fetch them separately
+    try {
+      setIsLoading(true);
+      const API_URL = (import.meta as any).env?.VITE_API_URL || (typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3001');
+      const response = await fetch(`${API_URL}/api/tours/${tour.id}`);
+      const data = await response.json();
+      
+      if (data.success && data.tour) {
+        setEditingTour(data.tour);
+        setShowTourForm(true);
+      } else {
+        // Fallback to tour from list if fetch fails
+        console.warn('Failed to fetch full tour data, using list data');
+        setEditingTour(tour);
+        setShowTourForm(true);
+      }
+    } catch (error) {
+      console.error('Error fetching tour for edit:', error);
+      // Fallback to tour from list if fetch fails
+      setEditingTour(tour);
+      setShowTourForm(true);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleSaveProfile = async () => {
