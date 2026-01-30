@@ -2482,10 +2482,43 @@ const TourCreationForm: React.FC<TourCreationFormProps> = ({
                 </div>
                 
                 <div>
-                  <div className="text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-2">PRICE</div>
-                  <div className="text-[16px] font-black text-[#001A33]">
-                    {formData.currency === 'INR' ? '₹' : '$'}{formData.pricePerPerson} per person
-                  </div>
+                  <div className="text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-2">PRICING</div>
+                  {formData.pricingType === 'per_group' ? (
+                    <div className="space-y-3">
+                      <div className="text-[16px] font-black text-[#001A33] mb-3">
+                        Group Tour Pricing ({formData.currency === 'INR' ? '₹' : '$'})
+                      </div>
+                      {formData.groupPricingTiers && formData.groupPricingTiers.length > 0 ? (
+                        <div className="space-y-2">
+                          {formData.groupPricingTiers.map((tier, index) => (
+                            <div key={index} className="flex items-center justify-between bg-gray-50 rounded-xl p-3 border border-gray-200">
+                              <span className="text-[14px] font-bold text-[#001A33]">
+                                {tier.minPeople}-{tier.maxPeople} {tier.maxPeople === 1 ? 'person' : 'people'}
+                              </span>
+                              <span className="text-[16px] font-black text-[#10B981]">
+                                {formData.currency === 'INR' ? '₹' : '$'}{tier.price ? parseFloat(tier.price).toLocaleString() : '0'}
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+                      ) : formData.groupPrice && formData.maxGroupSize ? (
+                        <div className="bg-gray-50 rounded-xl p-3 border border-gray-200">
+                          <span className="text-[14px] font-bold text-[#001A33]">
+                            Up to {formData.maxGroupSize} people: 
+                          </span>
+                          <span className="text-[16px] font-black text-[#10B981] ml-2">
+                            {formData.currency === 'INR' ? '₹' : '$'}{parseFloat(formData.groupPrice || '0').toLocaleString()}
+                          </span>
+                        </div>
+                      ) : (
+                        <div className="text-[14px] text-gray-500 font-semibold">No group pricing configured</div>
+                      )}
+                    </div>
+                  ) : (
+                    <div className="text-[16px] font-black text-[#001A33]">
+                      {formData.currency === 'INR' ? '₹' : '$'}{formData.pricePerPerson || '0'} per person
+                    </div>
+                  )}
                 </div>
               </div>
 
