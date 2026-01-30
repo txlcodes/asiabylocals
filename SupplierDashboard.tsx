@@ -733,9 +733,15 @@ const SupplierDashboard: React.FC<SupplierDashboardProps> = ({ supplier, onLogou
                             </>
                           )}
                           {tour.status === 'approved' && (
-                            <div className="w-full text-center text-[12px] text-[#10B981] font-bold py-2">
-                              ✓ Live on Site
-                            </div>
+                            <a
+                              href={`/${tour.country?.toLowerCase().replace(/\s+/g, '-')}/${tour.city?.toLowerCase().replace(/\s+/g, '-')}/${tour.slug || tour.id}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="flex-1 bg-[#10B981] hover:bg-[#059669] text-white font-black py-2 px-4 rounded-full text-[12px] transition-colors flex items-center justify-center gap-2"
+                            >
+                              <Globe size={14} />
+                              View on Site
+                            </a>
                           )}
                         </div>
                       </div>
