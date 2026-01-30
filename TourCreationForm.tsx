@@ -354,6 +354,22 @@ const TourCreationForm: React.FC<TourCreationFormProps> = ({
   // Check if supplier has required contact information
   const hasRequiredContactInfo = !!(supplierEmail && (supplierPhone || supplierWhatsApp));
 
+  // Auto-fix missing locationEntryTickets when on step 3 (fixes editing issues)
+  React.useEffect(() => {
+    if (step === 3 && formData.locations.length > 0) {
+      const missingEntryTickets = formData.locations.filter(loc => !formData.locationEntryTickets[loc]);
+      if (missingEntryTickets.length > 0) {
+        setFormData(prev => {
+          const newEntryTickets = { ...prev.locationEntryTickets };
+          missingEntryTickets.forEach(loc => {
+            newEntryTickets[loc] = 'paid_included';
+          });
+          return { ...prev, locationEntryTickets: newEntryTickets };
+        });
+      }
+    }
+  }, [step, formData.locations.length]); // Only run when step changes or locations change
+
   const handleInputChange = (field: string, value: any) => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
@@ -1072,22 +1088,6 @@ const TourCreationForm: React.FC<TourCreationFormProps> = ({
         )}
 
         {/* Step 3: Title & Locations */}
-        {step === 3 && (() => {
-          // Ensure all locations have entry ticket options when step 3 is displayed
-          // This fixes the issue where editing tours might have missing entry tickets
-          const missingEntryTickets = formData.locations.filter(loc => !formData.locationEntryTickets[loc]);
-          if (missingEntryTickets.length > 0) {
-            // Auto-fix missing entry tickets
-            setFormData(prev => {
-              const newEntryTickets = { ...prev.locationEntryTickets };
-              missingEntryTickets.forEach(loc => {
-                newEntryTickets[loc] = 'paid_included';
-              });
-              return { ...prev, locationEntryTickets: newEntryTickets };
-            });
-          }
-          return null;
-        })()}
         {step === 3 && (
           <div className="bg-white rounded-2xl p-8 border border-gray-200">
             <h2 className="text-xl font-black text-[#001A33] mb-6">Tour Title & Locations</h2>
