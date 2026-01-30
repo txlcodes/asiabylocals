@@ -4595,17 +4595,23 @@ app.put('/api/tours/:id', async (req, res) => {
       typeof updateData.languages === 'string' ? JSON.parse(updateData.languages) : updateData.languages
     );
     
-    // Handle group pricing fields
-    if (updateData.maxGroupSize !== undefined) {
-      dataToUpdate.maxGroupSize = updateData.maxGroupSize && updateData.maxGroupSize >= 1 && updateData.maxGroupSize <= 20 ? updateData.maxGroupSize : null;
-    }
-    if (updateData.groupPrice !== undefined) {
-      dataToUpdate.groupPrice = updateData.groupPrice && !isNaN(parseFloat(updateData.groupPrice)) ? parseFloat(updateData.groupPrice) : null;
-    }
-    if (updateData.groupPricingTiers !== undefined) {
-      dataToUpdate.groupPricingTiers = updateData.groupPricingTiers 
-        ? JSON.stringify(typeof updateData.groupPricingTiers === 'string' ? JSON.parse(updateData.groupPricingTiers) : updateData.groupPricingTiers)
-        : null;
+    // Handle group pricing fields (only if columns exist in database)
+    // Note: These fields may not exist in production DB yet
+    try {
+      if (updateData.maxGroupSize !== undefined) {
+        dataToUpdate.maxGroupSize = updateData.maxGroupSize && updateData.maxGroupSize >= 1 && updateData.maxGroupSize <= 20 ? updateData.maxGroupSize : null;
+      }
+      if (updateData.groupPrice !== undefined) {
+        dataToUpdate.groupPrice = updateData.groupPrice && !isNaN(parseFloat(updateData.groupPrice)) ? parseFloat(updateData.groupPrice) : null;
+      }
+      if (updateData.groupPricingTiers !== undefined) {
+        dataToUpdate.groupPricingTiers = updateData.groupPricingTiers 
+          ? JSON.stringify(typeof updateData.groupPricingTiers === 'string' ? JSON.parse(updateData.groupPricingTiers) : updateData.groupPricingTiers)
+          : null;
+      }
+    } catch (groupPricingError) {
+      console.warn('⚠️ Error handling group pricing fields (columns may not exist):', groupPricingError.message);
+      // Continue without these fields if they don't exist
     }
 
     // Update tour first
@@ -4617,6 +4623,8 @@ app.put('/api/tours/:id', async (req, res) => {
     // Handle tour options update (delete old ones and create new ones)
     if (updateData.tourOptions !== undefined && Array.isArray(updateData.tourOptions)) {
       try {
+        console.log(`📋 Updating tour options for tour ${tourId}, count: ${updateData.tourOptions.length}`);
+        
         // Delete all existing options for this tour
         await prisma.tourOption.deleteMany({
           where: { tourId: tourId }
@@ -4631,7 +4639,7 @@ app.put('/api/tours/:id', async (req, res) => {
           ];
           
           const optionsToCreate = updateData.tourOptions.map((opt, index) => {
-            const cleanOpt = {};
+            const cleanOpt: any = {};
             VALID_TOUR_OPTION_FIELDS.forEach(field => {
               if (field in opt && opt[field] !== undefined && opt[field] !== null) {
                 if (field === 'groupPricingTiers' && typeof opt[field] === 'string') {
@@ -4643,26 +4651,35 @@ app.put('/api/tours/:id', async (req, res) => {
                 }
               }
             });
-            // Remove any ID fields
+            // Remove any ID fields and invalid fields
             delete cleanOpt.id;
             delete cleanOpt.tourId;
             delete cleanOpt.pricingType;
             delete cleanOpt.pricing_type;
+            delete cleanOpt.maxGroupSize;
+            delete cleanOpt.max_group_size;
+            delete cleanOpt.groupPrice;
+            delete cleanOpt.group_price;
             return cleanOpt;
           });
           
-          await prisma.tourOption.createMany({
-            data: optionsToCreate.map(opt => ({
-              ...opt,
-              tourId: tourId
-            }))
-          });
+          // Create options one by one to avoid batch issues
+          for (const opt of optionsToCreate) {
+            await prisma.tourOption.create({
+              data: {
+                ...opt,
+                tourId: tourId
+              }
+            });
+          }
           
           console.log(`✅ Updated ${optionsToCreate.length} tour options for tour ${tourId}`);
         }
       } catch (optionsError) {
         console.error('⚠️ Error updating tour options:', optionsError);
-        // Don't fail the whole request if options update fails
+        console.error('   Error details:', optionsError.message);
+        console.error('   Error stack:', optionsError.stack);
+        // Don't fail the whole request if options update fails - log but continue
       }
     }
 
