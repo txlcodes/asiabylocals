@@ -5814,7 +5814,7 @@ app.post('/api/tours/:id/submit', async (req, res) => {
       });
     }
 
-    // Check if tour exists and is in draft status
+    // Check if tour exists
     const existingTour = await prisma.tour.findUnique({
       where: { id: tourId }
     });
@@ -5827,11 +5827,13 @@ app.post('/api/tours/:id/submit', async (req, res) => {
       });
     }
 
-    if (existingTour.status !== 'draft') {
+    // Allow submitting draft, pending, and approved tours for review
+    // This allows suppliers to resubmit edited tours
+    if (existingTour.status !== 'draft' && existingTour.status !== 'pending' && existingTour.status !== 'approved') {
       return res.status(400).json({
         success: false,
         error: 'Cannot submit tour',
-        message: 'Only draft tours can be submitted for review'
+        message: 'Only draft, pending, or approved tours can be submitted for review'
       });
     }
 
