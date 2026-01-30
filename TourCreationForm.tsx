@@ -2684,6 +2684,14 @@ const TourCreationForm: React.FC<TourCreationFormProps> = ({
         <div className="flex items-center justify-between mt-8">
           {(step === totalSteps) ? (
             <>
+              {/* Debug info - remove after fixing */}
+              {process.env.NODE_ENV === 'development' && (
+                <div className="absolute bottom-20 left-4 bg-black text-white text-xs p-2 rounded z-50">
+                  Debug: canProceed={canProceed() ? 'true' : 'false'}, 
+                  hasContact={hasRequiredContactInfo ? 'true' : 'false'}, 
+                  isSubmitting={isSubmitting ? 'true' : 'false'}
+                </div>
+              )}
               <button
                 onClick={() => setStep(prev => Math.max(1, prev - 1))}
                 disabled={step === 1 || isSubmitting}
@@ -2743,9 +2751,25 @@ const TourCreationForm: React.FC<TourCreationFormProps> = ({
                     }
                   }}
                   disabled={isSubmitting || !canProceed() || !hasRequiredContactInfo}
-                  className="px-6 py-3 bg-[#10B981] hover:bg-[#059669] text-white font-black rounded-full text-[14px] disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center gap-2"
-                  title={!hasRequiredContactInfo ? 'Add contact info in profile first' : !canProceed() ? 'Complete all required fields' : ''}
-                  style={{ pointerEvents: isSubmitting ? 'none' : 'auto' }}
+                  className={`px-6 py-3 font-black rounded-full text-[14px] transition-all flex items-center gap-2 ${
+                    isSubmitting || !canProceed() || !hasRequiredContactInfo
+                      ? 'bg-gray-400 cursor-not-allowed opacity-50'
+                      : 'bg-[#10B981] hover:bg-[#059669] text-white cursor-pointer'
+                  }`}
+                  title={
+                    !hasRequiredContactInfo 
+                      ? 'Add contact info (phone or WhatsApp) in profile first' 
+                      : !canProceed() 
+                        ? 'Complete all required fields' 
+                        : isSubmitting
+                          ? 'Submitting...'
+                          : 'Submit tour for admin review'
+                  }
+                  style={{ 
+                    pointerEvents: (isSubmitting || !canProceed() || !hasRequiredContactInfo) ? 'none' : 'auto',
+                    position: 'relative',
+                    zIndex: 10
+                  }}
                 >
                   {isSubmitting ? 'Submitting...' : (
                     <>
