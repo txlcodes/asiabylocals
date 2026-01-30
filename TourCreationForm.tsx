@@ -520,6 +520,8 @@ const TourCreationForm: React.FC<TourCreationFormProps> = ({
   };
 
   const handleSubmit = async (submitForReview: boolean = false) => {
+    console.log('handleSubmit called', { submitForReview, isEditing, step });
+    
     // Check if supplier has required contact information
     if (!supplierEmail || (!supplierPhone && !supplierWhatsApp)) {
       const missing = [];
@@ -535,6 +537,7 @@ const TourCreationForm: React.FC<TourCreationFormProps> = ({
     }
 
     if (!canProceed()) {
+      console.warn('Cannot proceed - validation failed', { step, canProceed: canProceed() });
       alert('Please complete all required fields before submitting.');
       return;
     }
@@ -2662,7 +2665,8 @@ const TourCreationForm: React.FC<TourCreationFormProps> = ({
                   {isSubmitting ? 'Saving...' : 'Save as Draft'}
                 </button>
                 <button
-                  onClick={() => {
+                  onClick={(e) => {
+                    e.preventDefault();
                     console.log('Submit for Review clicked', {
                       isSubmitting,
                       canProceed: canProceed(),
@@ -2670,12 +2674,28 @@ const TourCreationForm: React.FC<TourCreationFormProps> = ({
                       step,
                       pricingType: formData.pricingType,
                       hasGroupPricingTiers: formData.groupPricingTiers?.length > 0,
-                      hasPerPersonPricing: !!formData.pricePerPerson
+                      hasPerPersonPricing: !!formData.pricePerPerson,
+                      supplierEmail,
+                      supplierPhone,
+                      supplierWhatsApp
                     });
+                    if (isSubmitting) {
+                      console.warn('Already submitting, ignoring click');
+                      return;
+                    }
+                    if (!canProceed()) {
+                      alert('Please complete all required fields before submitting.');
+                      return;
+                    }
+                    if (!hasRequiredContactInfo) {
+                      alert('Please add your contact information (phone or WhatsApp) in your profile first.');
+                      return;
+                    }
                     handleSubmit(true);
                   }}
                   disabled={isSubmitting || !canProceed() || !hasRequiredContactInfo}
                   className="px-6 py-3 bg-[#10B981] hover:bg-[#059669] text-white font-black rounded-full text-[14px] disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center gap-2"
+                  title={!hasRequiredContactInfo ? 'Add contact info in profile first' : !canProceed() ? 'Complete all required fields' : ''}
                 >
                   {isSubmitting ? 'Submitting...' : (
                     <>
