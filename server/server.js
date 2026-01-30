@@ -1738,10 +1738,25 @@ function formatTourResponse(tour, parsedData = {}) {
     options: tour.options && Array.isArray(tour.options) ? tour.options.map(opt => {
       // Explicitly exclude pricingType if it somehow exists
       const { pricingType, pricing_type, ...cleanOpt } = opt;
+      
+      // Parse groupPricingTiers if it exists (stored as JSON string in DB)
+      let groupPricingTiers = null;
+      if (opt.groupPricingTiers) {
+        try {
+          groupPricingTiers = typeof opt.groupPricingTiers === 'string' 
+            ? JSON.parse(opt.groupPricingTiers) 
+            : opt.groupPricingTiers;
+        } catch (e) {
+          console.warn(`   ⚠️  Failed to parse groupPricingTiers for option ${opt.id}:`, e.message);
+          groupPricingTiers = null;
+        }
+      }
+      
       return {
         ...cleanOpt,
-      id: String(opt.id),
-      tourId: String(opt.tourId)
+        id: String(opt.id),
+        tourId: String(opt.tourId),
+        groupPricingTiers: groupPricingTiers
       };
     }) : []
   };
@@ -3237,6 +3252,7 @@ app.post('/api/tours', async (req, res) => {
           
           // Build return object WITHOUT pricingType, maxGroupSize, and groupPrice
           // maxGroupSize and groupPrice are excluded because columns don't exist in production DB yet
+          // groupPricingTiers is included - stored as JSON string in DB
           const returnOption = {
             optionTitle: (cleanOption.optionTitle || cleanOption.title || `Option ${index + 1}`).trim(),
             optionDescription: finalOptionDesc,
@@ -3251,6 +3267,19 @@ app.post('/api/tours', async (req, res) => {
             // maxGroupSize and groupPrice EXCLUDED - columns don't exist in production DB yet
             sortOrder: index
           };
+          
+          // Handle groupPricingTiers - stringify if it's an array/object
+          if (cleanOption.groupPricingTiers) {
+            try {
+              returnOption.groupPricingTiers = Array.isArray(cleanOption.groupPricingTiers) 
+                ? JSON.stringify(cleanOption.groupPricingTiers)
+                : (typeof cleanOption.groupPricingTiers === 'string' 
+                  ? cleanOption.groupPricingTiers 
+                  : JSON.stringify(cleanOption.groupPricingTiers));
+            } catch (e) {
+              console.warn(`⚠️  Failed to stringify groupPricingTiers for option ${index + 1}:`, e.message);
+            }
+          }
           
           // CRITICAL: Final check - ensure pricingType, maxGroupSize, and groupPrice are NOT in return object
           delete returnOption.pricingType;
@@ -3332,9 +3361,10 @@ app.post('/api/tours', async (req, res) => {
         const VALID_TOUR_OPTION_FIELDS = [
           'optionTitle', 'optionDescription', 'durationHours', 'price', 'currency',
           'language', 'pickupIncluded', 'entryTicketIncluded', 'guideIncluded',
-          'carIncluded', 'sortOrder'
+          'carIncluded', 'groupPricingTiers', 'sortOrder'
           // maxGroupSize and groupPrice EXCLUDED - handled separately with error handling
           // Note: pricingType removed - we infer pricing type from groupPrice/maxGroupSize presence
+          // groupPricingTiers is a JSON string array of {minPeople, maxPeople, price} objects
         ];
         
         // Also ensure no IDs in nested options - remove ALL possible id fields
@@ -4262,23 +4292,39 @@ app.get('/api/tours', async (req, res) => {
     const formattedTours = tours.map(tour => {
       try {
         // Format options
-        const formattedOptions = (tour.options || []).map(opt => ({
-          id: String(opt.id),
-          tourId: String(opt.tourId),
-          optionTitle: opt.optionTitle,
-          optionDescription: opt.optionDescription,
-          durationHours: opt.durationHours,
-          price: opt.price,
-          currency: opt.currency,
-          language: opt.language,
-          pickupIncluded: opt.pickupIncluded,
-          entryTicketIncluded: opt.entryTicketIncluded,
-          guideIncluded: opt.guideIncluded,
-          carIncluded: opt.carIncluded,
-          maxGroupSize: opt.maxGroupSize,
-          groupPrice: opt.groupPrice,
-          sortOrder: opt.sortOrder
-        }));
+        const formattedOptions = (tour.options || []).map(opt => {
+          // Parse groupPricingTiers if it exists (stored as JSON string in DB)
+          let groupPricingTiers = null;
+          if (opt.groupPricingTiers) {
+            try {
+              groupPricingTiers = typeof opt.groupPricingTiers === 'string' 
+                ? JSON.parse(opt.groupPricingTiers) 
+                : opt.groupPricingTiers;
+            } catch (e) {
+              console.warn(`   ⚠️  Failed to parse groupPricingTiers for option ${opt.id}:`, e.message);
+              groupPricingTiers = null;
+            }
+          }
+          
+          return {
+            id: String(opt.id),
+            tourId: String(opt.tourId),
+            optionTitle: opt.optionTitle,
+            optionDescription: opt.optionDescription,
+            durationHours: opt.durationHours,
+            price: opt.price,
+            currency: opt.currency,
+            language: opt.language,
+            pickupIncluded: opt.pickupIncluded,
+            entryTicketIncluded: opt.entryTicketIncluded,
+            guideIncluded: opt.guideIncluded,
+            carIncluded: opt.carIncluded,
+            maxGroupSize: opt.maxGroupSize,
+            groupPrice: opt.groupPrice,
+            groupPricingTiers: groupPricingTiers,
+            sortOrder: opt.sortOrder
+          };
+        });
 
         return {
           ...tour,
@@ -6545,10 +6591,25 @@ app.get('/api/public/tours', async (req, res) => {
                 if (!opt || !opt.id) return null;
                 // Explicitly format option fields (exclude pricingType if it somehow exists)
                 const { pricingType, pricing_type, ...cleanOpt } = opt;
-        return {
+                
+                // Parse groupPricingTiers if it exists (stored as JSON string in DB)
+                let groupPricingTiers = null;
+                if (opt.groupPricingTiers) {
+                  try {
+                    groupPricingTiers = typeof opt.groupPricingTiers === 'string' 
+                      ? JSON.parse(opt.groupPricingTiers) 
+                      : opt.groupPricingTiers;
+                  } catch (e) {
+                    console.warn(`   ⚠️  Failed to parse groupPricingTiers for option ${opt.id}:`, e.message);
+                    groupPricingTiers = null;
+                  }
+                }
+                
+                return {
                   ...cleanOpt,
                   id: String(opt.id),
-                  tourId: String(opt.tourId || tour.id)
+                  tourId: String(opt.tourId || tour.id),
+                  groupPricingTiers: groupPricingTiers
                 };
               } catch (optError) {
                 console.warn(`   ⚠️  Error formatting option ${opt?.id || 'unknown'} for tour ${tour.id}:`, optError.message);

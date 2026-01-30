@@ -94,6 +94,7 @@ model TourOption {
   entryTicketIncluded Boolean   @default(false) @map("entry_ticket_included")
   guideIncluded       Boolean   @default(true) @map("guide_included")
   carIncluded         Boolean   @default(false) @map("car_included")
+  groupPricingTiers   String?   @map("group_pricing_tiers") // JSON array of {minPeople, maxPeople, price} objects for tiered group pricing
   // TEMPORARILY COMMENTED OUT - These columns don't exist in production DB yet
   // Uncomment after running migration: npx prisma migrate deploy
   // maxGroupSize        Int?      @map("max_group_size") // Max people per group (1-20). If set with groupPrice, indicates per-group pricing
