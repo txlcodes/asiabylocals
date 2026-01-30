@@ -176,9 +176,9 @@ const SupplierDashboard: React.FC<SupplierDashboardProps> = ({ supplier, onLogou
     try {
       const API_URL = (import.meta as any).env?.VITE_API_URL || (typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3001');
       
-      // Add timeout handling
+      // Add timeout handling - increased to 60 seconds for slow database connections
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
+      const timeoutId = setTimeout(() => controller.abort(), 60000); // 60 second timeout
       
       let response;
       try {

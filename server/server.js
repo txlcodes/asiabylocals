@@ -4229,6 +4229,7 @@ app.get('/api/suppliers/:supplierId/tours', async (req, res) => {
 
 // Get all tours for a supplier
 app.get('/api/tours', async (req, res) => {
+  const startTime = Date.now();
   try {
     const { supplierId } = req.query;
 
@@ -4239,6 +4240,8 @@ app.get('/api/tours', async (req, res) => {
         message: 'Please provide supplierId as query parameter'
       });
     }
+
+    console.log(`📋 Fetching tours for supplier ${supplierId}`);
 
     // Retry logic for Render free tier database connection issues
     let tours = null;
@@ -4287,6 +4290,8 @@ app.get('/api/tours', async (req, res) => {
     if (!tours) {
       throw new Error('Failed to fetch tours after retries');
     }
+
+    console.log(`   ✅ Found ${tours.length} tours (took ${Date.now() - startTime}ms)`);
 
     // Parse JSON fields with error handling
     const formattedTours = tours.map(tour => {
@@ -4367,14 +4372,19 @@ app.get('/api/tours', async (req, res) => {
       }
     });
 
+    const totalTime = Date.now() - startTime;
+    console.log(`   ✅ Formatted ${formattedTours.length} tours (total time: ${totalTime}ms)`);
+
     res.json({
       success: true,
       tours: formattedTours
     });
   } catch (error) {
-    console.error('❌ Get tours error:', error);
+    const totalTime = Date.now() - startTime;
+    console.error(`❌ Get tours error (after ${totalTime}ms):`, error);
     console.error('   Error message:', error.message);
     console.error('   Error code:', error.code);
+    console.error('   Error stack:', error.stack);
     res.status(500).json({
       success: false,
       error: 'Internal server error',
