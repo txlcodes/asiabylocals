@@ -466,21 +466,8 @@ const TourCreationForm: React.FC<TourCreationFormProps> = ({
         // Check that title exists, locations are selected, and entry ticket options are set for all locations
         if (!formData.title || formData.title.trim() === '') return false;
         if (formData.locations.length === 0) return false;
-        // Ensure all locations have entry ticket options (auto-fix if missing)
-        const hasAllEntryTickets = formData.locations.every(loc => {
-          if (!formData.locationEntryTickets[loc]) {
-            // Auto-fix: set default entry ticket option if missing
-            setFormData(prev => ({
-              ...prev,
-              locationEntryTickets: {
-                ...prev.locationEntryTickets,
-                [loc]: 'paid_included'
-              }
-            }));
-            return true; // After auto-fix, validation passes
-          }
-          return true;
-        });
+        // Check that all locations have entry ticket options set
+        const hasAllEntryTickets = formData.locations.every(loc => formData.locationEntryTickets[loc]);
         return hasAllEntryTickets;
       case 4:
         if (!formData.duration) return false;
@@ -1085,6 +1072,22 @@ const TourCreationForm: React.FC<TourCreationFormProps> = ({
         )}
 
         {/* Step 3: Title & Locations */}
+        {step === 3 && (() => {
+          // Ensure all locations have entry ticket options when step 3 is displayed
+          // This fixes the issue where editing tours might have missing entry tickets
+          const missingEntryTickets = formData.locations.filter(loc => !formData.locationEntryTickets[loc]);
+          if (missingEntryTickets.length > 0) {
+            // Auto-fix missing entry tickets
+            setFormData(prev => {
+              const newEntryTickets = { ...prev.locationEntryTickets };
+              missingEntryTickets.forEach(loc => {
+                newEntryTickets[loc] = 'paid_included';
+              });
+              return { ...prev, locationEntryTickets: newEntryTickets };
+            });
+          }
+          return null;
+        })()}
         {step === 3 && (
           <div className="bg-white rounded-2xl p-8 border border-gray-200">
             <h2 className="text-xl font-black text-[#001A33] mb-6">Tour Title & Locations</h2>
