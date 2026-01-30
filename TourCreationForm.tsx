@@ -551,15 +551,29 @@ const TourCreationForm: React.FC<TourCreationFormProps> = ({
     if (!formData.images || formData.images.length < 4) missingFields.push('images (need at least 4)');
     if (!formData.locations || formData.locations.length === 0) missingFields.push('locations');
     if (!formData.duration || formData.duration.trim() === '') missingFields.push('duration');
-    if (formData.pricingType === 'per_person') {
-      if (!formData.pricePerPerson || formData.pricePerPerson.trim() === '') missingFields.push('pricePerPerson');
-    } else {
-      if (!formData.maxGroupSize || formData.maxGroupSize < 1 || formData.maxGroupSize > 20) missingFields.push('maxGroupSize (1-20)');
-      if (!formData.groupPricingTiers || formData.groupPricingTiers.length === 0) {
-        missingFields.push('group pricing tiers');
-      } else {
+    // Check pricing - intelligently detect if group pricing or per person pricing is configured
+    const hasGroupPricingTiers = formData.groupPricingTiers && formData.groupPricingTiers.length > 0;
+    const hasLegacyGroupPricing = formData.groupPrice && formData.maxGroupSize;
+    const hasPerPersonPricing = formData.pricePerPerson && formData.pricePerPerson.trim() !== '';
+    
+    // Determine pricing type based on what's actually configured
+    const isGroupPricing = hasGroupPricingTiers || hasLegacyGroupPricing || formData.pricingType === 'per_group';
+    
+    if (isGroupPricing) {
+      if (!formData.maxGroupSize || formData.maxGroupSize < 1 || formData.maxGroupSize > 20) {
+        missingFields.push('maxGroupSize (1-20)');
+      }
+      if (!hasGroupPricingTiers && !hasLegacyGroupPricing) {
+        missingFields.push('group pricing tiers or group price');
+      } else if (hasGroupPricingTiers) {
         const missingPrices = formData.groupPricingTiers.filter(tier => !tier.price || tier.price.trim() === '').length;
-        if (missingPrices > 0) missingFields.push(`group pricing (${missingPrices} tier${missingPrices > 1 ? 's' : ''} missing prices)`);
+        if (missingPrices > 0) {
+          missingFields.push(`group pricing (${missingPrices} tier${missingPrices > 1 ? 's' : ''} missing prices)`);
+        }
+      }
+    } else {
+      if (!hasPerPersonPricing) {
+        missingFields.push('pricePerPerson');
       }
     }
     if (!formData.languages || formData.languages.length === 0) missingFields.push('languages');
@@ -2648,7 +2662,18 @@ const TourCreationForm: React.FC<TourCreationFormProps> = ({
                   {isSubmitting ? 'Saving...' : 'Save as Draft'}
                 </button>
                 <button
-                  onClick={() => handleSubmit(true)}
+                  onClick={() => {
+                    console.log('Submit for Review clicked', {
+                      isSubmitting,
+                      canProceed: canProceed(),
+                      hasRequiredContactInfo,
+                      step,
+                      pricingType: formData.pricingType,
+                      hasGroupPricingTiers: formData.groupPricingTiers?.length > 0,
+                      hasPerPersonPricing: !!formData.pricePerPerson
+                    });
+                    handleSubmit(true);
+                  }}
                   disabled={isSubmitting || !canProceed() || !hasRequiredContactInfo}
                   className="px-6 py-3 bg-[#10B981] hover:bg-[#059669] text-white font-black rounded-full text-[14px] disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center gap-2"
                 >
