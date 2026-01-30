@@ -291,7 +291,16 @@ const TourCreationForm: React.FC<TourCreationFormProps> = ({
   const [formData, setFormData] = useState(() => {
     if (tour) {
       const parsed = parseTourData(tour);
-      if (parsed) return parsed;
+      if (parsed) {
+        // Ensure all locations have entry ticket options when editing
+        const locationEntryTickets = { ...parsed.locationEntryTickets };
+        parsed.locations.forEach((loc: string) => {
+          if (!locationEntryTickets[loc]) {
+            locationEntryTickets[loc] = 'paid_included'; // Default value
+          }
+        });
+        return { ...parsed, locationEntryTickets };
+      }
     }
     return {
       country: '',
@@ -455,9 +464,24 @@ const TourCreationForm: React.FC<TourCreationFormProps> = ({
         return formData.city && formData.category;
       case 3:
         // Check that title exists, locations are selected, and entry ticket options are set for all locations
-        const hasAllEntryTickets = formData.locations.length > 0 && 
-          formData.locations.every(loc => formData.locationEntryTickets[loc]);
-        return formData.title && formData.locations.length > 0 && hasAllEntryTickets;
+        if (!formData.title || formData.title.trim() === '') return false;
+        if (formData.locations.length === 0) return false;
+        // Ensure all locations have entry ticket options (auto-fix if missing)
+        const hasAllEntryTickets = formData.locations.every(loc => {
+          if (!formData.locationEntryTickets[loc]) {
+            // Auto-fix: set default entry ticket option if missing
+            setFormData(prev => ({
+              ...prev,
+              locationEntryTickets: {
+                ...prev.locationEntryTickets,
+                [loc]: 'paid_included'
+              }
+            }));
+            return true; // After auto-fix, validation passes
+          }
+          return true;
+        });
+        return hasAllEntryTickets;
       case 4:
         if (!formData.duration) return false;
         if (formData.pricingType === 'per_person') {
