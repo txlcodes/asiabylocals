@@ -2135,9 +2135,23 @@ function removeAllIds(obj) {
 
 // Create a new tour
 app.post('/api/tours', async (req, res) => {
+  const createStartTime = Date.now();
   try {
     console.log('📥 Received tour creation request');
     console.log('📦 Request body keys:', Object.keys(req.body));
+    
+    // Check database connection first
+    try {
+      await prisma.$queryRaw`SELECT 1`;
+    } catch (dbCheckError) {
+      console.error('❌ Database connection check failed:', dbCheckError.message);
+      return res.status(503).json({
+        success: false,
+        error: 'Database unavailable',
+        message: 'Database is currently unavailable. Please try again in a few moments.',
+        details: process.env.NODE_ENV === 'development' ? dbCheckError.message : undefined
+      });
+    }
     
     // CRITICAL: Remove ALL IDs from request body immediately (before any processing)
     const cleanedBody = removeAllIds(req.body);
@@ -4088,7 +4102,12 @@ app.post('/api/tours', async (req, res) => {
       throw new Error('Failed to create tour after retries');
     }
 
-    console.log('✅ Tour created successfully:', tour.id);
+    const totalTime = Date.now() - createStartTime;
+    console.log(`✅ Tour created successfully: ${tour.id} (took ${totalTime}ms)`);
+    
+    if (totalTime > 10000) {
+      console.warn(`⚠️ Slow tour creation detected (${totalTime}ms)`);
+    }
     console.log(`   Title: ${tour.title}`);
     console.log(`   Slug: ${tour.slug}`);
     console.log(`   City: ${tour.city}, ${tour.country}`);
