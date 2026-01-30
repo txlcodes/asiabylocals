@@ -4580,7 +4580,9 @@ app.get('/api/tours/:id', async (req, res) => {
 
 // Update tour (only if draft)
 app.put('/api/tours/:id', async (req, res) => {
+  const updateStartTime = Date.now();
   try {
+    console.log(`📝 Tour update request received for tour ${req.params.id}`);
     const { id } = req.params;
     const tourId = parseInt(id);
     const updateData = req.body;
@@ -4662,12 +4664,15 @@ app.put('/api/tours/:id', async (req, res) => {
     // Handle tour options update (delete old ones and create new ones)
     if (updateData.tourOptions !== undefined && Array.isArray(updateData.tourOptions)) {
       try {
+        const optionsStartTime = Date.now();
         console.log(`📋 Updating tour options for tour ${tourId}, count: ${updateData.tourOptions.length}`);
         
         // Delete all existing options for this tour
+        const deleteStartTime = Date.now();
         await prisma.tourOption.deleteMany({
           where: { tourId: tourId }
         });
+        console.log(`   ✅ Deleted existing options (took ${Date.now() - deleteStartTime}ms)`);
         
         // Create new options
         if (updateData.tourOptions.length > 0) {
@@ -4702,17 +4707,16 @@ app.put('/api/tours/:id', async (req, res) => {
             return cleanOpt;
           });
           
-          // Create options one by one to avoid batch issues
-          for (const opt of optionsToCreate) {
-            await prisma.tourOption.create({
-              data: {
-                ...opt,
-                tourId: tourId
-              }
-            });
-          }
-          
-          console.log(`✅ Updated ${optionsToCreate.length} tour options for tour ${tourId}`);
+          // Use createMany for better performance (batch insert)
+          const createStartTime = Date.now();
+          await prisma.tourOption.createMany({
+            data: optionsToCreate.map(opt => ({
+              ...opt,
+              tourId: tourId
+            }))
+          });
+          console.log(`   ✅ Created ${optionsToCreate.length} options (took ${Date.now() - createStartTime}ms)`);
+          console.log(`   ✅ Total options update time: ${Date.now() - optionsStartTime}ms`);
         }
       } catch (optionsError) {
         console.error('⚠️ Error updating tour options:', optionsError);
@@ -4746,7 +4750,8 @@ app.put('/api/tours/:id', async (req, res) => {
       options: tourWithOptions.options || []
     };
 
-    console.log('✅ Tour updated successfully:', tourId);
+    const totalUpdateTime = Date.now() - updateStartTime;
+    console.log(`✅ Tour updated successfully: ${tourId} (took ${totalUpdateTime}ms)`);
 
     res.json({
       success: true,
