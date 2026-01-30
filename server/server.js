@@ -4363,9 +4363,11 @@ app.get('/api/tours', async (req, res) => {
       throw new Error('Failed to fetch tours after retries');
     }
 
-    console.log(`   ✅ Found ${tours.length} tours (took ${Date.now() - startTime}ms)`);
+    const queryTime = Date.now() - startTime;
+    console.log(`   ✅ Found ${tours.length} tours (query took ${queryTime}ms)`);
 
     // Parse JSON fields with error handling
+    const parseStartTime = Date.now();
     const formattedTours = tours.map(tour => {
       try {
         // Format options
@@ -4445,8 +4447,14 @@ app.get('/api/tours', async (req, res) => {
       }
     });
 
+    const parseTime = Date.now() - parseStartTime;
     const totalTime = Date.now() - startTime;
-    console.log(`   ✅ Formatted ${formattedTours.length} tours (total time: ${totalTime}ms)`);
+    console.log(`   ✅ Formatted ${formattedTours.length} tours (parse: ${parseTime}ms, total: ${totalTime}ms)`);
+    
+    // Log warning if query is slow
+    if (totalTime > 5000) {
+      console.warn(`⚠️ Slow tour fetch detected (${totalTime}ms) - query: ${queryTime}ms, parse: ${parseTime}ms`);
+    }
 
     res.json({
       success: true,
@@ -4685,10 +4693,12 @@ app.put('/api/tours/:id', async (req, res) => {
     // Group pricing is handled through tour options instead
 
     // Update tour first
+    const tourUpdateStartTime = Date.now();
     const updatedTour = await prisma.tour.update({
       where: { id: tourId },
       data: dataToUpdate
     });
+    console.log(`   ✅ Tour record updated (took ${Date.now() - tourUpdateStartTime}ms)`);
     
     // Handle tour options update (delete old ones and create new ones)
     if (updateData.tourOptions !== undefined && Array.isArray(updateData.tourOptions)) {
