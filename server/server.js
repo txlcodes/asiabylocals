@@ -4507,7 +4507,7 @@ app.put('/api/tours/:id', async (req, res) => {
     }
 
     // Allow editing draft, pending, and approved tours
-    // If approved tour is edited, it goes back to pending for admin review
+    // Edited tours keep their current status (approved tours stay approved)
     if (existingTour.status !== 'draft' && existingTour.status !== 'pending' && existingTour.status !== 'approved') {
       return res.status(400).json({
         success: false,
@@ -4519,11 +4519,8 @@ app.put('/api/tours/:id', async (req, res) => {
     // Prepare update data
     const dataToUpdate = {};
     
-    // If approved tour is being edited, change status back to pending for review
-    if (existingTour.status === 'approved') {
-      dataToUpdate.status = 'pending';
-      console.log(`   ⚠️  Approved tour edited - changing status to 'pending' for admin review`);
-    }
+    // Keep the existing status - don't change approved tours back to pending
+    // Only new tour submissions go to admin review, not edits
 
     if (updateData.title) dataToUpdate.title = updateData.title;
     if (updateData.city) dataToUpdate.city = updateData.city;
