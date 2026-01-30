@@ -4594,21 +4594,100 @@ app.put('/api/tours/:id', async (req, res) => {
     if (updateData.languages) dataToUpdate.languages = JSON.stringify(
       typeof updateData.languages === 'string' ? JSON.parse(updateData.languages) : updateData.languages
     );
+    
+    // Handle group pricing fields
+    if (updateData.maxGroupSize !== undefined) {
+      dataToUpdate.maxGroupSize = updateData.maxGroupSize && updateData.maxGroupSize >= 1 && updateData.maxGroupSize <= 20 ? updateData.maxGroupSize : null;
+    }
+    if (updateData.groupPrice !== undefined) {
+      dataToUpdate.groupPrice = updateData.groupPrice && !isNaN(parseFloat(updateData.groupPrice)) ? parseFloat(updateData.groupPrice) : null;
+    }
+    if (updateData.groupPricingTiers !== undefined) {
+      dataToUpdate.groupPricingTiers = updateData.groupPricingTiers 
+        ? JSON.stringify(typeof updateData.groupPricingTiers === 'string' ? JSON.parse(updateData.groupPricingTiers) : updateData.groupPricingTiers)
+        : null;
+    }
 
+    // Update tour first
     const updatedTour = await prisma.tour.update({
       where: { id: tourId },
       data: dataToUpdate
     });
+    
+    // Handle tour options update (delete old ones and create new ones)
+    if (updateData.tourOptions !== undefined && Array.isArray(updateData.tourOptions)) {
+      try {
+        // Delete all existing options for this tour
+        await prisma.tourOption.deleteMany({
+          where: { tourId: tourId }
+        });
+        
+        // Create new options
+        if (updateData.tourOptions.length > 0) {
+          const VALID_TOUR_OPTION_FIELDS = [
+            'optionTitle', 'optionDescription', 'durationHours', 'price', 'currency',
+            'language', 'pickupIncluded', 'entryTicketIncluded', 'guideIncluded',
+            'carIncluded', 'groupPricingTiers', 'sortOrder'
+          ];
+          
+          const optionsToCreate = updateData.tourOptions.map((opt, index) => {
+            const cleanOpt = {};
+            VALID_TOUR_OPTION_FIELDS.forEach(field => {
+              if (field in opt && opt[field] !== undefined && opt[field] !== null) {
+                if (field === 'groupPricingTiers' && typeof opt[field] === 'string') {
+                  cleanOpt[field] = opt[field]; // Already stringified
+                } else if (field === 'groupPricingTiers' && Array.isArray(opt[field])) {
+                  cleanOpt[field] = JSON.stringify(opt[field]);
+                } else {
+                  cleanOpt[field] = opt[field];
+                }
+              }
+            });
+            // Remove any ID fields
+            delete cleanOpt.id;
+            delete cleanOpt.tourId;
+            delete cleanOpt.pricingType;
+            delete cleanOpt.pricing_type;
+            return cleanOpt;
+          });
+          
+          await prisma.tourOption.createMany({
+            data: optionsToCreate.map(opt => ({
+              ...opt,
+              tourId: tourId
+            }))
+          });
+          
+          console.log(`✅ Updated ${optionsToCreate.length} tour options for tour ${tourId}`);
+        }
+      } catch (optionsError) {
+        console.error('⚠️ Error updating tour options:', optionsError);
+        // Don't fail the whole request if options update fails
+      }
+    }
+
+    // Fetch updated tour with options
+    const tourWithOptions = await prisma.tour.findUnique({
+      where: { id: tourId },
+      include: {
+        options: {
+          orderBy: {
+            sortOrder: 'asc'
+          }
+        }
+      }
+    });
 
     // Parse JSON fields
     const formattedTour = {
-      ...updatedTour,
-      id: String(updatedTour.id),
-      locations: JSON.parse(updatedTour.locations || '[]'),
-      images: JSON.parse(updatedTour.images || '[]'),
-      languages: JSON.parse(updatedTour.languages || '[]'),
-      highlights: updatedTour.highlights ? JSON.parse(updatedTour.highlights || '[]') : [],
-      tourTypes: updatedTour.tourTypes ? JSON.parse(updatedTour.tourTypes || '[]') : []
+      ...tourWithOptions,
+      id: String(tourWithOptions.id),
+      locations: JSON.parse(tourWithOptions.locations || '[]'),
+      images: JSON.parse(tourWithOptions.images || '[]'),
+      languages: JSON.parse(tourWithOptions.languages || '[]'),
+      highlights: tourWithOptions.highlights ? JSON.parse(tourWithOptions.highlights || '[]') : [],
+      tourTypes: tourWithOptions.tourTypes ? JSON.parse(tourWithOptions.tourTypes || '[]') : [],
+      options: tourWithOptions.options || []
     };
 
     console.log('✅ Tour updated successfully:', tourId);
