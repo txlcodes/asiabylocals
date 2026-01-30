@@ -822,6 +822,35 @@ const CityPage: React.FC<CityPageProps> = ({ country, city }) => {
                         {tour.title}
                       </h3>
                       
+                      {/* Tour Types/Tags */}
+                      {tour.tourTypes && (() => {
+                        try {
+                          const tourTypesArray = typeof tour.tourTypes === 'string' ? JSON.parse(tour.tourTypes) : tour.tourTypes;
+                          if (Array.isArray(tourTypesArray) && tourTypesArray.length > 0) {
+                            return (
+                              <div className="flex flex-wrap gap-1.5 mb-3">
+                                {tourTypesArray.slice(0, 3).map((type: string, idx: number) => (
+                                  <span
+                                    key={idx}
+                                    className="px-2 py-0.5 bg-[#10B981]/10 text-[#10B981] text-[10px] font-black rounded border border-[#10B981]/20"
+                                  >
+                                    {type}
+                                  </span>
+                                ))}
+                                {tourTypesArray.length > 3 && (
+                                  <span className="px-2 py-0.5 text-gray-500 text-[10px] font-semibold">
+                                    +{tourTypesArray.length - 3} more
+                                  </span>
+                                )}
+                              </div>
+                            );
+                          }
+                        } catch (e) {
+                          console.error('Error parsing tourTypes:', e);
+                        }
+                        return null;
+                      })()}
+                      
                       {/* Duration */}
                       {durationHours && (
                         <div className="text-[12px] text-gray-500 font-semibold mb-3">
