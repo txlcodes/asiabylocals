@@ -520,7 +520,7 @@ const TourCreationForm: React.FC<TourCreationFormProps> = ({
   };
 
   const handleSubmit = async (submitForReview: boolean = false) => {
-    console.log('handleSubmit called', { submitForReview, isEditing, step });
+    console.log('🚀 handleSubmit CALLED', { submitForReview, isEditing, step, tourId: tour?.id });
     
     // Check if supplier has required contact information
     if (!supplierEmail || (!supplierPhone && !supplierWhatsApp)) {
@@ -2701,37 +2701,51 @@ const TourCreationForm: React.FC<TourCreationFormProps> = ({
                   {isSubmitting ? 'Saving...' : 'Save as Draft'}
                 </button>
                 <button
+                  type="button"
                   onClick={(e) => {
                     e.preventDefault();
-                    console.log('Submit for Review clicked', {
+                    e.stopPropagation();
+                    console.log('🔵 Submit for Review button CLICKED!', {
                       isSubmitting,
                       canProceed: canProceed(),
                       hasRequiredContactInfo,
                       step,
+                      totalSteps,
+                      isEditing,
+                      tourId: tour?.id,
                       pricingType: formData.pricingType,
                       hasGroupPricingTiers: formData.groupPricingTiers?.length > 0,
                       hasPerPersonPricing: !!formData.pricePerPerson,
                       supplierEmail,
                       supplierPhone,
-                      supplierWhatsApp
+                      supplierWhatsApp,
+                      buttonDisabled: isSubmitting || !canProceed() || !hasRequiredContactInfo
                     });
-                    if (isSubmitting) {
-                      console.warn('Already submitting, ignoring click');
-                      return;
+                    
+                    // Force alert to confirm click is registered
+                    if (!isSubmitting && canProceed() && hasRequiredContactInfo) {
+                      console.log('✅ All checks passed, calling handleSubmit(true)...');
+                      handleSubmit(true).catch(err => {
+                        console.error('❌ handleSubmit error:', err);
+                        alert(`Error: ${err.message || 'Failed to submit tour'}`);
+                      });
+                    } else {
+                      console.warn('⚠️ Button click blocked:', {
+                        isSubmitting,
+                        canProceed: canProceed(),
+                        hasRequiredContactInfo
+                      });
+                      if (!hasRequiredContactInfo) {
+                        alert('Please add your contact information (phone or WhatsApp) in your profile first.');
+                      } else if (!canProceed()) {
+                        alert('Please complete all required fields before submitting.');
+                      }
                     }
-                    if (!canProceed()) {
-                      alert('Please complete all required fields before submitting.');
-                      return;
-                    }
-                    if (!hasRequiredContactInfo) {
-                      alert('Please add your contact information (phone or WhatsApp) in your profile first.');
-                      return;
-                    }
-                    handleSubmit(true);
                   }}
                   disabled={isSubmitting || !canProceed() || !hasRequiredContactInfo}
                   className="px-6 py-3 bg-[#10B981] hover:bg-[#059669] text-white font-black rounded-full text-[14px] disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center gap-2"
                   title={!hasRequiredContactInfo ? 'Add contact info in profile first' : !canProceed() ? 'Complete all required fields' : ''}
+                  style={{ pointerEvents: isSubmitting ? 'none' : 'auto' }}
                 >
                   {isSubmitting ? 'Submitting...' : (
                     <>
