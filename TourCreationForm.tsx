@@ -656,10 +656,15 @@ const TourCreationForm: React.FC<TourCreationFormProps> = ({
         hasIncluded: !!formData.included,
         highlightsCount: formData.highlights.filter(h => h.trim()).length,
         tourOptionsCount: formData.tourOptions.length,
+        isEditing,
+        submitForReview,
+        url: isEditing ? `${API_URL}/api/tours/${tour.id}` : `${API_URL}/api/tours`,
+        method: isEditing ? 'PUT' : 'POST',
         tourOptions: formData.tourOptions.map(opt => ({
           title: opt.optionTitle,
           price: opt.price,
-          duration: opt.durationHours
+          duration: opt.durationHours,
+          hasGroupPricingTiers: !!(opt.groupPricingTiers && opt.groupPricingTiers.length > 0)
         }))
       });
 
@@ -722,7 +727,18 @@ const TourCreationForm: React.FC<TourCreationFormProps> = ({
         throw error;
       }
 
+      console.log('✅ Tour create/update response received:', {
+        status: response.status,
+        success: response.ok
+      });
+
       const data = await response.json();
+      
+      console.log('✅ Tour create/update data:', {
+        success: data.success,
+        tourId: data.tour?.id,
+        message: data.message
+      });
 
       if (data.success) {
         if (isEditing) {
