@@ -667,11 +667,26 @@ const TourCreationForm: React.FC<TourCreationFormProps> = ({
       const url = isEditing ? `${API_URL}/api/tours/${tour.id}` : `${API_URL}/api/tours`;
       const method = isEditing ? 'PUT' : 'POST';
       
-      const response = await fetch(url, {
-        method,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(tourData)
-      });
+      // Create AbortController for timeout
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 60000); // 60 second timeout
+      
+      let response;
+      try {
+        response = await fetch(url, {
+          method,
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(tourData),
+          signal: controller.signal
+        });
+        clearTimeout(timeoutId);
+      } catch (fetchError: any) {
+        clearTimeout(timeoutId);
+        if (fetchError.name === 'AbortError') {
+          throw new Error('Request timed out. The server is taking too long to respond. Please try again.');
+        }
+        throw fetchError;
+      }
 
       if (!response.ok) {
         let errorData;
@@ -717,10 +732,24 @@ const TourCreationForm: React.FC<TourCreationFormProps> = ({
           onClose();
         } else if (submitForReview) {
           // Submit for review
-          const submitResponse = await fetch(`${API_URL}/api/tours/${data.tour.id}/submit`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' }
-          });
+          const submitController = new AbortController();
+          const submitTimeoutId = setTimeout(() => submitController.abort(), 30000); // 30 second timeout
+          
+          let submitResponse;
+          try {
+            submitResponse = await fetch(`${API_URL}/api/tours/${data.tour.id}/submit`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              signal: submitController.signal
+            });
+            clearTimeout(submitTimeoutId);
+          } catch (submitFetchError: any) {
+            clearTimeout(submitTimeoutId);
+            if (submitFetchError.name === 'AbortError') {
+              throw new Error('Submission request timed out. The tour was created but may not have been submitted for review. Please check your dashboard.');
+            }
+            throw submitFetchError;
+          }
 
           if (!submitResponse.ok) {
             const submitErrorData = await submitResponse.json().catch(() => ({ message: 'Failed to submit tour' }));
