@@ -785,7 +785,43 @@ const TourCreationForm: React.FC<TourCreationFormProps> = ({
       });
 
       if (data.success) {
-        if (isEditing) {
+        if (isEditing && submitForReview) {
+          // Tour edited and needs to be submitted for review
+          console.log('📤 Tour updated, now submitting for review...', { tourId: data.tour.id });
+          
+          const submitController = new AbortController();
+          const submitTimeoutId = setTimeout(() => submitController.abort(), 30000); // 30 second timeout
+          
+          let submitResponse;
+          try {
+            submitResponse = await fetch(`${API_URL}/api/tours/${data.tour.id}/submit`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              signal: submitController.signal
+            });
+            clearTimeout(submitTimeoutId);
+          } catch (submitFetchError: any) {
+            clearTimeout(submitTimeoutId);
+            if (submitFetchError.name === 'AbortError') {
+              throw new Error('Submission request timed out. The tour was updated but may not have been submitted for review. Please check your dashboard.');
+            }
+            throw submitFetchError;
+          }
+
+          if (!submitResponse.ok) {
+            const submitErrorData = await submitResponse.json().catch(() => ({ message: 'Failed to submit tour' }));
+            throw new Error(submitErrorData.message || submitErrorData.error || 'Failed to submit tour for review');
+          }
+
+          const submitData = await submitResponse.json();
+          if (submitData.success) {
+            alert('Tour updated and submitted for review! We\'ll review it within 24-48 hours.');
+            onSuccess();
+            onClose();
+          } else {
+            throw new Error(submitData.message || submitData.error || 'Failed to submit tour for review');
+          }
+        } else if (isEditing) {
           // Tour edited successfully - status remains unchanged (approved stays approved)
           alert('Tour updated successfully!');
           onSuccess();
