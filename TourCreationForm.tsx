@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { X, ChevronRight, ChevronLeft, Upload, ArrowUp, ArrowDown, Trash2, CheckCircle2, AlertCircle, Phone, Mail, Plus, MapPin } from 'lucide-react';
 import { CITY_LOCATIONS, TRANSPORTATION_TYPES, ENTRY_TICKET_OPTIONS, EntryTicketOption } from './constants';
 
@@ -355,7 +355,7 @@ const TourCreationForm: React.FC<TourCreationFormProps> = ({
   const hasRequiredContactInfo = !!(supplierEmail && (supplierPhone || supplierWhatsApp));
 
   // Auto-fix missing locationEntryTickets when on step 3 (fixes editing issues)
-  React.useEffect(() => {
+  useEffect(() => {
     if (step === 3 && formData.locations.length > 0) {
       const missingEntryTickets = formData.locations.filter(loc => !formData.locationEntryTickets[loc]);
       if (missingEntryTickets.length > 0) {
