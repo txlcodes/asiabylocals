@@ -4595,24 +4595,9 @@ app.put('/api/tours/:id', async (req, res) => {
       typeof updateData.languages === 'string' ? JSON.parse(updateData.languages) : updateData.languages
     );
     
-    // Handle group pricing fields (only if columns exist in database)
-    // Note: These fields may not exist in production DB yet
-    try {
-      if (updateData.maxGroupSize !== undefined) {
-        dataToUpdate.maxGroupSize = updateData.maxGroupSize && updateData.maxGroupSize >= 1 && updateData.maxGroupSize <= 20 ? updateData.maxGroupSize : null;
-      }
-      if (updateData.groupPrice !== undefined) {
-        dataToUpdate.groupPrice = updateData.groupPrice && !isNaN(parseFloat(updateData.groupPrice)) ? parseFloat(updateData.groupPrice) : null;
-      }
-      if (updateData.groupPricingTiers !== undefined) {
-        dataToUpdate.groupPricingTiers = updateData.groupPricingTiers 
-          ? JSON.stringify(typeof updateData.groupPricingTiers === 'string' ? JSON.parse(updateData.groupPricingTiers) : updateData.groupPricingTiers)
-          : null;
-      }
-    } catch (groupPricingError) {
-      console.warn('⚠️ Error handling group pricing fields (columns may not exist):', groupPricingError.message);
-      // Continue without these fields if they don't exist
-    }
+    // Note: maxGroupSize, groupPrice, and groupPricingTiers are NOT in Tour model schema
+    // These fields don't exist in the database, so we skip them
+    // Group pricing is handled through tour options instead
 
     // Update tour first
     const updatedTour = await prisma.tour.update({
@@ -4639,7 +4624,7 @@ app.put('/api/tours/:id', async (req, res) => {
           ];
           
           const optionsToCreate = updateData.tourOptions.map((opt, index) => {
-            const cleanOpt: any = {};
+            const cleanOpt = {};
             VALID_TOUR_OPTION_FIELDS.forEach(field => {
               if (field in opt && opt[field] !== undefined && opt[field] !== null) {
                 if (field === 'groupPricingTiers' && typeof opt[field] === 'string') {
