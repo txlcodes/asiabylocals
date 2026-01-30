@@ -4304,7 +4304,9 @@ app.get('/api/tours', async (req, res) => {
             meetingPoint: true,
             guideType: true,
             tourTypes: true,
-            images: true,
+            // Don't fetch images for list view - they're huge base64 strings and slow down queries significantly
+            // Images will be fetched separately when viewing individual tours
+            // images: true,
             languages: true,
             status: true,
             rejectionReason: true,
@@ -4410,7 +4412,7 @@ app.get('/api/tours', async (req, res) => {
           id: String(tour.id),
           supplierId: String(tour.supplierId),
           locations: JSON.parse(tour.locations || '[]'),
-          images: JSON.parse(tour.images || '[]'),
+          images: tour.images ? JSON.parse(tour.images || '[]') : [], // Handle missing images field
           languages: JSON.parse(tour.languages || '[]'),
           highlights: tour.highlights ? JSON.parse(tour.highlights || '[]') : [],
           tourTypes: tour.tourTypes ? JSON.parse(tour.tourTypes || '[]') : [],
@@ -4423,7 +4425,7 @@ app.get('/api/tours', async (req, res) => {
           id: String(tour.id),
           supplierId: String(tour.supplierId),
           locations: [],
-          images: [],
+          images: [], // Images not fetched for list view
           languages: ['English'],
           highlights: [],
           tourTypes: [],
