@@ -686,6 +686,11 @@ const TourCreationForm: React.FC<TourCreationFormProps> = ({
         })
       };
 
+      // Define API_URL first before using it
+      const API_URL = import.meta.env.VITE_API_URL || (typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3001');
+      const url = isEditing ? `${API_URL}/api/tours/${tour.id}` : `${API_URL}/api/tours`;
+      const method = isEditing ? 'PUT' : 'POST';
+
       // Debug: Log what we're sending
       console.log('📤 Sending tour data:', {
         supplierId,
@@ -702,8 +707,8 @@ const TourCreationForm: React.FC<TourCreationFormProps> = ({
         tourOptionsCount: formData.tourOptions.length,
         isEditing,
         submitForReview,
-        url: isEditing ? `${API_URL}/api/tours/${tour.id}` : `${API_URL}/api/tours`,
-        method: isEditing ? 'PUT' : 'POST',
+        url,
+        method,
         tourOptions: formData.tourOptions.map(opt => ({
           title: opt.optionTitle,
           price: opt.price,
@@ -711,10 +716,6 @@ const TourCreationForm: React.FC<TourCreationFormProps> = ({
           hasGroupPricingTiers: !!(opt.groupPricingTiers && opt.groupPricingTiers.length > 0)
         }))
       });
-
-      const API_URL = import.meta.env.VITE_API_URL || (typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3001');
-      const url = isEditing ? `${API_URL}/api/tours/${tour.id}` : `${API_URL}/api/tours`;
-      const method = isEditing ? 'PUT' : 'POST';
       
       // Create AbortController for timeout
       const controller = new AbortController();
