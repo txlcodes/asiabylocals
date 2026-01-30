@@ -717,9 +717,9 @@ const TourCreationForm: React.FC<TourCreationFormProps> = ({
         }))
       });
       
-      // Create AbortController for timeout
+      // Create AbortController for timeout - increased to 90s for tour updates with options
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 60000); // 60 second timeout
+      const timeoutId = setTimeout(() => controller.abort(), 90000); // 90 second timeout
       
       let response;
       try {
