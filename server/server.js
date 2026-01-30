@@ -4250,12 +4250,55 @@ app.get('/api/tours', async (req, res) => {
 
     while (findAttempts < MAX_FIND_RETRIES && !tours) {
       try {
+        // Optimize query: only select necessary fields and limit options
         tours = await prisma.tour.findMany({
           where: {
             supplierId: parseInt(supplierId)
           },
-          include: {
+          select: {
+            id: true,
+            supplierId: true,
+            title: true,
+            slug: true,
+            country: true,
+            city: true,
+            category: true,
+            locations: true,
+            duration: true,
+            pricePerPerson: true,
+            currency: true,
+            shortDescription: true,
+            fullDescription: true,
+            highlights: true,
+            included: true,
+            notIncluded: true,
+            meetingPoint: true,
+            guideType: true,
+            tourTypes: true,
+            images: true,
+            languages: true,
+            status: true,
+            rejectionReason: true,
+            createdAt: true,
+            updatedAt: true,
+            approvedAt: true,
             options: {
+              select: {
+                id: true,
+                tourId: true,
+                optionTitle: true,
+                optionDescription: true,
+                durationHours: true,
+                price: true,
+                currency: true,
+                language: true,
+                pickupIncluded: true,
+                entryTicketIncluded: true,
+                guideIncluded: true,
+                carIncluded: true,
+                groupPricingTiers: true,
+                sortOrder: true
+              },
               orderBy: {
                 sortOrder: 'asc'
               }
@@ -4339,6 +4382,7 @@ app.get('/api/tours', async (req, res) => {
           images: JSON.parse(tour.images || '[]'),
           languages: JSON.parse(tour.languages || '[]'),
           highlights: tour.highlights ? JSON.parse(tour.highlights || '[]') : [],
+          tourTypes: tour.tourTypes ? JSON.parse(tour.tourTypes || '[]') : [],
           options: formattedOptions
         };
       } catch (parseError) {
@@ -4351,6 +4395,7 @@ app.get('/api/tours', async (req, res) => {
           images: [],
           languages: ['English'],
           highlights: [],
+          tourTypes: [],
           options: (tour.options || []).map(opt => ({
             id: String(opt.id),
             tourId: String(opt.tourId),
@@ -4364,8 +4409,7 @@ app.get('/api/tours', async (req, res) => {
             entryTicketIncluded: opt.entryTicketIncluded,
             guideIncluded: opt.guideIncluded,
             carIncluded: opt.carIncluded,
-            maxGroupSize: opt.maxGroupSize,
-            groupPrice: opt.groupPrice,
+            groupPricingTiers: opt.groupPricingTiers ? (typeof opt.groupPricingTiers === 'string' ? JSON.parse(opt.groupPricingTiers) : opt.groupPricingTiers) : null,
             sortOrder: opt.sortOrder
           }))
         };
