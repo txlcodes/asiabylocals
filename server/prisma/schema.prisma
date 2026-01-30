@@ -21,8 +21,8 @@ model Supplier {
   mainHub                  String?   @map("main_hub")
   city                     String?
   tourLanguages            String?   @map("tour_languages")
-  phone                    String?   // Guide's phone number
-  whatsapp                 String?   // Guide's WhatsApp number
+  phone                    String? // Guide's phone number
+  whatsapp                 String? // Guide's WhatsApp number
   verificationDocumentUrl  String?   @map("verification_document_url")
   emailVerified            Boolean   @default(false) @map("email_verified")
   emailVerificationToken   String?   @map("email_verification_token")
@@ -39,37 +39,37 @@ model Supplier {
 }
 
 model Tour {
-  id               Int       @id @default(autoincrement())
-  supplierId       Int       @map("supplier_id")
-  parentTourId     Int?      @map("parent_tour_id") // For mini tours linked to parent tours
+  id               Int          @id @default(autoincrement())
+  supplierId       Int          @map("supplier_id")
+  parentTourId     Int?         @map("parent_tour_id") // For mini tours linked to parent tours
   title            String
-  slug             String    @unique
+  slug             String       @unique
   country          String
   city             String
   category         String
   locations        String
   duration         String
-  pricePerPerson   Float     @map("price_per_person") // Legacy field - use tour_options for pricing
-  currency         String    @default("INR")
-  shortDescription String?   @map("short_description")
-  fullDescription  String    @map("full_description")
-  highlights       String?   @map("highlights")
+  pricePerPerson   Float        @map("price_per_person") // Legacy field - use tour_options for pricing
+  currency         String       @default("INR")
+  shortDescription String?      @map("short_description")
+  fullDescription  String       @map("full_description")
+  highlights       String?      @map("highlights")
   included         String
-  notIncluded      String?   @map("not_included")
-  meetingPoint     String?   @map("meeting_point")
-  guideType        String?   @map("guide_type")
-  tourTypes        String?   @map("tour_types") // JSON array of tour types/tags
+  notIncluded      String?      @map("not_included")
+  meetingPoint     String?      @map("meeting_point")
+  guideType        String?      @map("guide_type")
+  tourTypes        String?      @map("tour_types") // JSON array of tour types/tags
   images           String
   languages        String
-  reviews          String?   // JSON array of fake reviews
-  status           String    @default("draft")
-  rejectionReason  String?   @map("rejection_reason")
-  createdAt        DateTime  @default(now()) @map("created_at")
-  updatedAt        DateTime  @updatedAt @map("updated_at")
-  approvedAt       DateTime? @map("approved_at")
-  supplier         Supplier  @relation(fields: [supplierId], references: [id], onDelete: Cascade)
-  parentTour       Tour?     @relation("TourMiniTours", fields: [parentTourId], references: [id], onDelete: SetNull)
-  miniTours        Tour[]    @relation("TourMiniTours")
+  reviews          String? // JSON array of fake reviews
+  status           String       @default("draft")
+  rejectionReason  String?      @map("rejection_reason")
+  createdAt        DateTime     @default(now()) @map("created_at")
+  updatedAt        DateTime     @updatedAt @map("updated_at")
+  approvedAt       DateTime?    @map("approved_at")
+  supplier         Supplier     @relation(fields: [supplierId], references: [id], onDelete: Cascade)
+  parentTour       Tour?        @relation("TourMiniTours", fields: [parentTourId], references: [id], onDelete: SetNull)
+  miniTours        Tour[]       @relation("TourMiniTours")
   bookings         Booking[]
   options          TourOption[]
 
@@ -109,30 +109,30 @@ model TourOption {
 }
 
 model Booking {
-  id               Int       @id @default(autoincrement())
-  tourId           Int       @map("tour_id")
-  tour             Tour      @relation(fields: [tourId], references: [id], onDelete: Cascade)
-  tourOptionId     Int?      @map("tour_option_id") // Optional - for option-based bookings
-  tourOption       TourOption? @relation(fields: [tourOptionId], references: [id], onDelete: SetNull)
-  supplierId       Int       @map("supplier_id")
-  supplier         Supplier  @relation(fields: [supplierId], references: [id], onDelete: Cascade)
-  customerName     String    @map("customer_name")
-  customerEmail    String    @map("customer_email")
-  customerPhone    String?   @map("customer_phone")
-  bookingDate      String    @map("booking_date") // Store as ISO string
-  numberOfGuests   Int       @map("number_of_guests")
-  totalAmount      Float     @map("total_amount")
-  currency         String    @default("INR")
-  specialRequests  String?   @map("special_requests")
-  status           String    @default("pending") // pending, confirmed, completed, cancelled
-  paymentStatus    String    @default("pending") @map("payment_status") // pending, paid, refunded
-  razorpayOrderId  String?   @map("razorpay_order_id")
-  razorpayPaymentId String? @map("razorpay_payment_id")
-  razorpaySignature String?  @map("razorpay_signature")
-  createdAt        DateTime  @default(now()) @map("created_at")
-  updatedAt        DateTime  @updatedAt @map("updated_at")
+  id                Int         @id @default(autoincrement())
+  tourId            Int         @map("tour_id")
+  tour              Tour        @relation(fields: [tourId], references: [id], onDelete: Cascade)
+  tourOptionId      Int?        @map("tour_option_id") // Optional - for option-based bookings
+  tourOption        TourOption? @relation(fields: [tourOptionId], references: [id], onDelete: SetNull)
+  supplierId        Int         @map("supplier_id")
+  supplier          Supplier    @relation(fields: [supplierId], references: [id], onDelete: Cascade)
+  customerName      String      @map("customer_name")
+  customerEmail     String      @map("customer_email")
+  customerPhone     String?     @map("customer_phone")
+  bookingDate       String      @map("booking_date") // Store as ISO string
+  numberOfGuests    Int         @map("number_of_guests")
+  totalAmount       Float       @map("total_amount")
+  currency          String      @default("INR")
+  specialRequests   String?     @map("special_requests")
+  status            String      @default("pending") // pending, confirmed, completed, cancelled
+  paymentStatus     String      @default("pending") @map("payment_status") // pending, paid, refunded
+  razorpayOrderId   String?     @map("razorpay_order_id")
+  razorpayPaymentId String?     @map("razorpay_payment_id")
+  razorpaySignature String?     @map("razorpay_signature")
+  createdAt         DateTime    @default(now()) @map("created_at")
+  updatedAt         DateTime    @updatedAt @map("updated_at")
 
-  messages                Message[]
+  messages Message[]
 
   @@index([tourId])
   @@index([tourOptionId])
@@ -142,15 +142,15 @@ model Booking {
 }
 
 model Message {
-  id               Int       @id @default(autoincrement())
-  bookingId        Int       @map("booking_id")
-  booking          Booking   @relation(fields: [bookingId], references: [id], onDelete: Cascade)
-  senderType       String    @map("sender_type") // 'customer' or 'supplier'
-  senderEmail      String    @map("sender_email") // Customer email or supplier email
-  message          String
-  read             Boolean   @default(false)
-  createdAt        DateTime  @default(now()) @map("created_at")
-  updatedAt        DateTime  @updatedAt @map("updated_at")
+  id          Int      @id @default(autoincrement())
+  bookingId   Int      @map("booking_id")
+  booking     Booking  @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  senderType  String   @map("sender_type") // 'customer' or 'supplier'
+  senderEmail String   @map("sender_email") // Customer email or supplier email
+  message     String
+  read        Boolean  @default(false)
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
 
   @@index([bookingId])
   @@index([senderEmail])
