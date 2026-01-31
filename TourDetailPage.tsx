@@ -73,6 +73,16 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
       }
     }
     
+    // Debug logging
+    if (groupPricingTiers && Array.isArray(groupPricingTiers) && groupPricingTiers.length > 0) {
+      console.log('💰 Group Pricing Calculation:', {
+        numParticipants,
+        tiers: groupPricingTiers,
+        tourId: tourData.id || tourData.tourId,
+        optionTitle: tourData.optionTitle || 'Main Tour'
+      });
+    }
+    
     // If group pricing tiers exist, find the matching tier
     if (groupPricingTiers && Array.isArray(groupPricingTiers) && groupPricingTiers.length > 0) {
       // Find the tier that matches the number of participants
@@ -81,15 +91,30 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
       );
       
       if (matchingTier && matchingTier.price) {
-        return parseFloat(matchingTier.price) || null;
+        const price = parseFloat(matchingTier.price) || null;
+        console.log('✅ Matching tier found:', {
+          tier: `${matchingTier.minPeople}-${matchingTier.maxPeople} people`,
+          price,
+          numParticipants
+        });
+        return price;
+      } else {
+        console.warn('⚠️ No matching tier found for', numParticipants, 'participants. Available tiers:', 
+          groupPricingTiers.map((t: any) => `${t.minPeople}-${t.maxPeople}`).join(', '));
       }
     }
     
     // Fallback to legacy groupPrice if available
     if (tourData.groupPrice && tourData.maxGroupSize && numParticipants <= tourData.maxGroupSize) {
+      console.log('📊 Using legacy groupPrice:', {
+        groupPrice: tourData.groupPrice,
+        maxGroupSize: tourData.maxGroupSize,
+        numParticipants
+      });
       return parseFloat(tourData.groupPrice) || null;
     }
     
+    console.log('ℹ️ No group pricing found, using per-person pricing');
     return null;
   };
 
@@ -1132,6 +1157,67 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
                     return 'per person';
                   })()}
                 </div>
+                
+                {/* Group Pricing Tiers Display */}
+                {(() => {
+                  const tourData = selectedOption || tour;
+                  let groupPricingTiers = null;
+                  
+                  if (tourData.groupPricingTiers) {
+                    try {
+                      groupPricingTiers = typeof tourData.groupPricingTiers === 'string' 
+                        ? JSON.parse(tourData.groupPricingTiers) 
+                        : tourData.groupPricingTiers;
+                    } catch (e) {
+                      console.error('Error parsing groupPricingTiers:', e);
+                    }
+                  }
+                  
+                  if (groupPricingTiers && Array.isArray(groupPricingTiers) && groupPricingTiers.length > 0) {
+                    const currencySymbol = (tourData.currency || tour.currency || 'INR') === 'INR' ? '₹' : '$';
+                    const currentParticipants = isCustomParticipants ? customParticipants : participants;
+                    
+                    return (
+                      <div className="mt-4 p-4 bg-gray-50 rounded-xl border border-gray-200">
+                        <div className="text-[12px] font-bold text-gray-500 uppercase tracking-wider mb-3">Group Pricing Tiers</div>
+                        <div className="space-y-2">
+                          {groupPricingTiers.map((tier: any, index: number) => {
+                            const isActiveTier = currentParticipants >= tier.minPeople && currentParticipants <= tier.maxPeople;
+                            return (
+                              <div 
+                                key={index} 
+                                className={`flex items-center justify-between p-2 rounded-lg transition-all ${
+                                  isActiveTier 
+                                    ? 'bg-[#10B981]/10 border-2 border-[#10B981]' 
+                                    : 'bg-white border border-gray-200'
+                                }`}
+                              >
+                                <span className={`text-[13px] font-bold ${isActiveTier ? 'text-[#10B981]' : 'text-[#001A33]'}`}>
+                                  {tier.minPeople}-{tier.maxPeople} {tier.maxPeople === 1 ? 'person' : 'people'}
+                                  {isActiveTier && <span className="ml-2 text-[10px]">✓ Selected</span>}
+                                </span>
+                                <span className={`text-[15px] font-black ${isActiveTier ? 'text-[#10B981]' : 'text-[#001A33]'}`}>
+                                  {currencySymbol}{parseFloat(tier.price || 0).toLocaleString()}
+                                </span>
+                              </div>
+                            );
+                          })}
+                        </div>
+                        <div className="mt-3 pt-3 border-t border-gray-300">
+                          <div className="text-[11px] text-gray-600 font-semibold">
+                            Current selection: {currentParticipants} {currentParticipants === 1 ? 'person' : 'people'} = {currencySymbol}
+                            {(() => {
+                              const price = calculateGroupPrice(tourData, currentParticipants);
+                              return price ? price.toLocaleString() : '0';
+                            })()}
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  }
+                  return null;
+                })()}
+                
                 {/* Tour Types - More Prominent Display */}
                 {tour.tourTypes && (() => {
                   try {

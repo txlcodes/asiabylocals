@@ -9,7 +9,7 @@ const AdminDashboard: React.FC = () => {
   const [pendingSuppliers, setPendingSuppliers] = useState<any[]>([]);
   const [tourFilter, setTourFilter] = useState<'pending' | 'approved' | 'all'>('pending');
   const [bookings, setBookings] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false); // Start as false, will be set to true when fetching
   const [loadingBookings, setLoadingBookings] = useState(false);
   const [selectedTour, setSelectedTour] = useState<any>(null);
   const [selectedSupplier, setSelectedSupplier] = useState<any>(null);
@@ -26,6 +26,9 @@ const AdminDashboard: React.FC = () => {
         const admin = JSON.parse(adminData);
         if (admin.authenticated) {
           setIsAuthenticated(true);
+        } else {
+          // Not authenticated, clear invalid data
+          localStorage.removeItem('admin');
         }
       } catch (error) {
         console.error('Error parsing admin data:', error);
@@ -60,28 +63,80 @@ const AdminDashboard: React.FC = () => {
         url = `${API_URL}/api/admin/tours${tourFilter !== 'all' ? `?status=${tourFilter}` : ''}`;
       }
       console.log('Admin Dashboard - Fetching tours from:', url);
+      
+      // Add timeout to prevent hanging
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+      
       const response = await fetch(url, {
-        headers: getAuthHeaders()
+        headers: getAuthHeaders(),
+        signal: controller.signal
       });
+      
+      clearTimeout(timeoutId);
       console.log('Admin Dashboard - Response status:', response.status);
+      
       if (!response.ok) {
+        if (response.status === 401 || response.status === 403) {
+          // Authentication failed
+          localStorage.removeItem('admin');
+          setIsAuthenticated(false);
+          throw new Error('Authentication failed. Please log in again.');
+        }
         throw new Error(`HTTP error! status: ${response.status}`);
       }
+      
       const data = await response.json();
       console.log('Admin Dashboard - API Response:', data);
+      console.log('Admin Dashboard - Response success:', data.success);
       console.log('Admin Dashboard - Tours array:', data.tours);
       console.log('Admin Dashboard - Tours count:', data.tours?.length);
+      console.log('Admin Dashboard - Is tours an array?', Array.isArray(data.tours));
+      console.log('Admin Dashboard - Filter:', tourFilter);
+      
       if (data.success && Array.isArray(data.tours)) {
-        console.log('Admin Dashboard - Setting tours:', data.tours);
+        console.log('✅ Admin Dashboard - Setting tours:', data.tours.length);
         setPendingTours(data.tours);
       } else {
-        console.error('Admin Dashboard - Invalid response:', data);
+        console.error('❌ Admin Dashboard - Invalid response format:', {
+          success: data.success,
+          hasTours: !!data.tours,
+          toursIsArray: Array.isArray(data.tours),
+          toursType: typeof data.tours,
+          fullData: data
+        });
+        // Don't clear tours if response format is unexpected - might be a temporary issue
+        if (!data.tours) {
+          setPendingTours([]);
+        }
+      }
+    } catch (error: any) {
+      console.error('❌ Error fetching pending tours:', error);
+      console.error('   Error message:', error.message);
+      console.error('   Error type:', error.name);
+      console.error('   Error stack:', error.stack);
+      console.error('   Current filter:', tourFilter);
+      
+      let errorMessage = 'Failed to load pending tours.';
+      if (error.name === 'AbortError') {
+        errorMessage = 'Request timed out. Please check your connection and try again.';
+      } else if (error.message?.includes('401') || error.message?.includes('403') || error.message?.includes('Unauthorized') || error.message?.includes('Authentication')) {
+        errorMessage = 'Authentication failed. Please log in again.';
+        localStorage.removeItem('admin');
+        setIsAuthenticated(false);
+      } else if (error.message?.includes('fetch') || error.message?.includes('Failed to fetch')) {
+        errorMessage = 'Cannot connect to server. Please check your connection and try again.';
+      } else if (error.message?.includes('500') || error.message?.includes('Internal server error')) {
+        errorMessage = 'Server error. Please try again in a few moments.';
+      }
+      
+      // Don't show alert for every error - just log it
+      console.error('❌ Fetch error (not showing alert):', errorMessage);
+      // Only clear tours if it's a critical error
+      if (error.name === 'AbortError' || error.message?.includes('fetch') || error.message?.includes('Failed to fetch')) {
         setPendingTours([]);
       }
-    } catch (error) {
-      console.error('Error fetching pending tours:', error);
-      alert('Failed to load pending tours');
-      setPendingTours([]);
+      // Keep existing tours if it's a parsing error - might be temporary
     } finally {
       setLoading(false);
     }
@@ -121,17 +176,34 @@ const AdminDashboard: React.FC = () => {
       const API_URL = import.meta.env.VITE_API_URL || (typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3001');
       const url = `${API_URL}/api/admin/suppliers/pending`;
       console.log('Admin Dashboard - Fetching suppliers from:', url);
+      
+      // Add timeout to prevent hanging
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+      
       const response = await fetch(url, {
-        headers: getAuthHeaders()
+        headers: getAuthHeaders(),
+        signal: controller.signal
       });
+      
+      clearTimeout(timeoutId);
       console.log('Admin Dashboard - Response status:', response.status);
+      
       if (!response.ok) {
+        if (response.status === 401 || response.status === 403) {
+          // Authentication failed
+          localStorage.removeItem('admin');
+          setIsAuthenticated(false);
+          throw new Error('Authentication failed. Please log in again.');
+        }
         throw new Error(`HTTP error! status: ${response.status}`);
       }
+      
       const data = await response.json();
       console.log('Admin Dashboard - API Response:', data);
       console.log('Admin Dashboard - Suppliers array:', data.suppliers);
       console.log('Admin Dashboard - Suppliers count:', data.suppliers?.length);
+      
       if (data.success && Array.isArray(data.suppliers)) {
         console.log('Admin Dashboard - Setting suppliers:', data.suppliers.length);
         setPendingSuppliers(data.suppliers);
@@ -146,7 +218,9 @@ const AdminDashboard: React.FC = () => {
       
       // Show more helpful error message
       let errorMessage = 'Failed to load pending suppliers.';
-      if (error.message?.includes('401') || error.message?.includes('Unauthorized')) {
+      if (error.name === 'AbortError') {
+        errorMessage = 'Request timed out. Please check your connection and try again.';
+      } else if (error.message?.includes('401') || error.message?.includes('403') || error.message?.includes('Unauthorized') || error.message?.includes('Authentication')) {
         errorMessage = 'Authentication failed. Please log in again.';
         // Clear admin session and redirect to login
         localStorage.removeItem('admin');
@@ -167,7 +241,9 @@ const AdminDashboard: React.FC = () => {
   // Fetch data when authenticated and tab changes
   useEffect(() => {
     if (isAuthenticated) {
+      console.log('🔄 Admin Dashboard - useEffect triggered:', { activeTab, tourFilter, isAuthenticated });
       if (activeTab === 'tours') {
+        console.log('📋 Fetching tours with filter:', tourFilter);
         fetchPendingTours();
       } else if (activeTab === 'suppliers') {
         fetchPendingSuppliers();
@@ -388,8 +464,10 @@ const AdminDashboard: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#10B981]"></div>
+      <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#10B981] mb-4"></div>
+        <p className="text-[14px] text-gray-500 font-semibold">Loading admin dashboard...</p>
+        <p className="text-[12px] text-gray-400 mt-2">If this takes too long, check your connection</p>
       </div>
     );
   }
@@ -721,13 +799,20 @@ const AdminDashboard: React.FC = () => {
           )
         ) : activeTab === 'tours' ? (
           // Tours Tab
-          pendingTours.length === 0 ? (
+          pendingTours.length === 0 && !loading ? (
           <div className="bg-white rounded-2xl p-12 text-center border border-gray-200">
             <CheckCircle2 className="mx-auto text-gray-300 mb-4" size={64} />
             <h2 className="text-2xl font-black text-[#001A33] mb-2">All caught up!</h2>
             <p className="text-[14px] text-gray-500 font-semibold">
-              No tours pending review at the moment.
+              {tourFilter === 'pending' 
+                ? 'No tours pending review at the moment.'
+                : tourFilter === 'approved'
+                ? 'No approved tours found.'
+                : 'No tours found.'}
             </p>
+            <div className="mt-4 text-[12px] text-gray-400">
+              Filter: {tourFilter} | Check console for API response details
+            </div>
           </div>
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

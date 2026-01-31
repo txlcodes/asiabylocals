@@ -2133,6 +2133,85 @@ function removeAllIds(obj) {
   return cleaned;
 }
 
+// Background function to upload images to Cloudinary and update tour
+// Runs asynchronously after tour creation to avoid blocking the response
+async function uploadImagesInBackground(tourId, imagesArray, city) {
+  try {
+    console.log(`   📤 Starting background Cloudinary upload for tour ${tourId}...`);
+    const folder = `tours/${city.toLowerCase().replace(/\s+/g, '-')}`;
+    const cloudinaryUrls = await uploadMultipleImages(imagesArray, folder);
+
+    console.log(`   ✅ Uploaded ${cloudinaryUrls.length} images to Cloudinary for tour ${tourId}`);
+
+    await prisma.tour.update({
+      where: { id: tourId },
+      data: {
+        images: JSON.stringify(cloudinaryUrls)
+      }
+    });
+
+    console.log(`   ✅ Tour ${tourId} updated with Cloudinary URLs`);
+  } catch (error) {
+    console.error(`   ❌ Background Cloudinary upload failed for tour ${tourId}:`, error.message);
+    // Do not throw - tour is already created, images remain as base64
+  }
+}
+
+// Upload images to Cloudinary BEFORE tour creation (for faster submission)
+// This endpoint allows frontend to upload images first, then create tour with URLs
+app.post('/api/tours/upload-images', async (req, res) => {
+  try {
+    const { images, city } = req.body;
+
+    if (!images || !Array.isArray(images) || images.length === 0) {
+      return res.status(400).json({
+        success: false,
+        error: 'Invalid request',
+        message: 'Images array is required'
+      });
+    }
+
+    if (!city || typeof city !== 'string') {
+      return res.status(400).json({
+        success: false,
+        error: 'Invalid request',
+        message: 'City is required'
+      });
+    }
+
+    // Check if Cloudinary is configured
+    if (!process.env.CLOUDINARY_CLOUD_NAME || !process.env.CLOUDINARY_API_KEY || !process.env.CLOUDINARY_API_SECRET) {
+      return res.status(500).json({
+        success: false,
+        error: 'Cloudinary not configured',
+        message: 'Image upload service is not configured. Please contact support.'
+      });
+    }
+
+    console.log(`📤 Uploading ${images.length} images to Cloudinary for city: ${city}`);
+    const uploadStartTime = Date.now();
+
+    const folder = `tours/${city.toLowerCase().replace(/\s+/g, '-')}`;
+    const cloudinaryUrls = await uploadMultipleImages(images, folder);
+
+    const uploadTime = Date.now() - uploadStartTime;
+    console.log(`✅ Uploaded ${cloudinaryUrls.length} images in ${uploadTime}ms`);
+
+    res.json({
+      success: true,
+      urls: cloudinaryUrls,
+      message: `Successfully uploaded ${cloudinaryUrls.length} images`
+    });
+  } catch (error) {
+    console.error('❌ Image upload error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Upload failed',
+      message: error.message || 'Failed to upload images'
+    });
+  }
+});
+
 // Create a new tour
 app.post('/api/tours', async (req, res) => {
   const createStartTime = Date.now();
@@ -2177,7 +2256,16 @@ app.post('/api/tours', async (req, res) => {
     const finalCleanedBody = removePricingType(cleanedBody);
     
     console.log('🧹 Cleaned request body (all IDs and pricingType removed recursively)');
-    console.log('📦 Request body:', JSON.stringify(finalCleanedBody, null, 2));
+    const requestSummary = {
+      ...finalCleanedBody,
+      images: Array.isArray(finalCleanedBody.images)
+        ? `[${finalCleanedBody.images.length} images]`
+        : typeof finalCleanedBody.images,
+      tourOptionsCount: Array.isArray(finalCleanedBody.tourOptions)
+        ? finalCleanedBody.tourOptions.length
+        : 0
+    };
+    console.log('📦 Request summary:', requestSummary);
     
     const {
       supplierId,
@@ -3072,43 +3160,18 @@ app.post('/api/tours', async (req, res) => {
     
     console.log(`📝 Generated slug: "${slug}" (${slug.length} characters)`);
 
-    // Upload images to Cloudinary (if Cloudinary is configured)
+    // For fast tour creation: store base64 images initially, upload to Cloudinary in background
     let imageUrls = imagesArray;
+    let needsCloudinaryUpload = false;
+
     if (process.env.CLOUDINARY_CLOUD_NAME && process.env.CLOUDINARY_API_KEY && process.env.CLOUDINARY_API_SECRET) {
-      try {
-        console.log('☁️  Uploading images to Cloudinary...');
-        // Check if images are base64 (data URLs) or already URLs
-        const needsUpload = imagesArray.some(img => img.startsWith('data:image'));
-        
-        if (needsUpload) {
-          // Upload base64 images to Cloudinary
-          const folder = `tours/${city.toLowerCase().replace(/\s+/g, '-')}`;
-          imageUrls = await uploadMultipleImages(imagesArray, folder);
-          console.log(`✅ Uploaded ${imageUrls.length} images to Cloudinary`);
-        } else {
-          // Images are already URLs (from Cloudinary or other sources)
-          console.log('ℹ️  Images are already URLs, skipping Cloudinary upload');
-          imageUrls = imagesArray;
-        }
-      } catch (cloudinaryError) {
-        console.error('❌ Cloudinary upload error:', cloudinaryError);
-        console.error('   Error details:', cloudinaryError.message);
-        console.error('   Cloudinary config check:');
-        console.error('     CLOUDINARY_CLOUD_NAME:', process.env.CLOUDINARY_CLOUD_NAME ? '✅ Set' : '❌ Missing');
-        console.error('     CLOUDINARY_API_KEY:', process.env.CLOUDINARY_API_KEY ? '✅ Set' : '❌ Missing');
-        console.error('     CLOUDINARY_API_SECRET:', process.env.CLOUDINARY_API_SECRET ? '✅ Set' : '❌ Missing');
-        
-        // NEVER use base64 in production - fail the request instead
-        if (process.env.NODE_ENV === 'production') {
-          return res.status(500).json({
-            success: false,
-            error: 'Image upload failed',
-            message: 'Failed to upload images to Cloudinary. Please check Cloudinary configuration and try again.',
-            details: 'Cloudinary upload is required in production. Base64 images are not allowed.'
-          });
-        }
-        // Development fallback only
-        console.warn('⚠️  Using base64 images as fallback (development mode only)');
+      const hasBase64Images = imagesArray.some(img => img.startsWith('data:image'));
+      if (hasBase64Images) {
+        console.log('📸 Images will be uploaded to Cloudinary in background after tour creation');
+        imageUrls = imagesArray; // keep base64 for initial save
+        needsCloudinaryUpload = true;
+      } else {
+        console.log('ℹ️  Images are already URLs, skipping Cloudinary upload');
         imageUrls = imagesArray;
       }
     } else {
@@ -3116,8 +3179,7 @@ app.post('/api/tours', async (req, res) => {
       console.error('   CLOUDINARY_CLOUD_NAME:', process.env.CLOUDINARY_CLOUD_NAME ? '✅ Set' : '❌ Missing');
       console.error('   CLOUDINARY_API_KEY:', process.env.CLOUDINARY_API_KEY ? '✅ Set' : '❌ Missing');
       console.error('   CLOUDINARY_API_SECRET:', process.env.CLOUDINARY_API_SECRET ? '✅ Set' : '❌ Missing');
-      
-      // In production, fail if Cloudinary is not configured
+
       if (process.env.NODE_ENV === 'production') {
         return res.status(500).json({
           success: false,
@@ -3126,8 +3188,7 @@ app.post('/api/tours', async (req, res) => {
           details: 'Add CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, and CLOUDINARY_API_SECRET to Render environment variables.'
         });
       }
-      
-      // Development fallback only
+
       console.warn('⚠️  Using base64 images (development mode only - NOT for production!)');
     }
 
@@ -3832,24 +3893,54 @@ app.post('/api/tours', async (req, res) => {
           delete tourDataWithoutOptions.options;
         }
         
-        try {
-          // Create the tour first (without options to prevent schema validation issues)
-        tour = await prisma.tour.create({
-            data: tourDataWithoutOptions
-            // Don't include options here - we'll fetch them after creating separately
-          });
-        } catch (prismaError) {
-          console.error('═══════════════════════════════════════════════════════════');
-          console.error('🚨 PRISMA ERROR DURING tour.create()');
-          console.error('═══════════════════════════════════════════════════════════');
-          console.error('Error code:', prismaError.code);
-          console.error('Error message:', prismaError.message);
-          console.error('Error meta:', JSON.stringify(prismaError.meta, null, 2));
-          console.error('Data sent to Prisma:', JSON.stringify(tourDataWithoutOptions, null, 2));
-          console.error('Has options?', 'options' in tourDataWithoutOptions);
-          console.error('All keys:', Object.keys(tourDataWithoutOptions));
-          console.error('═══════════════════════════════════════════════════════════');
-          throw prismaError;
+        // Create the tour first (without options to prevent schema validation issues)
+        // Retry logic for connection errors (P1017, P1001, P1008)
+        let createAttempts = 0;
+        const MAX_CREATE_RETRIES = 3;
+        let tourCreated = false;
+        
+        while (createAttempts < MAX_CREATE_RETRIES && !tourCreated) {
+          try {
+            tour = await prisma.tour.create({
+              data: tourDataWithoutOptions
+              // Don't include options here - we'll fetch them after creating separately
+            });
+            tourCreated = true;
+            break; // Success!
+          } catch (prismaError) {
+            createAttempts++;
+            console.error('═══════════════════════════════════════════════════════════');
+            console.error(`🚨 PRISMA ERROR DURING tour.create() (attempt ${createAttempts}/${MAX_CREATE_RETRIES})`);
+            console.error('═══════════════════════════════════════════════════════════');
+            console.error('Error code:', prismaError.code);
+            console.error('Error message:', prismaError.message);
+            console.error('Error meta:', JSON.stringify(prismaError.meta, null, 2));
+            
+            // Retry on connection errors
+            if (createAttempts < MAX_CREATE_RETRIES && (
+              prismaError.code === 'P1017' ||
+              prismaError.code === 'P1001' ||
+              prismaError.code === 'P1008' ||
+              prismaError.message?.includes('connection') ||
+              prismaError.message?.includes('closed')
+            )) {
+              const retryDelay = createAttempts * 1000; // 1s, 2s, 3s
+              console.log(`   Connection error detected, retrying in ${retryDelay}ms...`);
+              await new Promise(resolve => setTimeout(resolve, retryDelay));
+              continue; // Retry
+            }
+            
+            // Not a retryable error or max retries reached
+            console.error('Data sent to Prisma:', JSON.stringify(tourDataWithoutOptions, null, 2));
+            console.error('Has options?', 'options' in tourDataWithoutOptions);
+            console.error('All keys:', Object.keys(tourDataWithoutOptions));
+            console.error('═══════════════════════════════════════════════════════════');
+            throw prismaError;
+          }
+        }
+        
+        if (!tourCreated) {
+          throw new Error('Failed to create tour after retries due to connection issues');
         }
         
         // Then create options separately if they exist
@@ -4122,6 +4213,14 @@ app.post('/api/tours', async (req, res) => {
     }
     console.log(`   Status: ${tour.status}`);
     console.log(`   URL: /${tour.country.toLowerCase().replace(/\s+/g, '-')}/${tour.city.toLowerCase().replace(/\s+/g, '-')}/${tour.slug}`);
+
+    // Upload images to Cloudinary in background (non-blocking)
+    if (needsCloudinaryUpload) {
+      console.log(`☁️  Starting background Cloudinary upload for tour ${tour.id}...`);
+      uploadImagesInBackground(tour.id, imagesArray, city).catch(error => {
+        console.error(`❌ Background Cloudinary upload failed for tour ${tour.id}:`, error.message);
+      });
+    }
 
     // Use centralized helper function to ensure reviews is always null
     res.json({
@@ -4873,40 +4972,10 @@ app.delete('/api/tours/:id', async (req, res) => {
       });
     }
 
-    console.log(`🗑️  Delete tour request received for tour ${tourId}`);
-
-    // Retry logic for database connection issues
-    let existingTour = null;
-    let findAttempts = 0;
-    const MAX_FIND_RETRIES = 3;
-
-    while (findAttempts < MAX_FIND_RETRIES && !existingTour) {
-      try {
-        existingTour = await prisma.tour.findUnique({
-          where: { id: tourId }
-        });
-        break; // Success, exit retry loop
-      } catch (dbError) {
-        findAttempts++;
-        console.error(`   Database error finding tour (attempt ${findAttempts}/${MAX_FIND_RETRIES}):`, dbError.message);
-
-        // If it's a connection error and we have retries left, wait and retry
-        if (findAttempts < MAX_FIND_RETRIES && (
-          dbError.message?.includes('connection') ||
-          dbError.message?.includes('timeout') ||
-          dbError.message?.includes('closed') ||
-          dbError.code === 'P1001' ||
-          dbError.code === 'P1017' ||
-          dbError.code === 'P1008'
-        )) {
-          console.log(`   Retrying in ${findAttempts * 500}ms...`);
-          await new Promise(resolve => setTimeout(resolve, findAttempts * 500));
-          continue;
-        }
-        // Not a retryable error, throw
-        throw dbError;
-      }
-    }
+    // Check if tour exists and is in draft status
+    const existingTour = await prisma.tour.findUnique({
+      where: { id: tourId }
+    });
 
     if (!existingTour) {
       return res.status(404).json({
@@ -4924,52 +4993,22 @@ app.delete('/api/tours/:id', async (req, res) => {
       });
     }
 
-    // Retry logic for delete operation
-    let deleteAttempts = 0;
-    const MAX_DELETE_RETRIES = 3;
+    await prisma.tour.delete({
+      where: { id: tourId }
+    });
 
-    while (deleteAttempts < MAX_DELETE_RETRIES) {
-      try {
-        await prisma.tour.delete({
-          where: { id: tourId }
-        });
-        console.log(`✅ Tour deleted successfully: ${tourId}`);
-        
-        res.json({
-          success: true,
-          message: 'Tour deleted successfully'
-        });
-        return; // Success, exit function
-      } catch (deleteError) {
-        deleteAttempts++;
-        console.error(`   Database error deleting tour (attempt ${deleteAttempts}/${MAX_DELETE_RETRIES}):`, deleteError.message);
+    console.log('✅ Tour deleted successfully:', tourId);
 
-        // If it's a connection error and we have retries left, wait and retry
-        if (deleteAttempts < MAX_DELETE_RETRIES && (
-          deleteError.message?.includes('connection') ||
-          deleteError.message?.includes('timeout') ||
-          deleteError.message?.includes('closed') ||
-          deleteError.code === 'P1001' ||
-          deleteError.code === 'P1017' ||
-          deleteError.code === 'P1008'
-        )) {
-          console.log(`   Retrying delete in ${deleteAttempts * 500}ms...`);
-          await new Promise(resolve => setTimeout(resolve, deleteAttempts * 500));
-          continue;
-        }
-        // Not a retryable error, throw
-        throw deleteError;
-      }
-    }
+    res.json({
+      success: true,
+      message: 'Tour deleted successfully'
+    });
   } catch (error) {
-    console.error('❌ Tour delete error:', error);
-    console.error('   Error message:', error.message);
-    console.error('   Error code:', error.code);
+    console.error('Tour delete error:', error);
     res.status(500).json({
       success: false,
       error: 'Internal server error',
-      message: 'Failed to delete tour',
-      details: process.env.NODE_ENV === 'development' ? error.message : undefined
+      message: 'Failed to delete tour'
     });
   }
 });
@@ -6061,12 +6100,12 @@ app.post('/api/tours/:id/submit', async (req, res) => {
     });
     console.log(`   ✅ Status updated (took ${Date.now() - updateStartTime}ms)`);
 
-    // Parse JSON fields
+    // Parse JSON fields (avoid parsing large images here to keep response fast)
     const formattedTour = {
       ...updatedTour,
       id: String(updatedTour.id),
       locations: JSON.parse(updatedTour.locations || '[]'),
-      images: JSON.parse(updatedTour.images || '[]'),
+      images: [], // Skip parsing base64 images on submit response
       languages: JSON.parse(updatedTour.languages || '[]'),
       highlights: updatedTour.highlights ? JSON.parse(updatedTour.highlights || '[]') : [],
       tourTypes: updatedTour.tourTypes ? JSON.parse(updatedTour.tourTypes || '[]') : []

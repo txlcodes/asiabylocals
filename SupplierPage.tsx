@@ -18,7 +18,6 @@ import {
 import SupplierRegistration from './SupplierRegistration';
 import SupplierLogin from './SupplierLogin';
 import SupplierDashboard from './SupplierDashboard';
-import { translations, getTranslation, Language } from './src/translations/supplier';
 
 const NAV_LINKS = [
   { label: 'Why partner with us', id: 'why' },
@@ -53,24 +52,6 @@ const SupplierPage: React.FC<SupplierPageProps> = ({ onClose }) => {
   const [loggedInSupplier, setLoggedInSupplier] = useState<any>(null);
   const [currentCountryIndex, setCurrentCountryIndex] = useState(0);
   const [isVisible, setIsVisible] = useState(true);
-  
-  // Language state - detect from browser or localStorage, default to English
-  const [language, setLanguage] = useState<Language>(() => {
-    const saved = localStorage.getItem('supplierLanguage');
-    if (saved === 'ja' || saved === 'en') return saved as Language;
-    // Auto-detect Japanese browser
-    if (typeof window !== 'undefined' && navigator.language.startsWith('ja')) {
-      return 'ja';
-    }
-    return 'en';
-  });
-
-  // Save language preference
-  useEffect(() => {
-    localStorage.setItem('supplierLanguage', language);
-  }, [language]);
-
-  const t = (key: keyof typeof translations.en) => getTranslation(language, key);
 
   // Check if supplier is already logged in
   useEffect(() => {
@@ -204,7 +185,6 @@ const SupplierPage: React.FC<SupplierPageProps> = ({ onClose }) => {
   if (showLogin) {
     return (
       <SupplierLogin 
-        language={language}
         onClose={() => setShowLogin(false)}
         onLoginSuccess={() => {
           const storedSupplier = localStorage.getItem('supplier');
@@ -230,7 +210,7 @@ const SupplierPage: React.FC<SupplierPageProps> = ({ onClose }) => {
 
   // Show registration form
   if (showRegistration) {
-    return <SupplierRegistration language={language} onClose={() => setShowRegistration(false)} />;
+    return <SupplierRegistration onClose={() => setShowRegistration(false)} />;
   }
 
   return (
@@ -244,47 +224,22 @@ const SupplierPage: React.FC<SupplierPageProps> = ({ onClose }) => {
               className="flex items-center gap-2 text-[#001A33] font-semibold hover:text-[#10B981] text-[14px] transition-colors"
             >
               <ChevronRight size={18} className="rotate-180" />
-              {t('backToHome')}
+              Back to Home
             </button>
           ) : (
             <div></div>
           )}
           <img 
-            src="/logo.svg?v=4" 
+            src="/logo.jpeg" 
             alt="AsiaByLocals" 
-            className="h-28 md:h-32 lg:h-36 w-auto"
+            className="h-16 w-auto"
           />
-          <div className="flex items-center gap-3">
-            {/* Language Switcher */}
-            <div className="flex items-center gap-1 bg-gray-50 rounded-full p-1 border border-gray-200">
-              <button
-                onClick={() => setLanguage('en')}
-                className={`px-3 py-1.5 rounded-full text-xs font-bold transition-all ${
-                  language === 'en' 
-                    ? 'bg-[#10B981] text-white' 
-                    : 'text-gray-600 hover:text-[#001A33]'
-                }`}
-              >
-                EN
-              </button>
-              <button
-                onClick={() => setLanguage('ja')}
-                className={`px-3 py-1.5 rounded-full text-xs font-bold transition-all ${
-                  language === 'ja' 
-                    ? 'bg-[#10B981] text-white' 
-                    : 'text-gray-600 hover:text-[#001A33]'
-                }`}
-              >
-                日本語
-              </button>
-            </div>
-            <button
-              onClick={() => setShowLogin(true)}
-              className="px-6 py-2 border-2 border-[#10B981] text-[#10B981] font-black rounded-full text-[14px] hover:bg-[#10B981] hover:text-white transition-all"
-            >
-              {t('signIn')}
-            </button>
-          </div>
+          <button
+            onClick={() => setShowLogin(true)}
+            className="px-6 py-2 border-2 border-[#10B981] text-[#10B981] font-black rounded-full text-[14px] hover:bg-[#10B981] hover:text-white transition-all"
+          >
+            Sign In
+          </button>
         </div>
       </header>
       
@@ -292,39 +247,21 @@ const SupplierPage: React.FC<SupplierPageProps> = ({ onClose }) => {
       <section className="pt-16 pb-24 max-w-[1280px] mx-auto px-8 grid lg:grid-cols-2 gap-12 items-center reveal">
         <div className="z-10">
           <h1 className="text-5xl md:text-[68px] font-extrabold text-[#001A33] leading-[1.05] mb-6 tracking-tighter">
-            {language === 'ja' ? (
-              <>
-                {t('heroTitle')} <br />
-                <span 
-                  className={`text-[#10B981] transition-opacity duration-700 ease-in-out ${isVisible ? 'opacity-100' : 'opacity-0'}`}
-                >
-                  {currentCountry.currency}{currentCountry.amount}{t('perMonth')}
-                </span><br />
-                <span 
-                  className={`text-[#001A33] transition-opacity duration-700 ease-in-out ${isVisible ? 'opacity-100' : 'opacity-0'}`}
-                >
-                  {currentCountry.name === 'Japan' ? '日本' : currentCountry.name}{t('in')}
-                </span>
-              </>
-            ) : (
-              <>
-                {t('heroTitle')} <br />
-                <span 
-                  className={`text-[#10B981] transition-opacity duration-700 ease-in-out ${isVisible ? 'opacity-100' : 'opacity-0'}`}
-                >
-                  {currentCountry.currency}{currentCountry.amount} {t('perMonth')}
-                </span><br />
-                {t('in')} <span 
-                  className={`text-[#001A33] transition-opacity duration-700 ease-in-out ${isVisible ? 'opacity-100' : 'opacity-0'}`}
-                >
-                  {currentCountry.name}
-                </span>
-              </>
-            )}
+            You could earn <br />
+            <span 
+              className={`text-[#10B981] transition-opacity duration-700 ease-in-out ${isVisible ? 'opacity-100' : 'opacity-0'}`}
+            >
+              {currentCountry.currency}{currentCountry.amount} per month
+            </span><br />
+            in <span 
+              className={`text-[#001A33] transition-opacity duration-700 ease-in-out ${isVisible ? 'opacity-100' : 'opacity-0'}`}
+            >
+              {currentCountry.name}
+            </span>
           </h1>
           
           <p className="text-xl text-gray-500 font-medium mb-8 max-w-lg leading-relaxed">
-            {t('heroSubtitle')}
+            Create your activity on AsiaByLocals for free under 30 minutes.
           </p>
 
           <div className="mb-16 flex items-center gap-4">
@@ -332,21 +269,21 @@ const SupplierPage: React.FC<SupplierPageProps> = ({ onClose }) => {
               onClick={toggleRegistration}
               className="bg-[#10B981] hover:bg-[#059669] text-white font-black px-10 py-5 rounded-full text-lg shadow-2xl shadow-green-200 flex items-center gap-3 transition-all active:scale-95 group"
             >
-              {t('getStarted')} <ChevronRight size={20} className="group-hover:translate-x-1 transition-transform" />
+              Get Started <ChevronRight size={20} className="group-hover:translate-x-1 transition-transform" />
             </button>
             <button 
               onClick={() => setShowLogin(true)}
               className="border-2 border-[#10B981] text-[#10B981] hover:bg-[#10B981] hover:text-white font-black px-8 py-5 rounded-full text-lg transition-all active:scale-95"
             >
-              {t('signIn')}
+              Sign In
             </button>
           </div>
           
           <div id="how-it-works" className="grid grid-cols-3 gap-6 border-t border-gray-200 pt-8">
             {[
-              { n: '1', t: t('step1'), d: t('step1Desc') },
-              { n: '2', t: t('step2'), d: t('step2Desc') },
-              { n: '3', t: t('step3'), d: t('step3Desc') }
+              { n: '1', t: 'Register your business', d: 'Free signup' },
+              { n: '2', t: 'Submit your activity for review', d: 'Quick approval' },
+              { n: '3', t: 'Start earning', d: 'Get paid monthly' }
             ].map((step, i) => (
               <div key={i} className="flex flex-col gap-2">
                 <div className="flex items-center gap-3">
@@ -440,11 +377,11 @@ const SupplierPage: React.FC<SupplierPageProps> = ({ onClose }) => {
           <div className="absolute -right-8 top-20 space-y-4">
             <div className="bg-white p-6 rounded-2xl shadow-2xl border border-gray-100 max-w-[280px]">
               <div className="text-2xl font-black text-[#001A33] mb-1">35,000+</div>
-              <div className="text-sm font-bold text-gray-500">{t('suppliersEarnMore')}</div>
+              <div className="text-sm font-bold text-gray-500">suppliers earn more with AsiaByLocals</div>
             </div>
             <div className="bg-white p-6 rounded-2xl shadow-2xl border border-gray-100 max-w-[280px]">
               <div className="text-2xl font-black text-[#001A33] mb-1">40 million+</div>
-              <div className="text-sm font-bold text-gray-500">{t('globalUsers')}</div>
+              <div className="text-sm font-bold text-gray-500">global monthly platform users</div>
             </div>
           </div>
         </div>
@@ -462,20 +399,20 @@ const SupplierPage: React.FC<SupplierPageProps> = ({ onClose }) => {
                     <HeartHandshake size={32} className="text-[#10B981]" />
                   </div>
                   <h2 className="text-4xl md:text-5xl font-extrabold text-[#001A33] mb-6 leading-tight">
-                    {t('meetTravellers')}
+                    Meet kind and <span className="text-[#10B981] italic font-normal">curious travellers</span>
                   </h2>
                   <ul className="space-y-3 text-gray-600 font-medium leading-relaxed">
                     <li className="flex items-start gap-3">
                       <CheckCircle size={20} className="text-[#10B981] shrink-0 mt-0.5" />
-                      <span>{t('meetTravellersDesc1')}</span>
+                      <span>The travellers who use AsiaByLocals are passionate about exploring the world and are eager to learn more about you and the places you love.</span>
                     </li>
                     <li className="flex items-start gap-3">
                       <CheckCircle size={20} className="text-[#10B981] shrink-0 mt-0.5" />
-                      <span>{t('meetTravellersDesc2')}</span>
+                      <span>The travellers on our platform are value-oriented rather than price-oriented; they get energized by authentic, unique experiences.</span>
                     </li>
                     <li className="flex items-start gap-3">
                       <CheckCircle size={20} className="text-[#10B981] shrink-0 mt-0.5" />
-                      <span>{t('meetTravellersDesc3')}</span>
+                      <span>By being a part of AsiaByLocals, you can get to know other friendly and inspiring guides in your city and around the globe.</span>
                     </li>
                   </ul>
                 </div>
@@ -504,24 +441,24 @@ const SupplierPage: React.FC<SupplierPageProps> = ({ onClose }) => {
                     <ShieldCheck size={32} className="text-[#001A33]" />
                   </div>
                   <h2 className="text-4xl md:text-5xl font-extrabold text-[#001A33] mb-6 leading-tight">
-                    {t('beSupported')}
+                    Be supported in <span className="text-[#001A33] italic font-normal">all that you do</span>
                   </h2>
                   <ul className="space-y-3 text-gray-600 font-medium leading-relaxed">
                     <li className="flex items-start gap-3">
                       <CheckCircle size={20} className="text-[#001A33] shrink-0 mt-0.5" />
-                      <span>{t('beSupportedDesc1')}</span>
+                      <span>We have your back. From the moment you become a guide with AsiaByLocals, you've got a team of caring staff cheering you on. We want you to succeed!</span>
                     </li>
                     <li className="flex items-start gap-3">
                       <CheckCircle size={20} className="text-[#001A33] shrink-0 mt-0.5" />
-                      <span>{t('beSupportedDesc2')}</span>
+                      <span>From practical advice for getting started to ongoing support with every booking you make, our staff are here to help you 24/7.</span>
                     </li>
                     <li className="flex items-start gap-3">
                       <CheckCircle size={20} className="text-[#001A33] shrink-0 mt-0.5" />
-                      <span>{t('beSupportedDesc3')}</span>
+                      <span>No need to sweat the small stuff: our team takes care of payment processing in multiple currencies.</span>
                     </li>
                     <li className="flex items-start gap-3">
                       <CheckCircle size={20} className="text-[#001A33] shrink-0 mt-0.5" />
-                      <span>{t('beSupportedDesc4')}</span>
+                      <span>You're protected from the pain of last minute no-shows with our guide-friendly cancellation policy.</span>
                     </li>
                   </ul>
                 </div>
@@ -535,7 +472,7 @@ const SupplierPage: React.FC<SupplierPageProps> = ({ onClose }) => {
       <section id="why" className="pt-20 pb-0 bg-white">
         <div className="max-w-[1280px] mx-auto px-8">
           <div className="flex flex-col md:flex-row justify-between items-end mb-12 reveal">
-            <h2 className="text-[48px] font-extrabold text-[#001A33] tracking-tighter leading-none">{t('businessOfTravel')}</h2>
+            <h2 className="text-[48px] font-extrabold text-[#001A33] tracking-tighter leading-none">The business of local travel</h2>
             <div className="h-0.5 flex-1 bg-gray-100 mx-12 mb-6 hidden lg:block opacity-40"></div>
           </div>
 
@@ -544,10 +481,10 @@ const SupplierPage: React.FC<SupplierPageProps> = ({ onClose }) => {
               {/* Introductory Content */}
               <div className="space-y-4">
                 <p className="text-2xl text-gray-600 font-medium leading-relaxed">
-                  {t('businessDesc1')}
+                  Join thousands of local experts across Asia who are building successful businesses by sharing their passion for authentic travel experiences.
                 </p>
                 <p className="text-xl text-gray-500 font-medium leading-relaxed">
-                  {t('businessDesc2')}
+                  Whether you're a seasoned guide or just starting out, AsiaByLocals provides the platform, tools, and support you need to connect with travelers who value genuine, local experiences over generic tours.
                 </p>
               </div>
 
@@ -555,21 +492,21 @@ const SupplierPage: React.FC<SupplierPageProps> = ({ onClose }) => {
               <div className="grid grid-cols-2 gap-6 py-8 border-t border-b border-gray-100">
                 <div>
                   <div className="text-5xl font-extrabold text-[#10B981] mb-2">35,000+</div>
-                  <div className="text-base font-bold text-gray-500">{t('activeSuppliers')}</div>
+                  <div className="text-base font-bold text-gray-500">Active Suppliers</div>
                 </div>
                 <div>
                   <div className="text-5xl font-extrabold text-[#10B981] mb-2">$5,614</div>
-                  <div className="text-base font-bold text-gray-500">{t('avgMonthlyEarnings')}</div>
+                  <div className="text-base font-bold text-gray-500">Avg. Monthly Earnings</div>
                 </div>
               </div>
 
               {/* Feature Items */}
               <div className="grid grid-cols-1 gap-y-6">
               {[
-                { icon: <CircleDollarSign />, title: t('increaseOccupancy'), desc: t('increaseOccupancyDesc') },
-                { icon: <HeartHandshake />, title: t('noRiskPartnership'), desc: t('noRiskPartnershipDesc') },
-                { icon: <Clock />, title: t('professionalTools'), desc: t('professionalToolsDesc') },
-                { icon: <CheckCircle />, title: t('brandIntegrity'), desc: t('brandIntegrityDesc') }
+                { icon: <CircleDollarSign />, title: "Increase your occupancy", desc: "Fill the gaps in your calendar by reaching high-intent travelers from around the world." },
+                { icon: <HeartHandshake />, title: "No-risk partnership", desc: "Registration is free. We only keep a small commission when we send you a confirmed customer." },
+                { icon: <Clock />, title: "Professional Tools", desc: "Manage availability, pricing, and bookings through a dashboard designed for experts on the go." },
+                { icon: <CheckCircle />, title: "Brand integrity", desc: "Our vetting process ensures you are listed alongside the top 5% of local experts in Asia." }
               ].map((item, idx) => (
                 <div key={idx} className="flex gap-6 group stagger-item" style={{animationDelay: `${idx * 100}ms`}}>
                   <div className="shrink-0 text-[#10B981] w-14 h-14 flex items-center justify-center bg-[#10B981]/10 rounded-[20px] transition-all group-hover:bg-[#10B981] group-hover:text-white">
@@ -595,9 +532,9 @@ const SupplierPage: React.FC<SupplierPageProps> = ({ onClose }) => {
               </div>
               <div className="absolute bottom-12 left-12 right-12 text-white">
                  <div className="bg-white/10 backdrop-blur-xl p-8 rounded-[40px] border border-white/20">
-                    <h4 className="font-black text-xl mb-2">{t('globalExposure')}</h4>
+                    <h4 className="font-black text-xl mb-2">Global Exposure</h4>
                     <p className="text-sm font-medium opacity-80 leading-relaxed">
-                      {t('globalExposureDesc')}
+                      Your tours will be promoted to travelers specifically looking for authentic, scholar-led, and local experiences.
                     </p>
                  </div>
               </div>
@@ -611,13 +548,13 @@ const SupplierPage: React.FC<SupplierPageProps> = ({ onClose }) => {
         <div className="max-w-[1280px] mx-auto px-8">
           <div className="bg-[#10B981] rounded-[60px] py-12 px-12 md:px-20 text-center text-white relative overflow-hidden shadow-[0_40px_100px_-30px_rgba(255,90,0,0.4)]">
             <div className="relative z-10">
-              <h2 className="text-5xl md:text-7xl font-extrabold mb-6 leading-none tracking-tighter">{t('startListing')}</h2>
-              <p className="text-white/80 text-xl font-medium mb-8 max-w-2xl mx-auto">{t('startListingDesc')}</p>
+              <h2 className="text-5xl md:text-7xl font-extrabold mb-6 leading-none tracking-tighter">Start listing your <br />activities today</h2>
+              <p className="text-white/80 text-xl font-medium mb-8 max-w-2xl mx-auto">Join the leading network of Asian local experts and start reaching a global audience.</p>
               <button 
                 onClick={toggleRegistration}
                 className="bg-[#10B981] hover:bg-[#059669] text-white font-black px-16 py-7 rounded-full text-2xl shadow-3xl transition-all active:scale-95 flex items-center gap-4 mx-auto group"
               >
-                {t('createAccount')} <ChevronRight size={32} className="group-hover:translate-x-1 transition-transform" />
+                Create Account <ChevronRight size={32} className="group-hover:translate-x-1 transition-transform" />
               </button>
             </div>
             

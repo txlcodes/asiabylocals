@@ -240,6 +240,7 @@ const TourCreationForm: React.FC<TourCreationFormProps> = ({
   const isEditing = !!tour;
   const [step, setStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submissionStatus, setSubmissionStatus] = useState<string>('');
   const [transportationSearch, setTransportationSearch] = useState('');
   const [showEnglishNotice, setShowEnglishNotice] = useState(() => {
     // Check if notice was previously dismissed
@@ -588,8 +589,61 @@ const TourCreationForm: React.FC<TourCreationFormProps> = ({
     }
 
     setIsSubmitting(true);
+    setSubmissionStatus('Preparing tour data...');
 
     try {
+      const API_URL = import.meta.env.VITE_API_URL || (typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3001');
+      
+      // STEP 1: Upload images to Cloudinary FIRST (if they're base64)
+      // This makes tour creation MUCH faster (small payload instead of 10-20MB)
+      let imageUrls = formData.images;
+      const hasBase64Images = formData.images.some(img => img.startsWith('data:image'));
+      
+      if (hasBase64Images && formData.images.length > 0) {
+        setSubmissionStatus(`Uploading ${formData.images.length} images to Cloudinary...`);
+        console.log(`📤 Step 1: Uploading ${formData.images.length} images to Cloudinary...`);
+        const uploadStartTime = Date.now();
+        
+        try {
+          const uploadResponse = await fetch(`${API_URL}/api/tours/upload-images`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              images: formData.images,
+              city: formData.city
+            })
+          });
+
+          if (!uploadResponse.ok) {
+            if (uploadResponse.status === 404) {
+              throw new Error('Image upload endpoint not found. Please restart the backend server.');
+            }
+            const uploadError = await uploadResponse.json().catch(() => ({ message: 'Failed to upload images' }));
+            throw new Error(uploadError.message || `Failed to upload images (${uploadResponse.status})`);
+          }
+
+          const uploadData = await uploadResponse.json();
+          if (uploadData.success && uploadData.urls) {
+            imageUrls = uploadData.urls;
+            const uploadTime = Date.now() - uploadStartTime;
+            console.log(`✅ Images uploaded in ${uploadTime}ms. URLs received:`, imageUrls.length);
+            setSubmissionStatus('Images uploaded! Creating tour...');
+          } else {
+            throw new Error(uploadData.message || 'Failed to upload images');
+          }
+        } catch (uploadError: any) {
+          console.error('❌ Image upload failed:', uploadError);
+          // Fallback: continue with base64 images (backend will handle it)
+          console.warn('⚠️ Continuing with base64 images (backend will upload in background)');
+          imageUrls = formData.images;
+          setSubmissionStatus('Creating tour with images...');
+        }
+      } else {
+        console.log('ℹ️ Images are already URLs, skipping upload step');
+      }
+
+      // STEP 2: Create tour with image URLs (much smaller payload - just URLs, not base64)
+      setSubmissionStatus('Creating tour...');
       const tourData = {
         supplierId,
         title: formData.title.trim(),
@@ -599,23 +653,27 @@ const TourCreationForm: React.FC<TourCreationFormProps> = ({
         locations: JSON.stringify(formData.locations),
         duration: formData.duration.trim(),
         // For group pricing, use the first tier price as base, or calculate average
-        pricePerPerson: formData.pricingType === 'per_group' && formData.groupPricingTiers && formData.groupPricingTiers.length > 0
-          ? parseFloat(formData.groupPricingTiers[0].price || '0') / formData.groupPricingTiers[0].maxPeople
-          : parseFloat(formData.pricePerPerson || '0'),
+        pricePerPerson: formData.pricingType === 'per_person'
+          ? parseFloat(formData.pricePerPerson || '0')
+          : null,
         currency: formData.currency,
         // Store group pricing tiers
         maxGroupSize: formData.maxGroupSize && formData.maxGroupSize >= 1 && formData.maxGroupSize <= 20 ? formData.maxGroupSize : null,
-        groupPrice: formData.pricingType === 'per_group' && formData.groupPricingTiers && formData.groupPricingTiers.length > 0
-          ? parseFloat(formData.groupPricingTiers[formData.groupPricingTiers.length - 1].price || '0')
-          : (formData.groupPrice && !isNaN(parseFloat(formData.groupPrice)) ? parseFloat(formData.groupPrice) : null),
-        groupPricingTiers: formData.pricingType === 'per_group' && formData.groupPricingTiers ? JSON.stringify(formData.groupPricingTiers) : null,
+        groupPrice: formData.pricingType === 'per_group'
+          ? (formData.groupPricingTiers && formData.groupPricingTiers.length > 0
+            ? parseFloat(formData.groupPricingTiers[formData.groupPricingTiers.length - 1].price || '0')
+            : (formData.groupPrice && !isNaN(parseFloat(formData.groupPrice)) ? parseFloat(formData.groupPrice) : null))
+          : null,
+        groupPricingTiers: formData.pricingType === 'per_group' && formData.groupPricingTiers
+          ? JSON.stringify(formData.groupPricingTiers)
+          : null,
         shortDescription: formData.shortDescription?.trim() || null,
         fullDescription: formData.fullDescription.trim(),
         highlights: JSON.stringify(formData.highlights.filter(h => h.trim()).map(h => h.trim())), // Filter empty and trim each highlight
         included: formData.included.trim(),
         notIncluded: formData.notIncluded?.trim() || null,
         meetingPoint: formData.meetingPoint?.trim() || null,
-        images: JSON.stringify(formData.images),
+        images: JSON.stringify(imageUrls), // Use uploaded URLs or original base64
         languages: JSON.stringify(formData.languages),
         tourTypes: formData.tourTypes.length > 0 ? JSON.stringify(formData.tourTypes) : null,
         locationEntryTickets: JSON.stringify(formData.locationEntryTickets),
@@ -686,20 +744,23 @@ const TourCreationForm: React.FC<TourCreationFormProps> = ({
         })
       };
 
-      // Define API_URL first before using it
-      const API_URL = import.meta.env.VITE_API_URL || (typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3001');
-      const url = isEditing ? `${API_URL}/api/tours/${tour.id}` : `${API_URL}/api/tours`;
-      const method = isEditing ? 'PUT' : 'POST';
+      // Calculate payload size for debugging (should be much smaller now with URLs)
+      const payloadString = JSON.stringify(tourData);
+      const payloadSizeMB = (new Blob([payloadString]).size / (1024 * 1024)).toFixed(2);
+      const imageCount = imageUrls.length;
+      const usingUrls = imageUrls.some(url => url.startsWith('http'));
 
       // Debug: Log what we're sending
-      console.log('📤 Sending tour data:', {
+      console.log('📤 Preparing tour data:', {
         supplierId,
         title: formData.title,
         country: formData.country,
         city: formData.city,
         category: formData.category,
         locationsCount: formData.locations.length,
-        imagesCount: formData.images.length,
+        imagesCount: imageCount,
+        payloadSize: `${payloadSizeMB} MB`,
+        usingCloudinaryUrls: usingUrls,
         languagesCount: formData.languages.length,
         hasFullDescription: !!formData.fullDescription,
         hasIncluded: !!formData.included,
@@ -707,29 +768,47 @@ const TourCreationForm: React.FC<TourCreationFormProps> = ({
         tourOptionsCount: formData.tourOptions.length,
         isEditing,
         submitForReview,
-        url,
-        method,
-        tourOptions: formData.tourOptions.map(opt => ({
-          title: opt.optionTitle,
-          price: opt.price,
-          duration: opt.durationHours,
-          hasGroupPricingTiers: !!(opt.groupPricingTiers && opt.groupPricingTiers.length > 0)
-        }))
+        url: isEditing ? `${API_URL}/api/tours/${tour.id}` : `${API_URL}/api/tours`,
+        method: isEditing ? 'PUT' : 'POST'
       });
+
+      const url = isEditing ? `${API_URL}/api/tours/${tour.id}` : `${API_URL}/api/tours`;
+      const method = isEditing ? 'PUT' : 'POST';
       
-      // Create AbortController for timeout - increased to 90s for tour updates with options
+      // Serialize JSON (should be fast now with URLs instead of base64)
+      console.log('⏳ Serializing tour data...');
+      const serializeStartTime = Date.now();
+      let requestBody: string;
+      try {
+        requestBody = JSON.stringify(tourData);
+        const serializeTime = Date.now() - serializeStartTime;
+        console.log(`✅ Data serialized in ${serializeTime}ms (${payloadSizeMB} MB)`);
+      } catch (serializeError: any) {
+        console.error('❌ Failed to serialize tour data:', serializeError);
+        setSubmissionStatus('');
+        throw new Error('Failed to prepare tour data. Please try again.');
+      }
+      
+      // Send request (should be much faster now)
+      setSubmissionStatus('Sending tour data to server...');
+      console.log('⏳ Sending tour data to server...');
+      const sendStartTime = Date.now();
+      
+      // Create AbortController for timeout
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 90000); // 90 second timeout
+      const timeoutId = setTimeout(() => controller.abort(), 60000); // 60 second timeout
       
       let response;
       try {
         response = await fetch(url, {
           method,
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(tourData),
+          body: requestBody,
           signal: controller.signal
         });
         clearTimeout(timeoutId);
+        const sendTime = Date.now() - sendStartTime;
+        console.log(`✅ Request sent and response received in ${sendTime}ms`);
       } catch (fetchError: any) {
         clearTimeout(timeoutId);
         if (fetchError.name === 'AbortError') {
@@ -777,44 +856,72 @@ const TourCreationForm: React.FC<TourCreationFormProps> = ({
         success: response.ok
       });
 
+      // Step 3: Parse response
+      console.log('⏳ Step 3/3: Processing server response...');
+      const parseStartTime = Date.now();
       const data = await response.json();
+      const parseTime = Date.now() - parseStartTime;
+      console.log(`✅ Response parsed in ${parseTime}ms`);
       
       console.log('✅ Tour create/update data:', {
         success: data.success,
         tourId: data.tour?.id,
-        message: data.message
+        message: data.message,
+        fullData: data
       });
 
       if (data.success) {
+        // Extract tour ID - handle both data.tour.id and data.tourId formats
+        const tourId = data.tour?.id || data.tourId;
+        
+        if (!tourId) {
+          console.error('❌ No tour ID in response:', data);
+          throw new Error('Tour was created but no tour ID was returned. Please check your dashboard.');
+        }
+
+        console.log('📋 Extracted tour ID:', tourId);
+
         if (isEditing && submitForReview) {
           // Tour edited and needs to be submitted for review
-          console.log('📤 Tour updated, now submitting for review...', { tourId: data.tour.id });
+          console.log('📤 Tour updated, now submitting for review...', { tourId });
           
           const submitController = new AbortController();
           const submitTimeoutId = setTimeout(() => submitController.abort(), 30000); // 30 second timeout
           
           let submitResponse;
           try {
-            submitResponse = await fetch(`${API_URL}/api/tours/${data.tour.id}/submit`, {
+            console.log(`📤 Calling submit endpoint: ${API_URL}/api/tours/${tourId}/submit`);
+            submitResponse = await fetch(`${API_URL}/api/tours/${tourId}/submit`, {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               signal: submitController.signal
             });
             clearTimeout(submitTimeoutId);
+            console.log('✅ Submit response received:', { status: submitResponse.status, ok: submitResponse.ok });
           } catch (submitFetchError: any) {
             clearTimeout(submitTimeoutId);
+            console.error('❌ Submit fetch error:', {
+              name: submitFetchError.name,
+              message: submitFetchError.message,
+              error: submitFetchError
+            });
             if (submitFetchError.name === 'AbortError') {
               throw new Error('Submission request timed out. The tour was updated but may not have been submitted for review. Please check your dashboard.');
+            }
+            if (submitFetchError.message?.includes('Failed to fetch') || submitFetchError.message?.includes('ERR_CONNECTION_REFUSED')) {
+              throw new Error('Cannot connect to server. Please ensure the backend server is running and try again.');
             }
             throw submitFetchError;
           }
 
           if (!submitResponse.ok) {
             const submitErrorData = await submitResponse.json().catch(() => ({ message: 'Failed to submit tour' }));
+            console.error('❌ Submit response not OK:', { status: submitResponse.status, error: submitErrorData });
             throw new Error(submitErrorData.message || submitErrorData.error || 'Failed to submit tour for review');
           }
 
           const submitData = await submitResponse.json();
+          console.log('✅ Submit data received:', submitData);
           if (submitData.success) {
             alert('Tour updated and submitted for review! We\'ll review it within 24-48 hours.');
             onSuccess();
@@ -829,31 +936,46 @@ const TourCreationForm: React.FC<TourCreationFormProps> = ({
           onClose();
         } else if (submitForReview) {
           // Submit for review
+          setSubmissionStatus('Submitting tour for review...');
+          console.log('📤 Submitting new tour for review...', { tourId });
+          
           const submitController = new AbortController();
           const submitTimeoutId = setTimeout(() => submitController.abort(), 30000); // 30 second timeout
           
           let submitResponse;
           try {
-            submitResponse = await fetch(`${API_URL}/api/tours/${data.tour.id}/submit`, {
+            console.log(`📤 Calling submit endpoint: ${API_URL}/api/tours/${tourId}/submit`);
+            submitResponse = await fetch(`${API_URL}/api/tours/${tourId}/submit`, {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               signal: submitController.signal
             });
             clearTimeout(submitTimeoutId);
+            console.log('✅ Submit response received:', { status: submitResponse.status, ok: submitResponse.ok });
           } catch (submitFetchError: any) {
             clearTimeout(submitTimeoutId);
+            console.error('❌ Submit fetch error:', {
+              name: submitFetchError.name,
+              message: submitFetchError.message,
+              error: submitFetchError
+            });
             if (submitFetchError.name === 'AbortError') {
               throw new Error('Submission request timed out. The tour was created but may not have been submitted for review. Please check your dashboard.');
+            }
+            if (submitFetchError.message?.includes('Failed to fetch') || submitFetchError.message?.includes('ERR_CONNECTION_REFUSED')) {
+              throw new Error('Cannot connect to server. Please ensure the backend server is running and try again.');
             }
             throw submitFetchError;
           }
 
           if (!submitResponse.ok) {
             const submitErrorData = await submitResponse.json().catch(() => ({ message: 'Failed to submit tour' }));
+            console.error('❌ Submit response not OK:', { status: submitResponse.status, error: submitErrorData });
             throw new Error(submitErrorData.message || submitErrorData.error || 'Failed to submit tour for review');
           }
 
           const submitData = await submitResponse.json();
+          console.log('✅ Submit data received:', submitData);
           if (submitData.success) {
             alert('Tour submitted for review! We\'ll review it within 24-48 hours.');
             onSuccess();
@@ -868,9 +990,11 @@ const TourCreationForm: React.FC<TourCreationFormProps> = ({
         }
       } else {
         // Use server's error message directly, don't add prefix
+        setSubmissionStatus('');
         throw new Error(data.message || data.error || (isEditing ? 'Failed to update tour' : 'Failed to create tour'));
       }
     } catch (error: any) {
+      setSubmissionStatus('');
       console.error('Tour creation error:', error);
       console.error('Error details:', {
         message: error.message,
@@ -912,6 +1036,7 @@ const TourCreationForm: React.FC<TourCreationFormProps> = ({
       alert(`❌ ${errorMessage}\n\nCommon issues:\n${issuesText}`);
     } finally {
       setIsSubmitting(false);
+      setSubmissionStatus('');
     }
   };
 
@@ -2605,6 +2730,8 @@ const TourCreationForm: React.FC<TourCreationFormProps> = ({
                 <div>
                   <div className="text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-2">PRICING</div>
                   {(() => {
+                    const isPerGroup = formData.pricingType === 'per_group';
+                    const isPerPerson = formData.pricingType === 'per_person';
                     // Check if group pricing tiers exist (most specific)
                     const hasGroupPricingTiers = formData.groupPricingTiers && formData.groupPricingTiers.length > 0;
                     // Check if legacy group pricing exists
@@ -2612,8 +2739,8 @@ const TourCreationForm: React.FC<TourCreationFormProps> = ({
                     // Check if per person pricing exists
                     const hasPerPersonPricing = formData.pricePerPerson && formData.pricePerPerson.trim() !== '';
                     
-                    // Show group pricing if tiers exist OR legacy group pricing exists
-                    if (hasGroupPricingTiers || hasLegacyGroupPricing) {
+                    // Show group pricing only when Per Group is selected
+                    if (isPerGroup && (hasGroupPricingTiers || hasLegacyGroupPricing)) {
                       return (
                         <div className="space-y-3">
                           <div className="text-[16px] font-black text-[#001A33] mb-3">
@@ -2646,8 +2773,8 @@ const TourCreationForm: React.FC<TourCreationFormProps> = ({
                       );
                     }
                     
-                    // Show per person pricing if it exists
-                    if (hasPerPersonPricing) {
+                    // Show per person pricing only when Per Person is selected
+                    if (isPerPerson && hasPerPersonPricing) {
                       return (
                         <div className="text-[16px] font-black text-[#001A33]">
                           {formData.currency === 'INR' ? '₹' : '$'}{formData.pricePerPerson || '0'} per person
@@ -2671,9 +2798,19 @@ const TourCreationForm: React.FC<TourCreationFormProps> = ({
                   </div>
                   <div>
                     <div className="font-black text-[#001A33] text-[16px] mb-2">Ready to submit?</div>
+                    {formData.images && formData.images.length >= 4 && (
+                      <div className="text-[13px] text-gray-600 mt-2 mb-2">
+                        💡 <strong>Note:</strong> Submission may take 10-30 seconds because we're uploading {formData.images.length} images. Please be patient and don't close this page.
+                      </div>
+                    )}
                     <div className="text-[14px] text-[#001A33] font-semibold leading-relaxed">
                       Once submitted, your listing will be reviewed within 24–48 hours. You can make edits later.
                     </div>
+                    {formData.images && formData.images.length >= 4 && (
+                      <div className="text-[13px] text-gray-600 mt-3 p-3 bg-white rounded-lg border border-yellow-300">
+                        <strong>⏱️ Submission Time:</strong> With {formData.images.length} images, submission may take 10-30 seconds. This is normal - we're uploading your images. Please don't close this page.
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
@@ -2772,7 +2909,12 @@ const TourCreationForm: React.FC<TourCreationFormProps> = ({
                     zIndex: 10
                   }}
                 >
-                  {isSubmitting ? 'Submitting...' : (
+                  {isSubmitting ? (
+                    <span className="flex items-center gap-2">
+                      {submissionStatus || 'Submitting...'}
+                      <span className="animate-spin">⏳</span>
+                    </span>
+                  ) : (
                     <>
                       Submit for Review
                       <CheckCircle2 size={18} />

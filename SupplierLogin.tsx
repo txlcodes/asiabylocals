@@ -8,17 +8,14 @@ import {
   Eye,
   EyeOff
 } from 'lucide-react';
-import { getTranslation, Language, translations } from './src/translations/supplier';
 
 interface SupplierLoginProps {
-  language?: Language;
   onClose: () => void;
   onLoginSuccess: () => void;
   onCreateAccount?: () => void;
 }
 
-const SupplierLogin: React.FC<SupplierLoginProps> = ({ language = 'en', onClose, onLoginSuccess, onCreateAccount }) => {
-  const t = (key: keyof typeof translations.en) => getTranslation(language, key);
+const SupplierLogin: React.FC<SupplierLoginProps> = ({ onClose, onLoginSuccess, onCreateAccount }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -47,7 +44,7 @@ const SupplierLogin: React.FC<SupplierLoginProps> = ({ language = 'en', onClose,
     e.preventDefault();
     
     if (!email || !password) {
-      alert(t('pleaseEnterEmailPassword'));
+      alert('Please enter both email and password');
       return;
     }
 
@@ -119,7 +116,12 @@ const SupplierLogin: React.FC<SupplierLoginProps> = ({ language = 'en', onClose,
       <header className="bg-[#001A33] text-white py-6 px-8 sticky top-0 z-50">
         <div className="max-w-4xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <span className="font-black tracking-tight text-lg">{t('partnerLogin')}</span>
+            <img 
+              src="/logo.jpeg" 
+              alt="AsiaByLocals" 
+              className="h-10 w-10 object-contain"
+            />
+            <span className="font-black tracking-tight text-lg">Partner Login</span>
           </div>
           <button 
             onClick={onClose}
@@ -134,13 +136,13 @@ const SupplierLogin: React.FC<SupplierLoginProps> = ({ language = 'en', onClose,
         <div className="max-w-lg w-full bg-white rounded-2xl shadow-xl shadow-slate-200/50 p-10 md:p-14 border border-gray-100">
           <div className="space-y-8">
             <div>
-              <h3 className="text-2xl font-black text-[#001A33] mb-2">{t('welcomeBack')}</h3>
-              <p className="text-[14px] text-gray-400 font-semibold">{t('signInToAccount')}</p>
+              <h3 className="text-2xl font-black text-[#001A33] mb-2">Welcome back</h3>
+              <p className="text-[14px] text-gray-400 font-semibold">Sign in to your partner account</p>
             </div>
 
             {showVerificationSuccess && (
               <div className="bg-green-50 border border-green-200 text-green-800 px-4 py-3 rounded-xl text-sm font-semibold">
-                ✅ {t('emailVerified')}
+                ✅ Email verified successfully! Please log in to access your supplier dashboard.
               </div>
             )}
             
@@ -152,7 +154,7 @@ const SupplierLogin: React.FC<SupplierLoginProps> = ({ language = 'en', onClose,
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder={t('businessEmail')}
+                  placeholder="Business Email"
                   className="w-full bg-gray-50 border-none rounded-2xl py-4 pl-12 pr-4 font-bold text-[#001A33] text-[14px] focus:ring-2 focus:ring-[#0071EB] transition-all outline-none"
                 />
               </div>
@@ -163,7 +165,7 @@ const SupplierLogin: React.FC<SupplierLoginProps> = ({ language = 'en', onClose,
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  placeholder={t('password')}
+                  placeholder="Password"
                   className="w-full bg-gray-50 border-none rounded-2xl py-4 pl-12 pr-12 font-bold text-[#001A33] text-[14px] focus:ring-2 focus:ring-[#0071EB] transition-all outline-none"
                 />
                 <button
@@ -185,10 +187,10 @@ const SupplierLogin: React.FC<SupplierLoginProps> = ({ language = 'en', onClose,
               <div className="flex items-center justify-between text-[13px]">
                 <label className="flex items-center gap-2 cursor-pointer">
                   <input type="checkbox" className="rounded border-gray-300 text-[#0071EB] focus:ring-[#0071EB]" />
-                  <span className="font-semibold text-[#001A33]">{t('rememberMe')}</span>
+                  <span className="font-semibold text-[#001A33]">Remember me</span>
                 </label>
                 <button type="button" className="font-semibold text-[#0071EB] hover:underline">
-                  {t('forgotPassword')}
+                  Forgot password?
                 </button>
               </div>
 
@@ -200,10 +202,10 @@ const SupplierLogin: React.FC<SupplierLoginProps> = ({ language = 'en', onClose,
                 {isSubmitting ? (
                   <>
                     <Loader2 className="animate-spin" size={20} />
-                    {t('signingIn')}
+                    Signing in...
                   </>
                 ) : (
-                  t('signIn')
+                  'Sign In'
                 )}
               </button>
             </form>
@@ -213,7 +215,7 @@ const SupplierLogin: React.FC<SupplierLoginProps> = ({ language = 'en', onClose,
                 <div className="w-full border-t border-gray-200"></div>
               </div>
               <div className="relative flex justify-center text-[13px]">
-                <span className="px-4 bg-white text-gray-400 font-semibold">{t('dontHaveAccount')}</span>
+                <span className="px-4 bg-white text-gray-400 font-semibold">Don't have an account?</span>
               </div>
             </div>
 
@@ -227,23 +229,14 @@ const SupplierLogin: React.FC<SupplierLoginProps> = ({ language = 'en', onClose,
               }}
               className="w-full border-2 border-[#001A33] text-[#001A33] font-black py-5 rounded-full hover:bg-[#001A33] hover:text-white transition-all text-[14px]"
             >
-              {t('createNewAccount')}
+              Create New Account
             </button>
           </div>
         </div>
       </main>
 
-      <footer className="py-8 text-center border-t border-gray-100 bg-white">
-        <div className="flex flex-col items-center gap-4">
-          <img 
-            src="/logo.svg" 
-            alt="AsiaByLocals Logo" 
-            className="h-24 md:h-32 w-auto"
-          />
-          <p className="text-[11px] font-black uppercase tracking-[0.2em] text-gray-400">
-            © 2025 AsiaByLocals Singapore Pte. Ltd. • Professional Partner Program
-          </p>
-        </div>
+      <footer className="py-8 text-center text-[11px] font-black uppercase tracking-[0.2em] text-gray-400 border-t border-gray-100 bg-white">
+        © 2025 AsiaByLocals Singapore Pte. Ltd. • Professional Partner Program
       </footer>
     </div>
   );

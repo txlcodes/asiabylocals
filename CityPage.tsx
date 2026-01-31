@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { MapPin, Star, Clock, Users, Search, Filter, ShoppingCart, User, Globe, ChevronDown, Calendar, ChevronUp } from 'lucide-react';
+import { MapPin, Star, Clock, Users, Search, Filter, Heart, ShoppingCart, User, Globe, ChevronDown, Calendar, ChevronUp } from 'lucide-react';
 import { CITY_LOCATIONS } from './constants';
 
 interface CityPageProps {
@@ -442,8 +442,6 @@ const ThingsToDoSection: React.FC<ThingsToDoSectionProps> = ({ city }) => {
 };
 
 const CityPage: React.FC<CityPageProps> = ({ country, city }) => {
-  console.log('CityPage rendered', { country, city });
-  
   const [tours, setTours] = useState<any[]>([]);
   const [showPlacesDropdown, setShowPlacesDropdown] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -543,6 +541,36 @@ const CityPage: React.FC<CityPageProps> = ({ country, city }) => {
     return 0;
   });
 
+  // SEO Structured Data (JSON-LD)
+  const structuredData = {
+    "@context": "https://schema.org",
+    "@type": "TravelAgency",
+    "name": `AsiaByLocals - ${city} Tours`,
+    "description": cityInfo.description,
+    "url": `https://asiabylocals.com/${countrySlug}/${citySlug}`,
+    "address": {
+      "@type": "PostalAddress",
+      "addressLocality": city,
+      "addressCountry": country
+    },
+    "areaServed": {
+      "@type": "City",
+      "name": city,
+      "containedIn": {
+        "@type": "Country",
+        "name": country
+      }
+    },
+    "offers": tours.map(tour => ({
+      "@type": "Offer",
+      "name": tour.title,
+      "description": tour.shortDescription || tour.fullDescription,
+      "price": tour.pricePerPerson,
+      "priceCurrency": tour.currency,
+      "availability": tour.status === 'approved' ? "https://schema.org/InStock" : "https://schema.org/OutOfStock"
+    }))
+  };
+
   // Update SEO meta tags
   useEffect(() => {
     // Update title
@@ -594,61 +622,16 @@ const CityPage: React.FC<CityPageProps> = ({ country, city }) => {
     });
     
     // Add structured data
-    try {
-      const structuredData = {
-        "@context": "https://schema.org",
-        "@type": "TravelAgency",
-        "name": `AsiaByLocals - ${city} Tours`,
-        "description": cityInfo?.description || `${city} Tours`,
-        "url": `https://asiabylocals.com/${countrySlug}/${citySlug}`,
-        "address": {
-          "@type": "PostalAddress",
-          "addressLocality": city,
-          "addressCountry": country
-        },
-        "areaServed": {
-          "@type": "City",
-          "name": city,
-          "containedIn": {
-            "@type": "Country",
-            "name": country
-          }
-        },
-        "offers": Array.isArray(tours) ? tours.map(tour => ({
-          "@type": "Offer",
-          "name": tour.title || "Tour",
-          "description": tour.shortDescription || tour.fullDescription || "",
-          "price": tour.pricePerPerson || 0,
-          "priceCurrency": tour.currency || "INR",
-          "availability": tour.status === 'approved' ? "https://schema.org/InStock" : "https://schema.org/OutOfStock"
-        })) : []
-      };
-      
-      let existingScript = document.querySelector('script[type="application/ld+json"][data-city-page]');
-      if (existingScript) {
-        existingScript.remove();
-      }
-      const script = document.createElement('script');
-      script.type = 'application/ld+json';
-      script.setAttribute('data-city-page', 'true');
-      script.textContent = JSON.stringify(structuredData);
-      document.head.appendChild(script);
-    } catch (error) {
-      console.error('Error creating structured data:', error);
+    let existingScript = document.querySelector('script[type="application/ld+json"][data-city-page]');
+    if (existingScript) {
+      existingScript.remove();
     }
-  }, [city, country, cityInfo, countrySlug, citySlug, tours]);
-
-  // Error boundary - if tours fail to load, still show the page
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-white flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#10B981] mx-auto mb-4"></div>
-          <p className="text-[14px] text-gray-500 font-semibold">Loading tours...</p>
-        </div>
-      </div>
-    );
-  }
+    const script = document.createElement('script');
+    script.type = 'application/ld+json';
+    script.setAttribute('data-city-page', 'true');
+    script.textContent = JSON.stringify(structuredData);
+    document.head.appendChild(script);
+  }, [city, country, cityInfo, countrySlug, citySlug, structuredData]);
 
   return (
     <div className="min-h-screen bg-white">
@@ -659,13 +642,13 @@ const CityPage: React.FC<CityPageProps> = ({ country, city }) => {
           <div className="flex items-center justify-between mb-4">
             {/* Logo */}
             <a href="/" className="flex items-center gap-3">
-              <img src="/logo.svg?v=4" alt="AsiaByLocals" className="h-10 w-10 object-contain" />
-              <span className="hidden md:inline font-black text-[#001A33] text-lg">ASIA BY LOCALS</span>
+              <img src="/logo.jpeg" alt="AsiaByLocals" className="h-10 w-10 object-contain" />
+              <span className="font-black text-[#001A33] text-lg">ASIA BY LOCALS</span>
             </a>
 
             {/* Search Bar - Large and Prominent */}
-            <div className="hidden md:flex flex-1 max-w-2xl mx-8">
-              <div className="relative w-full">
+            <div className="flex-1 max-w-2xl mx-8">
+              <div className="relative">
                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
                 <input
                   type="text"
@@ -681,9 +664,12 @@ const CityPage: React.FC<CityPageProps> = ({ country, city }) => {
 
             {/* Right Actions */}
             <div className="flex items-center gap-4">
-              <a href="/supplier" className="hidden md:block text-[14px] font-semibold text-[#001A33] hover:text-[#10B981] transition-colors">
+              <a href="/supplier" className="text-[14px] font-semibold text-[#001A33] hover:text-[#10B981] transition-colors">
                 Become a supplier
               </a>
+              <button className="p-2 hover:bg-gray-100 rounded-full transition-colors">
+                <Heart size={20} className="text-gray-600" />
+              </button>
               <button className="p-2 hover:bg-gray-100 rounded-full transition-colors">
                 <ShoppingCart size={20} className="text-gray-600" />
               </button>
@@ -761,19 +747,6 @@ const CityPage: React.FC<CityPageProps> = ({ country, city }) => {
                 const hasSkipLine = tour.included && tour.included.toLowerCase().includes('skip');
                 const hasPickup = tour.meetingPoint || (tour.included && tour.included.toLowerCase().includes('pickup'));
                 
-                // Parse images safely - handle both array and JSON string formats
-                let tourImages: string[] = [];
-                try {
-                  if (tour.images) {
-                    tourImages = Array.isArray(tour.images) 
-                      ? tour.images 
-                      : (typeof tour.images === 'string' ? JSON.parse(tour.images) : []);
-                  }
-                } catch (e) {
-                  console.error('Error parsing tour images:', e);
-                  tourImages = [];
-                }
-                
                 // Calculate rating (random between 4.0 and 5.0, unique per tour)
                 const rating = calculateRating(tour);
                 const displayRating = rating.toFixed(1);
@@ -797,10 +770,10 @@ const CityPage: React.FC<CityPageProps> = ({ country, city }) => {
                     className="bg-white rounded-xl overflow-hidden border border-gray-200 hover:shadow-lg transition-all group"
                   >
                     {/* Image Section */}
-                    {tourImages && tourImages.length > 0 && (
+                    {tour.images && tour.images.length > 0 && (
                       <div className="relative h-56 overflow-hidden">
                         <img
-                          src={tourImages[0]}
+                          src={tour.images[0]}
                           alt={`${tour.title} in ${city} - ${cityInfo.description}`}
                           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                         />
@@ -812,6 +785,16 @@ const CityPage: React.FC<CityPageProps> = ({ country, city }) => {
                             </span>
                           </div>
                         )}
+                        {/* Wishlist Heart */}
+                        <button
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                          }}
+                          className="absolute top-3 right-3 p-2 bg-white/90 hover:bg-white rounded-full transition-colors"
+                        >
+                          <Heart size={18} className="text-gray-600" />
+                        </button>
                       </div>
                     )}
                     
@@ -821,35 +804,6 @@ const CityPage: React.FC<CityPageProps> = ({ country, city }) => {
                       <h3 className="text-[16px] font-black text-[#001A33] mb-3 line-clamp-2 group-hover:text-[#10B981] transition-colors leading-tight">
                         {tour.title}
                       </h3>
-                      
-                      {/* Tour Types/Tags */}
-                      {tour.tourTypes && (() => {
-                        try {
-                          const tourTypesArray = typeof tour.tourTypes === 'string' ? JSON.parse(tour.tourTypes) : tour.tourTypes;
-                          if (Array.isArray(tourTypesArray) && tourTypesArray.length > 0) {
-                            return (
-                              <div className="flex flex-wrap gap-1.5 mb-3">
-                                {tourTypesArray.slice(0, 3).map((type: string, idx: number) => (
-                                  <span
-                                    key={idx}
-                                    className="px-2 py-0.5 bg-[#10B981]/10 text-[#10B981] text-[10px] font-black rounded border border-[#10B981]/20"
-                                  >
-                                    {type}
-                                  </span>
-                                ))}
-                                {tourTypesArray.length > 3 && (
-                                  <span className="px-2 py-0.5 text-gray-500 text-[10px] font-semibold">
-                                    +{tourTypesArray.length - 3} more
-                                  </span>
-                                )}
-                              </div>
-                            );
-                          }
-                        } catch (e) {
-                          console.error('Error parsing tourTypes:', e);
-                        }
-                        return null;
-                      })()}
                       
                       {/* Duration */}
                       {durationHours && (
