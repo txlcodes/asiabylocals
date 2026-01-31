@@ -4873,10 +4873,40 @@ app.delete('/api/tours/:id', async (req, res) => {
       });
     }
 
-    // Check if tour exists and is in draft status
-    const existingTour = await prisma.tour.findUnique({
-      where: { id: tourId }
-    });
+    console.log(`🗑️  Delete tour request received for tour ${tourId}`);
+
+    // Retry logic for database connection issues
+    let existingTour = null;
+    let findAttempts = 0;
+    const MAX_FIND_RETRIES = 3;
+
+    while (findAttempts < MAX_FIND_RETRIES && !existingTour) {
+      try {
+        existingTour = await prisma.tour.findUnique({
+          where: { id: tourId }
+        });
+        break; // Success, exit retry loop
+      } catch (dbError) {
+        findAttempts++;
+        console.error(`   Database error finding tour (attempt ${findAttempts}/${MAX_FIND_RETRIES}):`, dbError.message);
+
+        // If it's a connection error and we have retries left, wait and retry
+        if (findAttempts < MAX_FIND_RETRIES && (
+          dbError.message?.includes('connection') ||
+          dbError.message?.includes('timeout') ||
+          dbError.message?.includes('closed') ||
+          dbError.code === 'P1001' ||
+          dbError.code === 'P1017' ||
+          dbError.code === 'P1008'
+        )) {
+          console.log(`   Retrying in ${findAttempts * 500}ms...`);
+          await new Promise(resolve => setTimeout(resolve, findAttempts * 500));
+          continue;
+        }
+        // Not a retryable error, throw
+        throw dbError;
+      }
+    }
 
     if (!existingTour) {
       return res.status(404).json({
@@ -4894,22 +4924,52 @@ app.delete('/api/tours/:id', async (req, res) => {
       });
     }
 
-    await prisma.tour.delete({
-      where: { id: tourId }
-    });
+    // Retry logic for delete operation
+    let deleteAttempts = 0;
+    const MAX_DELETE_RETRIES = 3;
 
-    console.log('✅ Tour deleted successfully:', tourId);
+    while (deleteAttempts < MAX_DELETE_RETRIES) {
+      try {
+        await prisma.tour.delete({
+          where: { id: tourId }
+        });
+        console.log(`✅ Tour deleted successfully: ${tourId}`);
+        
+        res.json({
+          success: true,
+          message: 'Tour deleted successfully'
+        });
+        return; // Success, exit function
+      } catch (deleteError) {
+        deleteAttempts++;
+        console.error(`   Database error deleting tour (attempt ${deleteAttempts}/${MAX_DELETE_RETRIES}):`, deleteError.message);
 
-    res.json({
-      success: true,
-      message: 'Tour deleted successfully'
-    });
+        // If it's a connection error and we have retries left, wait and retry
+        if (deleteAttempts < MAX_DELETE_RETRIES && (
+          deleteError.message?.includes('connection') ||
+          deleteError.message?.includes('timeout') ||
+          deleteError.message?.includes('closed') ||
+          deleteError.code === 'P1001' ||
+          deleteError.code === 'P1017' ||
+          deleteError.code === 'P1008'
+        )) {
+          console.log(`   Retrying delete in ${deleteAttempts * 500}ms...`);
+          await new Promise(resolve => setTimeout(resolve, deleteAttempts * 500));
+          continue;
+        }
+        // Not a retryable error, throw
+        throw deleteError;
+      }
+    }
   } catch (error) {
-    console.error('Tour delete error:', error);
+    console.error('❌ Tour delete error:', error);
+    console.error('   Error message:', error.message);
+    console.error('   Error code:', error.code);
     res.status(500).json({
       success: false,
       error: 'Internal server error',
-      message: 'Failed to delete tour'
+      message: 'Failed to delete tour',
+      details: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
   }
 });

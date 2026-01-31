@@ -218,19 +218,52 @@ const SupplierDashboard: React.FC<SupplierDashboardProps> = ({ supplier, onLogou
 
     try {
       const API_URL = (import.meta as any).env?.VITE_API_URL || (typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3001');
-      const response = await fetch(`${API_URL}/api/tours/${tourId}`, {
-        method: 'DELETE'
-      });
+      
+      console.log(`🗑️  Deleting tour ${tourId}...`);
+      
+      // Add timeout handling
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
+      
+      let response;
+      try {
+        response = await fetch(`${API_URL}/api/tours/${tourId}`, {
+          method: 'DELETE',
+          headers: { 'Content-Type': 'application/json' },
+          signal: controller.signal
+        });
+        clearTimeout(timeoutId);
+      } catch (fetchError: any) {
+        clearTimeout(timeoutId);
+        if (fetchError.name === 'AbortError') {
+          console.error('❌ Delete tour timed out');
+          alert('Request timed out. Please try again.');
+          return;
+        }
+        throw fetchError;
+      }
+      
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ message: 'Failed to delete tour' }));
+        console.error('❌ Delete tour failed:', errorData);
+        alert(errorData.message || errorData.error || `Failed to delete tour (${response.status})`);
+        return;
+      }
+      
       const data = await response.json();
+      console.log('✅ Delete tour response:', data);
+      
       if (data.success) {
-        fetchTours();
+        // Refresh tours list to remove deleted tour
+        await fetchTours();
         alert('Tour deleted successfully');
       } else {
-        alert(data.message || 'Failed to delete tour');
+        console.error('❌ Delete tour failed:', data);
+        alert(data.message || data.error || 'Failed to delete tour');
       }
-    } catch (error) {
-      console.error('Error deleting tour:', error);
-      alert('Failed to delete tour. Please try again.');
+    } catch (error: any) {
+      console.error('❌ Error deleting tour:', error);
+      alert(`Failed to delete tour: ${error.message || 'Please try again.'}`);
     }
   };
 
