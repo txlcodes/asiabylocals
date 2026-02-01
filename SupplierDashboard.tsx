@@ -20,7 +20,9 @@ import {
   MapPin,
   Globe,
   Home,
-  RefreshCw
+  RefreshCw,
+  Download,
+  ShieldCheck
 } from 'lucide-react';
 import TourCreationForm from './TourCreationForm';
 
@@ -33,6 +35,8 @@ interface SupplierDashboardProps {
     emailVerified: boolean;
     phone?: string;
     whatsapp?: string;
+    verificationDocumentUrl?: string;
+    certificates?: string; // JSON string array
   };
   onLogout: () => void;
 }
@@ -87,6 +91,13 @@ const SupplierDashboard: React.FC<SupplierDashboardProps> = ({ supplier, onLogou
     }
   }, [currentSupplier]);
   const [isSavingProfile, setIsSavingProfile] = useState(false);
+  const [documents, setDocuments] = useState<{
+    license: string | null;
+    certificates: string[];
+  }>({
+    license: null,
+    certificates: []
+  });
 
   // Fetch latest supplier data to check for status updates
   const fetchSupplierStatus = async () => {
@@ -189,6 +200,25 @@ const SupplierDashboard: React.FC<SupplierDashboardProps> = ({ supplier, onLogou
           emailVerified: supplierData.emailVerified !== undefined ? supplierData.emailVerified : currentSupplier?.emailVerified
         };
         
+        // Update documents state
+        if (supplierData.verificationDocumentUrl || supplierData.certificates) {
+          try {
+            const certs = supplierData.certificates 
+              ? (typeof supplierData.certificates === 'string' ? JSON.parse(supplierData.certificates) : supplierData.certificates)
+              : [];
+            setDocuments({
+              license: supplierData.verificationDocumentUrl || null,
+              certificates: Array.isArray(certs) ? certs : []
+            });
+          } catch (e) {
+            console.error('Error parsing certificates:', e);
+            setDocuments({
+              license: supplierData.verificationDocumentUrl || null,
+              certificates: []
+            });
+          }
+        }
+        
         // Only update if status actually changed to avoid unnecessary re-renders
         if (updatedSupplier.status !== currentSupplier?.status) {
           console.log('🔄 Supplier status changed:', {
@@ -251,6 +281,27 @@ const SupplierDashboard: React.FC<SupplierDashboardProps> = ({ supplier, onLogou
       console.error('═══════════════════════════════════════════════════════════');
     }
   };
+
+  // Initialize documents from supplier prop
+  useEffect(() => {
+    if (supplier) {
+      try {
+        const certs = supplier.certificates 
+          ? (typeof supplier.certificates === 'string' ? JSON.parse(supplier.certificates) : supplier.certificates)
+          : [];
+        setDocuments({
+          license: supplier.verificationDocumentUrl || null,
+          certificates: Array.isArray(certs) ? certs : []
+        });
+      } catch (e) {
+        console.error('Error parsing certificates:', e);
+        setDocuments({
+          license: supplier.verificationDocumentUrl || null,
+          certificates: []
+        });
+      }
+    }
+  }, [supplier]);
 
   // Fetch tours
   useEffect(() => {
@@ -1161,6 +1212,95 @@ const SupplierDashboard: React.FC<SupplierDashboardProps> = ({ supplier, onLogou
                       Email Verified
                     </span>
                   )}
+                </div>
+
+                {/* Documents Section */}
+                <div className="pt-6 border-t border-gray-200 mt-6">
+                  <div className="flex items-center gap-2 mb-4">
+                    <ShieldCheck className="text-[#10B981]" size={20} />
+                    <h3 className="text-lg font-black text-[#001A33]">Uploaded Documents</h3>
+                  </div>
+                  <p className="text-[12px] text-gray-500 font-semibold mb-4">
+                    View all documents you've uploaded during registration
+                  </p>
+
+                  {/* License Document */}
+                  <div className="mb-4">
+                    <label className="block text-[13px] font-bold text-[#001A33] mb-2">License / Verification Document</label>
+                    {documents.license ? (
+                      <div className="flex items-center justify-between p-3 bg-gray-50 rounded-xl border border-gray-200">
+                        <div className="flex items-center gap-3">
+                          <FileText className="text-[#10B981]" size={20} />
+                          <span className="text-[13px] font-bold text-[#001A33]">License Document</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <a
+                            href={documents.license}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="p-2 text-[#10B981] hover:bg-[#10B981]/10 rounded-lg transition-colors"
+                            title="View document"
+                          >
+                            <Eye size={18} />
+                          </a>
+                          <a
+                            href={documents.license}
+                            download
+                            className="p-2 text-[#10B981] hover:bg-[#10B981]/10 rounded-lg transition-colors"
+                            title="Download document"
+                          >
+                            <Download size={18} />
+                          </a>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="p-3 bg-gray-50 rounded-xl border border-gray-200">
+                        <p className="text-[12px] text-gray-500 font-semibold">No license document uploaded</p>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Certificates */}
+                  <div>
+                    <label className="block text-[13px] font-bold text-[#001A33] mb-2">
+                      Additional Certificates ({documents.certificates.length})
+                    </label>
+                    {documents.certificates.length > 0 ? (
+                      <div className="space-y-2">
+                        {documents.certificates.map((cert, index) => (
+                          <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-xl border border-gray-200">
+                            <div className="flex items-center gap-3">
+                              <FileText className="text-blue-500" size={20} />
+                              <span className="text-[13px] font-bold text-[#001A33]">Certificate {index + 1}</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <a
+                                href={cert}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="p-2 text-blue-500 hover:bg-blue-50 rounded-lg transition-colors"
+                                title="View certificate"
+                              >
+                                <Eye size={18} />
+                              </a>
+                              <a
+                                href={cert}
+                                download
+                                className="p-2 text-blue-500 hover:bg-blue-50 rounded-lg transition-colors"
+                                title="Download certificate"
+                              >
+                                <Download size={18} />
+                              </a>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="p-3 bg-gray-50 rounded-xl border border-gray-200">
+                        <p className="text-[12px] text-gray-500 font-semibold">No additional certificates uploaded</p>
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>

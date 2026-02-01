@@ -1346,7 +1346,10 @@ app.get('/api/suppliers/:id', async (req, res) => {
             city: true,
             tourLanguages: true,
             phone: true,
-            whatsapp: true
+            whatsapp: true,
+            emailVerified: true,
+            verificationDocumentUrl: true,
+            certificates: true
           }
         });
         console.log('✅ Database query successful');
