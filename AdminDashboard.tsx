@@ -7,7 +7,9 @@ const AdminDashboard: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'tours' | 'suppliers' | 'bookings'>('suppliers');
   const [pendingTours, setPendingTours] = useState<any[]>([]);
   const [pendingSuppliers, setPendingSuppliers] = useState<any[]>([]);
+  const [approvedSuppliers, setApprovedSuppliers] = useState<any[]>([]);
   const [tourFilter, setTourFilter] = useState<'pending' | 'approved' | 'all'>('pending');
+  const [supplierFilter, setSupplierFilter] = useState<'pending' | 'approved' | 'all'>('pending');
   const [bookings, setBookings] = useState<any[]>([]);
   const [loading, setLoading] = useState(false); // Start as false, will be set to true when fetching
   const [loadingBookings, setLoadingBookings] = useState(false);
@@ -226,20 +228,115 @@ const AdminDashboard: React.FC = () => {
     }
   };
 
+  const fetchApprovedSuppliers = async () => {
+    setLoading(true);
+    try {
+      const API_URL = import.meta.env.VITE_API_URL || (typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3001');
+      const url = `${API_URL}/api/suppliers?status=approved`;
+      console.log('Admin Dashboard - Fetching approved suppliers from:', url);
+      
+      const response = await fetch(url, {
+        headers: getAuthHeaders()
+      });
+      console.log('Admin Dashboard - Response status:', response.status);
+      
+      if (!response.ok) {
+        if (response.status === 401 || response.status === 403) {
+          localStorage.removeItem('admin');
+          setIsAuthenticated(false);
+          throw new Error('Authentication failed. Please log in again.');
+        }
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      console.log('Admin Dashboard - Approved Suppliers Response:', data);
+      
+      if (data.suppliers && Array.isArray(data.suppliers)) {
+        console.log('Admin Dashboard - Setting approved suppliers:', data.suppliers.length);
+        setApprovedSuppliers(data.suppliers);
+      } else {
+        console.error('Admin Dashboard - Invalid response format:', data);
+        setApprovedSuppliers([]);
+      }
+    } catch (error: any) {
+      console.error('❌ Error fetching approved suppliers:', error);
+      let errorMessage = 'Failed to load approved suppliers.';
+      if (error.name === 'AbortError') {
+        errorMessage = 'Request timed out. Please check your connection and try again.';
+      } else if (error.message?.includes('401') || error.message?.includes('403')) {
+        errorMessage = 'Authentication failed. Please log in again.';
+        localStorage.removeItem('admin');
+        setIsAuthenticated(false);
+      } else if (error.message?.includes('fetch')) {
+        errorMessage = 'Cannot connect to server. Please check your connection and try again.';
+      }
+      alert(errorMessage);
+      setApprovedSuppliers([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchAllSuppliers = async () => {
+    setLoading(true);
+    try {
+      const API_URL = import.meta.env.VITE_API_URL || (typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3001');
+      const url = `${API_URL}/api/suppliers`;
+      console.log('Admin Dashboard - Fetching all suppliers from:', url);
+      
+      const response = await fetch(url, {
+        headers: getAuthHeaders()
+      });
+      
+      if (!response.ok) {
+        if (response.status === 401 || response.status === 403) {
+          localStorage.removeItem('admin');
+          setIsAuthenticated(false);
+          throw new Error('Authentication failed. Please log in again.');
+        }
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      
+      if (data.suppliers && Array.isArray(data.suppliers)) {
+        setPendingSuppliers(data.suppliers.filter((s: any) => s.status === 'pending'));
+        setApprovedSuppliers(data.suppliers.filter((s: any) => s.status === 'approved'));
+      } else {
+        setPendingSuppliers([]);
+        setApprovedSuppliers([]);
+      }
+    } catch (error: any) {
+      console.error('❌ Error fetching all suppliers:', error);
+      alert('Failed to load suppliers.');
+      setPendingSuppliers([]);
+      setApprovedSuppliers([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // Fetch data when authenticated and tab changes
   useEffect(() => {
     if (isAuthenticated) {
-      console.log('🔄 Admin Dashboard - useEffect triggered:', { activeTab, tourFilter, isAuthenticated });
+      console.log('🔄 Admin Dashboard - useEffect triggered:', { activeTab, tourFilter, supplierFilter, isAuthenticated });
       if (activeTab === 'tours') {
         console.log('📋 Fetching tours with filter:', tourFilter);
         fetchPendingTours();
       } else if (activeTab === 'suppliers') {
-        fetchPendingSuppliers();
+        if (supplierFilter === 'pending') {
+          fetchPendingSuppliers();
+        } else if (supplierFilter === 'approved') {
+          fetchApprovedSuppliers();
+        } else {
+          fetchAllSuppliers();
+        }
       } else if (activeTab === 'bookings') {
         fetchBookings();
       }
     }
-  }, [activeTab, isAuthenticated, tourFilter]);
+  }, [activeTab, isAuthenticated, tourFilter, supplierFilter]);
 
   // Show login if not authenticated
   if (!isAuthenticated) {
@@ -309,7 +406,14 @@ const AdminDashboard: React.FC = () => {
       
       if (data.success) {
         alert('Supplier approved successfully! They can now create tours.');
-        fetchPendingSuppliers();
+        // Refresh both lists
+        if (supplierFilter === 'pending') {
+          fetchPendingSuppliers();
+        } else if (supplierFilter === 'approved') {
+          fetchApprovedSuppliers();
+        } else {
+          fetchAllSuppliers();
+        }
         setSelectedSupplier(null);
       } else {
         alert(data.message || data.error || 'Failed to approve supplier');
@@ -543,22 +647,88 @@ const AdminDashboard: React.FC = () => {
       <div className="max-w-7xl mx-auto px-6 py-8">
         {activeTab === 'suppliers' ? (
           // Suppliers Tab
-          pendingSuppliers.length === 0 ? (
-            <div className="bg-white rounded-2xl p-12 text-center border border-gray-200">
-              <CheckCircle2 className="mx-auto text-gray-300 mb-4" size={64} />
-              <h2 className="text-2xl font-black text-[#001A33] mb-2">All caught up!</h2>
-              <p className="text-[14px] text-gray-500 font-semibold">
-                No suppliers pending review at the moment.
-              </p>
+          <div className="space-y-6">
+            {/* Supplier Filter Tabs */}
+            <div className="flex gap-4 bg-white rounded-2xl p-2 border border-gray-200">
+              <button
+                onClick={() => {
+                  setSupplierFilter('pending');
+                  setSelectedSupplier(null);
+                }}
+                className={`flex-1 px-4 py-3 font-black text-[14px] rounded-xl transition-colors ${
+                  supplierFilter === 'pending'
+                    ? 'bg-[#10B981] text-white'
+                    : 'bg-transparent text-gray-500 hover:text-[#001A33]'
+                }`}
+              >
+                Pending ({pendingSuppliers.length})
+              </button>
+              <button
+                onClick={() => {
+                  setSupplierFilter('approved');
+                  setSelectedSupplier(null);
+                }}
+                className={`flex-1 px-4 py-3 font-black text-[14px] rounded-xl transition-colors ${
+                  supplierFilter === 'approved'
+                    ? 'bg-[#10B981] text-white'
+                    : 'bg-transparent text-gray-500 hover:text-[#001A33]'
+                }`}
+              >
+                Approved ({approvedSuppliers.length})
+              </button>
+              <button
+                onClick={() => {
+                  setSupplierFilter('all');
+                  setSelectedSupplier(null);
+                }}
+                className={`flex-1 px-4 py-3 font-black text-[14px] rounded-xl transition-colors ${
+                  supplierFilter === 'all'
+                    ? 'bg-[#10B981] text-white'
+                    : 'bg-transparent text-gray-500 hover:text-[#001A33]'
+                }`}
+              >
+                All ({pendingSuppliers.length + approvedSuppliers.length})
+              </button>
             </div>
-          ) : (
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              {/* Suppliers List */}
-              <div className="lg:col-span-2 space-y-4">
-                <h2 className="text-xl font-black text-[#001A33] mb-4">
-                  Pending Suppliers ({pendingSuppliers.length})
-                </h2>
-                {pendingSuppliers.map((supplier) => (
+
+            {/* Suppliers List */}
+            {(() => {
+              const suppliersToShow = supplierFilter === 'pending' 
+                ? pendingSuppliers 
+                : supplierFilter === 'approved' 
+                ? approvedSuppliers 
+                : [...pendingSuppliers, ...approvedSuppliers];
+              
+              if (suppliersToShow.length === 0) {
+                return (
+                  <div className="bg-white rounded-2xl p-12 text-center border border-gray-200">
+                    <CheckCircle2 className="mx-auto text-gray-300 mb-4" size={64} />
+                    <h2 className="text-2xl font-black text-[#001A33] mb-2">
+                      {supplierFilter === 'pending' ? 'All caught up!' : supplierFilter === 'approved' ? 'No approved suppliers' : 'No suppliers found'}
+                    </h2>
+                    <p className="text-[14px] text-gray-500 font-semibold">
+                      {supplierFilter === 'pending' 
+                        ? 'No suppliers pending review at the moment.'
+                        : supplierFilter === 'approved'
+                        ? 'No suppliers have been approved yet.'
+                        : 'No suppliers found in the system.'}
+                    </p>
+                  </div>
+                );
+              }
+
+              return (
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                  {/* Suppliers List */}
+                  <div className="lg:col-span-2 space-y-4">
+                    <h2 className="text-xl font-black text-[#001A33] mb-4">
+                      {supplierFilter === 'pending' 
+                        ? `Pending Suppliers (${pendingSuppliers.length})`
+                        : supplierFilter === 'approved'
+                        ? `Approved Suppliers (${approvedSuppliers.length})`
+                        : `All Suppliers (${suppliersToShow.length})`}
+                    </h2>
+                    {suppliersToShow.map((supplier) => (
                   <div
                     key={supplier.id}
                     className={`bg-white rounded-2xl p-6 border-2 cursor-pointer transition-all ${
@@ -617,17 +787,30 @@ const AdminDashboard: React.FC = () => {
                           </div>
                         )}
                       </div>
-                      <div className="flex items-center gap-2 bg-yellow-50 px-3 py-2 rounded-full">
-                        <Clock className="text-yellow-600" size={18} />
-                        <span className="text-[12px] font-black text-yellow-700">Pending</span>
+                      <div className={`flex items-center gap-2 px-3 py-2 rounded-full ${
+                        supplier.status === 'approved' 
+                          ? 'bg-[#10B981]/10' 
+                          : 'bg-yellow-50'
+                      }`}>
+                        {supplier.status === 'approved' ? (
+                          <>
+                            <CheckCircle2 className="text-[#10B981]" size={18} />
+                            <span className="text-[12px] font-black text-[#10B981]">Approved</span>
+                          </>
+                        ) : (
+                          <>
+                            <Clock className="text-yellow-600" size={18} />
+                            <span className="text-[12px] font-black text-yellow-700">Pending</span>
+                          </>
+                        )}
                       </div>
                     </div>
                   </div>
-                ))}
-              </div>
+                    ))}
+                      </div>
 
-              {/* Supplier Details & Actions */}
-              <div className="lg:col-span-1">
+                  {/* Supplier Details & Actions */}
+                  <div className="lg:col-span-1">
                 {selectedSupplier ? (
                   <div className="bg-white rounded-2xl p-6 border border-gray-200 sticky top-24">
                     <h3 className="text-xl font-black text-[#001A33] mb-4">Supplier Details</h3>
@@ -736,43 +919,56 @@ const AdminDashboard: React.FC = () => {
                       </div>
                     </div>
 
-                    {/* Actions */}
-                    <div className="space-y-4">
-                      <button
-                        onClick={() => handleApproveSupplier(selectedSupplier.id)}
-                        disabled={isProcessing || !selectedSupplier.verificationDocumentUrl}
-                        className="w-full bg-[#10B981] hover:bg-[#059669] text-white font-black py-5 rounded-full text-[16px] disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2 shadow-lg"
-                      >
-                        <CheckCircle2 size={20} />
-                        Approve Supplier
-                      </button>
-                      {!selectedSupplier.verificationDocumentUrl && (
-                        <p className="text-[12px] text-red-600 font-semibold text-center">
-                          Cannot approve: No license document uploaded
-                        </p>
-                      )}
-
-                      <div className="border-t border-gray-200 pt-4">
-                        <label className="block text-[14px] font-bold text-[#001A33] mb-2">
-                          Rejection Reason (if rejecting)
-                        </label>
-                        <textarea
-                          value={rejectionReason}
-                          onChange={(e) => setRejectionReason(e.target.value)}
-                          placeholder="Enter reason for rejection..."
-                          className="w-full bg-gray-50 border-2 border-gray-200 rounded-xl p-3 text-[14px] font-semibold text-[#001A33] focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none resize-none mb-3"
-                          rows={3}
-                        />
+                    {/* Actions - Only show for pending suppliers */}
+                    {selectedSupplier.status === 'pending' && (
+                      <div className="space-y-4">
                         <button
-                          onClick={() => handleRejectSupplier(selectedSupplier.id)}
-                          disabled={isProcessing || !rejectionReason.trim()}
-                          className="w-full bg-red-500 hover:bg-red-600 text-white font-black py-5 rounded-full text-[16px] disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2 shadow-lg"
+                          onClick={() => handleApproveSupplier(selectedSupplier.id)}
+                          disabled={isProcessing || !selectedSupplier.verificationDocumentUrl}
+                          className="w-full bg-[#10B981] hover:bg-[#059669] text-white font-black py-5 rounded-full text-[16px] disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2 shadow-lg"
                         >
-                          <XCircle size={20} />
-                          Reject Supplier
+                          <CheckCircle2 size={20} />
+                          Approve Supplier
                         </button>
+                        {!selectedSupplier.verificationDocumentUrl && (
+                          <p className="text-[12px] text-red-600 font-semibold text-center">
+                            Cannot approve: No license document uploaded
+                          </p>
+                        )}
+
+                        <div className="border-t border-gray-200 pt-4">
+                          <label className="block text-[14px] font-bold text-[#001A33] mb-2">
+                            Rejection Reason (if rejecting)
+                          </label>
+                          <textarea
+                            value={rejectionReason}
+                            onChange={(e) => setRejectionReason(e.target.value)}
+                            placeholder="Enter reason for rejection..."
+                            className="w-full bg-gray-50 border-2 border-gray-200 rounded-xl p-3 text-[14px] font-semibold text-[#001A33] focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none resize-none mb-3"
+                            rows={3}
+                          />
+                          <button
+                            onClick={() => handleRejectSupplier(selectedSupplier.id)}
+                            disabled={isProcessing || !rejectionReason.trim()}
+                            className="w-full bg-red-500 hover:bg-red-600 text-white font-black py-5 rounded-full text-[16px] disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2 shadow-lg"
+                          >
+                            <XCircle size={20} />
+                            Reject Supplier
+                          </button>
+                        </div>
                       </div>
-                    </div>
+                    )}
+                    {selectedSupplier.status === 'approved' && (
+                      <div className="bg-[#10B981]/10 border border-[#10B981]/20 rounded-xl p-4">
+                        <div className="flex items-center gap-2 text-[#10B981] font-black text-[14px]">
+                          <CheckCircle2 size={18} />
+                          Supplier Approved
+                        </div>
+                        <p className="text-[12px] text-gray-600 font-semibold mt-2">
+                          This supplier has been approved and can create tours.
+                        </p>
+                      </div>
+                    )}
                   </div>
                 ) : (
                   <div className="bg-white rounded-2xl p-6 border border-gray-200 text-center">
