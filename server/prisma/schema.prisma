@@ -24,6 +24,7 @@ model Supplier {
   phone                    String? // Guide's phone number
   whatsapp                 String? // Guide's WhatsApp number
   verificationDocumentUrl  String?   @map("verification_document_url")
+  certificates             String?   @map("certificates") // JSON array of certificate URLs (4-5 certificates)
   emailVerified            Boolean   @default(false) @map("email_verified")
   emailVerificationToken   String?   @map("email_verification_token")
   emailVerificationExpires DateTime? @map("email_verification_expires")
