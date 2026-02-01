@@ -1205,7 +1205,7 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
             <div className="grid grid-cols-3 gap-2 h-[500px] overflow-hidden mb-16">
               {mainImage && (
                 <div 
-                  className="col-span-2 relative cursor-pointer group"
+                  className="col-span-2 relative cursor-pointer group overflow-hidden rounded-2xl"
                   onClick={() => {
                     setSelectedImageIndex(0);
                     setShowImageModal(true);
@@ -1216,14 +1216,14 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
                     alt={tour.title}
                     className="w-full h-full object-cover rounded-2xl"
                   />
-                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors rounded-2xl"></div>
+                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors rounded-2xl pointer-events-none"></div>
                 </div>
               )}
               <div className="col-span-1 flex flex-col gap-2">
                 {otherImages.slice(0, 2).map((image: string, index: number) => (
                   <div
                     key={index}
-                    className="relative flex-1 cursor-pointer group"
+                    className="relative flex-1 cursor-pointer group overflow-hidden rounded-2xl"
                     onClick={() => {
                       setSelectedImageIndex(index + 1);
                       setShowImageModal(true);
@@ -1235,14 +1235,14 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
                       className="w-full h-full object-cover rounded-2xl"
                     />
                     {index === 1 && remainingImages > 0 && (
-                      <div className="absolute inset-0 bg-black/60 rounded-2xl flex items-center justify-center">
+                      <div className="absolute inset-0 bg-black/60 rounded-2xl flex items-center justify-center pointer-events-none">
                         <div className="text-center">
                           <div className="text-white font-black text-[24px] mb-1">+{remainingImages}</div>
                           <div className="text-white text-[12px] font-bold">more</div>
                         </div>
                       </div>
                     )}
-                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors rounded-2xl"></div>
+                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors rounded-2xl pointer-events-none"></div>
                   </div>
                 ))}
               </div>
