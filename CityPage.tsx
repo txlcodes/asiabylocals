@@ -443,7 +443,6 @@ const ThingsToDoSection: React.FC<ThingsToDoSectionProps> = ({ city }) => {
 
 const CityPage: React.FC<CityPageProps> = ({ country, city }) => {
   const [tours, setTours] = useState<any[]>([]);
-  const [showPlacesDropdown, setShowPlacesDropdown] = useState(false);
   const [loading, setLoading] = useState(true);
   const [filterCategory, setFilterCategory] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState('');
@@ -636,91 +635,41 @@ const CityPage: React.FC<CityPageProps> = ({ country, city }) => {
   return (
     <div className="min-h-screen bg-white">
 
-      {/* Header - GetYourGuide Style */}
-      <header className="sticky top-0 z-50 bg-white border-b border-gray-200 shadow-sm">
-        <div className="max-w-7xl mx-auto px-6 py-4">
-          <div className="flex items-center justify-between mb-4">
-            {/* Logo */}
-            <a href="/" className="flex items-center gap-3">
-              <img src="/logo.jpeg" alt="AsiaByLocals" className="h-10 w-10 object-contain" />
-              <span className="font-black text-[#001A33] text-lg">ASIA BY LOCALS</span>
+      {/* Header Navigation */}
+      <header className="sticky top-0 z-50 bg-white border-b border-gray-100 shadow-sm">
+        <div className="w-full pt-2 pb-1 flex items-center justify-between px-3 sm:px-4 md:px-6">
+          <div className="flex items-center gap-3">
+            {/* Logo - Clickable to Homepage */}
+            <a href="/" className="flex items-center mt-2 md:mt-3">
+              <img src="/logo.svg?v=4" alt="Asia By Locals" className="h-[60px] sm:h-[70px] md:h-[80px] lg:h-[96px] xl:h-[115px] w-auto object-contain" />
             </a>
+          </div>
 
-            {/* Search Bar - Large and Prominent */}
-            <div className="flex-1 max-w-2xl mx-8">
-              <div className="relative">
-                <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
-                <input
-                  type="text"
-                  value={city}
-                  readOnly
-                  className="w-full bg-gray-50 border-2 border-gray-200 rounded-xl py-3 pl-12 pr-4 font-semibold text-[#001A33] text-[14px] focus:ring-2 focus:ring-[#10B981] focus:border-[#10B981] outline-none"
-                />
-                <button className="absolute right-2 top-1/2 -translate-y-1/2 bg-[#10B981] hover:bg-[#059669] text-white font-black px-6 py-2 rounded-lg text-[14px] transition-colors">
-                  Search
-                </button>
-              </div>
-            </div>
-
-            {/* Right Actions */}
-            <div className="flex items-center gap-4">
-              <a href="/supplier" className="text-[14px] font-semibold text-[#001A33] hover:text-[#10B981] transition-colors">
-                Become a supplier
-              </a>
-              <button className="p-2 hover:bg-gray-100 rounded-full transition-colors">
-                <Heart size={20} className="text-gray-600" />
+          <div className="flex items-center gap-2 sm:gap-3 md:gap-4 lg:gap-6 text-[13px] font-semibold text-[#001A33]">
+            <a 
+              href="/supplier"
+              className="text-[12px] sm:text-[13px] hover:text-[#10B981] whitespace-nowrap px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg hover:bg-gray-50 transition-colors"
+            >
+              Become a supplier
+            </a>
+            <div className="flex items-center gap-2 sm:gap-3 md:gap-4 lg:gap-5">
+              <button className="flex flex-col items-center gap-0.5 sm:gap-1 hover:text-[#10B981] p-1.5 sm:p-2 min-w-[44px] min-h-[44px] justify-center">
+                <ShoppingCart size={18} className="sm:w-5 sm:h-5" />
+                <span className="hidden lg:block text-[11px]">Cart</span>
               </button>
-              <button className="p-2 hover:bg-gray-100 rounded-full transition-colors">
-                <ShoppingCart size={20} className="text-gray-600" />
+              <button className="flex flex-col items-center gap-0.5 sm:gap-1 hover:text-[#10B981] p-1.5 sm:p-2 min-w-[44px] min-h-[44px] justify-center">
+                <Globe size={18} className="sm:w-5 sm:h-5" />
+                <span className="hidden lg:block text-[11px]">EN/USD</span>
               </button>
-              <div className="flex items-center gap-2 px-3 py-2 hover:bg-gray-100 rounded-lg transition-colors cursor-pointer">
-                <Globe size={16} className="text-gray-600" />
-                <span className="text-[14px] font-semibold text-[#001A33]">EN</span>
-                <span className="text-[14px] text-gray-500">/</span>
-                <span className="text-[14px] font-semibold text-[#001A33]">INR ₹</span>
-              </div>
-              <button className="p-2 hover:bg-gray-100 rounded-full transition-colors">
-                <User size={20} className="text-gray-600" />
+              <button className="flex flex-col items-center gap-0.5 sm:gap-1 hover:text-[#10B981] p-1.5 sm:p-2 min-w-[44px] min-h-[44px] justify-center">
+                <User size={18} className="sm:w-5 sm:h-5" />
+                <span className="hidden lg:block text-[11px]">Profile</span>
               </button>
             </div>
           </div>
-
-          {/* Navigation Links */}
-          <nav className="flex items-center gap-6 text-[14px] font-semibold text-[#001A33]">
-            <a href="#" className="hover:text-[#10B981] transition-colors">Explore {city}</a>
-            <div 
-              className="relative flex items-center gap-1 cursor-pointer hover:text-[#10B981] transition-colors"
-              onMouseEnter={() => setShowPlacesDropdown(true)}
-              onMouseLeave={() => setShowPlacesDropdown(false)}
-            >
-              Places to see <ChevronDown size={14} />
-              {showPlacesDropdown && (() => {
-                const places = CITY_LOCATIONS[city] || cityInfo.topAttractions || [];
-                return places.length > 0 && (
-                  <div 
-                    className="absolute top-full left-0 mt-2 bg-white rounded-lg shadow-2xl border border-gray-100 p-4 w-[400px] z-50"
-                    onMouseEnter={() => setShowPlacesDropdown(true)}
-                    onMouseLeave={() => setShowPlacesDropdown(false)}
-                  >
-                    <div className="space-y-2">
-                      <h4 className="font-black text-[#001A33] text-xs mb-3 uppercase tracking-wider">Places to See in {city}</h4>
-                      {places.map((place, index) => (
-                        <div 
-                          key={index} 
-                          className="flex items-center gap-3 cursor-pointer hover:bg-gray-50 p-2 rounded-lg -m-2 transition-colors"
-                        >
-                          <MapPin size={16} className="text-[#10B981] shrink-0" />
-                          <span className="font-semibold text-[#001A33] text-sm">{place}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                );
-              })()}
-            </div>
-          </nav>
         </div>
       </header>
+
 
       <div className="max-w-7xl mx-auto px-6 py-6">
         {/* H1 - SEO Gold (ONLY ONE H1) */}
