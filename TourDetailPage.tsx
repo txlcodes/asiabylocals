@@ -1065,10 +1065,12 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
   let mainImage = null;
   let otherImages: any[] = [];
   let remainingImages = 0;
+  let allImages: string[] = []; // Store all images for modal navigation
   
   try {
     if (tour && tour.images) {
       const images = Array.isArray(tour.images) ? tour.images : (typeof tour.images === 'string' ? JSON.parse(tour.images) : []);
+      allImages = images; // Store all images for modal
       mainImage = images.length > 0 ? images[0] : null;
       otherImages = images.length > 1 ? images.slice(1, 3) : [];
       remainingImages = images.length > 3 ? images.length - 3 : 0;
@@ -1079,6 +1081,7 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
     mainImage = null;
     otherImages = [];
     remainingImages = 0;
+    allImages = [];
   }
 
   console.log('TourDetailPage - About to render', { 
@@ -2028,40 +2031,55 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
       </div>
 
       {/* Image Modal */}
-      {showImageModal && tour.images && (
-        <div className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-6">
+      {showImageModal && allImages && allImages.length > 0 && (
+        <div className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-6" onClick={(e) => {
+          // Close modal when clicking outside the image
+          if (e.target === e.currentTarget) {
+            setShowImageModal(false);
+          }
+        }}>
           <button
             onClick={() => setShowImageModal(false)}
-            className="absolute top-6 right-6 text-white p-2 hover:bg-white/10 rounded-full transition-colors"
+            className="absolute top-6 right-6 text-white p-2 hover:bg-white/10 rounded-full transition-colors z-10"
           >
             <X size={24} />
           </button>
-          <div className="max-w-6xl w-full">
-            <img
-              src={tour.images[selectedImageIndex]}
-              alt={tour.title}
-              className="w-full h-auto rounded-2xl"
-            />
-            {tour.images.length > 1 && (
-              <div className="flex items-center justify-center gap-4 mt-4">
+          <div className="max-w-6xl w-full relative" onClick={(e) => e.stopPropagation()}>
+            {allImages[selectedImageIndex] && (
+              <img
+                src={allImages[selectedImageIndex]}
+                alt={`${tour.title} - Image ${selectedImageIndex + 1}`}
+                className="w-full h-auto rounded-2xl max-h-[90vh] object-contain"
+              />
+            )}
+            {allImages.length > 1 && (
+              <>
                 <button
-                  onClick={() => setSelectedImageIndex(prev => Math.max(0, prev - 1))}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setSelectedImageIndex(prev => Math.max(0, prev - 1));
+                  }}
                   disabled={selectedImageIndex === 0}
-                  className="p-3 bg-white/10 hover:bg-white/20 rounded-full text-white disabled:opacity-50 transition-colors"
+                  className="absolute left-4 top-1/2 -translate-y-1/2 p-3 bg-white/10 hover:bg-white/20 rounded-full text-white disabled:opacity-50 transition-colors z-10"
                 >
                   <ChevronLeft size={24} />
                 </button>
-                <span className="text-white font-bold text-[14px]">
-                  {selectedImageIndex + 1} / {tour.images.length}
-                </span>
                 <button
-                  onClick={() => setSelectedImageIndex(prev => Math.min(tour.images.length - 1, prev + 1))}
-                  disabled={selectedImageIndex === tour.images.length - 1}
-                  className="p-3 bg-white/10 hover:bg-white/20 rounded-full text-white disabled:opacity-50 transition-colors"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setSelectedImageIndex(prev => Math.min(allImages.length - 1, prev + 1));
+                  }}
+                  disabled={selectedImageIndex === allImages.length - 1}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 p-3 bg-white/10 hover:bg-white/20 rounded-full text-white disabled:opacity-50 transition-colors z-10"
                 >
                   <ChevronRight size={24} />
                 </button>
-              </div>
+                <div className="flex items-center justify-center gap-4 mt-4">
+                  <span className="text-white font-bold text-[14px]">
+                    {selectedImageIndex + 1} / {allImages.length}
+                  </span>
+                </div>
+              </>
             )}
           </div>
         </div>
