@@ -1202,10 +1202,10 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
           {/* Left Column - Images & Details */}
           <div className="lg:col-span-2">
             {/* Image Gallery - GetYourGuide Style: Main image left, 2 thumbnails right */}
-            <div className="grid grid-cols-3 gap-2 h-[500px] overflow-hidden">
+            <div className="grid grid-cols-3 gap-2 h-[500px] overflow-hidden relative">
               {mainImage && (
                 <div 
-                  className="col-span-2 relative cursor-pointer group overflow-hidden rounded-2xl"
+                  className="col-span-2 relative cursor-pointer group overflow-hidden rounded-2xl h-full"
                   onClick={() => {
                     setSelectedImageIndex(0);
                     setShowImageModal(true);
@@ -1219,11 +1219,11 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
                   <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors rounded-2xl pointer-events-none"></div>
                 </div>
               )}
-              <div className="col-span-1 flex flex-col gap-2">
+              <div className="col-span-1 flex flex-col gap-2 h-full">
                 {otherImages.slice(0, 2).map((image: string, index: number) => (
                   <div
                     key={index}
-                    className="relative flex-1 cursor-pointer group overflow-hidden rounded-2xl"
+                    className="relative flex-1 cursor-pointer group overflow-hidden rounded-2xl h-full"
                     onClick={() => {
                       setSelectedImageIndex(index + 1);
                       setShowImageModal(true);
@@ -1235,7 +1235,7 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
                       className="w-full h-full object-cover rounded-2xl"
                     />
                     {index === 1 && remainingImages > 0 && (
-                      <div className="absolute inset-0 bg-black/60 rounded-2xl flex items-center justify-center pointer-events-none">
+                      <div className="absolute inset-0 bg-black/60 rounded-2xl flex items-center justify-center pointer-events-none z-10">
                         <div className="text-center">
                           <div className="text-white font-black text-[24px] mb-1">+{remainingImages}</div>
                           <div className="text-white text-[12px] font-bold">more</div>
@@ -1249,7 +1249,7 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
             </div>
 
             {/* Short Description */}
-            <div className="mb-8 pt-24">
+            <div className="mb-8 pt-12">
               <p className="text-[16px] text-gray-700 font-semibold leading-relaxed">
                 {tour.shortDescription || tour.fullDescription}
               </p>
