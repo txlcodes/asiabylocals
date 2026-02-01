@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { 
   Star, 
   Share2, 
@@ -56,6 +56,7 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
     customerPhone: '',
     specialRequests: ''
   });
+  const bookingBoxRef = useRef<HTMLDivElement>(null);
 
   // Calculate price based on group pricing tiers and number of participants
   const calculateGroupPrice = (tourData: any, numParticipants: number): number | null => {
@@ -1390,6 +1391,15 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
                                   setSelectedOption(null);
                                 } else {
                                   setSelectedOption(option);
+                                  // Scroll to booking box on mobile when option is selected
+                                  if (window.innerWidth < 1024 && bookingBoxRef.current) {
+                                    setTimeout(() => {
+                                      bookingBoxRef.current?.scrollIntoView({ 
+                                        behavior: 'smooth', 
+                                        block: 'start' 
+                                      });
+                                    }, 100);
+                                  }
                                 }
                               }}
                               className={`w-full md:w-auto px-6 py-3 rounded-xl font-black text-[14px] transition-all mb-2 ${
@@ -1588,7 +1598,7 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
           </div>
 
           {/* Right Column - Booking Panel */}
-          <div className="lg:col-span-1">
+          <div className="lg:col-span-1" ref={bookingBoxRef}>
             <div className="sticky top-24 bg-white rounded-2xl p-6 border-2 border-gray-200 shadow-sm min-w-0">
               {/* Share */}
               <div className="flex items-center justify-end gap-4 mb-6">
