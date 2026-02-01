@@ -1735,9 +1735,6 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
                       </button>
                     </div>
                     <div className="flex items-baseline gap-3 mb-1">
-                      <span className="text-[18px] text-gray-400 font-bold line-through">
-                        From {tour.currency === 'INR' ? '₹' : '$'}1,300
-                      </span>
                       <div className="text-3xl font-black text-[#10B981]">
                         {(selectedOption.currency || tour.currency || 'INR') === 'INR' ? '₹' : '$'}
                         {(() => {
