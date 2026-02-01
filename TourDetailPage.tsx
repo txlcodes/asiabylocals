@@ -1808,44 +1808,11 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
                   if (groupPricingTiers && Array.isArray(groupPricingTiers) && groupPricingTiers.length > 0) {
                     const currencySymbol = (tourData.currency || tour.currency || 'INR') === 'INR' ? '₹' : '$';
                     const currentParticipants = isCustomParticipants ? customParticipants : participants;
+                    const currentPrice = calculateGroupPrice(tourData, currentParticipants);
                     
-                    return (
-                      <div className="mt-4 p-4 bg-gray-50 rounded-xl border border-gray-200">
-                        <div className="text-[12px] font-bold text-gray-500 uppercase tracking-wider mb-3">Group Pricing Tiers</div>
-                        <div className="space-y-2">
-                          {groupPricingTiers.map((tier: any, index: number) => {
-                            const isActiveTier = currentParticipants >= tier.minPeople && currentParticipants <= tier.maxPeople;
-                            return (
-                              <div 
-                                key={index} 
-                                className={`flex items-center justify-between p-2 rounded-lg transition-all ${
-                                  isActiveTier 
-                                    ? 'bg-[#10B981]/10 border-2 border-[#10B981]' 
-                                    : 'bg-white border border-gray-200'
-                                }`}
-                              >
-                                <span className={`text-[13px] font-bold ${isActiveTier ? 'text-[#10B981]' : 'text-[#001A33]'}`}>
-                                  {tier.minPeople}-{tier.maxPeople} {tier.maxPeople === 1 ? 'person' : 'people'}
-                                  {isActiveTier && <span className="ml-2 text-[10px]">✓ Selected</span>}
-                                </span>
-                                <span className={`text-[15px] font-black ${isActiveTier ? 'text-[#10B981]' : 'text-[#001A33]'}`}>
-                                  {currencySymbol}{parseFloat(tier.price || 0).toLocaleString()}
-                                </span>
-                              </div>
-                            );
-                          })}
-                        </div>
-                        <div className="mt-3 pt-3 border-t border-gray-300">
-                          <div className="text-[11px] text-gray-600 font-semibold">
-                            Current selection: {currentParticipants} {currentParticipants === 1 ? 'person' : 'people'} = {currencySymbol}
-                            {(() => {
-                              const price = calculateGroupPrice(tourData, currentParticipants);
-                              return price ? price.toLocaleString() : '0';
-                            })()}
-                          </div>
-                        </div>
-                      </div>
-                    );
+                    // Don't show the pricing tiers table, but keep price calculation working
+                    // Price will update dynamically when participants change
+                    return null; // Hide the pricing tiers display
                   }
                   return null;
                 })()}

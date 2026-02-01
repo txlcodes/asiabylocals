@@ -1807,7 +1807,6 @@ function formatTourResponse(tour, parsedData = {}) {
   let tourGroupPricingTiers = null;
   
   // #region agent log
-  const fs = require('fs');
   const logPath = '/Users/talhanawaz/Desktop/asiabylocals-latest/.cursor/debug.log';
   try {
     const logEntry = JSON.stringify({
@@ -2467,7 +2466,6 @@ app.post('/api/tours', async (req, res) => {
     } = finalCleanedBody; // Use final cleaned body (IDs and pricingType removed)
     
     // #region agent log
-    const fs = require('fs');
     const logPath = '/Users/talhanawaz/Desktop/asiabylocals-latest/.cursor/debug.log';
     try {
       const logEntry = JSON.stringify({
@@ -3589,7 +3587,6 @@ app.post('/api/tours', async (req, res) => {
       // CRITICAL: Save groupPricingTiers directly on Tour model (simple, reliable)
       groupPricingTiers: (() => {
         // #region agent log
-        const fs = require('fs');
         const logPath = '/Users/talhanawaz/Desktop/asiabylocals-latest/.cursor/debug.log';
         try {
           const logEntry = JSON.stringify({
@@ -4085,16 +4082,22 @@ app.post('/api/tours', async (req, res) => {
         }
         
         // FINAL VALIDATION: Ensure no pricing-related fields exist at Tour level
+        // BUT PRESERVE groupPricingTiers, maxGroupSize, groupPrice - these are valid Tour fields!
         const topLevelKeys = Object.keys(cleanFinalTourData);
-        const pricingFields = topLevelKeys.filter(key => 
-          key.toLowerCase().includes('pricing') || 
-          key.toLowerCase().includes('group') ||
-          key.toLowerCase().includes('option') && key !== 'options'
-        );
+        const pricingFields = topLevelKeys.filter(key => {
+          const keyLower = key.toLowerCase();
+          // Skip valid Tour fields that contain "pricing" or "group"
+          if (keyLower === 'grouppricingtiers' || keyLower === 'maxgroupsize' || keyLower === 'groupprice') {
+            return false; // Keep these fields
+          }
+          // Remove pricingType and other invalid fields
+          return (keyLower.includes('pricing') && keyLower !== 'grouppricingtiers') || 
+                 (keyLower.includes('option') && key !== 'options');
+        });
         if (pricingFields.length > 0) {
-          console.error(`❌ CRITICAL: Found pricing/option fields at Tour level: ${pricingFields.join(', ')}`);
+          console.error(`❌ CRITICAL: Found invalid pricing/option fields at Tour level: ${pricingFields.join(', ')}`);
           pricingFields.forEach(field => delete cleanFinalTourData[field]);
-          console.log('   ✅ Removed these fields before Prisma call');
+          console.log('   ✅ Removed these invalid fields before Prisma call');
         }
         
         // Log final structure to verify
@@ -4110,6 +4113,7 @@ app.post('/api/tours', async (req, res) => {
         let finalDataForPrisma = JSON.parse(JSON.stringify(cleanFinalTourData));
         
         // CRITICAL: Remove pricingType from finalDataForPrisma recursively one more time
+        // BUT PRESERVE groupPricingTiers, maxGroupSize, groupPrice - these are valid Tour fields!
         const removePricingTypeFromFinal = (obj) => {
           if (obj === null || obj === undefined) return obj;
           if (Array.isArray(obj)) {
@@ -4118,8 +4122,14 @@ app.post('/api/tours', async (req, res) => {
           if (typeof obj === 'object') {
             const cleaned = {};
             for (const [key, value] of Object.entries(obj)) {
-              if (key.toLowerCase() === 'pricingtype' || key.toLowerCase() === 'pricing_type') {
+              const keyLower = key.toLowerCase();
+              if (keyLower === 'pricingtype' || keyLower === 'pricing_type') {
                 continue; // Skip pricingType fields
+              }
+              // CRITICAL: Preserve groupPricingTiers, maxGroupSize, groupPrice - valid Tour fields!
+              if (keyLower === 'grouppricingtiers' || keyLower === 'maxgroupsize' || keyLower === 'groupprice') {
+                cleaned[key] = value; // Keep as-is, don't recurse
+                continue;
               }
               cleaned[key] = removePricingTypeFromFinal(value);
             }
@@ -4129,12 +4139,19 @@ app.post('/api/tours', async (req, res) => {
         };
         finalDataForPrisma = removePricingTypeFromFinal(finalDataForPrisma);
         
-        // Check one more time for any pricing-related fields
-        const finalCheck = Object.keys(finalDataForPrisma).filter(key => 
-          key.toLowerCase().includes('pricing') || 
-          (key.toLowerCase().includes('group') && key !== 'group') ||
-          (key.toLowerCase().includes('option') && key !== 'options')
-        );
+        // Check one more time for any invalid pricing-related fields
+        // BUT ALLOW valid Tour fields: groupPricingTiers, maxGroupSize, groupPrice
+        const finalCheck = Object.keys(finalDataForPrisma).filter(key => {
+          const keyLower = key.toLowerCase();
+          // Allow valid Tour fields
+          if (keyLower === 'grouppricingtiers' || keyLower === 'maxgroupsize' || keyLower === 'groupprice') {
+            return false; // These are valid, don't flag them
+          }
+          // Flag invalid fields
+          return (keyLower.includes('pricing') && keyLower !== 'grouppricingtiers') || 
+                 (keyLower.includes('group') && key !== 'group' && keyLower !== 'maxgroupsize' && keyLower !== 'groupprice') ||
+                 (keyLower.includes('option') && key !== 'options');
+        });
         
         if (finalCheck.length > 0) {
           console.error(`❌ ABSOLUTE FINAL CHECK FAILED: Found invalid fields: ${finalCheck.join(', ')}`);
