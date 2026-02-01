@@ -2286,6 +2286,10 @@ const TourCreationForm: React.FC<TourCreationFormProps> = ({
                           newHighlights[index] = e.target.value;
                           handleInputChange('highlights', newHighlights);
                         }}
+                        spellCheck={true}
+                        autoComplete="off"
+                        autoCorrect="on"
+                        autoCapitalize="words"
                         placeholder="Introduce your highlight here (e.g., Skip the long lines with priority access)"
                         maxLength={80}
                         className="w-full bg-gray-50 border-none rounded-2xl py-4 px-4 font-semibold text-[#001A33] text-[14px] focus:ring-2 focus:ring-[#10B981] outline-none"
@@ -2322,6 +2326,10 @@ const TourCreationForm: React.FC<TourCreationFormProps> = ({
                   placeholder="Give customers a taste of what they'll do in 2-3 sentences..."
                   maxLength={200}
                   rows={3}
+                  spellCheck={true}
+                  autoComplete="off"
+                  autoCorrect="on"
+                  autoCapitalize="sentences"
                   className="w-full bg-gray-50 border-none rounded-2xl py-4 px-4 font-semibold text-[#001A33] text-[14px] focus:ring-2 focus:ring-[#10B981] outline-none resize-none"
                 />
                 <p className="text-[12px] text-gray-500 font-semibold mt-2">
@@ -2338,6 +2346,10 @@ const TourCreationForm: React.FC<TourCreationFormProps> = ({
                   onChange={(e) => handleInputChange('fullDescription', e.target.value)}
                   placeholder="Provide all the details about what customers will see and experience..."
                   rows={10}
+                  spellCheck={true}
+                  autoComplete="off"
+                  autoCorrect="on"
+                  autoCapitalize="sentences"
                   className="w-full bg-gray-50 border-none rounded-2xl py-4 px-4 font-semibold text-[#001A33] text-[14px] focus:ring-2 focus:ring-[#10B981] outline-none resize-none"
                 />
                 <p className="text-[12px] text-gray-500 font-semibold mt-2">
