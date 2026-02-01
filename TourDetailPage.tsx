@@ -1202,10 +1202,10 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
           {/* Left Column - Images & Details */}
           <div className="lg:col-span-2">
             {/* Image Gallery - GetYourGuide Style: Main image left, 2 thumbnails right */}
-            <div className="grid grid-cols-3 gap-2 h-[500px] overflow-hidden relative">
+            <div className="grid grid-cols-3 gap-2 h-[500px] overflow-hidden relative mb-12">
               {mainImage && (
                 <div 
-                  className="col-span-2 relative cursor-pointer group overflow-hidden rounded-2xl h-full"
+                  className="col-span-2 relative cursor-pointer group overflow-hidden rounded-2xl h-[500px]"
                   onClick={() => {
                     setSelectedImageIndex(0);
                     setShowImageModal(true);
@@ -1214,16 +1214,18 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
                   <img
                     src={mainImage}
                     alt={tour.title}
-                    className="w-full h-full object-cover rounded-2xl"
+                    className="w-full h-[500px] object-cover rounded-2xl"
                   />
                   <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors rounded-2xl pointer-events-none"></div>
                 </div>
               )}
-              <div className="col-span-1 flex flex-col gap-2 h-full">
+              <div className="col-span-1 flex flex-col gap-2 h-[500px]">
                 {otherImages.slice(0, 2).map((image: string, index: number) => (
                   <div
                     key={index}
-                    className="relative flex-1 cursor-pointer group overflow-hidden rounded-2xl h-full"
+                    className={`relative cursor-pointer group overflow-hidden rounded-2xl ${
+                      index === 0 ? 'h-[246px]' : 'h-[246px]'
+                    }`}
                     onClick={() => {
                       setSelectedImageIndex(index + 1);
                       setShowImageModal(true);
@@ -1232,7 +1234,9 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
                     <img
                       src={image}
                       alt={`${tour.title} ${index + 2}`}
-                      className="w-full h-full object-cover rounded-2xl"
+                      className={`w-full object-cover rounded-2xl ${
+                        index === 0 ? 'h-[246px]' : 'h-[246px]'
+                      }`}
                     />
                     {index === 1 && remainingImages > 0 && (
                       <div className="absolute inset-0 bg-black/60 rounded-2xl flex items-center justify-center pointer-events-none z-10">
@@ -1249,7 +1253,7 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
             </div>
 
             {/* Short Description */}
-            <div className="mb-8 pt-12">
+            <div className="mb-8">
               <p className="text-[16px] text-gray-700 font-semibold leading-relaxed">
                 {tour.shortDescription || tour.fullDescription}
               </p>
