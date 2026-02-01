@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import { MapPin, Star, Clock, Users, Search, Filter, Heart, ShoppingCart, User, Globe, ChevronDown, Calendar, ChevronUp } from 'lucide-react';
 import { CITY_LOCATIONS } from './constants';
 
@@ -442,129 +442,46 @@ const ThingsToDoSection: React.FC<ThingsToDoSectionProps> = ({ city }) => {
 };
 
 const CityPage: React.FC<CityPageProps> = ({ country, city }) => {
-  // INSTANT CACHE LOADER - Synchronous, no delay
-  const getCacheKey = () => `tours_${country}_${city}`;
-  const loadCache = (): any[] => {
-    try {
-      const cacheKey = getCacheKey();
-      const cached = localStorage.getItem(cacheKey);
-      if (cached) {
-        const parsed = JSON.parse(cached);
-        if (parsed.tours?.length > 0 && parsed.timestamp && Date.now() - parsed.timestamp < 60 * 60 * 1000) {
-          return parsed.tours;
-        }
-      }
-    } catch {}
-    return [];
-  };
-
-  // STATE - Initialize from cache immediately (instant display)
-  const cachedTours = loadCache();
-  const [tours, setTours] = useState<any[]>(cachedTours);
-  const [loading, setLoading] = useState(cachedTours.length === 0);
-  const [showPlacesDropdown, setShowPlacesDropdown] = useState(false);
+  const [tours, setTours] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
   const [filterCategory, setFilterCategory] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [sortBy, setSortBy] = useState<string>('recommended');
-  
-  // REFS - Prevent duplicate simultaneous fetches
-  const fetchingRef = useRef(false);
-  const mountedRef = useRef(true);
 
-  // EFFECT - Load cache on mount, fetch fresh in background
   useEffect(() => {
-    mountedRef.current = true;
-    fetchingRef.current = false; // Reset fetch flag
-    
-    // Clear cache for this city/country to force fresh fetch
-    try {
-      const cacheKey = getCacheKey();
-      localStorage.removeItem(cacheKey);
-    } catch {}
-    
-    // Reload cache (handles StrictMode remounts)
-    const cached = loadCache();
-    if (cached.length > 0) {
-      setTours(cached);
-      setLoading(false);
-    } else {
-      setLoading(true);
-    }
-    
-    // FETCH FUNCTION - Inline to avoid dependency issues
-    const fetchTours = async () => {
-      // Skip if already fetching
-      if (fetchingRef.current) return;
-      
-      fetchingRef.current = true;
-      // Only show loading if we don't have cached tours
-      if (cached.length === 0) {
-        setLoading(true);
-      }
-
-      try {
-        const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
-        
-        console.log('Fetching tours for:', country, city);
-        const response = await fetch(
-          `${API_URL}/api/public/tours?country=${encodeURIComponent(country)}&city=${encodeURIComponent(city)}&status=approved`,
-          { signal: controller.signal }
-        );
-        
-        clearTimeout(timeoutId);
-
-        if (response.ok) {
-          const data = await response.json();
-          console.log('Received tours:', data.tours?.length || 0);
-          if (data.success && Array.isArray(data.tours)) {
-            const toursWithSlugs = data.tours.map((tour: any) => ({
-              ...tour,
-              slug: tour.slug || `tour-${tour.id}`
-            }));
-            
-            console.log('Setting tours:', toursWithSlugs.length, 'tours');
-            // Always update tours
-            if (mountedRef.current) {
-              setTours(toursWithSlugs);
-              
-              // Cache async (non-blocking) if we have tours
-              if (toursWithSlugs.length > 0) {
-                setTimeout(() => {
-                  try {
-                    const cacheKey = getCacheKey();
-                    localStorage.setItem(cacheKey, JSON.stringify({
-                      tours: toursWithSlugs,
-                      timestamp: Date.now()
-                    }));
-                  } catch {}
-                }, 0);
-              }
-            }
-          }
-        }
-      } catch (error: any) {
-        // Only log if it's not an abort (timeout)
-        if (error.name !== 'AbortError') {
-          console.error('Error fetching tours:', error);
-        }
-        // Keep existing tours on error - don't clear them
-      } finally {
-        fetchingRef.current = false;
-        if (mountedRef.current) {
-          setLoading(false);
-        }
-      }
-    };
-    
-    // Always fetch fresh data
     fetchTours();
-    
-    return () => {
-      mountedRef.current = false;
-    };
   }, [country, city]);
+
+  const fetchTours = async () => {
+    setLoading(true);
+    try {
+      const API_URL = import.meta.env.VITE_API_URL || (typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3001');
+      const url = `${API_URL}/api/public/tours?country=${encodeURIComponent(country)}&city=${encodeURIComponent(city)}&status=approved`;
+      console.log('CityPage - Fetching tours from:', url);
+      const response = await fetch(url);
+      console.log('CityPage - Response status:', response.status);
+      const data = await response.json();
+      console.log('CityPage - Response data:', data);
+      if (data.success) {
+        // Ensure all tours have slugs
+        const toursWithSlugs = data.tours.map((tour: any) => ({
+          ...tour,
+          slug: tour.slug || `tour-${tour.id}` // Fallback slug if missing
+        }));
+        console.log('CityPage - Setting tours:', toursWithSlugs.length, toursWithSlugs);
+        setTours(toursWithSlugs);
+      } else {
+        console.error('CityPage - API returned success=false:', data);
+        setTours([]);
+      }
+    } catch (error) {
+      console.error('CityPage - Error fetching tours:', error);
+      setTours([]);
+    } finally {
+      setLoading(false);
+      console.log('CityPage - Loading complete');
+    }
+  };
 
   // Get city info with defaults
   const cityInfo = CITY_DESCRIPTIONS[city] || {
@@ -718,90 +635,41 @@ const CityPage: React.FC<CityPageProps> = ({ country, city }) => {
   return (
     <div className="min-h-screen bg-white">
 
-      {/* Header - GetYourGuide Style */}
-      <header className="sticky top-0 z-50 bg-white border-b border-gray-200 shadow-sm">
-        <div className="max-w-7xl mx-auto px-6 py-4">
-          <div className="flex items-center justify-between mb-4">
-            {/* Logo */}
-            <a href="/" className="flex items-center">
-              <img src="/logo.svg?v=4" alt="AsiaByLocals" className="h-10 w-10 object-contain" />
+      {/* Header Navigation */}
+      <header className="sticky top-0 z-50 bg-white border-b border-gray-100 shadow-sm">
+        <div className="w-full pt-2 pb-1 flex items-center justify-between px-3 sm:px-4 md:px-6">
+          <div className="flex items-center gap-3">
+            {/* Logo - Clickable to Homepage */}
+            <a href="/" className="flex items-center mt-2 md:mt-3">
+              <img src="/logo.svg?v=4" alt="Asia By Locals" className="h-[60px] sm:h-[70px] md:h-[80px] lg:h-[96px] xl:h-[115px] w-auto object-contain" />
             </a>
+          </div>
 
-            {/* Search Bar - Large and Prominent */}
-            <div className="flex-1 max-w-2xl mx-8">
-              <div className="relative">
-                <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
-                <input
-                  type="text"
-                  value={city}
-                  readOnly
-                  className="w-full bg-gray-50 border-2 border-gray-200 rounded-xl py-3 pl-12 pr-4 font-semibold text-[#001A33] text-[14px] focus:ring-2 focus:ring-[#10B981] focus:border-[#10B981] outline-none"
-                />
-                <button className="absolute right-2 top-1/2 -translate-y-1/2 bg-[#10B981] hover:bg-[#059669] text-white font-black px-6 py-2 rounded-lg text-[14px] transition-colors">
-                  Search
-                </button>
-              </div>
-            </div>
-
-            {/* Right Actions */}
-            <div className="flex items-center gap-4">
-              <a href="/supplier" className="text-[14px] font-semibold text-[#001A33] hover:text-[#10B981] transition-colors">
-                Become a supplier
-              </a>
-              <button className="p-2 hover:bg-gray-100 rounded-full transition-colors">
-                <Heart size={20} className="text-gray-600" />
+          <div className="flex items-center gap-2 sm:gap-3 md:gap-4 lg:gap-6 text-[13px] font-semibold text-[#001A33]">
+            <a 
+              href="/supplier"
+              className="text-[12px] sm:text-[13px] hover:text-[#10B981] whitespace-nowrap px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg hover:bg-gray-50 transition-colors"
+            >
+              Become a supplier
+            </a>
+            <div className="flex items-center gap-2 sm:gap-3 md:gap-4 lg:gap-5">
+              <button className="flex flex-col items-center gap-0.5 sm:gap-1 hover:text-[#10B981] p-1.5 sm:p-2 min-w-[44px] min-h-[44px] justify-center">
+                <ShoppingCart size={18} className="sm:w-5 sm:h-5" />
+                <span className="hidden lg:block text-[11px]">Cart</span>
               </button>
-              <button className="p-2 hover:bg-gray-100 rounded-full transition-colors">
-                <ShoppingCart size={20} className="text-gray-600" />
+              <button className="flex flex-col items-center gap-0.5 sm:gap-1 hover:text-[#10B981] p-1.5 sm:p-2 min-w-[44px] min-h-[44px] justify-center">
+                <Globe size={18} className="sm:w-5 sm:h-5" />
+                <span className="hidden lg:block text-[11px]">EN/USD</span>
               </button>
-              <div className="flex items-center gap-2 px-3 py-2 hover:bg-gray-100 rounded-lg transition-colors cursor-pointer">
-                <Globe size={16} className="text-gray-600" />
-                <span className="text-[14px] font-semibold text-[#001A33]">EN</span>
-                <span className="text-[14px] text-gray-500">/</span>
-                <span className="text-[14px] font-semibold text-[#001A33]">INR ₹</span>
-              </div>
-              <button className="p-2 hover:bg-gray-100 rounded-full transition-colors">
-                <User size={20} className="text-gray-600" />
+              <button className="flex flex-col items-center gap-0.5 sm:gap-1 hover:text-[#10B981] p-1.5 sm:p-2 min-w-[44px] min-h-[44px] justify-center">
+                <User size={18} className="sm:w-5 sm:h-5" />
+                <span className="hidden lg:block text-[11px]">Profile</span>
               </button>
             </div>
           </div>
-
-          {/* Navigation Links */}
-          <nav className="flex items-center gap-6 text-[14px] font-semibold text-[#001A33]">
-            <a href="#" className="hover:text-[#10B981] transition-colors">Explore {city}</a>
-            <div 
-              className="relative flex items-center gap-1 cursor-pointer hover:text-[#10B981] transition-colors"
-              onMouseEnter={() => setShowPlacesDropdown(true)}
-              onMouseLeave={() => setShowPlacesDropdown(false)}
-            >
-              Places to see <ChevronDown size={14} />
-              {showPlacesDropdown && (() => {
-                const places = CITY_LOCATIONS[city] || cityInfo.topAttractions || [];
-                return places.length > 0 && (
-                  <div 
-                    className="absolute top-full left-0 mt-2 bg-white rounded-lg shadow-2xl border border-gray-100 p-4 w-[400px] z-50"
-                    onMouseEnter={() => setShowPlacesDropdown(true)}
-                    onMouseLeave={() => setShowPlacesDropdown(false)}
-                  >
-                    <div className="space-y-2">
-                      <h4 className="font-black text-[#001A33] text-xs mb-3 uppercase tracking-wider">Places to See in {city}</h4>
-                      {places.map((place, index) => (
-                        <div 
-                          key={index} 
-                          className="flex items-center gap-3 cursor-pointer hover:bg-gray-50 p-2 rounded-lg -m-2 transition-colors"
-                        >
-                          <MapPin size={16} className="text-[#10B981] shrink-0" />
-                          <span className="font-semibold text-[#001A33] text-sm">{place}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                );
-              })()}
-            </div>
-          </nav>
         </div>
       </header>
+
 
       <div className="max-w-7xl mx-auto px-6 py-6">
         {/* H1 - SEO Gold (ONLY ONE H1) */}
@@ -837,115 +705,12 @@ const CityPage: React.FC<CityPageProps> = ({ country, city }) => {
                 const durationMatch = tour.duration?.match(/(\d+)\s*hours?/i) || tour.duration?.match(/(\d+)\s*hrs?/i);
                 const durationHours = durationMatch ? durationMatch[1] : null;
                 
-                // Get starting price from first pricing tier (simplified)
-                let lowestPrice = tour.pricePerPerson || 0;
-                
-                // Check main tour option (sortOrder: -1) for groupPricingTiers first
+                // Get lowest price from options or use pricePerPerson
+                let lowestPrice = tour.pricePerPerson;
                 if (tour.options && Array.isArray(tour.options) && tour.options.length > 0) {
-                  const mainTourOption = tour.options.find((opt: any) => opt.sortOrder === -1);
-                  if (mainTourOption && mainTourOption.groupPricingTiers) {
-                    try {
-                      const tiers = typeof mainTourOption.groupPricingTiers === 'string' 
-                        ? JSON.parse(mainTourOption.groupPricingTiers) 
-                        : mainTourOption.groupPricingTiers;
-                      if (Array.isArray(tiers) && tiers.length > 0 && tiers[0].price) {
-                        lowestPrice = tiers[0].price;
-                      }
-                    } catch (e) {
-                      console.error('Error parsing main tour option groupPricingTiers:', e);
-                    }
-                  }
+                  const prices = tour.options.map((opt: any) => opt.price || tour.pricePerPerson);
+                  lowestPrice = Math.min(...prices);
                 }
-                
-                // If not found in main tour option, check main tour's groupPricingTiers
-                if (lowestPrice === (tour.pricePerPerson || 0) && tour.groupPricingTiers) {
-                  try {
-                    const tiers = typeof tour.groupPricingTiers === 'string' 
-                      ? JSON.parse(tour.groupPricingTiers) 
-                      : tour.groupPricingTiers;
-                    if (Array.isArray(tiers) && tiers.length > 0 && tiers[0].price) {
-                      lowestPrice = tiers[0].price;
-                    }
-                  } catch (e) {
-                    console.error('Error parsing tour groupPricingTiers:', e);
-                  }
-                }
-                
-                // Check if this is group pricing
-                const isGroupPricing = (() => {
-                  // FIRST: Check tourTypes for "Group Tour" - this is the primary indicator
-                  if (tour.tourTypes) {
-                    try {
-                      const tourTypes = typeof tour.tourTypes === 'string' 
-                        ? JSON.parse(tour.tourTypes) 
-                        : tour.tourTypes;
-                      if (Array.isArray(tourTypes) && tourTypes.some((t: string) => 
-                        t && typeof t === 'string' && t.toLowerCase().includes('group')
-                      )) {
-                        console.log('✅ Group pricing detected via tourTypes:', tour.title);
-                        return true;
-                      }
-                    } catch (e) {
-                      console.error('Error parsing tourTypes:', e);
-                    }
-                  }
-                  
-                  // SECOND: Check for group pricing tiers on main tour
-                  if (tour.groupPricingTiers) {
-                    try {
-                      const tiers = typeof tour.groupPricingTiers === 'string' 
-                        ? JSON.parse(tour.groupPricingTiers) 
-                        : tour.groupPricingTiers;
-                      if (Array.isArray(tiers) && tiers.length > 0) {
-                        console.log('✅ Group pricing detected via groupPricingTiers:', tour.title);
-                        return true;
-                      }
-                    } catch (e) {
-                      console.error('Error parsing groupPricingTiers:', e);
-                    }
-                  }
-                  
-                  // THIRD: Check for legacy groupPrice + maxGroupSize
-                  if (tour.groupPrice && tour.maxGroupSize) {
-                    console.log('✅ Group pricing detected via legacy groupPrice:', tour.title);
-                    return true;
-                  }
-                  
-                  // FOURTH: Check options if available (for main tour option with sortOrder -1)
-                  if (tour.options && Array.isArray(tour.options) && tour.options.length > 0) {
-                    const mainTourOption = tour.options.find((opt: any) => opt.sortOrder === -1);
-                    if (mainTourOption) {
-                      // Check main tour option's groupPricingTiers
-                      if (mainTourOption.groupPricingTiers) {
-                        try {
-                          const tiers = typeof mainTourOption.groupPricingTiers === 'string' 
-                            ? JSON.parse(mainTourOption.groupPricingTiers) 
-                            : mainTourOption.groupPricingTiers;
-                          if (Array.isArray(tiers) && tiers.length > 0) {
-                            console.log('✅ Group pricing detected via main tour option groupPricingTiers:', tour.title);
-                            return true;
-                          }
-                        } catch (e) {
-                          console.error('Error parsing main tour option groupPricingTiers:', e);
-                        }
-                      }
-                      // Check main tour option's legacy groupPrice + maxGroupSize
-                      if (mainTourOption.groupPrice && mainTourOption.maxGroupSize) {
-                        console.log('✅ Group pricing detected via main tour option legacy groupPrice:', tour.title);
-                        return true;
-                      }
-                    }
-                  }
-                  
-                  console.log('❌ No group pricing detected for:', tour.title, {
-                    tourTypes: tour.tourTypes,
-                    hasGroupPricingTiers: !!tour.groupPricingTiers,
-                    hasGroupPrice: !!tour.groupPrice,
-                    hasMaxGroupSize: !!tour.maxGroupSize,
-                    hasOptions: !!(tour.options && tour.options.length > 0)
-                  });
-                  return false;
-                })();
                 
                 return (
                   <a
@@ -989,35 +754,6 @@ const CityPage: React.FC<CityPageProps> = ({ country, city }) => {
                         {tour.title}
                       </h3>
                       
-                      {/* Tour Types/Tags */}
-                      {tour.tourTypes && (() => {
-                        try {
-                          const tourTypesArray = typeof tour.tourTypes === 'string' ? JSON.parse(tour.tourTypes) : tour.tourTypes;
-                          if (Array.isArray(tourTypesArray) && tourTypesArray.length > 0) {
-                            return (
-                              <div className="flex flex-wrap gap-1.5 mb-3">
-                                {tourTypesArray.slice(0, 3).map((type: string, idx: number) => (
-                                  <span
-                                    key={idx}
-                                    className="px-2 py-0.5 bg-[#10B981]/10 text-[#10B981] text-[10px] font-black rounded-full border border-[#10B981]/20"
-                                  >
-                                    {type}
-                                  </span>
-                                ))}
-                                {tourTypesArray.length > 3 && (
-                                  <span className="px-2 py-0.5 bg-gray-100 text-gray-600 text-[10px] font-black rounded-full">
-                                    +{tourTypesArray.length - 3}
-                                  </span>
-                                )}
-                              </div>
-                            );
-                          }
-                        } catch (e) {
-                          console.error('Error parsing tourTypes:', e);
-                        }
-                        return null;
-                      })()}
-                      
                       {/* Duration */}
                       {durationHours && (
                         <div className="text-[12px] text-gray-500 font-semibold mb-3">
@@ -1059,8 +795,9 @@ const CityPage: React.FC<CityPageProps> = ({ country, city }) => {
                       <div className="flex items-center justify-between pt-2 border-t border-gray-100">
                         <div className="text-right w-full">
                           <div className="text-[18px] font-black text-[#001A33]">
-                            Starting from {tour.currency === 'INR' ? '₹' : '$'}{lowestPrice.toLocaleString()}
+                            From {tour.currency === 'INR' ? '₹' : '$'}{lowestPrice.toLocaleString()}
                           </div>
+                          <div className="text-[11px] text-gray-500 font-semibold">per person</div>
                         </div>
                       </div>
                     </div>
@@ -1197,7 +934,6 @@ const CityPage: React.FC<CityPageProps> = ({ country, city }) => {
           <div className="text-center py-12">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#10B981] mx-auto"></div>
             <p className="text-[14px] text-gray-500 font-semibold mt-4">Loading tours...</p>
-            <p className="text-[12px] text-gray-400 font-semibold mt-2">This may take a few seconds</p>
           </div>
         )}
 

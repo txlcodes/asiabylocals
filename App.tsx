@@ -430,6 +430,8 @@ const App: React.FC = () => {
   const [canScrollRight, setCanScrollRight] = useState(true);
   const [showPlacesDropdown, setShowPlacesDropdown] = useState(false);
   const [showInspirationDropdown, setShowInspirationDropdown] = useState(false);
+  const [showMobilePlacesDropdown, setShowMobilePlacesDropdown] = useState(false);
+  const [showMobileInspirationDropdown, setShowMobileInspirationDropdown] = useState(false);
   const [showSupplierPage, setShowSupplierPage] = useState(isSupplierPageFromUrl);
 
   // Map city names to their country and city slugs for navigation
@@ -641,11 +643,11 @@ const App: React.FC = () => {
     <div className="flex flex-col min-h-screen">
       {/* Header Navigation */}
       <header className="sticky top-0 z-50 bg-white border-b border-gray-100 shadow-sm">
-        <div className="w-full pt-2 pb-1 flex items-center justify-between">
-          <div className="flex items-center gap-3 pl-3 md:pl-6">
+        <div className="w-full pt-2 pb-1 flex items-center justify-between px-3 sm:px-4 md:px-6">
+          <div className="flex items-center gap-3">
             {/* Logo */}
             <div className="flex items-center cursor-pointer mt-2 md:mt-3">
-              <img src="/logo.svg?v=4" alt="Asia By Locals" className="h-[140px] md:h-[96px] lg:h-[115px] w-auto object-contain" />
+              <img src="/logo.svg?v=4" alt="Asia By Locals" className="h-[60px] sm:h-[70px] md:h-[80px] lg:h-[96px] xl:h-[115px] w-auto object-contain" />
             </div>
 
             {/* Nav Links */}
@@ -658,7 +660,7 @@ const App: React.FC = () => {
                 Places to see <ChevronRight size={14} className="rotate-90" />
                 {showPlacesDropdown && (
                   <div 
-                    className="absolute top-full left-0 mt-2 bg-white rounded-lg shadow-2xl border border-gray-100 p-6 w-[800px] z-50"
+                    className="absolute top-full left-0 mt-2 bg-white rounded-lg shadow-2xl border border-gray-100 p-4 xl:p-6 w-[90vw] max-w-[800px] z-50"
                     onMouseEnter={() => setShowPlacesDropdown(true)}
                     onMouseLeave={() => setShowPlacesDropdown(false)}
                   >
@@ -716,7 +718,7 @@ const App: React.FC = () => {
                 Trip inspiration <ChevronRight size={14} className="rotate-90" />
                 {showInspirationDropdown && (
                   <div 
-                    className="absolute top-full left-0 mt-1 bg-white rounded-lg shadow-2xl border border-gray-100 p-4 w-[750px] z-50"
+                    className="absolute top-full left-0 mt-1 bg-white rounded-lg shadow-2xl border border-gray-100 p-4 w-[90vw] max-w-[750px] z-50"
                     onMouseEnter={() => setShowInspirationDropdown(true)}
                     onMouseLeave={() => setShowInspirationDropdown(false)}
                   >
@@ -781,19 +783,19 @@ const App: React.FC = () => {
             </nav>
           </div>
 
-          <div className="flex items-center gap-3 md:gap-6 text-[13px] font-semibold text-[#001A33] pr-2 md:pr-6">
+          <div className="flex items-center gap-2 sm:gap-3 md:gap-4 lg:gap-6 text-[13px] font-semibold text-[#001A33]">
             <button 
               onClick={() => setShowSupplierPage(true)}
-              className="text-[12px] md:text-[13px] hover:text-[#10B981] whitespace-nowrap"
+              className="text-[12px] sm:text-[13px] hover:text-[#10B981] whitespace-nowrap px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg hover:bg-gray-50 transition-colors"
             >
               Become a supplier
             </button>
-            <div className="flex items-center gap-3 md:gap-5">
+            <div className="flex items-center gap-2 sm:gap-3 md:gap-4 lg:gap-5">
               <button 
                 onClick={() => setShowCartModal(true)}
-                className="flex flex-col items-center gap-1 hover:text-[#10B981] relative"
+                className="flex flex-col items-center gap-0.5 sm:gap-1 hover:text-[#10B981] relative p-1.5 sm:p-2 min-w-[44px] min-h-[44px] justify-center"
               >
-                <ShoppingCart size={20} />
+                <ShoppingCart size={18} className="sm:w-5 sm:h-5" />
                 <span className="hidden lg:block text-[11px]">Cart</span>
                 {cart.length > 0 && (
                   <span className="absolute -top-1 -right-1 bg-[#10B981] text-white text-[10px] font-black rounded-full w-5 h-5 flex items-center justify-center">
@@ -801,15 +803,15 @@ const App: React.FC = () => {
                   </span>
                 )}
               </button>
-              <button className="flex flex-col items-center gap-1 hover:text-[#10B981]">
-                <Globe size={20} />
+              <button className="flex flex-col items-center gap-0.5 sm:gap-1 hover:text-[#10B981] p-1.5 sm:p-2 min-w-[44px] min-h-[44px] justify-center">
+                <Globe size={18} className="sm:w-5 sm:h-5" />
                 <span className="hidden lg:block text-[11px]">EN/USD</span>
               </button>
               <button 
                 onClick={() => setShowProfileModal(true)}
-                className="flex flex-col items-center gap-1 hover:text-[#10B981]"
+                className="flex flex-col items-center gap-0.5 sm:gap-1 hover:text-[#10B981] p-1.5 sm:p-2 min-w-[44px] min-h-[44px] justify-center"
               >
-                <User size={20} />
+                <User size={18} className="sm:w-5 sm:h-5" />
                 <span className="hidden lg:block text-[11px]">Profile</span>
               </button>
             </div>
@@ -817,8 +819,288 @@ const App: React.FC = () => {
         </div>
       </header>
 
+      {/* Mobile Navigation Bar - Horizontal Scrollable */}
+      <div className="lg:hidden sticky top-[72px] sm:top-[82px] md:top-[92px] z-40 bg-white border-b border-gray-100 shadow-sm">
+        {/* Category Buttons Row */}
+        <div className="flex items-center gap-2 px-3 sm:px-4 pt-3 pb-2">
+          <button
+            onClick={() => {
+              setShowMobilePlacesDropdown(!showMobilePlacesDropdown);
+              setShowMobileInspirationDropdown(false);
+            }}
+            className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-semibold transition-all ${
+              showMobilePlacesDropdown
+                ? 'bg-[#10B981] text-white'
+                : 'bg-gray-100 text-[#001A33] hover:bg-gray-200'
+            }`}
+          >
+            <span>Places to see</span>
+            <ChevronRight 
+              size={14} 
+              className={`transition-transform ${showMobilePlacesDropdown ? 'rotate-90' : 'rotate-0'}`} 
+            />
+          </button>
+          
+          <button
+            onClick={() => {
+              setShowMobileInspirationDropdown(!showMobileInspirationDropdown);
+              setShowMobilePlacesDropdown(false);
+            }}
+            className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-semibold transition-all ${
+              showMobileInspirationDropdown
+                ? 'bg-[#10B981] text-white'
+                : 'bg-gray-100 text-[#001A33] hover:bg-gray-200'
+            }`}
+          >
+            <span>Trip inspiration</span>
+            <ChevronRight 
+              size={14} 
+              className={`transition-transform ${showMobileInspirationDropdown ? 'rotate-90' : 'rotate-0'}`} 
+            />
+          </button>
+        </div>
+
+        {/* City Chips Row - Scrollable */}
+        <div className="px-3 sm:px-4 pb-3 overflow-x-auto scroll-smooth scrollbar-hide" style={{ WebkitOverflowScrolling: 'touch' }}>
+          <div className="flex items-center gap-2 min-w-max">
+            {CITIES.slice(0, 12).map((city) => {
+              const url = getCityUrl(city.name, city.id);
+              return (
+                <button
+                  key={city.id}
+                  onClick={() => {
+                    window.location.href = url;
+                  }}
+                  className="flex-shrink-0 px-4 py-1.5 rounded-full border border-gray-200 bg-white text-[#001A33] text-sm font-medium hover:border-[#10B981] hover:text-[#10B981] active:scale-95 transition-all whitespace-nowrap"
+                >
+                  {city.name}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Mobile Dropdown Overlays */}
+        {/* Places to See Dropdown */}
+        {showMobilePlacesDropdown && (
+          <>
+            <div 
+              className="fixed inset-0 bg-black bg-opacity-50 z-50 top-[72px] sm:top-[82px] md:top-[92px]"
+              onClick={() => setShowMobilePlacesDropdown(false)}
+            />
+            <div className="fixed inset-x-0 bottom-0 bg-white rounded-t-2xl shadow-2xl z-50 max-h-[85vh] overflow-y-auto top-[72px] sm:top-[82px] md:top-[92px]">
+              <div className="sticky top-0 bg-white border-b border-gray-200 px-4 py-3 flex items-center justify-between">
+                <h3 className="text-lg font-bold text-[#001A33]">Places to see</h3>
+                <button
+                  onClick={() => setShowMobilePlacesDropdown(false)}
+                  className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                >
+                  <X size={20} />
+                </button>
+              </div>
+              <div className="p-4">
+                <div className="grid grid-cols-1 gap-3">
+                  {[
+                    { name: 'Dubai Tours', location: 'City in United Arab Emirates', image: 'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?auto=format&fit=crop&q=80&w=150' },
+                    { name: 'Bali Tours', location: 'Region in Indonesia', image: 'https://images.unsplash.com/photo-1551632436-cbf8dd35adfa?auto=format&fit=crop&q=80&w=150' },
+                    { name: 'Abu Dhabi Tours', location: 'City in United Arab Emirates', image: 'https://images.unsplash.com/photo-1601597111158-2fceff292cdc?auto=format&fit=crop&q=80&w=150' },
+                    { name: 'Ko Lanta Tours', location: 'Region in Thailand', image: 'https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?auto=format&fit=crop&q=80&w=150' },
+                    { name: 'Singapore Tours', location: 'City in Singapore', image: 'https://images.unsplash.com/photo-1526495124232-a04e1849168c?auto=format&fit=crop&q=80&w=150' },
+                    { name: 'Ko Phangan Tours', location: 'Region in Thailand', image: 'https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?auto=format&fit=crop&q=80&w=150' },
+                    { name: 'Phuket Tours', location: 'Region in Thailand', image: 'https://images.unsplash.com/photo-1559827260-dc66d52bef19?auto=format&fit=crop&q=80&w=150' },
+                    { name: 'Chiang Mai Tours', location: 'City in Thailand', image: 'https://images.unsplash.com/photo-1552465011-b4e21bf6e79a?auto=format&fit=crop&q=80&w=150' },
+                    { name: 'Phi Phi Islands Tours', location: 'Region in Thailand', image: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?auto=format&fit=crop&q=80&w=150' },
+                    { name: 'Krabi Tours', location: 'City in Thailand', image: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&q=80&w=150' },
+                    { name: 'Okinawa Tours', location: 'Region in Japan', image: 'https://images.unsplash.com/photo-1578632767115-351597cf2477?auto=format&fit=crop&q=80&w=150' },
+                    { name: 'Ho Chi Minh City Tours', location: 'City in Vietnam', image: 'https://images.unsplash.com/photo-1583417319070-4a69db38a482?auto=format&fit=crop&q=80&w=150' },
+                    { name: 'Bangkok Tours', location: 'City in Thailand', image: 'https://images.unsplash.com/photo-1528127269322-539801943592?auto=format&fit=crop&q=80&w=150' },
+                    { name: 'Ko Samui Tours', location: 'Region in Thailand', image: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&q=80&w=150' },
+                    { name: 'Tokyo Tours', location: 'City in Japan', image: 'https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?auto=format&fit=crop&q=80&w=150' },
+                    { name: 'Langkawi Tours', location: 'Region in Malaysia', image: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?auto=format&fit=crop&q=80&w=150' },
+                    { name: 'Hanoi Tours', location: 'City in Vietnam', image: 'https://images.unsplash.com/photo-1559827260-dc66d52bef19?auto=format&fit=crop&q=80&w=150' },
+                    { name: 'Goa Tours', location: 'Region in India', image: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?auto=format&fit=crop&q=80&w=150' },
+                    { name: 'Kyoto Tours', location: 'City in Japan', image: 'https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?auto=format&fit=crop&q=80&w=150' },
+                    { name: 'Osaka Tours', location: 'City in Japan', image: 'https://images.unsplash.com/photo-1555993531-9d3ce0b71257?auto=format&fit=crop&q=80&w=150' },
+                    { name: 'Seoul Tours', location: 'City in South Korea', image: 'https://images.unsplash.com/photo-1517154421773-0529f29ea451?auto=format&fit=crop&q=80&w=150' },
+                    { name: 'Hong Kong Tours', location: 'City in Hong Kong', image: 'https://images.unsplash.com/photo-1536599018102-9f803c140fc1?auto=format&fit=crop&q=80&w=150' },
+                    { name: 'Kuala Lumpur Tours', location: 'City in Malaysia', image: 'https://images.unsplash.com/photo-1596422846543-75c6fcbefdfe?auto=format&fit=crop&q=80&w=150' },
+                    { name: 'Taipei Tours', location: 'City in Taiwan', image: 'https://images.unsplash.com/photo-1590736969955-71cc94901144?auto=format&fit=crop&q=80&w=150' },
+                    { name: 'Mumbai Tours', location: 'City in India', image: 'https://images.unsplash.com/photo-1529253355930-ddbe423a2ac7?auto=format&fit=crop&q=80&w=150' },
+                    { name: 'Delhi Tours', location: 'City in India', image: 'https://images.unsplash.com/photo-1587474260584-136574528ed5?auto=format&fit=crop&q=80&w=150' },
+                    { name: 'Agra Tours', location: 'City in India', image: 'https://images.unsplash.com/photo-1564507592333-c60657eea523?auto=format&fit=crop&q=80&w=150' }
+                  ].map((place, idx) => {
+                    // Map place names to city IDs for navigation
+                    const placeToCityId: Record<string, string> = {
+                      'Dubai Tours': 'dubai',
+                      'Bali Tours': 'bali',
+                      'Abu Dhabi Tours': 'dubai', // Using dubai as fallback
+                      'Ko Lanta Tours': 'bangkok', // Using bangkok as fallback
+                      'Singapore Tours': 'singapore',
+                      'Ko Phangan Tours': 'bangkok', // Using bangkok as fallback
+                      'Phuket Tours': 'phuket',
+                      'Chiang Mai Tours': 'chiang-mai',
+                      'Phi Phi Islands Tours': 'phuket', // Using phuket as fallback
+                      'Krabi Tours': 'bangkok', // Using bangkok as fallback
+                      'Okinawa Tours': 'tokyo', // Using tokyo as fallback
+                      'Ho Chi Minh City Tours': 'ho-chi-minh-city',
+                      'Bangkok Tours': 'bangkok',
+                      'Ko Samui Tours': 'bangkok', // Using bangkok as fallback
+                      'Tokyo Tours': 'tokyo',
+                      'Langkawi Tours': 'kuala-lumpur', // Using kuala-lumpur as fallback
+                      'Hanoi Tours': 'hanoi',
+                      'Goa Tours': 'mumbai', // Using mumbai as fallback
+                      'Kyoto Tours': 'kyoto',
+                      'Osaka Tours': 'osaka',
+                      'Seoul Tours': 'seoul',
+                      'Hong Kong Tours': 'hongkong',
+                      'Kuala Lumpur Tours': 'kuala-lumpur',
+                      'Taipei Tours': 'taipei',
+                      'Mumbai Tours': 'mumbai',
+                      'Delhi Tours': 'delhi',
+                      'Agra Tours': 'agra'
+                    };
+                    
+                    const cityId = placeToCityId[place.name] || place.name.replace(' Tours', '').toLowerCase().replace(/\s+/g, '-');
+                    const cityName = place.name.replace(' Tours', '');
+                    const url = getCityUrl(cityName, cityId);
+                    return (
+                      <button
+                        key={idx}
+                        onClick={() => {
+                          setShowMobilePlacesDropdown(false);
+                          window.location.href = url;
+                        }}
+                        className="flex items-start gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors text-left w-full min-h-[44px]"
+                      >
+                        <img 
+                          src={place.image} 
+                          alt={place.name}
+                          className="w-12 h-12 rounded-lg object-cover flex-shrink-0"
+                        />
+                        <div className="flex-1 min-w-0">
+                          <div className="font-bold text-[#001A33] text-sm mb-0.5">{place.name}</div>
+                          <div className="text-gray-500 text-xs">{place.location}</div>
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+          </>
+        )}
+
+        {/* Trip Inspiration Dropdown */}
+        {showMobileInspirationDropdown && (
+          <>
+            <div 
+              className="fixed inset-0 bg-black bg-opacity-50 z-50 top-[72px] sm:top-[82px] md:top-[92px]"
+              onClick={() => setShowMobileInspirationDropdown(false)}
+            />
+            <div className="fixed inset-x-0 bottom-0 bg-white rounded-t-2xl shadow-2xl z-50 max-h-[85vh] overflow-y-auto top-[72px] sm:top-[82px] md:top-[92px]">
+              <div className="sticky top-0 bg-white border-b border-gray-200 px-4 py-3 flex items-center justify-between">
+                <h3 className="text-lg font-bold text-[#001A33]">Trip inspiration</h3>
+                <button
+                  onClick={() => setShowMobileInspirationDropdown(false)}
+                  className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                >
+                  <X size={20} />
+                </button>
+              </div>
+              <div className="p-4">
+                <div className="mb-4 pb-4 border-b border-gray-200">
+                  <div className="flex items-center gap-2 mb-1">
+                    <div className="w-1.5 h-1.5 rounded-full bg-[#10B981]"></div>
+                    <h4 className="font-bold text-[#001A33] text-sm">City guides</h4>
+                  </div>
+                  <p className="text-gray-500 text-xs">Explore all</p>
+                </div>
+                <div className="grid grid-cols-3 gap-4">
+                  {[
+                    { name: 'Tokyo', image: '/tokyo-hero.jpg' },
+                    { name: 'Kyoto', image: '/kyoto-hero.jpg' },
+                    { name: 'Osaka', image: '/osaka-hero.jpg' },
+                    { name: 'Bangkok', image: 'https://images.unsplash.com/photo-1528127269322-539801943592?auto=format&fit=crop&q=80&w=200' },
+                    { name: 'Dubai', image: '/dubai-hero.jpg' },
+                    { name: 'Singapore', image: 'https://images.unsplash.com/photo-1525625293386-3f8f99389edd?auto=format&fit=crop&q=80&w=200' },
+                    { name: 'Seoul', image: 'https://images.unsplash.com/photo-1517154421773-0529f29ea451?auto=format&fit=crop&q=80&w=200' },
+                    { name: 'Hong Kong', image: 'https://images.unsplash.com/photo-1536599018102-9f803c140fc1?auto=format&fit=crop&q=80&w=200' },
+                    { name: 'Kuala Lumpur', image: '/kuala-lumpur-hero.jpg' },
+                    { name: 'Taipei', image: '/taipei-hero.jpg' },
+                    { name: 'Bali', image: 'https://images.unsplash.com/photo-1537996194471-e657df975ab4?auto=format&fit=crop&q=80&w=200' },
+                    { name: 'Agra', image: '/agra-hero.jpg' },
+                    { name: 'Mumbai', image: 'https://images.unsplash.com/photo-1529253355930-ddbe423a2ac7?auto=format&fit=crop&q=80&w=200' },
+                    { name: 'Delhi', image: 'https://images.unsplash.com/photo-1587474260584-136574528ed5?auto=format&fit=crop&q=80&w=200' },
+                    { name: 'Hanoi', image: '/hanoi-hero.jpg' },
+                    { name: 'Ho Chi Minh City', image: 'https://images.unsplash.com/photo-1583417319070-4a69db38a482?auto=format&fit=crop&q=80&w=200' },
+                    { name: 'Chiang Mai', image: 'https://images.unsplash.com/photo-1552465011-b4e21bf6e79a?auto=format&fit=crop&q=80&w=200' },
+                    { name: 'Phuket', image: 'https://images.unsplash.com/photo-1559827260-dc66d52bef19?auto=format&fit=crop&q=80&w=200' },
+                    { name: 'Krabi', image: 'https://images.unsplash.com/photo-1559827260-dc66d52bef19?auto=format&fit=crop&q=80&w=200' },
+                    { name: 'Manila', image: 'https://images.unsplash.com/photo-1559827260-dc66d52bef19?auto=format&fit=crop&q=80&w=200' },
+                    { name: 'Jakarta', image: 'https://images.unsplash.com/photo-1559827260-dc66d52bef19?auto=format&fit=crop&q=80&w=200' },
+                    { name: 'Shanghai', image: 'https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?auto=format&fit=crop&q=80&w=200' },
+                    { name: 'Beijing', image: 'https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?auto=format&fit=crop&q=80&w=200' },
+                    { name: 'Colombo', image: 'https://images.unsplash.com/photo-1559827260-dc66d52bef19?auto=format&fit=crop&q=80&w=200' },
+                    { name: 'Kathmandu', image: 'https://images.unsplash.com/photo-1552465011-b4e21bf6e79a?auto=format&fit=crop&q=80&w=200' }
+                  ].map((city, idx) => {
+                    // Map city names to city IDs for navigation
+                    const cityNameToId: Record<string, string> = {
+                      'Tokyo': 'tokyo',
+                      'Kyoto': 'kyoto',
+                      'Osaka': 'osaka',
+                      'Bangkok': 'bangkok',
+                      'Dubai': 'dubai',
+                      'Singapore': 'singapore',
+                      'Seoul': 'seoul',
+                      'Hong Kong': 'hongkong',
+                      'Kuala Lumpur': 'kuala-lumpur',
+                      'Taipei': 'taipei',
+                      'Bali': 'bali',
+                      'Agra': 'agra',
+                      'Mumbai': 'mumbai',
+                      'Delhi': 'delhi',
+                      'Hanoi': 'hanoi',
+                      'Ho Chi Minh City': 'ho-chi-minh-city',
+                      'Chiang Mai': 'chiang-mai',
+                      'Phuket': 'phuket',
+                      'Krabi': 'bangkok', // Using bangkok as fallback
+                      'Manila': 'manila',
+                      'Jakarta': 'bangkok', // Using bangkok as fallback
+                      'Shanghai': 'shanghai',
+                      'Beijing': 'beijing',
+                      'Colombo': 'colombo',
+                      'Kathmandu': 'kathmandu'
+                    };
+                    
+                    const cityId = cityNameToId[city.name] || city.name.toLowerCase().replace(/\s+/g, '-');
+                    const url = getCityUrl(city.name, cityId);
+                    return (
+                      <button
+                        key={idx}
+                        onClick={() => {
+                          setShowMobileInspirationDropdown(false);
+                          window.location.href = url;
+                        }}
+                        className="flex flex-col items-center gap-1.5 p-2 rounded-lg hover:bg-gray-50 transition-colors min-h-[44px]"
+                      >
+                        <img 
+                          src={city.image} 
+                          alt={city.name}
+                          className="w-12 h-12 rounded-full object-cover"
+                        />
+                        <div className="font-semibold text-[#001A33] text-[10px] text-center leading-tight">{city.name} Travel Guide</div>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+          </>
+        )}
+      </div>
+
       {/* Hero Section */}
-      <section className="relative h-[600px] md:h-[750px] lg:h-[850px] flex items-center justify-center overflow-hidden">
+      <section className="relative h-[50vh] min-h-[400px] sm:h-[55vh] sm:min-h-[450px] md:h-[60vh] md:min-h-[500px] lg:h-[70vh] lg:min-h-[600px] xl:h-[750px] flex items-center justify-center overflow-hidden">
         {heroImages.map((hero, index) => (
           <img 
             key={index}
@@ -833,11 +1115,11 @@ const App: React.FC = () => {
         <div className="absolute inset-0 hero-overlay z-10"></div>
         
         <div className="relative z-10 w-full max-w-[800px] px-1 md:px-6 text-center">
-          <h1 className="text-4xl md:text-6xl font-black text-white mb-10 tracking-tight">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-black text-white mb-6 sm:mb-8 md:mb-10 tracking-tight leading-tight">
             Discover Authentic Local Tours & Cultural Experiences Across Asia
           </h1>
           
-          <div className="bg-white p-1 md:p-2 rounded-full shadow-2xl flex flex-row flex-nowrap items-stretch gap-1 md:gap-2 relative" style={{ minWidth: '280px' }}>
+          <div className="bg-white p-1 md:p-2 rounded-full shadow-2xl flex flex-row flex-nowrap items-stretch gap-1 md:gap-2 relative w-full max-w-[600px] mx-auto">
             <div className="flex-1 flex items-center gap-1 md:gap-4 px-2 md:px-6 py-2 md:py-3 min-w-0 relative">
               <Search size={16} className="text-gray-400 shrink-0 md:w-5 md:h-5" />
               <input 
@@ -854,7 +1136,7 @@ const App: React.FC = () => {
                 }}
                 onFocus={() => setShowSuggestions(searchQuery.length > 0)}
                 placeholder="Search Agra, Delhi, Jaipur..." 
-                className="flex-1 outline-none border-none ring-0 focus:ring-0 focus:border-none bg-transparent text-[#001A33] font-bold text-xs md:text-lg placeholder:text-gray-400 placeholder:font-medium min-w-0 truncate"
+                className="flex-1 outline-none border-none ring-0 focus:ring-0 focus:border-none bg-transparent text-[#001A33] font-bold text-sm sm:text-base md:text-lg placeholder:text-gray-400 placeholder:font-medium min-w-0"
               />
               
               {/* Search Suggestions Dropdown */}
@@ -864,12 +1146,12 @@ const App: React.FC = () => {
                     <button
                       key={city.slug}
                       onClick={() => handleSearch(city.name)}
-                      className="w-full px-6 py-4 text-left hover:bg-gray-50 transition-colors flex items-center gap-3"
+                      className="w-full px-4 sm:px-6 py-3 sm:py-4 text-left hover:bg-gray-50 transition-colors flex items-center gap-3 min-h-[44px]"
                     >
-                      <MapPin size={18} className="text-[#10B981]" />
-                      <div>
-                        <div className="font-black text-[#001A33] text-[16px]">{city.name}</div>
-                        <div className="text-[12px] text-gray-500 font-semibold">{city.country}</div>
+                      <MapPin size={18} className="text-[#10B981] flex-shrink-0" />
+                      <div className="min-w-0 flex-1">
+                        <div className="font-black text-[#001A33] text-sm sm:text-base truncate">{city.name}</div>
+                        <div className="text-xs sm:text-sm text-gray-500 font-semibold truncate">{city.country}</div>
                       </div>
                     </button>
                   ))}
@@ -878,8 +1160,7 @@ const App: React.FC = () => {
             </div>
             <button 
               onClick={() => handleSearch()}
-              className="bg-[#10B981] hover:bg-[#059669] text-white font-black px-6 md:px-12 py-3 md:py-4 rounded-full text-base md:text-lg transition-all shadow-lg active:scale-95 shrink-0 whitespace-nowrap flex-shrink-0"
-              style={{ minWidth: '85px' }}
+              className="bg-[#10B981] hover:bg-[#059669] text-white font-black px-4 sm:px-6 md:px-8 lg:px-12 py-2.5 sm:py-3 md:py-4 rounded-full text-sm sm:text-base md:text-lg transition-all shadow-lg active:scale-95 shrink-0 whitespace-nowrap min-h-[44px] flex items-center justify-center"
             >
               Search
             </button>
@@ -889,8 +1170,8 @@ const App: React.FC = () => {
 
       <main className="flex-1">
         {/* Row 1: Things to do wherever you're going */}
-        <section className="max-w-[1200px] mx-auto px-6 md:px-6 pt-[4.4rem] pb-16">
-          <h2 className="text-2xl md:text-[28px] font-black text-[#001A33] mb-8">
+        <section className="max-w-[1200px] mx-auto px-4 sm:px-6 pt-8 sm:pt-12 md:pt-16 pb-8 sm:pb-12 md:pb-16">
+          <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-[28px] font-black text-[#001A33] mb-6 sm:mb-8">
             Things to do wherever you're going
           </h2>
           <div className="relative">
@@ -900,29 +1181,30 @@ const App: React.FC = () => {
                 onClick={() => {
                     const scrollContainer = document.getElementById('cities-scroll');
                     if (scrollContainer) {
-                      const cardWidth = 200 + 20; // card width + gap
-                      const newPosition = Math.max(0, scrollContainer.scrollLeft - (cardWidth * 5));
+                      const cardWidth = window.innerWidth < 640 ? 170 : window.innerWidth < 768 ? 200 : 200;
+                      const gap = window.innerWidth < 640 ? 16 : 20;
+                      const newPosition = Math.max(0, scrollContainer.scrollLeft - ((cardWidth + gap) * 3));
                       scrollContainer.scrollTo({ left: newPosition, behavior: 'smooth' });
                     }
                 }}
-                className="absolute left-0 top-[40%] -translate-y-1/2 z-10 bg-white rounded-full p-3 shadow-lg hover:bg-gray-50 transition-all border border-gray-200"
+                className="hidden sm:flex absolute left-2 sm:left-4 top-[40%] -translate-y-1/2 z-10 bg-white rounded-full p-3 shadow-lg hover:bg-gray-50 transition-all border border-gray-200 items-center justify-center"
               >
                 <ChevronLeft className="text-[#0071EB]" size={24} />
               </button>
             )}
             
             {/* Cards Container */}
-            <div className="relative overflow-hidden px-12 mx-auto" style={{ maxWidth: 'calc(200px * 5 + 20px * 4 + 96px)' }}>
+            <div className="relative overflow-hidden px-0 sm:px-12 md:px-16 mx-auto">
               <div 
                 id="cities-scroll" 
-                className="flex gap-5 overflow-x-auto no-scrollbar pb-4 group scroll-smooth"
+                className="flex gap-4 sm:gap-5 overflow-x-auto no-scrollbar pb-4 scroll-smooth snap-x snap-mandatory"
                 onScroll={(e) => {
                   const container = e.currentTarget;
                   const scrollLeft = container.scrollLeft;
                   const scrollWidth = container.scrollWidth;
                   const clientWidth = container.clientWidth;
                   
-                  setCanScrollLeft(scrollLeft > 0);
+                  setCanScrollLeft(scrollLeft > 10);
                   setCanScrollRight(scrollLeft < scrollWidth - clientWidth - 10);
                 }}
               >
@@ -931,28 +1213,28 @@ const App: React.FC = () => {
                   return (
                     <div 
                       key={city.id} 
-                      className="flex-shrink-0 w-40 md:w-[200px] cursor-pointer group"
+                      className="flex-shrink-0 w-[170px] sm:w-[200px] md:w-[200px] cursor-pointer group snap-start"
                       onClick={() => {
                         const url = getCityUrl(city.name, city.id);
                         window.location.href = url;
                       }}
                     >
-                      <div className="relative aspect-[4/5] rounded-3xl overflow-hidden mb-3 shadow-md hover:shadow-xl transition-all duration-300 bg-white border border-gray-100">
+                      <div className="relative aspect-[4/5] rounded-2xl sm:rounded-3xl overflow-hidden mb-2 sm:mb-3 shadow-md hover:shadow-xl transition-all duration-300 bg-white border border-gray-100">
                         <div className="relative w-full h-full">
                           <img 
                             src={city.image} 
                             alt={`${city.name} tours and cultural experiences - Book local guides in ${city.name}`} 
                             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
                           />
-                          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent"></div>
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/65 via-black/25 to-transparent"></div>
                           {isLiveCity && (
-                            <div className="absolute top-3 right-3 bg-[#10B981] text-white text-[10px] font-black px-2 py-1 rounded-full uppercase tracking-wide">
+                            <div className="absolute top-2.5 sm:top-3 right-2.5 sm:right-3 bg-[#10B981] text-white text-[10px] font-black px-2 py-1 rounded-full uppercase tracking-wide shadow-md">
                               Live
                             </div>
                           )}
-                          <div className="absolute bottom-0 left-0 right-0 p-4">
-                            <h3 className="text-white font-black text-[18px] mb-1 drop-shadow-lg">{city.name}</h3>
-                            <p className="text-white/90 text-[11px] font-semibold drop-shadow-md">{city.localAngle}</p>
+                          <div className="absolute bottom-0 left-0 right-0 p-3 sm:p-4">
+                            <h3 className="text-white font-black text-lg sm:text-xl md:text-lg mb-1 drop-shadow-xl leading-tight">{city.name}</h3>
+                            <p className="text-white/95 text-xs sm:text-sm md:text-[11px] font-semibold drop-shadow-md leading-snug">{city.localAngle}</p>
                           </div>
                         </div>
                       </div>
@@ -968,12 +1250,13 @@ const App: React.FC = () => {
                 onClick={() => {
                     const scrollContainer = document.getElementById('cities-scroll');
                     if (scrollContainer) {
-                      const cardWidth = 200 + 20; // card width + gap
-                      const newPosition = scrollContainer.scrollLeft + (cardWidth * 5);
+                      const cardWidth = window.innerWidth < 640 ? 280 : window.innerWidth < 768 ? 300 : 200;
+                      const gap = window.innerWidth < 640 ? 16 : 20;
+                      const newPosition = scrollContainer.scrollLeft + ((cardWidth + gap) * 3);
                       scrollContainer.scrollTo({ left: newPosition, behavior: 'smooth' });
                     }
                 }}
-                className="absolute right-0 top-[40%] -translate-y-1/2 z-10 bg-white rounded-full p-3 shadow-lg hover:bg-gray-50 transition-all border border-gray-200"
+                className="hidden sm:flex absolute right-2 sm:right-4 top-[40%] -translate-y-1/2 z-10 bg-white rounded-full p-3 shadow-lg hover:bg-gray-50 transition-all border border-gray-200 items-center justify-center"
               >
                 <ChevronRight className="text-[#0071EB]" size={24} />
               </button>
@@ -1128,79 +1411,43 @@ const App: React.FC = () => {
                 </div>
               ) : (
                 <div className="space-y-4">
-                  {wishlist.map((tour) => {
-                    // Get starting price from first pricing tier
-                    let displayPrice = tour.pricePerPerson || 0;
-                    
-                    // Check main tour option (sortOrder: -1) for groupPricingTiers first
-                    if (tour.options && Array.isArray(tour.options) && tour.options.length > 0) {
-                      const mainTourOption = tour.options.find((opt: any) => opt.sortOrder === -1);
-                      if (mainTourOption && mainTourOption.groupPricingTiers) {
-                        try {
-                          const tiers = typeof mainTourOption.groupPricingTiers === 'string' 
-                            ? JSON.parse(mainTourOption.groupPricingTiers) 
-                            : mainTourOption.groupPricingTiers;
-                          if (Array.isArray(tiers) && tiers.length > 0 && tiers[0].price) {
-                            displayPrice = tiers[0].price;
-                          }
-                        } catch (e) {
-                          console.error('Error parsing main tour option groupPricingTiers:', e);
-                        }
-                      }
-                    }
-                    
-                    // If not found in main tour option, check main tour's groupPricingTiers
-                    if (displayPrice === (tour.pricePerPerson || 0) && tour.groupPricingTiers) {
-                      try {
-                        const tiers = typeof tour.groupPricingTiers === 'string' 
-                          ? JSON.parse(tour.groupPricingTiers) 
-                          : tour.groupPricingTiers;
-                        if (Array.isArray(tiers) && tiers.length > 0 && tiers[0].price) {
-                          displayPrice = tiers[0].price;
-                        }
-                      } catch (e) {
-                        console.error('Error parsing tour groupPricingTiers:', e);
-                      }
-                    }
-                    
-                    return (
-                      <div
-                        key={tour.id}
-                        className="flex gap-4 p-4 border border-gray-200 rounded-xl hover:border-[#10B981] transition-colors"
-                      >
-                        {tour.images && JSON.parse(tour.images)[0] && (
-                          <img
-                            src={JSON.parse(tour.images)[0]}
-                            alt={tour.title}
-                            className="w-24 h-24 object-cover rounded-lg"
-                          />
-                        )}
-                        <div className="flex-1">
-                          <h3 className="font-black text-[#001A33] mb-1">{tour.title}</h3>
-                          <p className="text-sm text-gray-600 mb-2">{tour.city}, {tour.country}</p>
-                          <div className="flex items-center justify-between">
-                            <span className="font-black text-[#10B981]">
-                              {tour.currency === 'INR' ? '₹' : '$'}{displayPrice.toLocaleString()}
-                            </span>
-                            <div className="flex gap-2">
-                              <button
-                                onClick={() => window.location.href = `/india/${tour.city?.toLowerCase()}/${tour.slug}`}
-                                className="px-4 py-2 bg-[#10B981] text-white font-bold rounded-lg hover:bg-[#059669] transition-colors text-sm"
-                              >
-                                View Tour
-                              </button>
-                              <button
-                                onClick={() => removeFromWishlist(tour.id)}
-                                className="p-2 text-gray-400 hover:text-red-500 transition-colors"
-                              >
-                                <Trash2 size={18} />
-                              </button>
-                            </div>
+                  {wishlist.map((tour) => (
+                    <div
+                      key={tour.id}
+                      className="flex gap-4 p-4 border border-gray-200 rounded-xl hover:border-[#10B981] transition-colors"
+                    >
+                      {tour.images && JSON.parse(tour.images)[0] && (
+                        <img
+                          src={JSON.parse(tour.images)[0]}
+                          alt={tour.title}
+                          className="w-24 h-24 object-cover rounded-lg"
+                        />
+                      )}
+                      <div className="flex-1">
+                        <h3 className="font-black text-[#001A33] mb-1">{tour.title}</h3>
+                        <p className="text-sm text-gray-600 mb-2">{tour.city}, {tour.country}</p>
+                        <div className="flex items-center justify-between">
+                          <span className="font-black text-[#10B981]">
+                            {tour.currency === 'INR' ? '₹' : '$'}{tour.pricePerPerson?.toLocaleString() || '0'} per person
+                          </span>
+                          <div className="flex gap-2">
+                            <button
+                              onClick={() => window.location.href = `/india/${tour.city?.toLowerCase()}/${tour.slug}`}
+                              className="px-4 py-2 bg-[#10B981] text-white font-bold rounded-lg hover:bg-[#059669] transition-colors text-sm"
+                            >
+                              View Tour
+                            </button>
+                            <button
+                              onClick={() => removeFromWishlist(tour.id)}
+                              className="p-2 text-gray-400 hover:text-red-500 transition-colors"
+                            >
+                              <Trash2 size={18} />
+                            </button>
                           </div>
                         </div>
                       </div>
-                    );
-                  })}
+                    </div>
+                  ))}
                 </div>
               )}
             </div>
@@ -1230,79 +1477,43 @@ const App: React.FC = () => {
                 </div>
               ) : (
                 <div className="space-y-4">
-                  {cart.map((tour) => {
-                    // Get starting price from first pricing tier
-                    let displayPrice = tour.pricePerPerson || 0;
-                    
-                    // Check main tour option (sortOrder: -1) for groupPricingTiers first
-                    if (tour.options && Array.isArray(tour.options) && tour.options.length > 0) {
-                      const mainTourOption = tour.options.find((opt: any) => opt.sortOrder === -1);
-                      if (mainTourOption && mainTourOption.groupPricingTiers) {
-                        try {
-                          const tiers = typeof mainTourOption.groupPricingTiers === 'string' 
-                            ? JSON.parse(mainTourOption.groupPricingTiers) 
-                            : mainTourOption.groupPricingTiers;
-                          if (Array.isArray(tiers) && tiers.length > 0 && tiers[0].price) {
-                            displayPrice = tiers[0].price;
-                          }
-                        } catch (e) {
-                          console.error('Error parsing main tour option groupPricingTiers:', e);
-                        }
-                      }
-                    }
-                    
-                    // If not found in main tour option, check main tour's groupPricingTiers
-                    if (displayPrice === (tour.pricePerPerson || 0) && tour.groupPricingTiers) {
-                      try {
-                        const tiers = typeof tour.groupPricingTiers === 'string' 
-                          ? JSON.parse(tour.groupPricingTiers) 
-                          : tour.groupPricingTiers;
-                        if (Array.isArray(tiers) && tiers.length > 0 && tiers[0].price) {
-                          displayPrice = tiers[0].price;
-                        }
-                      } catch (e) {
-                        console.error('Error parsing tour groupPricingTiers:', e);
-                      }
-                    }
-                    
-                    return (
-                      <div
-                        key={tour.id}
-                        className="flex gap-4 p-4 border border-gray-200 rounded-xl hover:border-[#10B981] transition-colors"
-                      >
-                        {tour.images && JSON.parse(tour.images)[0] && (
-                          <img
-                            src={JSON.parse(tour.images)[0]}
-                            alt={tour.title}
-                            className="w-24 h-24 object-cover rounded-lg"
-                          />
-                        )}
-                        <div className="flex-1">
-                          <h3 className="font-black text-[#001A33] mb-1">{tour.title}</h3>
-                          <p className="text-sm text-gray-600 mb-2">{tour.city}, {tour.country}</p>
-                          <div className="flex items-center justify-between">
-                            <span className="font-black text-[#10B981]">
-                              {tour.currency === 'INR' ? '₹' : '$'}{displayPrice.toLocaleString()}
-                            </span>
-                            <div className="flex gap-2">
-                              <button
-                                onClick={() => window.location.href = `/india/${tour.city?.toLowerCase()}/${tour.slug}`}
-                                className="px-4 py-2 bg-[#10B981] text-white font-bold rounded-lg hover:bg-[#059669] transition-colors text-sm"
-                              >
-                                Book Now
-                              </button>
-                              <button
-                                onClick={() => removeFromCart(tour.id)}
-                                className="p-2 text-gray-400 hover:text-red-500 transition-colors"
-                              >
-                                <Trash2 size={18} />
-                              </button>
-                            </div>
+                  {cart.map((tour) => (
+                    <div
+                      key={tour.id}
+                      className="flex gap-4 p-4 border border-gray-200 rounded-xl hover:border-[#10B981] transition-colors"
+                    >
+                      {tour.images && JSON.parse(tour.images)[0] && (
+                        <img
+                          src={JSON.parse(tour.images)[0]}
+                          alt={tour.title}
+                          className="w-24 h-24 object-cover rounded-lg"
+                        />
+                      )}
+                      <div className="flex-1">
+                        <h3 className="font-black text-[#001A33] mb-1">{tour.title}</h3>
+                        <p className="text-sm text-gray-600 mb-2">{tour.city}, {tour.country}</p>
+                        <div className="flex items-center justify-between">
+                          <span className="font-black text-[#10B981]">
+                            {tour.currency === 'INR' ? '₹' : '$'}{tour.pricePerPerson?.toLocaleString() || '0'} per person
+                          </span>
+                          <div className="flex gap-2">
+                            <button
+                              onClick={() => window.location.href = `/india/${tour.city?.toLowerCase()}/${tour.slug}`}
+                              className="px-4 py-2 bg-[#10B981] text-white font-bold rounded-lg hover:bg-[#059669] transition-colors text-sm"
+                            >
+                              Book Now
+                            </button>
+                            <button
+                              onClick={() => removeFromCart(tour.id)}
+                              className="p-2 text-gray-400 hover:text-red-500 transition-colors"
+                            >
+                              <Trash2 size={18} />
+                            </button>
                           </div>
                         </div>
                       </div>
-                    );
-                  })}
+                    </div>
+                  ))}
                 </div>
               )}
             </div>
