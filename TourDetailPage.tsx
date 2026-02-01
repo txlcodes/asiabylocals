@@ -771,6 +771,15 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
       setSelectedOption(null);
     } else {
       setSelectedOption(option);
+      // Scroll to booking box on mobile when option is selected
+      if (window.innerWidth < 1024 && bookingBoxRef.current) {
+        setTimeout(() => {
+          bookingBoxRef.current?.scrollIntoView({ 
+            behavior: 'smooth', 
+            block: 'start' 
+          });
+        }, 100);
+      }
     }
     setShowOptionSelectionModal(false);
     setAvailabilityStatus('checking');
