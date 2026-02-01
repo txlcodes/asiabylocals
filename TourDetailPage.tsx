@@ -1192,7 +1192,7 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
           {/* Left Column - Images & Details */}
           <div className="lg:col-span-2 space-y-8">
             {/* Image Gallery - GetYourGuide Style: Main image left, 2 thumbnails right */}
-            <div className="grid grid-cols-3 gap-2 h-[500px] overflow-hidden">
+            <div className="grid grid-cols-3 gap-2 h-[500px] overflow-hidden mb-12">
               {mainImage && (
                 <div 
                   className="col-span-2 relative cursor-pointer group"
@@ -1239,7 +1239,7 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
             </div>
 
             {/* Short Description */}
-            <div className="mb-8">
+            <div className="mb-8 mt-4">
               <p className="text-[16px] text-gray-700 font-semibold leading-relaxed">
                 {tour.shortDescription || tour.fullDescription}
               </p>
