@@ -1128,43 +1128,79 @@ const App: React.FC = () => {
                 </div>
               ) : (
                 <div className="space-y-4">
-                  {wishlist.map((tour) => (
-                    <div
-                      key={tour.id}
-                      className="flex gap-4 p-4 border border-gray-200 rounded-xl hover:border-[#10B981] transition-colors"
-                    >
-                      {tour.images && JSON.parse(tour.images)[0] && (
-                        <img
-                          src={JSON.parse(tour.images)[0]}
-                          alt={tour.title}
-                          className="w-24 h-24 object-cover rounded-lg"
-                        />
-                      )}
-                      <div className="flex-1">
-                        <h3 className="font-black text-[#001A33] mb-1">{tour.title}</h3>
-                        <p className="text-sm text-gray-600 mb-2">{tour.city}, {tour.country}</p>
-                        <div className="flex items-center justify-between">
-                          <span className="font-black text-[#10B981]">
-                            {tour.currency === 'INR' ? '₹' : '$'}{tour.pricePerPerson?.toLocaleString() || '0'} per person
-                          </span>
-                          <div className="flex gap-2">
-                            <button
-                              onClick={() => window.location.href = `/india/${tour.city?.toLowerCase()}/${tour.slug}`}
-                              className="px-4 py-2 bg-[#10B981] text-white font-bold rounded-lg hover:bg-[#059669] transition-colors text-sm"
-                            >
-                              View Tour
-                            </button>
-                            <button
-                              onClick={() => removeFromWishlist(tour.id)}
-                              className="p-2 text-gray-400 hover:text-red-500 transition-colors"
-                            >
-                              <Trash2 size={18} />
-                            </button>
+                  {wishlist.map((tour) => {
+                    // Get starting price from first pricing tier
+                    let displayPrice = tour.pricePerPerson || 0;
+                    
+                    // Check main tour option (sortOrder: -1) for groupPricingTiers first
+                    if (tour.options && Array.isArray(tour.options) && tour.options.length > 0) {
+                      const mainTourOption = tour.options.find((opt: any) => opt.sortOrder === -1);
+                      if (mainTourOption && mainTourOption.groupPricingTiers) {
+                        try {
+                          const tiers = typeof mainTourOption.groupPricingTiers === 'string' 
+                            ? JSON.parse(mainTourOption.groupPricingTiers) 
+                            : mainTourOption.groupPricingTiers;
+                          if (Array.isArray(tiers) && tiers.length > 0 && tiers[0].price) {
+                            displayPrice = tiers[0].price;
+                          }
+                        } catch (e) {
+                          console.error('Error parsing main tour option groupPricingTiers:', e);
+                        }
+                      }
+                    }
+                    
+                    // If not found in main tour option, check main tour's groupPricingTiers
+                    if (displayPrice === (tour.pricePerPerson || 0) && tour.groupPricingTiers) {
+                      try {
+                        const tiers = typeof tour.groupPricingTiers === 'string' 
+                          ? JSON.parse(tour.groupPricingTiers) 
+                          : tour.groupPricingTiers;
+                        if (Array.isArray(tiers) && tiers.length > 0 && tiers[0].price) {
+                          displayPrice = tiers[0].price;
+                        }
+                      } catch (e) {
+                        console.error('Error parsing tour groupPricingTiers:', e);
+                      }
+                    }
+                    
+                    return (
+                      <div
+                        key={tour.id}
+                        className="flex gap-4 p-4 border border-gray-200 rounded-xl hover:border-[#10B981] transition-colors"
+                      >
+                        {tour.images && JSON.parse(tour.images)[0] && (
+                          <img
+                            src={JSON.parse(tour.images)[0]}
+                            alt={tour.title}
+                            className="w-24 h-24 object-cover rounded-lg"
+                          />
+                        )}
+                        <div className="flex-1">
+                          <h3 className="font-black text-[#001A33] mb-1">{tour.title}</h3>
+                          <p className="text-sm text-gray-600 mb-2">{tour.city}, {tour.country}</p>
+                          <div className="flex items-center justify-between">
+                            <span className="font-black text-[#10B981]">
+                              {tour.currency === 'INR' ? '₹' : '$'}{displayPrice.toLocaleString()}
+                            </span>
+                            <div className="flex gap-2">
+                              <button
+                                onClick={() => window.location.href = `/india/${tour.city?.toLowerCase()}/${tour.slug}`}
+                                className="px-4 py-2 bg-[#10B981] text-white font-bold rounded-lg hover:bg-[#059669] transition-colors text-sm"
+                              >
+                                View Tour
+                              </button>
+                              <button
+                                onClick={() => removeFromWishlist(tour.id)}
+                                className="p-2 text-gray-400 hover:text-red-500 transition-colors"
+                              >
+                                <Trash2 size={18} />
+                              </button>
+                            </div>
                           </div>
                         </div>
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               )}
             </div>
@@ -1194,43 +1230,79 @@ const App: React.FC = () => {
                 </div>
               ) : (
                 <div className="space-y-4">
-                  {cart.map((tour) => (
-                    <div
-                      key={tour.id}
-                      className="flex gap-4 p-4 border border-gray-200 rounded-xl hover:border-[#10B981] transition-colors"
-                    >
-                      {tour.images && JSON.parse(tour.images)[0] && (
-                        <img
-                          src={JSON.parse(tour.images)[0]}
-                          alt={tour.title}
-                          className="w-24 h-24 object-cover rounded-lg"
-                        />
-                      )}
-                      <div className="flex-1">
-                        <h3 className="font-black text-[#001A33] mb-1">{tour.title}</h3>
-                        <p className="text-sm text-gray-600 mb-2">{tour.city}, {tour.country}</p>
-                        <div className="flex items-center justify-between">
-                          <span className="font-black text-[#10B981]">
-                            {tour.currency === 'INR' ? '₹' : '$'}{tour.pricePerPerson?.toLocaleString() || '0'} per person
-                          </span>
-                          <div className="flex gap-2">
-                            <button
-                              onClick={() => window.location.href = `/india/${tour.city?.toLowerCase()}/${tour.slug}`}
-                              className="px-4 py-2 bg-[#10B981] text-white font-bold rounded-lg hover:bg-[#059669] transition-colors text-sm"
-                            >
-                              Book Now
-                            </button>
-                            <button
-                              onClick={() => removeFromCart(tour.id)}
-                              className="p-2 text-gray-400 hover:text-red-500 transition-colors"
-                            >
-                              <Trash2 size={18} />
-                            </button>
+                  {cart.map((tour) => {
+                    // Get starting price from first pricing tier
+                    let displayPrice = tour.pricePerPerson || 0;
+                    
+                    // Check main tour option (sortOrder: -1) for groupPricingTiers first
+                    if (tour.options && Array.isArray(tour.options) && tour.options.length > 0) {
+                      const mainTourOption = tour.options.find((opt: any) => opt.sortOrder === -1);
+                      if (mainTourOption && mainTourOption.groupPricingTiers) {
+                        try {
+                          const tiers = typeof mainTourOption.groupPricingTiers === 'string' 
+                            ? JSON.parse(mainTourOption.groupPricingTiers) 
+                            : mainTourOption.groupPricingTiers;
+                          if (Array.isArray(tiers) && tiers.length > 0 && tiers[0].price) {
+                            displayPrice = tiers[0].price;
+                          }
+                        } catch (e) {
+                          console.error('Error parsing main tour option groupPricingTiers:', e);
+                        }
+                      }
+                    }
+                    
+                    // If not found in main tour option, check main tour's groupPricingTiers
+                    if (displayPrice === (tour.pricePerPerson || 0) && tour.groupPricingTiers) {
+                      try {
+                        const tiers = typeof tour.groupPricingTiers === 'string' 
+                          ? JSON.parse(tour.groupPricingTiers) 
+                          : tour.groupPricingTiers;
+                        if (Array.isArray(tiers) && tiers.length > 0 && tiers[0].price) {
+                          displayPrice = tiers[0].price;
+                        }
+                      } catch (e) {
+                        console.error('Error parsing tour groupPricingTiers:', e);
+                      }
+                    }
+                    
+                    return (
+                      <div
+                        key={tour.id}
+                        className="flex gap-4 p-4 border border-gray-200 rounded-xl hover:border-[#10B981] transition-colors"
+                      >
+                        {tour.images && JSON.parse(tour.images)[0] && (
+                          <img
+                            src={JSON.parse(tour.images)[0]}
+                            alt={tour.title}
+                            className="w-24 h-24 object-cover rounded-lg"
+                          />
+                        )}
+                        <div className="flex-1">
+                          <h3 className="font-black text-[#001A33] mb-1">{tour.title}</h3>
+                          <p className="text-sm text-gray-600 mb-2">{tour.city}, {tour.country}</p>
+                          <div className="flex items-center justify-between">
+                            <span className="font-black text-[#10B981]">
+                              {tour.currency === 'INR' ? '₹' : '$'}{displayPrice.toLocaleString()}
+                            </span>
+                            <div className="flex gap-2">
+                              <button
+                                onClick={() => window.location.href = `/india/${tour.city?.toLowerCase()}/${tour.slug}`}
+                                className="px-4 py-2 bg-[#10B981] text-white font-bold rounded-lg hover:bg-[#059669] transition-colors text-sm"
+                              >
+                                Book Now
+                              </button>
+                              <button
+                                onClick={() => removeFromCart(tour.id)}
+                                className="p-2 text-gray-400 hover:text-red-500 transition-colors"
+                              >
+                                <Trash2 size={18} />
+                              </button>
+                            </div>
                           </div>
                         </div>
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               )}
             </div>

@@ -64,16 +64,10 @@ const AdminDashboard: React.FC = () => {
       }
       console.log('Admin Dashboard - Fetching tours from:', url);
       
-      // Add timeout to prevent hanging
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
-      
+      // Simple fetch without AbortController to avoid cancellation issues
       const response = await fetch(url, {
-        headers: getAuthHeaders(),
-        signal: controller.signal
+        headers: getAuthHeaders()
       });
-      
-      clearTimeout(timeoutId);
       console.log('Admin Dashboard - Response status:', response.status);
       
       if (!response.ok) {
@@ -177,16 +171,10 @@ const AdminDashboard: React.FC = () => {
       const url = `${API_URL}/api/admin/suppliers/pending`;
       console.log('Admin Dashboard - Fetching suppliers from:', url);
       
-      // Add timeout to prevent hanging
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
-      
+      // Simple fetch without AbortController to avoid cancellation issues
       const response = await fetch(url, {
-        headers: getAuthHeaders(),
-        signal: controller.signal
+        headers: getAuthHeaders()
       });
-      
-      clearTimeout(timeoutId);
       console.log('Admin Dashboard - Response status:', response.status);
       
       if (!response.ok) {

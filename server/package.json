@@ -9,7 +9,8 @@
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
     "prisma:studio": "prisma studio",
-    "prisma:seed": "node prisma/seed.js"
+    "prisma:seed": "node prisma/seed.js",
+    "fix-pricing": "node fix-tour-pricing.js"
   },
   "dependencies": {
     "@prisma/client": "^5.19.1",

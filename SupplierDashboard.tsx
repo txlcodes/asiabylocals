@@ -90,30 +90,165 @@ const SupplierDashboard: React.FC<SupplierDashboardProps> = ({ supplier, onLogou
 
   // Fetch latest supplier data to check for status updates
   const fetchSupplierStatus = async () => {
-    if (!supplier?.id) return;
+    console.log('═══════════════════════════════════════════════════════════');
+    console.log('📥 FETCHING SUPPLIER STATUS');
+    console.log('═══════════════════════════════════════════════════════════');
+    
+    if (!supplier?.id) {
+      console.error('❌ SUPPLIER FETCH FAILED: supplier or supplier.id is missing');
+      console.error('   supplier:', supplier);
+      console.error('   supplier.id:', supplier?.id);
+      return;
+    }
+    
+    const supplierId = supplier.id;
+    console.log('📥 Supplier ID:', supplierId);
     
     try {
+      // Determine API URL
       const API_URL = (import.meta as any).env?.VITE_API_URL || (typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3001');
-      const response = await fetch(`${API_URL}/api/suppliers/${supplier.id}`);
+      const url = `${API_URL}/api/suppliers/${supplierId}`;
+      
+      console.log('🔗 Request URL:', url);
+      console.log('   API_URL:', API_URL);
+      console.log('   Window origin:', typeof window !== 'undefined' ? window.location.origin : 'N/A (SSR)');
+      console.log('   Environment VITE_API_URL:', (import.meta as any).env?.VITE_API_URL || 'not set');
+      
+      // Verify backend availability first
+      console.log('🔍 Checking backend availability...');
+      const healthCheckUrl = `${API_URL}/api/health`;
+      try {
+        const healthResponse = await fetch(healthCheckUrl, { 
+          method: 'GET',
+          signal: AbortSignal.timeout(3000) // 3 second timeout
+        });
+        if (healthResponse.ok) {
+          console.log('✅ Backend server is running and accessible');
+        } else {
+          console.warn('⚠️ Backend health check returned non-OK status:', healthResponse.status);
+        }
+      } catch (healthError: any) {
+        console.error('❌ SUPPLIER FETCH FAILED: Backend server not accessible');
+        console.error('   Health check error:', healthError);
+        console.error('   Possible causes:');
+        console.error('   - Backend server not running on port 3001');
+        console.error('   - Wrong port (expected: 3001)');
+        console.error('   - Network connectivity issue');
+        console.error('   - Firewall blocking connection');
+        throw new Error(`Backend server not accessible: ${healthError.message}`);
+      }
+      
+      console.log('📤 Making supplier fetch request...');
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        signal: AbortSignal.timeout(10000) // 10 second timeout
+      });
+      
+      console.log('📥 Response received');
+      console.log('   Response status:', response.status);
+      console.log('   Response OK:', response.ok);
+      console.log('   Response headers:', Object.fromEntries(response.headers.entries()));
+      
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('❌ SUPPLIER FETCH FAILED: HTTP error response');
+        console.error('   Status:', response.status);
+        console.error('   Status text:', response.statusText);
+        console.error('   Response body:', errorText);
+        console.error('   Possible causes:');
+        console.error('   - Supplier ID not found (404)');
+        console.error('   - Invalid supplier ID format (400)');
+        console.error('   - Server error (500)');
+        console.error('   - Authentication required (401/403)');
+        throw new Error(`HTTP error: ${response.status} ${response.statusText}`);
+      }
+      
       const data = await response.json();
+      console.log('✅ Response data received:', {
+        hasSupplier: !!data.supplier,
+        hasSuccess: !!data.success,
+        keys: Object.keys(data)
+      });
+      
       // Handle both response formats: { supplier } or { success: true, supplier }
       const supplierData = data.supplier || data;
+      
       if (supplierData && supplierData.id) {
+        console.log('✅ Supplier data valid:', {
+          id: supplierData.id,
+          status: supplierData.status,
+          emailVerified: supplierData.emailVerified
+        });
+        
         const updatedSupplier = { 
           ...supplierData, 
           id: String(supplierData.id),
           emailVerified: supplierData.emailVerified !== undefined ? supplierData.emailVerified : currentSupplier?.emailVerified
         };
+        
         // Only update if status actually changed to avoid unnecessary re-renders
         if (updatedSupplier.status !== currentSupplier?.status) {
+          console.log('🔄 Supplier status changed:', {
+            old: currentSupplier?.status,
+            new: updatedSupplier.status
+          });
           // Update localStorage
           localStorage.setItem('supplier', JSON.stringify(updatedSupplier));
           // Update state
           setCurrentSupplier(updatedSupplier);
+        } else {
+          console.log('ℹ️ Supplier status unchanged:', updatedSupplier.status);
         }
+        console.log('═══════════════════════════════════════════════════════════');
+      } else {
+        console.error('❌ SUPPLIER FETCH FAILED: Invalid response data');
+        console.error('   Response data:', data);
+        console.error('   supplierData:', supplierData);
+        console.error('   Possible causes:');
+        console.error('   - API returned unexpected format');
+        console.error('   - Supplier data missing from response');
+        console.error('═══════════════════════════════════════════════════════════');
       }
-    } catch (error) {
-      console.error('Error fetching supplier status:', error);
+    } catch (error: any) {
+      console.error('═══════════════════════════════════════════════════════════');
+      console.error('❌ SUPPLIER FETCH FAILED');
+      console.error('═══════════════════════════════════════════════════════════');
+      console.error('Error object:', error);
+      console.error('Error name:', error?.name);
+      console.error('Error message:', error?.message);
+      console.error('Error stack:', error?.stack);
+      
+      // Determine error type
+      if (error?.name === 'AbortError' || error?.message?.includes('timeout')) {
+        console.error('   Error type: TIMEOUT');
+        console.error('   Possible causes:');
+        console.error('   - Backend server not responding');
+        console.error('   - Network latency too high');
+        console.error('   - Backend server overloaded');
+      } else if (error?.message?.includes('Failed to fetch') || error?.message?.includes('ERR_CONNECTION_REFUSED')) {
+        console.error('   Error type: CONNECTION REFUSED');
+        console.error('   Possible causes:');
+        console.error('   - Backend server not running on port 3001');
+        console.error('   - Wrong port (check if backend is on different port)');
+        console.error('   - CORS misconfiguration (check backend CORS settings)');
+        console.error('   - Firewall blocking connection');
+        console.error('   - Backend crashed or not started');
+      } else if (error?.message?.includes('CORS')) {
+        console.error('   Error type: CORS ERROR');
+        console.error('   Possible causes:');
+        console.error('   - Backend CORS not configured for localhost:3000');
+        console.error('   - Origin not in allowedOrigins list');
+      } else {
+        console.error('   Error type: UNKNOWN');
+        console.error('   Possible causes:');
+        console.error('   - Network error');
+        console.error('   - Invalid API response');
+        console.error('   - JSON parsing error');
+      }
+      console.error('═══════════════════════════════════════════════════════════');
     }
   };
 
@@ -721,18 +856,79 @@ const SupplierDashboard: React.FC<SupplierDashboardProps> = ({ supplier, onLogou
                         <div className="flex items-center justify-between text-[14px] font-black text-[#001A33] mb-4">
                           <span>
                             {(() => {
-                              // Check for group pricing tiers first
-                              if (tour.groupPricingTiers && Array.isArray(tour.groupPricingTiers) && tour.groupPricingTiers.length > 0) {
-                                // Show lowest tier price for group tours
-                                const lowestTier = tour.groupPricingTiers[0];
-                                return `${tour.currency === 'INR' ? '₹' : '$'}${parseFloat(lowestTier.price || 0).toLocaleString()} (${lowestTier.minPeople}-${lowestTier.maxPeople} people)`;
+                              let startingPrice = 0;
+                              let foundValidPrice = false;
+                              
+                              // PRIORITY 1: Check ALL tour options for groupPricingTiers - find the first tier (1 person price)
+                              // The first tier is always for 1 person - this is the "starting from" price
+                              if (tour.options && Array.isArray(tour.options) && tour.options.length > 0) {
+                                // First, try main tour option (sortOrder: -1 or 0)
+                                const mainTourOption = tour.options.find((opt: any) => opt.sortOrder === -1) || tour.options.find((opt: any) => opt.sortOrder === 0) || tour.options[0];
+                                if (mainTourOption && mainTourOption.groupPricingTiers) {
+                                  try {
+                                    const tiers = typeof mainTourOption.groupPricingTiers === 'string' 
+                                      ? JSON.parse(mainTourOption.groupPricingTiers) 
+                                      : mainTourOption.groupPricingTiers;
+                                    if (Array.isArray(tiers) && tiers.length > 0 && tiers[0] && tiers[0].price) {
+                                      const firstTierPrice = parseFloat(tiers[0].price);
+                                      if (!isNaN(firstTierPrice) && firstTierPrice > 0) {
+                                        startingPrice = firstTierPrice;
+                                        foundValidPrice = true;
+                                      }
+                                    }
+                                  } catch (e) {
+                                    console.error('Error parsing main tour option groupPricingTiers:', e);
+                                  }
+                                }
+                                
+                                // If not found in main option, check ALL other options
+                                if (!foundValidPrice) {
+                                  // Sort options by sortOrder to check in order
+                                  const sortedOptions = [...tour.options].sort((a: any, b: any) => (a.sortOrder || 999) - (b.sortOrder || 999));
+                                  for (const opt of sortedOptions) {
+                                    if (opt.groupPricingTiers) {
+                                      try {
+                                        const tiers = typeof opt.groupPricingTiers === 'string' 
+                                          ? JSON.parse(opt.groupPricingTiers) 
+                                          : opt.groupPricingTiers;
+                                        if (Array.isArray(tiers) && tiers.length > 0 && tiers[0] && tiers[0].price) {
+                                          const firstTierPrice = parseFloat(tiers[0].price);
+                                          if (!isNaN(firstTierPrice) && firstTierPrice > 0) {
+                                            startingPrice = firstTierPrice;
+                                            foundValidPrice = true;
+                                            break; // Use the first option we find with valid pricing
+                                          }
+                                        }
+                                      } catch (e) {
+                                        console.error('Error parsing option groupPricingTiers:', e);
+                                      }
+                                    }
+                                  }
+                                }
                               }
-                              // Check for legacy group pricing
-                              if (tour.groupPrice && tour.maxGroupSize) {
-                                return `${tour.currency === 'INR' ? '₹' : '$'}${parseFloat(tour.groupPrice).toLocaleString()} (up to ${tour.maxGroupSize} people)`;
+                              
+                              // PRIORITY 2: Check pricePerPerson (should be set from first tier by backend)
+                              // Only use if it's reasonable (not the last tier price like ₹8,200)
+                              if (!foundValidPrice && tour.pricePerPerson) {
+                                const pricePerPerson = parseFloat(tour.pricePerPerson);
+                                // Only use pricePerPerson if it's reasonable (not the max tier price)
+                                // Max tier price would be much higher, so if pricePerPerson is reasonable (< ₹5000 for INR), use it
+                                const maxReasonablePrice = tour.currency === 'INR' ? 5000 : 100;
+                                if (!isNaN(pricePerPerson) && pricePerPerson > 0 && pricePerPerson < maxReasonablePrice) {
+                                  startingPrice = pricePerPerson;
+                                  foundValidPrice = true;
+                                }
                               }
-                              // Fallback to per person pricing
-                              return `${tour.currency === 'INR' ? '₹' : '$'}${parseFloat(tour.pricePerPerson || 0).toLocaleString()}/person`;
+                              
+                              // DO NOT use groupPrice - it's the LAST tier price (wrong for "starting from")
+                              // groupPrice is ₹8,200 (10 people), not ₹1,000 (1 person)
+                              
+                              // If still no valid price, show 0
+                              if (startingPrice === 0 || isNaN(startingPrice)) {
+                                startingPrice = 0;
+                              }
+                              
+                              return `Starting from ${tour.currency === 'INR' ? '₹' : '$'}${startingPrice.toLocaleString()}`;
                             })()}
                           </span>
                           <span className="text-gray-500 font-semibold">{tour.duration}</span>

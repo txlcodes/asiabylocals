@@ -64,6 +64,11 @@ model Tour {
   reviews          String? // JSON array of fake reviews
   status           String       @default("draft")
   rejectionReason  String?      @map("rejection_reason")
+  maxGroupSize          Int?         @map("max_group_size") // Maximum number of people guide can handle
+  groupPrice            Float?       @map("group_price") // Single price for max group size
+  groupPricingTiers     String?      @map("group_pricing_tiers") // JSON array of {minPeople, maxPeople, price} objects for tiered group pricing
+  unavailableDates     String?      @map("unavailable_dates") // Legacy - JSON array of dates guide is not available (ISO date strings)
+  unavailableDaysOfWeek String?     @map("unavailable_days_of_week") // JSON array of days of week guide is not available (0=Sunday, 1=Monday, ..., 6=Saturday)
   createdAt        DateTime     @default(now()) @map("created_at")
   updatedAt        DateTime     @updatedAt @map("updated_at")
   approvedAt       DateTime?    @map("approved_at")

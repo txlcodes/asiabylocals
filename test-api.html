@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test API</title>
+</head>
+<body>
+    <h1>Testing AsiaByLocals API</h1>
+    <button onclick="testHealth()">Test Health</button>
+    <button onclick="testTours()">Test Tours</button>
+    <div id="result"></div>
+
+    <script>
+        async function testHealth() {
+            const result = document.getElementById('result');
+            result.innerHTML = 'Testing health endpoint...';
+            try {
+                const response = await fetch('http://localhost:3001/api/health');
+                const data = await response.json();
+                result.innerHTML = '<pre>' + JSON.stringify(data, null, 2) + '</pre>';
+            } catch (error) {
+                result.innerHTML = '❌ Error: ' + error.message;
+            }
+        }
+
+        async function testTours() {
+            const result = document.getElementById('result');
+            result.innerHTML = 'Testing tours endpoint...';
+            try {
+                const response = await fetch('http://localhost:3001/api/public/tours?country=India&city=Agra&status=approved');
+                const data = await response.json();
+                result.innerHTML = '<pre>' + JSON.stringify(data, null, 2) + '</pre>';
+                result.innerHTML += '<br><strong>Tours count: ' + (data.tours?.length || 0) + '</strong>';
+            } catch (error) {
+                result.innerHTML = '❌ Error: ' + error.message;
+            }
+        }
+    </script>
+</body>
+</html>

@@ -59,63 +59,391 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
 
   // Calculate price based on group pricing tiers and number of participants
   const calculateGroupPrice = (tourData: any, numParticipants: number): number | null => {
-    if (!tourData) return null;
+    console.log('═══════════════════════════════════════════════════════════');
+    console.log('💰 PRICING CALCULATION START');
+    console.log('═══════════════════════════════════════════════════════════');
+    console.log('📥 Input:', {
+      tourDataId: tourData?.id || tourData?.tourId,
+      optionTitle: tourData?.optionTitle || 'Main Tour',
+      numParticipants,
+      hasGroupPricingTiers: !!tourData?.groupPricingTiers,
+      groupPricingTiersType: typeof tourData?.groupPricingTiers
+    });
     
-    // Check if tour has group pricing tiers
+    if (!tourData) {
+      console.error('❌ PRICING ERROR: tourData is null/undefined');
+      return null;
+    }
+    
+    // CRITICAL: Check Tour.groupPricingTiers FIRST (PRIMARY SOURCE - most reliable)
+    // This is now stored directly on Tour model, simple and reliable
     let groupPricingTiers = null;
-    if (tourData.groupPricingTiers) {
+    
+    // #region agent log
+    fetch('http://127.0.0.1:7242/ingest/c1426495-b81c-4a08-aaea-9440216322e2',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'TourDetailPage.tsx:82',message:'Checking tour.groupPricingTiers - tour object state',data:{tourExists:!!tour,tourId:tour?.id,tourTitle:tour?.title,hasGroupPricingTiers:!!tour?.groupPricingTiers,groupPricingTiersType:typeof tour?.groupPricingTiers,tourKeys:tour?Object.keys(tour).slice(0,20):null},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+    // #endregion
+    
+    if (tour && tour.groupPricingTiers) {
+      console.log('🔍 PRIMARY: Checking tour.groupPricingTiers (Tour model - PRIMARY SOURCE)...');
+      // #region agent log
+      fetch('http://127.0.0.1:7242/ingest/c1426495-b81c-4a08-aaea-9440216322e2',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'TourDetailPage.tsx:85',message:'tour.groupPricingTiers exists - parsing',data:{type:typeof tour.groupPricingTiers,isString:typeof tour.groupPricingTiers==='string',isArray:Array.isArray(tour.groupPricingTiers),preview:typeof tour.groupPricingTiers==='string'?tour.groupPricingTiers.substring(0,100):JSON.stringify(tour.groupPricingTiers).substring(0,100)},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+      // #endregion
       try {
-        groupPricingTiers = typeof tourData.groupPricingTiers === 'string' 
-          ? JSON.parse(tourData.groupPricingTiers) 
-          : tourData.groupPricingTiers;
+        if (typeof tour.groupPricingTiers === 'string') {
+          groupPricingTiers = JSON.parse(tour.groupPricingTiers);
+        } else if (Array.isArray(tour.groupPricingTiers)) {
+          groupPricingTiers = tour.groupPricingTiers;
+        }
+        if (groupPricingTiers && Array.isArray(groupPricingTiers) && groupPricingTiers.length > 0) {
+          console.log('✅ PRIMARY: Found groupPricingTiers on Tour model:', groupPricingTiers);
+          // #region agent log
+          fetch('http://127.0.0.1:7242/ingest/c1426495-b81c-4a08-aaea-9440216322e2',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'TourDetailPage.tsx:91',message:'Successfully parsed tour.groupPricingTiers',data:{tiersCount:groupPricingTiers.length,firstTier:groupPricingTiers[0]},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+          // #endregion
+        }
       } catch (e) {
-        console.error('Error parsing groupPricingTiers:', e);
+        console.error('❌ Failed to parse tour.groupPricingTiers:', e);
+        // #region agent log
+        fetch('http://127.0.0.1:7242/ingest/c1426495-b81c-4a08-aaea-9440216322e2',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'TourDetailPage.tsx:94',message:'Failed to parse tour.groupPricingTiers',data:{error:e.message,errorStack:e.stack},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+        // #endregion
+      }
+    } else {
+      // #region agent log
+      fetch('http://127.0.0.1:7242/ingest/c1426495-b81c-4a08-aaea-9440216322e2',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'TourDetailPage.tsx:96',message:'tour.groupPricingTiers NOT found',data:{tourExists:!!tour,hasGroupPricingTiers:!!tour?.groupPricingTiers,reason:tour?'groupPricingTiers missing':'tour is null'},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+      // #endregion
+    }
+    
+    // FALLBACK: Check tourData.groupPricingTiers (for options with custom pricing)
+    if (!groupPricingTiers && tourData.groupPricingTiers) {
+      console.log('🔍 FALLBACK: Checking tourData.groupPricingTiers (option custom pricing)...');
+      let rawPricingData = tourData.groupPricingTiers;
+      
+      console.log('📦 Supplier pricing response (raw):', {
+        raw: rawPricingData,
+        type: typeof rawPricingData,
+        isString: typeof rawPricingData === 'string',
+        isArray: Array.isArray(rawPricingData)
+      });
+      
+      try {
+        // Handle both string and object formats
+        if (typeof tourData.groupPricingTiers === 'string') {
+          console.log('📝 Parsing groupPricingTiers from string...');
+          const parsed = JSON.parse(tourData.groupPricingTiers);
+          groupPricingTiers = Array.isArray(parsed) ? parsed : null;
+          console.log('✅ Parsed pricing slabs:', groupPricingTiers);
+        } else if (Array.isArray(tourData.groupPricingTiers)) {
+          console.log('✅ Using groupPricingTiers as array directly');
+          groupPricingTiers = tourData.groupPricingTiers;
+        } else {
+          console.warn('⚠️ groupPricingTiers has unexpected type:', typeof tourData.groupPricingTiers);
+        }
+      } catch (e) {
+        console.error('❌ PRICING ERROR: Failed to parse groupPricingTiers:', e);
+        console.error('   Raw data:', rawPricingData);
+        groupPricingTiers = null;
       }
     }
     
-    // Debug logging
-    if (groupPricingTiers && Array.isArray(groupPricingTiers) && groupPricingTiers.length > 0) {
-      console.log('💰 Group Pricing Calculation:', {
-        numParticipants,
-        tiers: groupPricingTiers,
-        tourId: tourData.id || tourData.tourId,
-        optionTitle: tourData.optionTitle || 'Main Tour'
+    // CRITICAL FALLBACK 2: Check main tour's options for groupPricingTiers
+    // This handles both main tour and options (options fall back to main tour pricing)
+    if (!groupPricingTiers && tour && tour.options && Array.isArray(tour.options) && tour.options.length > 0) {
+      console.log('🔍 Checking main tour options for groupPricingTiers fallback...');
+      console.log('   Total options available:', tour.options.length);
+      
+      // Find main tour option (sortOrder -1 or first option)
+      const mainTourOption = tour.options.find((opt: any) => opt.sortOrder === -1) || tour.options[0];
+      
+      console.log('   Main tour option:', {
+        id: mainTourOption?.id,
+        title: mainTourOption?.optionTitle,
+        sortOrder: mainTourOption?.sortOrder,
+        hasGroupPricingTiers: !!mainTourOption?.groupPricingTiers
       });
+      
+      if (mainTourOption && mainTourOption.groupPricingTiers) {
+        try {
+          console.log('   Found groupPricingTiers on main tour option, parsing...');
+          if (typeof mainTourOption.groupPricingTiers === 'string') {
+            const parsed = JSON.parse(mainTourOption.groupPricingTiers);
+            groupPricingTiers = Array.isArray(parsed) ? parsed : null;
+            console.log('✅ Parsed pricing slabs from main tour option:', groupPricingTiers);
+          } else if (Array.isArray(mainTourOption.groupPricingTiers)) {
+            groupPricingTiers = mainTourOption.groupPricingTiers;
+            console.log('✅ Using main tour option pricing slabs directly:', groupPricingTiers);
+          }
+        } catch (e) {
+          console.error('❌ PRICING ERROR: Failed to parse groupPricingTiers from main tour option:', e);
+          console.error('   Raw data:', mainTourOption.groupPricingTiers);
+        }
+      } else {
+        // Fallback: Check ALL options for groupPricingTiers (in case main tour option doesn't have it)
+        console.log('⚠️ Main tour option has no groupPricingTiers, checking all options...');
+        for (const opt of tour.options) {
+          console.log(`   Checking option "${opt.optionTitle}" (sortOrder: ${opt.sortOrder}):`, {
+            hasGroupPricingTiers: !!opt.groupPricingTiers,
+            type: typeof opt.groupPricingTiers
+          });
+          if (opt.groupPricingTiers) {
+            try {
+              let parsed = null;
+              if (typeof opt.groupPricingTiers === 'string') {
+                parsed = JSON.parse(opt.groupPricingTiers);
+              } else if (Array.isArray(opt.groupPricingTiers)) {
+                parsed = opt.groupPricingTiers;
+              }
+              if (Array.isArray(parsed) && parsed.length > 0) {
+                groupPricingTiers = parsed;
+                console.log(`✅ Found groupPricingTiers in option "${opt.optionTitle}":`, groupPricingTiers);
+                break; // Use first option that has valid tiers
+              }
+            } catch (e) {
+              console.error(`❌ PRICING ERROR: Failed to parse groupPricingTiers from option ${opt.id}:`, e);
+            }
+          }
+        }
+      }
+    }
+    
+    // CRITICAL: Log parsed pricing slabs
+    if (groupPricingTiers && Array.isArray(groupPricingTiers) && groupPricingTiers.length > 0) {
+      console.log('📊 Parsed pricing slabs:', groupPricingTiers);
+      console.log('   Total slabs:', groupPricingTiers.length);
+      
+      // CRITICAL: Always log the default price (1-1 person)
+      const defaultSlab = groupPricingTiers.find((t: any) => t.minPeople === 1 && t.maxPeople === 1);
+      if (defaultSlab) {
+        console.log('✅ Default price (1-1 person):', defaultSlab.price);
+      } else {
+        console.warn('⚠️ WARNING: No 1-1 person slab found! First slab:', groupPricingTiers[0]);
+      }
+    } else {
+      console.warn('⚠️ WARNING: No pricing slabs found! Attempting fallback...');
+      console.warn('   Pricing mismatch reason: groupPricingTiers is null or empty');
+      console.warn('   tourData:', {
+        id: tourData.id || tourData.tourId,
+        optionTitle: tourData.optionTitle,
+        hasGroupPricingTiers: !!tourData.groupPricingTiers,
+        pricePerPerson: tourData.pricePerPerson || tour?.pricePerPerson,
+        maxGroupSize: tourData.maxGroupSize || tour?.maxGroupSize
+      });
+      
+      // CRITICAL FALLBACK: Check main tour's groupPricingTiers before using multiplication
+      // If tourData is an option without groupPricingTiers, use main tour's tiers
+      console.log('🔍 FALLBACK: Checking main tour for groupPricingTiers...');
+      
+      // FALLBACK 1: Check main tour option (sortOrder: -1) - this should have the main tour's tiers
+      if (!groupPricingTiers && tour && tour.options && Array.isArray(tour.options) && tour.options.length > 0) {
+        const mainTourOption = tour.options.find((opt: any) => opt.sortOrder === -1) || tour.options[0];
+        console.log('   Checking main tour option:', {
+          id: mainTourOption?.id,
+          title: mainTourOption?.optionTitle,
+          sortOrder: mainTourOption?.sortOrder,
+          hasGroupPricingTiers: !!mainTourOption?.groupPricingTiers
+        });
+        
+        if (mainTourOption && mainTourOption.groupPricingTiers) {
+          try {
+            let mainTiers = null;
+            if (typeof mainTourOption.groupPricingTiers === 'string') {
+              mainTiers = JSON.parse(mainTourOption.groupPricingTiers);
+            } else if (Array.isArray(mainTourOption.groupPricingTiers)) {
+              mainTiers = mainTourOption.groupPricingTiers;
+            }
+            
+            if (Array.isArray(mainTiers) && mainTiers.length > 0) {
+              console.log('✅ FALLBACK: Found main tour option groupPricingTiers, using for calculation');
+              console.log('   Pricing slabs:', mainTiers);
+              groupPricingTiers = mainTiers;
+              // Continue to tier matching logic below - skip multiplication fallback
+            }
+          } catch (e) {
+            console.error('❌ Failed to parse main tour option groupPricingTiers:', e);
+          }
+        }
+      }
+      
+      // FALLBACK 2: If still no tiers, check tour.groupPricingTiers directly
+      if (!groupPricingTiers && tour && tour.groupPricingTiers) {
+        console.log('🔍 FALLBACK 2: Checking tour.groupPricingTiers directly...');
+        try {
+          let mainTiers = null;
+          if (typeof tour.groupPricingTiers === 'string') {
+            mainTiers = JSON.parse(tour.groupPricingTiers);
+          } else if (Array.isArray(tour.groupPricingTiers)) {
+            mainTiers = tour.groupPricingTiers;
+          }
+          
+          if (Array.isArray(mainTiers) && mainTiers.length > 0) {
+            console.log('✅ FALLBACK: Found tour.groupPricingTiers, using for calculation');
+            console.log('   Pricing slabs:', mainTiers);
+            groupPricingTiers = mainTiers;
+          }
+        } catch (e) {
+          console.error('❌ Failed to parse tour.groupPricingTiers:', e);
+        }
+      }
+      
+      // FALLBACK 3: If we STILL don't have groupPricingTiers, try TEMPORARY multiplication fallback
+      if (!groupPricingTiers || !Array.isArray(groupPricingTiers) || groupPricingTiers.length === 0) {
+        const fallbackPricePerPerson = tourData.pricePerPerson || tour?.pricePerPerson;
+        const fallbackMaxGroupSize = tourData.maxGroupSize || tour?.maxGroupSize || 10;
+        
+        if (fallbackPricePerPerson && fallbackPricePerPerson > 0) {
+          console.warn('⚠️ WARNING: Using TEMPORARY multiplication fallback');
+          console.warn('   This means groupPricingTiers is missing from database');
+          console.warn('   pricePerPerson:', fallbackPricePerPerson);
+          console.warn('   maxGroupSize:', fallbackMaxGroupSize);
+          console.warn('⚠️ Tour should be edited and re-submitted to save proper groupPricingTiers');
+          
+          // CRITICAL: For fallback, return pricePerPerson * numParticipants
+          // This makes pricing dynamic even without proper tiers
+          // NOTE: This is NOT ideal - proper tiered pricing should be saved in database
+          const fallbackPrice = parseFloat(fallbackPricePerPerson.toString()) * numParticipants;
+          console.log('💰 Fallback calculated price:', fallbackPrice, `(${fallbackPricePerPerson} * ${numParticipants})`);
+          console.log('═══════════════════════════════════════════════════════════');
+          return fallbackPrice;
+        } else {
+          console.error('❌ PRICING ERROR: No pricing data available and no fallback possible');
+          console.error('   pricePerPerson:', fallbackPricePerPerson);
+          console.error('   maxGroupSize:', fallbackMaxGroupSize);
+          console.log('═══════════════════════════════════════════════════════════');
+          return null;
+        }
+      }
     }
     
     // If group pricing tiers exist, find the matching tier
     if (groupPricingTiers && Array.isArray(groupPricingTiers) && groupPricingTiers.length > 0) {
-      // Find the tier that matches the number of participants
-      const matchingTier = groupPricingTiers.find((tier: any) => 
-        numParticipants >= tier.minPeople && numParticipants <= tier.maxPeople
-      );
+      console.log('🔍 Selected persons:', numParticipants);
+      console.log('   Searching for matching slab...');
+      
+      // Find the tier that matches the number of participants (exact match first)
+      // For tiers like {minPeople: 4, maxPeople: 4}, we need exact match
+      let matchingTier = null;
+      for (const tier of groupPricingTiers) {
+        const min = tier.minPeople || 0;
+        const max = tier.maxPeople || Infinity;
+        const matches = numParticipants >= min && numParticipants <= max;
+        console.log(`   Checking tier ${min}-${max}: ${numParticipants} >= ${min} && ${numParticipants} <= ${max} = ${matches} (price: ${tier.price})`);
+        if (matches) {
+          matchingTier = tier;
+          break; // Use first matching tier
+        }
+      }
       
       if (matchingTier && matchingTier.price) {
-        const price = parseFloat(matchingTier.price) || null;
-        console.log('✅ Matching tier found:', {
+        const price = parseFloat(matchingTier.price);
+        if (isNaN(price) || price <= 0) {
+          console.error('❌ PRICING ERROR: Invalid price in matched slab:', matchingTier.price);
+          console.error('   Pricing mismatch reason: price is NaN or <= 0');
+          return null;
+        }
+        
+        console.log('✅ Matched slab:', {
           tier: `${matchingTier.minPeople}-${matchingTier.maxPeople} people`,
           price,
-          numParticipants
+          numParticipants,
+          rawPrice: matchingTier.price
         });
+        console.log('💰 Final calculated price:', price);
+        console.log('═══════════════════════════════════════════════════════════');
         return price;
-      } else {
-        console.warn('⚠️ No matching tier found for', numParticipants, 'participants. Available tiers:', 
-          groupPricingTiers.map((t: any) => `${t.minPeople}-${t.maxPeople}`).join(', '));
+      }
+      
+      console.error('❌ PRICING ERROR: No matching tier found for', numParticipants, 'participants');
+      console.error('   Available tiers:', 
+        groupPricingTiers.map((t: any) => `${t.minPeople}-${t.maxPeople} (₹${t.price})`).join(', '));
+      console.error('   Pricing mismatch reason: numParticipants outside all tier ranges');
+      console.log('═══════════════════════════════════════════════════════════');
+      return null;
+    }
+    
+    // DO NOT use groupPrice fallback - it's the LAST tier price (wrong for "starting from")
+    // groupPrice is ₹8,200 (10 people), not ₹1,000 (1 person)
+    // If we have groupPricingTiers, we should have found a match above
+    console.error('❌ PRICING ERROR: No pricing slabs available');
+    console.error('   Pricing mismatch reason: groupPricingTiers is null or empty after all checks');
+    console.log('═══════════════════════════════════════════════════════════');
+    return null;
+  };
+
+  // Always per group pricing - simplified function
+  const isGroupPricing = (tourData: any): boolean => {
+    // Always return true - all pricing is per group now
+    return true;
+    if (!tourData) return false;
+    
+    const isOption = !!(tourData.optionTitle || tourData.tourId);
+    const itemName = isOption ? `Option "${tourData.optionTitle || 'Unknown'}"` : `Main Tour "${tourData.title || 'Unknown'}"`;
+    
+    // FIRST: Check tourTypes for "Group Tour" - this is the primary indicator (only for main tours, not options)
+    if (!isOption && tourData.tourTypes) {
+      try {
+        const tourTypes = typeof tourData.tourTypes === 'string' 
+          ? JSON.parse(tourData.tourTypes) 
+          : tourData.tourTypes;
+        if (Array.isArray(tourTypes) && tourTypes.some((t: string) => 
+          t && typeof t === 'string' && t.toLowerCase().includes('group')
+        )) {
+          console.log(`✅ ${itemName}: Group pricing detected via tourTypes`);
+          return true; // Has "Group Tour" in tourTypes = per_group
+        }
+      } catch (e) {
+        // Ignore parse errors
       }
     }
     
-    // Fallback to legacy groupPrice if available
-    if (tourData.groupPrice && tourData.maxGroupSize && numParticipants <= tourData.maxGroupSize) {
-      console.log('📊 Using legacy groupPrice:', {
-        groupPrice: tourData.groupPrice,
-        maxGroupSize: tourData.maxGroupSize,
-        numParticipants
-      });
-      return parseFloat(tourData.groupPrice) || null;
+    // SECOND: Check for group pricing tiers (works for both main tour and options)
+    if (tourData.groupPricingTiers) {
+      try {
+        const tiers = typeof tourData.groupPricingTiers === 'string' 
+          ? JSON.parse(tourData.groupPricingTiers) 
+          : tourData.groupPricingTiers;
+        if (Array.isArray(tiers) && tiers.length > 0) {
+          console.log(`✅ ${itemName}: Group pricing detected via groupPricingTiers (${tiers.length} tiers)`);
+          return true; // Has group pricing tiers = per_group
+        }
+      } catch (e) {
+        console.error(`❌ ${itemName}: Error parsing groupPricingTiers:`, e);
+      }
     }
     
-    console.log('ℹ️ No group pricing found, using per-person pricing');
-    return null;
+    // THIRD: Check for legacy groupPrice + maxGroupSize (works for both main tour and options)
+    if (tourData.groupPrice && tourData.maxGroupSize) {
+      console.log(`✅ ${itemName}: Group pricing detected via legacy groupPrice + maxGroupSize`);
+      return true; // Has groupPrice + maxGroupSize = per_group
+    }
+    
+    // FOURTH: If this is main tour (not an option), check main tour option for group pricing
+    // This handles the case where main tour's group pricing tiers are stored in a special option (sortOrder: -1)
+    const isMainTour = tourData.id && !tourData.optionTitle && !tourData.tourId;
+    if (isMainTour && tour && tour.options && Array.isArray(tour.options) && tour.options.length > 0) {
+      const mainTourOption = tour.options.find((opt: any) => opt.sortOrder === -1);
+      if (mainTourOption) {
+        // Check main tour option's groupPricingTiers
+        if (mainTourOption.groupPricingTiers) {
+          try {
+            const tiers = typeof mainTourOption.groupPricingTiers === 'string' 
+              ? JSON.parse(mainTourOption.groupPricingTiers) 
+              : mainTourOption.groupPricingTiers;
+            if (Array.isArray(tiers) && tiers.length > 0) {
+              console.log(`✅ ${itemName}: Group pricing detected via main tour option's groupPricingTiers (${tiers.length} tiers)`);
+              return true; // Main tour option has group pricing tiers = per_group
+            }
+          } catch (e) {
+            console.error(`❌ ${itemName}: Error parsing main tour option's groupPricingTiers:`, e);
+          }
+        }
+        // Check main tour option's legacy groupPrice + maxGroupSize
+        if (mainTourOption.groupPrice && mainTourOption.maxGroupSize) {
+          console.log(`✅ ${itemName}: Group pricing detected via main tour option's legacy groupPrice + maxGroupSize`);
+          return true;
+        }
+      }
+    }
+    
+    console.log(`❌ ${itemName}: No group pricing detected - defaulting to per person`);
+    return false; // No group pricing = per_person
   };
 
   useEffect(() => {
@@ -234,13 +562,66 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
       }
       
       const data = await response.json();
-      console.log('TourDetailPage - API Response:', data);
+      
+      // #region agent log
+      fetch('http://127.0.0.1:7242/ingest/c1426495-b81c-4a08-aaea-9440216322e2',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'TourDetailPage.tsx:564',message:'API response received - checking tour.groupPricingTiers',data:{tourId:data.tour?.id,tourTitle:data.tour?.title,hasGroupPricingTiers:!!data.tour?.groupPricingTiers,groupPricingTiersType:typeof data.tour?.groupPricingTiers,groupPricingTiersValue:data.tour?.groupPricingTiers?typeof data.tour.groupPricingTiers==='string'?data.tour.groupPricingTiers.substring(0,100):JSON.stringify(data.tour.groupPricingTiers).substring(0,100):null,tourKeys:data.tour?Object.keys(data.tour).filter(k=>k.toLowerCase().includes('pricing')||k.toLowerCase().includes('group')):null,allTourKeys:data.tour?Object.keys(data.tour).slice(0,30):null},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
+      // #endregion
+      
+      console.log('═══════════════════════════════════════════════════════════');
+      console.log('📥 FRONTEND - API RESPONSE RECEIVED');
+      console.log('═══════════════════════════════════════════════════════════');
+      console.log('API Response:', data);
+      
       
       if (data.success && data.tour) {
-        console.log('TourDetailPage - Tour data received:', data.tour.title);
+        console.log('✅ Tour data received:', data.tour.title);
+        console.log('📊 Supplier pricing response (raw):', {
+          pricePerPerson: data.tour.pricePerPerson,
+          optionsCount: data.tour.options?.length || 0,
+          hasGroupPricingTiers: !!data.tour.groupPricingTiers
+        });
         console.log('TourDetailPage - Options:', data.tour.options);
         console.log('TourDetailPage - Options type:', typeof data.tour.options, Array.isArray(data.tour.options));
         console.log('TourDetailPage - Options count:', data.tour.options?.length);
+        
+        // CRITICAL: Log each option's groupPricingTiers in detail
+        if (data.tour.options && Array.isArray(data.tour.options)) {
+          console.log('═══════════════════════════════════════════════════════════');
+          console.log('📊 OPTIONS PRICING DATA DETAILS');
+          console.log('═══════════════════════════════════════════════════════════');
+          data.tour.options.forEach((opt: any, idx: number) => {
+            console.log(`Option ${idx + 1}:`, {
+              id: opt.id,
+              title: opt.optionTitle,
+              sortOrder: opt.sortOrder,
+              price: opt.price,
+              hasGroupPricingTiers: !!opt.groupPricingTiers,
+              groupPricingTiersType: typeof opt.groupPricingTiers,
+              groupPricingTiersValue: opt.groupPricingTiers,
+              groupPricingTiersPreview: opt.groupPricingTiers 
+                ? (typeof opt.groupPricingTiers === 'string' 
+                  ? opt.groupPricingTiers.substring(0, 200) 
+                  : JSON.stringify(opt.groupPricingTiers).substring(0, 200))
+                : 'null',
+              fullOptionKeys: Object.keys(opt)
+            });
+          });
+          console.log('═══════════════════════════════════════════════════════════');
+        }
+        // Log each option's groupPricingTiers for debugging
+        if (data.tour.options && Array.isArray(data.tour.options)) {
+          console.log('📊 TourDetailPage - Options groupPricingTiers check:');
+          data.tour.options.forEach((opt: any, idx: number) => {
+            console.log(`  Option ${idx + 1}:`, {
+              id: opt.id,
+              title: opt.optionTitle,
+              sortOrder: opt.sortOrder,
+              hasGroupPricingTiers: !!opt.groupPricingTiers,
+              groupPricingTiersType: typeof opt.groupPricingTiers,
+              groupPricingTiersValue: opt.groupPricingTiers ? (typeof opt.groupPricingTiers === 'string' ? opt.groupPricingTiers.substring(0, 100) : 'array/object') : null
+            });
+          });
+        }
         console.log('TourDetailPage - Highlights:', data.tour.highlights);
         console.log('TourDetailPage - Highlights type:', typeof data.tour.highlights, Array.isArray(data.tour.highlights));
         console.log('TourDetailPage - Highlights count:', data.tour.highlights?.length);
@@ -262,18 +643,78 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
           }
         }
         
+        // #region agent log
+        fetch('http://127.0.0.1:7242/ingest/c1426495-b81c-4a08-aaea-9440216322e2',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'TourDetailPage.tsx:624',message:'API response received - checking tour.groupPricingTiers',data:{tourId:data.tour?.id,tourTitle:data.tour?.title,hasGroupPricingTiers:!!data.tour?.groupPricingTiers,groupPricingTiersType:typeof data.tour?.groupPricingTiers,groupPricingTiersValue:data.tour?.groupPricingTiers?typeof data.tour.groupPricingTiers==='string'?data.tour.groupPricingTiers.substring(0,100):JSON.stringify(data.tour.groupPricingTiers).substring(0,100):null,tourKeys:data.tour?Object.keys(data.tour).filter(k=>k.toLowerCase().includes('pricing')||k.toLowerCase().includes('group')):null},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
+        // #endregion
+        
         setTour(data.tour);
         setError(null);
         if (data.tour.languages && data.tour.languages.length > 0) {
           setSelectedLanguage(data.tour.languages[0]);
         }
-        // Auto-select first option if available
-        if (data.tour.options && Array.isArray(data.tour.options) && data.tour.options.length > 0) {
-          console.log('TourDetailPage - Auto-selecting first option:', data.tour.options[0]);
-          setSelectedOption(data.tour.options[0]);
+        // Check if main tour has group pricing - if so, add it as an option
+        // Parse groupPricingTiers properly
+        let mainTourHasGroupPricing = false;
+        let mainTourGroupPricingTiers = null;
+        
+        if (data.tour.groupPricingTiers) {
+          // #region agent log
+          fetch('http://127.0.0.1:7242/ingest/c1426495-b81c-4a08-aaea-9440216322e2',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'TourDetailPage.tsx:634',message:'Parsing groupPricingTiers from API response',data:{type:typeof data.tour.groupPricingTiers,isString:typeof data.tour.groupPricingTiers==='string',isArray:Array.isArray(data.tour.groupPricingTiers)},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
+          // #endregion
+          try {
+            mainTourGroupPricingTiers = typeof data.tour.groupPricingTiers === 'string' 
+              ? JSON.parse(data.tour.groupPricingTiers) 
+              : data.tour.groupPricingTiers;
+            mainTourHasGroupPricing = Array.isArray(mainTourGroupPricingTiers) && mainTourGroupPricingTiers.length > 0;
+            // #region agent log
+            fetch('http://127.0.0.1:7242/ingest/c1426495-b81c-4a08-aaea-9440216322e2',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'TourDetailPage.tsx:639',message:'Successfully parsed groupPricingTiers from API',data:{hasGroupPricing:mainTourHasGroupPricing,tiersCount:mainTourGroupPricingTiers?.length,firstTier:mainTourGroupPricingTiers?.[0]},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
+            // #endregion
+          } catch (e) {
+            console.error('Error parsing main tour groupPricingTiers:', e);
+            // #region agent log
+            fetch('http://127.0.0.1:7242/ingest/c1426495-b81c-4a08-aaea-9440216322e2',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'TourDetailPage.tsx:641',message:'Failed to parse groupPricingTiers from API',data:{error:e.message},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
+            // #endregion
+          }
         } else {
-          console.log('TourDetailPage - No options found or empty array');
+          // #region agent log
+          fetch('http://127.0.0.1:7242/ingest/c1426495-b81c-4a08-aaea-9440216322e2',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'TourDetailPage.tsx:643',message:'API response has NO groupPricingTiers',data:{tourId:data.tour?.id},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
+          // #endregion
         }
+        
+        // Also check for legacy groupPrice + maxGroupSize
+        if (!mainTourHasGroupPricing && data.tour.groupPrice && data.tour.maxGroupSize) {
+          mainTourHasGroupPricing = true;
+        }
+        
+        // If main tour has group pricing AND has options, create main tour as first option
+        if (mainTourHasGroupPricing && data.tour.options && Array.isArray(data.tour.options) && data.tour.options.length > 0) {
+          // Main tour has group pricing AND has options - create a "main tour" option
+          const mainTourOption = {
+            id: 'main-tour',
+            tourId: data.tour.id,
+            optionTitle: data.tour.title,
+            optionDescription: data.tour.shortDescription || data.tour.fullDescription?.substring(0, 200) || '',
+            durationHours: parseFloat(data.tour.duration?.replace(/[^0-9.]/g, '')) || 3,
+            price: data.tour.pricePerPerson || 0,
+            currency: data.tour.currency || 'INR',
+            language: data.tour.languages?.[0] || 'English',
+            pickupIncluded: false,
+            entryTicketIncluded: false,
+            guideIncluded: true,
+            carIncluded: false,
+            groupPrice: data.tour.groupPrice,
+            maxGroupSize: data.tour.maxGroupSize,
+            groupPricingTiers: mainTourGroupPricingTiers || data.tour.groupPricingTiers,
+            sortOrder: -1 // Show main tour option first
+          };
+          
+          // Prepend main tour option to options array
+          data.tour.options = [mainTourOption, ...data.tour.options];
+          console.log('TourDetailPage - Added main tour as option (has group pricing):', mainTourOption);
+        }
+        
+        // DO NOT auto-select any option - let user choose
+        console.log('TourDetailPage - No option auto-selected - user must choose');
       } else {
         console.error('TourDetailPage - Tour not found or invalid response:', data);
         setTour(null);
@@ -324,7 +765,12 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
   };
 
   const handleOptionSelected = (option: any) => {
-    setSelectedOption(option);
+    // Toggle: if clicking the same option, deselect it (go back to main tour)
+    if (selectedOption?.id === option.id) {
+      setSelectedOption(null);
+    } else {
+      setSelectedOption(option);
+    }
     setShowOptionSelectionModal(false);
     setAvailabilityStatus('checking');
     
@@ -388,42 +834,22 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
       return;
     }
 
-    // Calculate total amount - infer pricing type from groupPrice/maxGroupSize presence
+    // Calculate total amount using pricing type detection
     let totalAmount = 0;
     let currency = selectedOption?.currency || tour.currency || 'INR';
     const currentParticipants = isCustomParticipants ? customParticipants : participants;
+    const tourData = selectedOption || tour;
     
-    if (selectedOption) {
-      // Check for group pricing tiers first
-      const groupPrice = calculateGroupPrice(selectedOption, currentParticipants);
-      
-      if (groupPrice !== null) {
-        // Use tiered group pricing
-        totalAmount = groupPrice;
-      } else {
-        // Infer pricing type: if groupPrice and maxGroupSize exist, it's per_group
-        const isPerGroup = !!(selectedOption.groupPrice && selectedOption.maxGroupSize);
-        
-        if (isPerGroup) {
-          // Per group pricing - fixed price regardless of participants
-          totalAmount = selectedOption.groupPrice || 0;
-        } else {
-          // Per person pricing
-          const pricePerPerson = selectedOption.price || 0;
-          totalAmount = pricePerPerson * currentParticipants;
-        }
-      }
+    // Always use group pricing logic - calculate from tiers
+    const groupPrice = calculateGroupPrice(tourData, currentParticipants);
+    
+    if (groupPrice !== null && groupPrice > 0) {
+      totalAmount = groupPrice;
     } else {
-      // Fallback to tour price
-      const groupPrice = calculateGroupPrice(tour, currentParticipants);
-      
-      if (groupPrice !== null) {
-        totalAmount = groupPrice;
-      } else {
-        // Per person pricing
-        const pricePerPerson = tour.pricePerPerson || 0;
-        totalAmount = pricePerPerson * currentParticipants;
-      }
+      // DO NOT use groupPrice fallback - it's the LAST tier price (wrong)
+      // Fallback: use pricePerPerson (should be first tier price)
+      const pricePerPerson = selectedOption?.price || tour.pricePerPerson || 0;
+      totalAmount = pricePerPerson;
     }
     
     // Create booking via API
@@ -673,9 +1099,8 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
                 Back
               </button>
             ) : (
-              <a href="/" className="flex items-center gap-3">
+              <a href="/" className="flex items-center">
                 <img src="/logo.svg?v=4" alt="AsiaByLocals" className="h-12 w-12 object-contain" />
-                <span className="font-black text-[#001A33] text-lg">AsiaByLocals</span>
               </a>
             )}
           </div>
@@ -826,15 +1251,65 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
             )}
 
             {/* Tour Options Section - GetYourGuide Style */}
-            {tour.options && Array.isArray(tour.options) && tour.options.length > 0 && (
-              <div className="mb-8">
-                <h2 className="text-2xl font-black text-[#001A33] mb-6">Choose from {tour.options.length} available option{tour.options.length > 1 ? 's' : ''}</h2>
-                <div className="space-y-4">
-                  {tour.options.map((option: any) => {
+            {/* Show options - include main tour if it has group pricing */}
+            {(() => {
+              // Parse groupPricingTiers properly in render logic
+              let mainTourHasGroupPricing = false;
+              let mainTourGroupPricingTiers = null;
+              
+              if (tour.groupPricingTiers) {
+                try {
+                  mainTourGroupPricingTiers = typeof tour.groupPricingTiers === 'string' 
+                    ? JSON.parse(tour.groupPricingTiers) 
+                    : tour.groupPricingTiers;
+                  mainTourHasGroupPricing = Array.isArray(mainTourGroupPricingTiers) && mainTourGroupPricingTiers.length > 0;
+                } catch (e) {
+                  console.error('Error parsing main tour groupPricingTiers:', e);
+                }
+              }
+              
+              // Also check for legacy groupPrice + maxGroupSize
+              if (!mainTourHasGroupPricing && tour.groupPrice && tour.maxGroupSize) {
+                mainTourHasGroupPricing = true;
+              }
+              
+              const shouldShowMainTourAsOption = mainTourHasGroupPricing && tour.options && tour.options.length > 0;
+              
+              // Create main tour option if needed
+              let allOptions = tour.options || [];
+              if (shouldShowMainTourAsOption && !allOptions.find((opt: any) => opt.id === 'main-tour')) {
+                const mainTourOption = {
+                  id: 'main-tour',
+                  tourId: tour.id,
+                  optionTitle: tour.title,
+                  optionDescription: tour.shortDescription || tour.fullDescription?.substring(0, 200) || '',
+                  durationHours: parseFloat(tour.duration?.replace(/[^0-9.]/g, '')) || 3,
+                  price: tour.pricePerPerson || 0,
+                  currency: tour.currency || 'INR',
+                  language: tour.languages?.[0] || 'English',
+                  pickupIncluded: false,
+                  entryTicketIncluded: false,
+                  guideIncluded: true,
+                  carIncluded: false,
+                  groupPrice: tour.groupPrice,
+                  maxGroupSize: tour.maxGroupSize,
+                  groupPricingTiers: mainTourGroupPricingTiers || tour.groupPricingTiers,
+                  sortOrder: -1
+                };
+                allOptions = [mainTourOption, ...allOptions];
+              }
+              
+              // Sort options by sortOrder
+              allOptions = allOptions.sort((a: any, b: any) => (a.sortOrder || 0) - (b.sortOrder || 0));
+              
+              if (allOptions.length > 0) {
+                return (
+                  <div className="mb-8">
+                    <h2 className="text-2xl font-black text-[#001A33] mb-6">Choose from {allOptions.length} available option{allOptions.length > 1 ? 's' : ''}</h2>
+                    <div className="space-y-4">
+                      {allOptions.map((option: any) => {
                     const isSelected = selectedOption?.id === option.id;
                     const currencySymbol = option.currency === 'USD' ? '$' : option.currency === 'EUR' ? '€' : '₹';
-                    // Infer pricing type: if groupPrice and maxGroupSize exist, it's per_group
-                    const isPerGroup = !!(option.groupPrice && option.maxGroupSize);
                     
                     return (
                       <div
@@ -878,54 +1353,42 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
                           {/* Right: Pricing & Select Button */}
                           <div className="text-left md:text-right flex flex-col items-start md:items-end w-full md:w-auto md:min-w-[200px]">
                             <div className="mb-3">
-                              {isPerGroup ? (
-                                <>
-                                  <div className="font-black text-[#001A33] text-[20px] mb-1">
-                                    {(() => {
-                                      const currentParticipants = isCustomParticipants ? customParticipants : participants;
-                                      const groupPrice = calculateGroupPrice(option, currentParticipants);
-                                      
-                                      if (groupPrice !== null) {
-                                        return `${currencySymbol}${groupPrice.toLocaleString()}`;
-                                      }
-                                      
-                                      return `From ${currencySymbol}${option.groupPrice?.toLocaleString() || '0'}`;
-                                    })()}
-                                  </div>
-                                  <div className="text-[12px] text-gray-600 font-semibold">
-                                    {(() => {
-                                      const currentParticipants = isCustomParticipants ? customParticipants : participants;
-                                      const groupPrice = calculateGroupPrice(option, currentParticipants);
-                                      
-                                      if (groupPrice !== null) {
-                                        return `for ${currentParticipants} ${currentParticipants === 1 ? 'person' : 'people'}`;
-                                      }
-                                      
-                                      return `per group (up to ${option.maxGroupSize} people)`;
-                                    })()}
-                                  </div>
-                                </>
-                              ) : (
-                                <>
-                                  <div className="font-black text-[#001A33] text-[20px] mb-1">
-                                    From {currencySymbol}{option.price.toLocaleString()}
-                                  </div>
-                                  <div className="text-[12px] text-gray-600 font-semibold">
-                                    per person
-                                  </div>
-                                </>
-                              )}
+                              <div className="font-black text-[#001A33] text-[20px] mb-1">
+                                {(() => {
+                                  const currentParticipants = isCustomParticipants ? customParticipants : participants;
+                                  // Always use group pricing logic - calculate from tiers
+                                  const groupPrice = calculateGroupPrice(option, currentParticipants);
+                                  
+                                  if (groupPrice !== null) {
+                                    return `${currencySymbol}${groupPrice.toLocaleString()}`;
+                                  }
+                                  
+                                  if (option.groupPrice) {
+                                    return `${currencySymbol}${option.groupPrice.toLocaleString()}`;
+                                  }
+                                  
+                                  // Fallback: use option.price as fixed price
+                                  return `${currencySymbol}${(option.price || 0).toLocaleString()}`;
+                                })()}
+                              </div>
                             </div>
                             
                             <button
-                              onClick={() => setSelectedOption(option)}
+                              onClick={() => {
+                                // Toggle: if clicking the same option, deselect it
+                                if (isSelected) {
+                                  setSelectedOption(null);
+                                } else {
+                                  setSelectedOption(option);
+                                }
+                              }}
                               className={`w-full md:w-auto px-6 py-3 rounded-xl font-black text-[14px] transition-all mb-2 ${
                                 isSelected
                                   ? 'bg-[#10B981] text-white'
                                   : 'bg-[#0071EB] text-white hover:bg-[#0056b3]'
                               }`}
                             >
-                              {isSelected ? 'Selected' : 'Select'}
+                              {isSelected ? 'Selected (Click to deselect)' : 'Select'}
                             </button>
                             
                             {/* Free Cancellation Badge */}
@@ -937,10 +1400,13 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
                         </div>
                       </div>
                     );
-                  })}
-                </div>
-              </div>
-            )}
+                      })}
+                    </div>
+                  </div>
+                );
+              }
+              return null;
+            })()}
 
             {/* Full Description */}
             <div className="mb-8">
@@ -1122,41 +1588,193 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
               </div>
 
               <div className="mb-6">
-                <div className="flex items-baseline gap-3 mb-1">
-                  <span className="text-[18px] text-gray-400 font-bold line-through">
-                    From {tour.currency === 'INR' ? '₹' : '$'}1,300
-                  </span>
-                  <div className="text-3xl font-black text-red-600">
-                    {(selectedOption?.currency || tour.currency || 'INR') === 'INR' ? '₹' : '$'}
-                    {(() => {
-                      const currentParticipants = isCustomParticipants ? customParticipants : participants;
-                      const tourData = selectedOption || tour;
-                      
-                      // Check if it's a group tour with pricing tiers
-                      const groupPrice = calculateGroupPrice(tourData, currentParticipants);
-                      
-                      if (groupPrice !== null) {
-                        return groupPrice.toLocaleString();
-                      }
-                      
-                      // Fallback to per person pricing
-                      const pricePerPerson = selectedOption?.price || tour.pricePerPerson || 0;
-                      return (pricePerPerson * currentParticipants).toLocaleString();
-                    })()}
+                {/* Show main tour pricing ONLY when NO option is selected */}
+                {!selectedOption && (
+                  <div className="mb-4">
+                    <div className="text-[12px] font-bold text-gray-500 uppercase tracking-wider mb-2">Main Tour Price</div>
+                    <div className="flex items-baseline gap-3 mb-1">
+                      <span className="text-[14px] text-gray-500 font-semibold">
+                        Starting from {tour.currency === 'INR' ? '₹' : '$'}
+                        {(() => {
+                          console.log('═══════════════════════════════════════════════════════════');
+                          console.log('🏷 "STARTING FROM" PRICE CALCULATION');
+                          console.log('═══════════════════════════════════════════════════════════');
+                          
+                          // Get the price for 1 person (first tier: 1-1 person)
+                          let priceForOne = tour.pricePerPerson || 0;
+                          console.log('📥 Initial priceForOne (from pricePerPerson):', priceForOne);
+                          
+                          // Check main tour option (sortOrder: -1) for groupPricingTiers first
+                          if (tour.options && Array.isArray(tour.options) && tour.options.length > 0) {
+                            console.log('🔍 Checking main tour option for 1-1 person price...');
+                            const mainTourOption = tour.options.find((opt: any) => opt.sortOrder === -1);
+                            console.log('   Main tour option:', {
+                              found: !!mainTourOption,
+                              title: mainTourOption?.optionTitle,
+                              hasGroupPricingTiers: !!mainTourOption?.groupPricingTiers
+                            });
+                            
+                            if (mainTourOption && mainTourOption.groupPricingTiers) {
+                              try {
+                                const tiers = typeof mainTourOption.groupPricingTiers === 'string' 
+                                  ? JSON.parse(mainTourOption.groupPricingTiers) 
+                                  : mainTourOption.groupPricingTiers;
+                                console.log('   Parsed pricing slabs from main tour option:', tiers);
+                                if (Array.isArray(tiers) && tiers.length > 0 && tiers[0].price) {
+                                  // First tier is always for 1 person (1-1 person)
+                                  const firstTier = tiers[0];
+                                  priceForOne = parseFloat(firstTier.price || 0);
+                                  console.log('✅ Default price (1-1 person) from main tour option:', {
+                                    slab: `${firstTier.minPeople}-${firstTier.maxPeople}`,
+                                    price: priceForOne,
+                                    rawPrice: firstTier.price
+                                  });
+                                } else {
+                                  console.warn('⚠️ Main tour option tiers invalid or empty');
+                                }
+                              } catch (e) {
+                                console.error('❌ Error parsing main tour option groupPricingTiers:', e);
+                              }
+                            } else {
+                              console.log('ℹ️ Main tour option has no groupPricingTiers');
+                            }
+                          }
+                          
+                          // Check tour.groupPricingTiers directly
+                          if (priceForOne === (tour.pricePerPerson || 0) && tour.groupPricingTiers) {
+                            console.log('🔍 Checking tour.groupPricingTiers directly...');
+                            try {
+                              const tiers = typeof tour.groupPricingTiers === 'string' 
+                                ? JSON.parse(tour.groupPricingTiers) 
+                                : tour.groupPricingTiers;
+                              console.log('   Parsed pricing slabs from tour:', tiers);
+                              if (Array.isArray(tiers) && tiers.length > 0 && tiers[0].price) {
+                                // First tier is always for 1 person (1-1 person)
+                                const firstTier = tiers[0];
+                                priceForOne = parseFloat(firstTier.price || 0);
+                                console.log('✅ Default price (1-1 person) from tour:', {
+                                  slab: `${firstTier.minPeople}-${firstTier.maxPeople}`,
+                                  price: priceForOne,
+                                  rawPrice: firstTier.price
+                                });
+                              }
+                            } catch (e) {
+                              console.error('❌ Error parsing tour groupPricingTiers:', e);
+                            }
+                          }
+                          
+                          console.log('💰 FINAL "STARTING FROM" PRICE:', priceForOne);
+                          console.log('═══════════════════════════════════════════════════════════');
+                          return priceForOne.toLocaleString();
+                        })()}
+                      </span>
+                      <div className="text-3xl font-black text-red-600">
+                        {tour.currency === 'INR' ? '₹' : '$'}
+                        {(() => {
+                          const currentParticipants = isCustomParticipants ? customParticipants : participants;
+                          console.log('═══════════════════════════════════════════════════════════');
+                          console.log('💰 DYNAMIC PRICE CALCULATION (person count changed)');
+                          console.log('═══════════════════════════════════════════════════════════');
+                          console.log('📥 Selected persons:', currentParticipants);
+                          console.log('   isCustomParticipants:', isCustomParticipants);
+                          
+                          // Always use group pricing logic - calculate from tiers
+                          const groupPrice = calculateGroupPrice(tour, currentParticipants);
+                          
+                          if (groupPrice !== null && groupPrice > 0) {
+                            console.log('✅ Using calculated group price:', groupPrice);
+                            console.log('═══════════════════════════════════════════════════════════');
+                            return groupPrice.toLocaleString();
+                          }
+                          
+                          // Check main tour option for group pricing
+                          if (tour && tour.options && Array.isArray(tour.options) && tour.options.length > 0) {
+                            console.log('🔍 Falling back to main tour option...');
+                            const mainTourOption = tour.options.find((opt: any) => opt.sortOrder === -1) || tour.options[0];
+                            if (mainTourOption && mainTourOption.groupPricingTiers) {
+                              const optionGroupPrice = calculateGroupPrice(mainTourOption, currentParticipants);
+                              if (optionGroupPrice !== null && optionGroupPrice > 0) {
+                                console.log('✅ Using main tour option price:', optionGroupPrice);
+                                console.log('═══════════════════════════════════════════════════════════════');
+                                return optionGroupPrice.toLocaleString();
+                              }
+                            }
+                            // DO NOT use groupPrice - it's the LAST tier price (wrong)
+                          }
+                          
+                          // Fallback: use pricePerPerson (should be first tier price)
+                          console.warn('⚠️ Using fallback pricePerPerson:', tour.pricePerPerson);
+                          console.log('═══════════════════════════════════════════════════════════');
+                          return (tour.pricePerPerson || 0).toLocaleString();
+                        })()}
+                      </div>
+                    </div>
                   </div>
-                </div>
-                <div className="text-[14px] text-gray-600 font-semibold">
-                  {(() => {
-                    const currentParticipants = isCustomParticipants ? customParticipants : participants;
-                    const tourData = selectedOption || tour;
-                    const groupPrice = calculateGroupPrice(tourData, currentParticipants);
-                    
-                    if (groupPrice !== null) {
-                      return `for ${currentParticipants} ${currentParticipants === 1 ? 'person' : 'people'}`;
-                    }
-                    return 'per person';
-                  })()}
-                </div>
+                )}
+
+                {/* Show option pricing when selected - replaces main tour price */}
+                {selectedOption && (
+                  <div className="mb-4">
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="text-[12px] font-bold text-gray-500 uppercase tracking-wider">Selected Option Price</div>
+                      <button
+                        onClick={() => setSelectedOption(null)}
+                        className="text-[11px] text-[#0071EB] font-semibold hover:underline"
+                      >
+                        Back to Main Tour
+                      </button>
+                    </div>
+                    <div className="flex items-baseline gap-3 mb-1">
+                      <span className="text-[18px] text-gray-400 font-bold line-through">
+                        From {tour.currency === 'INR' ? '₹' : '$'}1,300
+                      </span>
+                      <div className="text-3xl font-black text-[#10B981]">
+                        {(selectedOption.currency || tour.currency || 'INR') === 'INR' ? '₹' : '$'}
+                        {(() => {
+                          const currentParticipants = isCustomParticipants ? customParticipants : participants;
+                          console.log('═══════════════════════════════════════════════════════════');
+                          console.log('💰 SELECTED OPTION PRICE CALCULATION');
+                          console.log('═══════════════════════════════════════════════════════════');
+                          console.log('Selected option:', {
+                            id: selectedOption.id,
+                            title: selectedOption.optionTitle,
+                            price: selectedOption.price,
+                            hasGroupPricingTiers: !!selectedOption.groupPricingTiers,
+                            groupPricingTiersType: typeof selectedOption.groupPricingTiers
+                          });
+                          console.log('Current participants:', currentParticipants);
+                          
+                          // ALWAYS use group pricing logic - calculate from tiers
+                          // This will use option's tiers if available, otherwise fall back to main tour's tiers
+                          const groupPrice = calculateGroupPrice(selectedOption, currentParticipants);
+                          if (groupPrice !== null && groupPrice > 0) {
+                            console.log('✅ Using selected option groupPricingTiers:', groupPrice);
+                            console.log('═══════════════════════════════════════════════════════════');
+                            return groupPrice.toLocaleString();
+                          }
+                          
+                          // DO NOT use groupPrice fallback - it's the LAST tier price (₹8,200 for 10 people)
+                          // Final fallback: use main tour's pricing tiers
+                          console.log('🔍 Selected option has no groupPricingTiers, falling back to main tour...');
+                          const mainTourPrice = calculateGroupPrice(tour, currentParticipants);
+                          if (mainTourPrice !== null && mainTourPrice > 0) {
+                            console.log('✅ Using main tour groupPricingTiers:', mainTourPrice);
+                            console.log('═══════════════════════════════════════════════════════════');
+                            return mainTourPrice.toLocaleString();
+                          }
+                          
+                          // Last resort: use option.price (should be first tier price)
+                          console.warn('⚠️ Using option.price fallback:', selectedOption.price);
+                          console.log('═══════════════════════════════════════════════════════════');
+                          return (selectedOption.price || 0).toLocaleString();
+                        })()}
+                      </div>
+                    </div>
+                    <div className="text-[12px] text-gray-500 mt-1">
+                      Option: {selectedOption.optionTitle}
+                    </div>
+                  </div>
+                )}
                 
                 {/* Group Pricing Tiers Display */}
                 {(() => {
@@ -1170,6 +1788,20 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
                         : tourData.groupPricingTiers;
                     } catch (e) {
                       console.error('Error parsing groupPricingTiers:', e);
+                    }
+                  }
+                  
+                  // If no groupPricingTiers on tourData and this is main tour, check main tour option
+                  if (!groupPricingTiers && !selectedOption && tour && tour.options && Array.isArray(tour.options) && tour.options.length > 0) {
+                    const mainTourOption = tour.options.find((opt: any) => opt.sortOrder === -1) || tour.options[0];
+                    if (mainTourOption && mainTourOption.groupPricingTiers) {
+                      try {
+                        groupPricingTiers = typeof mainTourOption.groupPricingTiers === 'string' 
+                          ? JSON.parse(mainTourOption.groupPricingTiers) 
+                          : mainTourOption.groupPricingTiers;
+                      } catch (e) {
+                        console.error('Error parsing groupPricingTiers from main tour option:', e);
+                      }
                     }
                   }
                   
@@ -1623,8 +2255,6 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
               {tour.options.map((option: any) => {
                 const isSelected = selectedOption?.id === option.id;
                 const currencySymbol = option.currency === 'USD' ? '$' : option.currency === 'EUR' ? '€' : '₹';
-                // Infer pricing type: if groupPrice and maxGroupSize exist, it's per_group
-                const isPerGroup = !!(option.groupPrice && option.maxGroupSize);
                 
                 return (
                   <div
@@ -1687,25 +2317,24 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
                       {/* Right: Pricing & Select Button */}
                       <div className="text-right flex flex-col items-end min-w-[200px]">
                         <div className="mb-3">
-                          {isPerGroup ? (
-                            <>
-                              <div className="font-black text-[#001A33] text-[20px] mb-1">
-                                {currencySymbol}{option.groupPrice?.toLocaleString()}
-                              </div>
-                              <div className="text-[12px] text-gray-600 font-semibold">
-                                per group (up to {option.maxGroupSize} people)
-                              </div>
-                            </>
-                          ) : (
-                            <>
-                              <div className="font-black text-[#001A33] text-[20px] mb-1">
-                                {currencySymbol}{option.price.toLocaleString()}
-                              </div>
-                              <div className="text-[12px] text-gray-600 font-semibold">
-                                per person
-                              </div>
-                            </>
-                          )}
+                          <div className="font-black text-[#001A33] text-[20px] mb-1">
+                            {(() => {
+                              const currentParticipants = isCustomParticipants ? customParticipants : participants;
+                              // Always use group pricing logic - calculate from tiers
+                              const groupPrice = calculateGroupPrice(option, currentParticipants);
+                              
+                              if (groupPrice !== null) {
+                                return `${currencySymbol}${groupPrice.toLocaleString()}`;
+                              }
+                              
+                              if (option.groupPrice) {
+                                return `${currencySymbol}${option.groupPrice.toLocaleString()}`;
+                              }
+                              
+                              // Fallback: use option.price as fixed price
+                              return `${currencySymbol}${(option.price || 0).toLocaleString()}`;
+                            })()}
+                          </div>
                         </div>
                         
                         <button
@@ -1716,7 +2345,7 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
                               : 'bg-[#0071EB] text-white hover:bg-[#0056b3]'
                           }`}
                         >
-                          {isSelected ? 'Selected' : 'Select'}
+                          {isSelected ? 'Selected (Click to deselect)' : 'Select'}
                         </button>
                       </div>
                     </div>
@@ -1727,10 +2356,18 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
 
             {/* Footer Actions */}
             {selectedOption && (
-              <div className="mt-6 pt-6 border-t border-gray-200 flex items-center justify-between">
-                <div>
-                  <div className="text-[14px] text-gray-600 font-semibold mb-1">Selected option:</div>
-                  <div className="font-black text-[#001A33] text-[16px]">{selectedOption.optionTitle}</div>
+              <div className="mt-6 pt-6 border-t border-gray-200">
+                <div className="flex items-center justify-between mb-4">
+                  <div>
+                    <div className="text-[14px] text-gray-600 font-semibold mb-1">Selected option:</div>
+                    <div className="font-black text-[#001A33] text-[16px]">{selectedOption.optionTitle}</div>
+                  </div>
+                  <button
+                    onClick={() => setSelectedOption(null)}
+                    className="px-4 py-2 text-[#0071EB] font-semibold text-[13px] hover:underline"
+                  >
+                    Back to Main Tour
+                  </button>
                 </div>
                 <button
                   onClick={() => {
@@ -1740,7 +2377,7 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
                       setAvailabilityStatus('available');
                     }, 1000);
                   }}
-                  className="bg-[#10B981] hover:bg-[#059669] text-white font-black px-8 py-3 rounded-xl transition-all"
+                  className="w-full bg-[#10B981] hover:bg-[#059669] text-white font-black px-8 py-3 rounded-xl transition-all"
                 >
                   Continue to Booking
                 </button>
@@ -1822,7 +2459,21 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
                   <div className="flex justify-between items-center">
                     <span className="text-gray-600 font-semibold">Total Amount:</span>
                     <span className="font-black text-[#001A33] text-[20px]">
-                      {selectedOption?.currency || tour.currency || '₹'}{((selectedOption?.price || tour.pricePerPerson || 0) * participants).toLocaleString()}
+                      {(() => {
+                        const currentParticipants = isCustomParticipants ? customParticipants : participants;
+                        const tourData = selectedOption || tour;
+                        const currencySymbol = (selectedOption?.currency || tour.currency || 'INR') === 'INR' ? '₹' : '$';
+                        
+                        // Always use group pricing logic - calculate from tiers
+                        const groupPrice = calculateGroupPrice(tourData, currentParticipants);
+                        if (groupPrice !== null && groupPrice > 0) {
+                          return `${currencySymbol}${groupPrice.toLocaleString()}`;
+                        }
+                        // DO NOT use groupPrice fallback - it's the LAST tier price (wrong)
+                        // Fallback: use pricePerPerson (should be first tier price)
+                        const pricePerPerson = selectedOption?.price || tour.pricePerPerson || 0;
+                        return `${currencySymbol}${pricePerPerson.toLocaleString()}`;
+                      })()}
                     </span>
                   </div>
                 </div>
