@@ -1202,7 +1202,7 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
           {/* Left Column - Images & Details */}
           <div className="lg:col-span-2">
             {/* Image Gallery - GetYourGuide Style: Main image left, 2 thumbnails right */}
-            <div className="grid grid-cols-3 gap-2 h-[500px] overflow-hidden mb-40">
+            <div className="grid grid-cols-3 gap-2 h-[500px] overflow-hidden">
               {mainImage && (
                 <div 
                   className="col-span-2 relative cursor-pointer group overflow-hidden rounded-2xl"
@@ -1249,7 +1249,7 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
             </div>
 
             {/* Short Description */}
-            <div className="mb-8 mt-20">
+            <div className="mb-8 pt-24">
               <p className="text-[16px] text-gray-700 font-semibold leading-relaxed">
                 {tour.shortDescription || tour.fullDescription}
               </p>
@@ -1257,7 +1257,7 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
 
             {/* Highlights Section */}
             {tour.highlights && Array.isArray(tour.highlights) && tour.highlights.length > 0 && (
-              <div className="mb-8 mt-16">
+              <div className="mb-8 pt-12">
                 <h2 className="text-2xl font-black text-[#001A33] mb-4">Highlights</h2>
                 <ul className="space-y-2">
                   {tour.highlights.map((highlight: string, index: number) => (
