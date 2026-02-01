@@ -457,7 +457,14 @@ const AdminDashboard: React.FC = () => {
       
       if (data.success) {
         alert('Supplier rejected successfully.');
-        fetchPendingSuppliers();
+        // Refresh the appropriate list based on current filter
+        if (supplierFilter === 'pending') {
+          fetchPendingSuppliers();
+        } else if (supplierFilter === 'approved') {
+          fetchApprovedSuppliers();
+        } else {
+          fetchAllSuppliers();
+        }
         setSelectedSupplier(null);
         setRejectionReason('');
       } else {
