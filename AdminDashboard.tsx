@@ -814,7 +814,7 @@ const AdminDashboard: React.FC = () => {
                     </div>
                   </div>
                     ))}
-                      </div>
+                  </div>
 
                   {/* Supplier Details & Actions */}
                   <div className="lg:col-span-1">
@@ -987,7 +987,7 @@ const AdminDashboard: React.FC = () => {
                 )}
               </div>
             </div>
-          )
+          </div>
         ) : activeTab === 'tours' ? (
           // Tours Tab
           pendingTours.length === 0 && !loading ? (
