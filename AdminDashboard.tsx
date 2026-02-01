@@ -987,6 +987,7 @@ const AdminDashboard: React.FC = () => {
                 )}
               </div>
             </div>
+            )}
           </div>
         ) : activeTab === 'tours' ? (
           // Tours Tab
