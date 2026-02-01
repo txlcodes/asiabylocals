@@ -4160,7 +4160,7 @@ app.post('/api/tours', async (req, res) => {
         // Use deep clone to completely break any references
         // CRITICAL: Apply pricingType removal one more time before cloning
         let tempData = JSON.parse(JSON.stringify(finalDataForPrisma));
-        // Remove pricingType recursively from tempData
+        // Remove pricingType recursively from tempData BUT PRESERVE groupPricingTiers
         const removePricingTypeRecursive = (obj) => {
           if (obj === null || obj === undefined) return obj;
           if (Array.isArray(obj)) {
@@ -4169,7 +4169,13 @@ app.post('/api/tours', async (req, res) => {
           if (typeof obj === 'object') {
             const cleaned = {};
             for (const [key, value] of Object.entries(obj)) {
-              if (key.toLowerCase() === 'pricingtype' || key.toLowerCase() === 'pricing_type') {
+              const keyLower = key.toLowerCase();
+              if (keyLower === 'pricingtype' || keyLower === 'pricing_type') {
+                continue; // Skip pricingType fields
+              }
+              // CRITICAL: Preserve groupPricingTiers - it's a valid field!
+              if (keyLower === 'grouppricingtiers') {
+                cleaned[key] = value; // Keep as-is, don't recurse
                 continue;
               }
               cleaned[key] = removePricingTypeRecursive(value);
