@@ -1725,11 +1725,12 @@ app.patch('/api/suppliers/:id/update-document', async (req, res) => {
   try {
     const { id } = req.params;
     const supplierId = parseInt(id);
-    const { verificationDocumentUrl } = req.body;
+    const { verificationDocumentUrl, certificates } = req.body;
 
     console.log('📄 Document upload request received');
     console.log('   Supplier ID:', supplierId);
     console.log('   Document URL length:', verificationDocumentUrl ? verificationDocumentUrl.length : 0);
+    console.log('   Certificates:', certificates ? (typeof certificates === 'string' ? JSON.parse(certificates).length : certificates.length) : 0);
 
     if (isNaN(supplierId)) {
       return res.status(400).json({ 
@@ -1760,10 +1761,59 @@ app.patch('/api/suppliers/:id/update-document', async (req, res) => {
       });
     }
 
+    // Process certificates - upload to Cloudinary if available
+    let finalCertificates = null;
+    if (certificates) {
+      try {
+        const certUrls = typeof certificates === 'string' ? JSON.parse(certificates) : certificates;
+        if (Array.isArray(certUrls) && certUrls.length > 0 && process.env.CLOUDINARY_CLOUD_NAME && process.env.CLOUDINARY_API_KEY && process.env.CLOUDINARY_API_SECRET) {
+          console.log('☁️  Uploading certificates to Cloudinary...');
+          const cloudinary = (await import('./utils/cloudinary.js')).default;
+          
+          const uploadedCertUrls = await Promise.all(certUrls.map(async (certUrl, index) => {
+            try {
+              const isPDF = certUrl.startsWith('data:application/pdf');
+              const isImage = certUrl.startsWith('data:image/');
+              
+              if (isPDF) {
+                const base64Data = certUrl.includes(',') ? certUrl.split(',')[1] : certUrl;
+                const result = await cloudinary.uploader.upload(
+                  `data:application/pdf;base64,${base64Data}`,
+                  {
+                    folder: 'asiabylocals/suppliers/certificates',
+                    resource_type: 'raw',
+                    public_id: `cert_${supplierId}_${Date.now()}_${index}`
+                  }
+                );
+                return result.secure_url;
+              } else if (isImage) {
+                const { uploadImage } = await import('./utils/cloudinary.js');
+                return await uploadImage(certUrl, 'asiabylocals/suppliers/certificates', `cert_${supplierId}_${Date.now()}_${index}`);
+              }
+              return certUrl; // Fallback to original URL
+            } catch (err) {
+              console.error(`❌ Failed to upload certificate ${index + 1}:`, err);
+              return certUrl; // Fallback to original URL
+            }
+          }));
+          
+          finalCertificates = JSON.stringify(uploadedCertUrls);
+          console.log('✅ Certificates uploaded to Cloudinary:', uploadedCertUrls.length);
+        } else {
+          finalCertificates = typeof certificates === 'string' ? certificates : JSON.stringify(certificates);
+        }
+      } catch (err) {
+        console.error('❌ Error processing certificates:', err);
+        // Continue with original certificates if processing fails
+        finalCertificates = typeof certificates === 'string' ? certificates : JSON.stringify(certificates);
+      }
+    }
+
     const supplier = await prisma.supplier.update({
       where: { id: supplierId },
       data: {
         verificationDocumentUrl,
+        certificates: finalCertificates,
         // Keep status as 'pending' - admin needs to approve after reviewing license
         status: 'pending'
       },
@@ -1772,12 +1822,14 @@ app.patch('/api/suppliers/:id/update-document', async (req, res) => {
         email: true,
         emailVerified: true,
         status: true,
-        verificationDocumentUrl: true
+        verificationDocumentUrl: true,
+        certificates: true
       }
     });
 
     console.log('✅ Document uploaded successfully for supplier:', supplier.id);
     console.log('   Status:', supplier.status, '(pending admin approval)');
+    console.log('   Certificates:', supplier.certificates ? (JSON.parse(supplier.certificates).length) : 0);
 
     res.json({
       success: true,
