@@ -1099,9 +1099,19 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
                 Back
               </button>
             ) : (
-              <a href="/" className="flex items-center">
-                <img src="/logo.svg?v=4" alt="AsiaByLocals" className="h-12 w-12 object-contain" />
-              </a>
+              <button
+                onClick={() => {
+                  if (window.history.length > 1) {
+                    window.history.back();
+                  } else {
+                    window.location.href = '/';
+                  }
+                }}
+                className="flex items-center gap-2 text-[#001A33] font-semibold hover:text-[#10B981] text-[14px] transition-colors"
+              >
+                <ChevronLeft size={18} />
+                Back
+              </button>
             )}
           </div>
           <div className="flex items-center gap-4">

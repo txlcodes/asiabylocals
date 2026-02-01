@@ -227,7 +227,19 @@ const SupplierPage: React.FC<SupplierPageProps> = ({ onClose }) => {
               Back to Home
             </button>
           ) : (
-            <div></div>
+            <button
+              onClick={() => {
+                if (window.history.length > 1) {
+                  window.history.back();
+                } else {
+                  window.location.href = '/';
+                }
+              }}
+              className="flex items-center gap-2 text-[#001A33] font-semibold hover:text-[#10B981] text-[14px] transition-colors"
+            >
+              <ChevronRight size={18} className="rotate-180" />
+              Back to Home
+            </button>
           )}
           <img 
             src="/logo.svg?v=4" 

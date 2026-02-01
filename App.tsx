@@ -595,7 +595,13 @@ const App: React.FC = () => {
   
   // Show tour detail page (legacy ID route: /tour/:id)
   if (tourId) {
-    return <TourDetailPage tourId={tourId} onClose={() => window.history.back()} />;
+    return <TourDetailPage tourId={tourId} onClose={() => {
+      if (window.history.length > 1) {
+        window.history.back();
+      } else {
+        window.location.href = '/';
+      }
+    }} />;
   }
   
   // Show city page (SEO-friendly URL: /country/city)

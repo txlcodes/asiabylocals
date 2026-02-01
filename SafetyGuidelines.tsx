@@ -8,7 +8,13 @@ const SafetyGuidelines: React.FC = () => {
       <header className="sticky top-0 z-50 bg-white border-b border-gray-200 shadow-sm">
         <div className="max-w-4xl mx-auto px-6 py-4">
           <button
-            onClick={() => window.history.back()}
+            onClick={() => {
+              if (window.history.length > 1) {
+                window.history.back();
+              } else {
+                window.location.href = '/';
+              }
+            }}
             className="flex items-center gap-2 text-[#001A33] font-semibold hover:text-[#10B981] transition-colors"
           >
             <ArrowLeft size={18} />
