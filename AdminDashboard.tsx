@@ -736,258 +736,259 @@ const AdminDashboard: React.FC = () => {
                         : `All Suppliers (${suppliersToShow.length})`}
                     </h2>
                     {suppliersToShow.map((supplier) => (
-                  <div
-                    key={supplier.id}
-                    className={`bg-white rounded-2xl p-6 border-2 cursor-pointer transition-all ${
-                      selectedSupplier?.id === supplier.id
-                        ? 'border-[#10B981] shadow-lg ring-2 ring-[#10B981]/20'
-                        : 'border-gray-200 hover:border-[#10B981]/30'
-                    }`}
-                    onClick={() => setSelectedSupplier(supplier)}
-                  >
-                    <div className="flex items-start gap-4">
-                      <div className="w-16 h-16 bg-[#10B981]/10 rounded-xl flex items-center justify-center">
-                        {supplier.businessType === 'company' ? (
-                          <Building2 className="text-[#10B981]" size={24} />
-                        ) : (
-                          <User className="text-[#10B981]" size={24} />
-                        )}
-                      </div>
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-1">
-                          <h3 className="text-lg font-black text-[#001A33]">
-                            {supplier.fullName}
-                            {supplier.companyName && ` - ${supplier.companyName}`}
-                          </h3>
-                          <span className="text-[10px] font-mono text-gray-400 bg-gray-100 px-2 py-0.5 rounded">
-                            ID: {supplier.id}
-                          </span>
-                        </div>
-                        <div className="flex items-center gap-4 text-[12px] text-gray-500 font-semibold mb-2">
-                          <div className="flex items-center gap-1">
-                            <Mail size={14} />
-                            <span>{supplier.email}</span>
+                      <div
+                        key={supplier.id}
+                        className={`bg-white rounded-2xl p-6 border-2 cursor-pointer transition-all ${
+                          selectedSupplier?.id === supplier.id
+                            ? 'border-[#10B981] shadow-lg ring-2 ring-[#10B981]/20'
+                            : 'border-gray-200 hover:border-[#10B981]/30'
+                        }`}
+                        onClick={() => setSelectedSupplier(supplier)}
+                      >
+                        <div className="flex items-start gap-4">
+                          <div className="w-16 h-16 bg-[#10B981]/10 rounded-xl flex items-center justify-center">
+                            {supplier.businessType === 'company' ? (
+                              <Building2 className="text-[#10B981]" size={24} />
+                            ) : (
+                              <User className="text-[#10B981]" size={24} />
+                            )}
                           </div>
-                          <div className="flex items-center gap-1">
-                            <Calendar size={14} />
-                            <span>{new Date(supplier.createdAt).toLocaleDateString()}</span>
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2 mb-1">
+                              <h3 className="text-lg font-black text-[#001A33]">
+                                {supplier.fullName}
+                                {supplier.companyName && ` - ${supplier.companyName}`}
+                              </h3>
+                              <span className="text-[10px] font-mono text-gray-400 bg-gray-100 px-2 py-0.5 rounded">
+                                ID: {supplier.id}
+                              </span>
+                            </div>
+                            <div className="flex items-center gap-4 text-[12px] text-gray-500 font-semibold mb-2">
+                              <div className="flex items-center gap-1">
+                                <Mail size={14} />
+                                <span>{supplier.email}</span>
+                              </div>
+                              <div className="flex items-center gap-1">
+                                <Calendar size={14} />
+                                <span>{new Date(supplier.createdAt).toLocaleDateString()}</span>
+                              </div>
+                            </div>
+                            <div className="flex items-center gap-2 mb-2">
+                              <span className="px-3 py-1 bg-blue-500/10 text-blue-700 text-[11px] font-black rounded-full border border-blue-500/20">
+                                {supplier.businessType}
+                              </span>
+                              {supplier.emailVerified ? (
+                                <span className="px-3 py-1 bg-[#10B981]/10 text-[#10B981] text-[11px] font-black rounded-full border border-[#10B981]/20">
+                                  Email Verified
+                                </span>
+                              ) : (
+                                <span className="px-3 py-1 bg-yellow-500/10 text-yellow-700 text-[11px] font-black rounded-full border border-yellow-500/20">
+                                  Email Not Verified
+                                </span>
+                              )}
+                            </div>
+                            {supplier.city && supplier.mainHub && (
+                              <div className="text-[12px] text-gray-500 font-semibold">
+                                <MapPin size={12} className="inline mr-1" />
+                                {supplier.city}, {supplier.mainHub}
+                              </div>
+                            )}
+                          </div>
+                          <div className={`flex items-center gap-2 px-3 py-2 rounded-full ${
+                            supplier.status === 'approved' 
+                              ? 'bg-[#10B981]/10' 
+                              : 'bg-yellow-50'
+                          }`}>
+                            {supplier.status === 'approved' ? (
+                              <>
+                                <CheckCircle2 className="text-[#10B981]" size={18} />
+                                <span className="text-[12px] font-black text-[#10B981]">Approved</span>
+                              </>
+                            ) : (
+                              <>
+                                <Clock className="text-yellow-600" size={18} />
+                                <span className="text-[12px] font-black text-yellow-700">Pending</span>
+                              </>
+                            )}
                           </div>
                         </div>
-                        <div className="flex items-center gap-2 mb-2">
-                          <span className="px-3 py-1 bg-blue-500/10 text-blue-700 text-[11px] font-black rounded-full border border-blue-500/20">
-                            {supplier.businessType}
-                          </span>
-                          {supplier.emailVerified ? (
-                            <span className="px-3 py-1 bg-[#10B981]/10 text-[#10B981] text-[11px] font-black rounded-full border border-[#10B981]/20">
-                              Email Verified
-                            </span>
-                          ) : (
-                            <span className="px-3 py-1 bg-yellow-500/10 text-yellow-700 text-[11px] font-black rounded-full border border-yellow-500/20">
-                              Email Not Verified
-                            </span>
-                          )}
-                        </div>
-                        {supplier.city && supplier.mainHub && (
-                          <div className="text-[12px] text-gray-500 font-semibold">
-                            <MapPin size={12} className="inline mr-1" />
-                            {supplier.city}, {supplier.mainHub}
-                          </div>
-                        )}
                       </div>
-                      <div className={`flex items-center gap-2 px-3 py-2 rounded-full ${
-                        supplier.status === 'approved' 
-                          ? 'bg-[#10B981]/10' 
-                          : 'bg-yellow-50'
-                      }`}>
-                        {supplier.status === 'approved' ? (
-                          <>
-                            <CheckCircle2 className="text-[#10B981]" size={18} />
-                            <span className="text-[12px] font-black text-[#10B981]">Approved</span>
-                          </>
-                        ) : (
-                          <>
-                            <Clock className="text-yellow-600" size={18} />
-                            <span className="text-[12px] font-black text-yellow-700">Pending</span>
-                          </>
-                        )}
-                      </div>
-                    </div>
-                  </div>
                     ))}
                   </div>
 
                   {/* Supplier Details & Actions */}
                   <div className="lg:col-span-1">
-                {selectedSupplier ? (
-                  <div className="bg-white rounded-2xl p-6 border border-gray-200 sticky top-24">
-                    <h3 className="text-xl font-black text-[#001A33] mb-4">Supplier Details</h3>
-                    
-                    <div className="space-y-3 mb-6">
-                      <div>
-                        <div className="text-[11px] font-bold text-gray-500 uppercase mb-1">Supplier ID</div>
-                        <div className="text-[14px] font-mono font-bold text-[#001A33] bg-gray-100 px-3 py-1.5 rounded-lg inline-block">
-                          {selectedSupplier.id}
-                        </div>
-                      </div>
-                      <div>
-                        <div className="text-[11px] font-bold text-gray-500 uppercase mb-1">Name</div>
-                        <div className="text-[16px] font-black text-[#001A33]">{selectedSupplier.fullName}</div>
-                      </div>
-                      {selectedSupplier.companyName && (
-                        <div>
-                          <div className="text-[11px] font-bold text-gray-500 uppercase mb-1">Company Name</div>
-                          <div className="text-[14px] font-bold text-[#001A33]">{selectedSupplier.companyName}</div>
-                        </div>
-                      )}
-                      <div>
-                        <div className="text-[11px] font-bold text-gray-500 uppercase mb-1">Email</div>
-                        <div className="text-[14px] font-semibold text-[#001A33]">{selectedSupplier.email}</div>
-                        <div className="text-[12px] text-gray-500 font-semibold mt-1">
-                          Verified: {selectedSupplier.emailVerified ? '✅ Yes' : '❌ No'}
-                        </div>
-                      </div>
-                      {selectedSupplier.phone && (
-                        <div>
-                          <div className="text-[11px] font-bold text-gray-500 uppercase mb-1">Phone</div>
-                          <div className="text-[14px] font-semibold text-[#001A33] flex items-center gap-2">
-                            <Phone size={14} />
-                            {selectedSupplier.phone}
+                    {selectedSupplier ? (
+                      <div className="bg-white rounded-2xl p-6 border border-gray-200 sticky top-24">
+                        <h3 className="text-xl font-black text-[#001A33] mb-4">Supplier Details</h3>
+                        
+                        <div className="space-y-3 mb-6">
+                          <div>
+                            <div className="text-[11px] font-bold text-gray-500 uppercase mb-1">Supplier ID</div>
+                            <div className="text-[14px] font-mono font-bold text-[#001A33] bg-gray-100 px-3 py-1.5 rounded-lg inline-block">
+                              {selectedSupplier.id}
+                            </div>
+                          </div>
+                          <div>
+                            <div className="text-[11px] font-bold text-gray-500 uppercase mb-1">Name</div>
+                            <div className="text-[16px] font-black text-[#001A33]">{selectedSupplier.fullName}</div>
+                          </div>
+                          {selectedSupplier.companyName && (
+                            <div>
+                              <div className="text-[11px] font-bold text-gray-500 uppercase mb-1">Company Name</div>
+                              <div className="text-[14px] font-bold text-[#001A33]">{selectedSupplier.companyName}</div>
+                            </div>
+                          )}
+                          <div>
+                            <div className="text-[11px] font-bold text-gray-500 uppercase mb-1">Email</div>
+                            <div className="text-[14px] font-semibold text-[#001A33]">{selectedSupplier.email}</div>
+                            <div className="text-[12px] text-gray-500 font-semibold mt-1">
+                              Verified: {selectedSupplier.emailVerified ? '✅ Yes' : '❌ No'}
+                            </div>
+                          </div>
+                          {selectedSupplier.phone && (
+                            <div>
+                              <div className="text-[11px] font-bold text-gray-500 uppercase mb-1">Phone</div>
+                              <div className="text-[14px] font-semibold text-[#001A33] flex items-center gap-2">
+                                <Phone size={14} />
+                                {selectedSupplier.phone}
+                              </div>
+                            </div>
+                          )}
+                          {selectedSupplier.whatsapp && (
+                            <div>
+                              <div className="text-[11px] font-bold text-gray-500 uppercase mb-1">WhatsApp</div>
+                              <div className="text-[14px] font-semibold text-[#001A33] flex items-center gap-2">
+                                <MessageCircle size={14} />
+                                {selectedSupplier.whatsapp}
+                              </div>
+                            </div>
+                          )}
+                          {!selectedSupplier.phone && !selectedSupplier.whatsapp && (
+                            <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-3">
+                              <div className="text-[12px] text-yellow-700 font-semibold flex items-center gap-2">
+                                <Info size={14} />
+                                No phone/WhatsApp provided
+                              </div>
+                            </div>
+                          )}
+                          {selectedSupplier.city && (
+                            <div>
+                              <div className="text-[11px] font-bold text-gray-500 uppercase mb-1">Location</div>
+                              <div className="text-[14px] font-semibold text-[#001A33]">
+                                {selectedSupplier.city}, {selectedSupplier.mainHub || 'N/A'}
+                              </div>
+                            </div>
+                          )}
+                          {selectedSupplier.tourLanguages && (
+                            <div>
+                              <div className="text-[11px] font-bold text-gray-500 uppercase mb-1">Tour Languages</div>
+                              <div className="text-[14px] font-semibold text-[#001A33]">{selectedSupplier.tourLanguages}</div>
+                            </div>
+                          )}
+                          {selectedSupplier.businessType && (
+                            <div>
+                              <div className="text-[11px] font-bold text-gray-500 uppercase mb-1">Business Type</div>
+                              <div className="text-[14px] font-semibold text-[#001A33] capitalize">{selectedSupplier.businessType}</div>
+                            </div>
+                          )}
+                          {selectedSupplier.verificationDocumentUrl ? (
+                            <div>
+                              <div className="text-[11px] font-bold text-gray-500 uppercase mb-1">Guiding License</div>
+                              <button
+                                onClick={() => {
+                                  setLicenseUrl(selectedSupplier.verificationDocumentUrl);
+                                  setShowLicenseModal(true);
+                                }}
+                                className="text-[#0071EB] text-[14px] font-semibold hover:underline flex items-center gap-2 cursor-pointer"
+                              >
+                                <Eye size={14} />
+                                View License Document
+                              </button>
+                            </div>
+                          ) : (
+                            <div className="bg-red-50 border border-red-200 rounded-xl p-3">
+                              <div className="text-[12px] text-red-700 font-semibold flex items-center gap-2">
+                                <Info size={14} />
+                                No license document uploaded
+                              </div>
+                            </div>
+                          )}
+                          <div>
+                            <div className="text-[11px] font-bold text-gray-500 uppercase mb-1">Registration Date</div>
+                            <div className="text-[14px] font-semibold text-[#001A33]">
+                              {new Date(selectedSupplier.createdAt).toLocaleDateString('en-US', {
+                                year: 'numeric',
+                                month: 'long',
+                                day: 'numeric'
+                              })}
+                            </div>
                           </div>
                         </div>
-                      )}
-                      {selectedSupplier.whatsapp && (
-                        <div>
-                          <div className="text-[11px] font-bold text-gray-500 uppercase mb-1">WhatsApp</div>
-                          <div className="text-[14px] font-semibold text-[#001A33] flex items-center gap-2">
-                            <MessageCircle size={14} />
-                            {selectedSupplier.whatsapp}
-                          </div>
-                        </div>
-                      )}
-                      {!selectedSupplier.phone && !selectedSupplier.whatsapp && (
-                        <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-3">
-                          <div className="text-[12px] text-yellow-700 font-semibold flex items-center gap-2">
-                            <Info size={14} />
-                            No phone/WhatsApp provided
-                          </div>
-                        </div>
-                      )}
-                      {selectedSupplier.city && (
-                        <div>
-                          <div className="text-[11px] font-bold text-gray-500 uppercase mb-1">Location</div>
-                          <div className="text-[14px] font-semibold text-[#001A33]">
-                            {selectedSupplier.city}, {selectedSupplier.mainHub || 'N/A'}
-                          </div>
-                        </div>
-                      )}
-                      {selectedSupplier.tourLanguages && (
-                        <div>
-                          <div className="text-[11px] font-bold text-gray-500 uppercase mb-1">Tour Languages</div>
-                          <div className="text-[14px] font-semibold text-[#001A33]">{selectedSupplier.tourLanguages}</div>
-                        </div>
-                      )}
-                      {selectedSupplier.businessType && (
-                        <div>
-                          <div className="text-[11px] font-bold text-gray-500 uppercase mb-1">Business Type</div>
-                          <div className="text-[14px] font-semibold text-[#001A33] capitalize">{selectedSupplier.businessType}</div>
-                        </div>
-                      )}
-                      {selectedSupplier.verificationDocumentUrl ? (
-                        <div>
-                          <div className="text-[11px] font-bold text-gray-500 uppercase mb-1">Guiding License</div>
-                          <button
-                            onClick={() => {
-                              setLicenseUrl(selectedSupplier.verificationDocumentUrl);
-                              setShowLicenseModal(true);
-                            }}
-                            className="text-[#0071EB] text-[14px] font-semibold hover:underline flex items-center gap-2 cursor-pointer"
-                          >
-                            <Eye size={14} />
-                            View License Document
-                          </button>
-                        </div>
-                      ) : (
-                        <div className="bg-red-50 border border-red-200 rounded-xl p-3">
-                          <div className="text-[12px] text-red-700 font-semibold flex items-center gap-2">
-                            <Info size={14} />
-                            No license document uploaded
-                          </div>
-                        </div>
-                      )}
-                      <div>
-                        <div className="text-[11px] font-bold text-gray-500 uppercase mb-1">Registration Date</div>
-                        <div className="text-[14px] font-semibold text-[#001A33]">
-                          {new Date(selectedSupplier.createdAt).toLocaleDateString('en-US', {
-                            year: 'numeric',
-                            month: 'long',
-                            day: 'numeric'
-                          })}
-                        </div>
-                      </div>
-                    </div>
 
-                    {/* Actions - Only show for pending suppliers */}
-                    {selectedSupplier.status === 'pending' && (
-                      <div className="space-y-4">
-                        <button
-                          onClick={() => handleApproveSupplier(selectedSupplier.id)}
-                          disabled={isProcessing || !selectedSupplier.verificationDocumentUrl}
-                          className="w-full bg-[#10B981] hover:bg-[#059669] text-white font-black py-5 rounded-full text-[16px] disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2 shadow-lg"
-                        >
-                          <CheckCircle2 size={20} />
-                          Approve Supplier
-                        </button>
-                        {!selectedSupplier.verificationDocumentUrl && (
-                          <p className="text-[12px] text-red-600 font-semibold text-center">
-                            Cannot approve: No license document uploaded
-                          </p>
+                        {/* Actions - Only show for pending suppliers */}
+                        {selectedSupplier.status === 'pending' && (
+                          <div className="space-y-4">
+                            <button
+                              onClick={() => handleApproveSupplier(selectedSupplier.id)}
+                              disabled={isProcessing || !selectedSupplier.verificationDocumentUrl}
+                              className="w-full bg-[#10B981] hover:bg-[#059669] text-white font-black py-5 rounded-full text-[16px] disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2 shadow-lg"
+                            >
+                              <CheckCircle2 size={20} />
+                              Approve Supplier
+                            </button>
+                            {!selectedSupplier.verificationDocumentUrl && (
+                              <p className="text-[12px] text-red-600 font-semibold text-center">
+                                Cannot approve: No license document uploaded
+                              </p>
+                            )}
+
+                            <div className="border-t border-gray-200 pt-4">
+                              <label className="block text-[14px] font-bold text-[#001A33] mb-2">
+                                Rejection Reason (if rejecting)
+                              </label>
+                              <textarea
+                                value={rejectionReason}
+                                onChange={(e) => setRejectionReason(e.target.value)}
+                                placeholder="Enter reason for rejection..."
+                                className="w-full bg-gray-50 border-2 border-gray-200 rounded-xl p-3 text-[14px] font-semibold text-[#001A33] focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none resize-none mb-3"
+                                rows={3}
+                              />
+                              <button
+                                onClick={() => handleRejectSupplier(selectedSupplier.id)}
+                                disabled={isProcessing || !rejectionReason.trim()}
+                                className="w-full bg-red-500 hover:bg-red-600 text-white font-black py-5 rounded-full text-[16px] disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2 shadow-lg"
+                              >
+                                <XCircle size={20} />
+                                Reject Supplier
+                              </button>
+                            </div>
+                          </div>
                         )}
-
-                        <div className="border-t border-gray-200 pt-4">
-                          <label className="block text-[14px] font-bold text-[#001A33] mb-2">
-                            Rejection Reason (if rejecting)
-                          </label>
-                          <textarea
-                            value={rejectionReason}
-                            onChange={(e) => setRejectionReason(e.target.value)}
-                            placeholder="Enter reason for rejection..."
-                            className="w-full bg-gray-50 border-2 border-gray-200 rounded-xl p-3 text-[14px] font-semibold text-[#001A33] focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none resize-none mb-3"
-                            rows={3}
-                          />
-                          <button
-                            onClick={() => handleRejectSupplier(selectedSupplier.id)}
-                            disabled={isProcessing || !rejectionReason.trim()}
-                            className="w-full bg-red-500 hover:bg-red-600 text-white font-black py-5 rounded-full text-[16px] disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2 shadow-lg"
-                          >
-                            <XCircle size={20} />
-                            Reject Supplier
-                          </button>
-                        </div>
+                        {selectedSupplier.status === 'approved' && (
+                          <div className="bg-[#10B981]/10 border border-[#10B981]/20 rounded-xl p-4">
+                            <div className="flex items-center gap-2 text-[#10B981] font-black text-[14px]">
+                              <CheckCircle2 size={18} />
+                              Supplier Approved
+                            </div>
+                            <p className="text-[12px] text-gray-600 font-semibold mt-2">
+                              This supplier has been approved and can create tours.
+                            </p>
+                          </div>
+                        )}
                       </div>
-                    )}
-                    {selectedSupplier.status === 'approved' && (
-                      <div className="bg-[#10B981]/10 border border-[#10B981]/20 rounded-xl p-4">
-                        <div className="flex items-center gap-2 text-[#10B981] font-black text-[14px]">
-                          <CheckCircle2 size={18} />
-                          Supplier Approved
-                        </div>
-                        <p className="text-[12px] text-gray-600 font-semibold mt-2">
-                          This supplier has been approved and can create tours.
+                    ) : (
+                      <div className="bg-white rounded-2xl p-6 border border-gray-200 text-center">
+                        <Eye className="mx-auto text-gray-300 mb-4" size={48} />
+                        <p className="text-[14px] text-gray-500 font-semibold">
+                          Select a supplier to review
                         </p>
                       </div>
                     )}
                   </div>
-                ) : (
-                  <div className="bg-white rounded-2xl p-6 border border-gray-200 text-center">
-                    <Eye className="mx-auto text-gray-300 mb-4" size={48} />
-                    <p className="text-[14px] text-gray-500 font-semibold">
-                      Select a supplier to review
-                    </p>
-                  </div>
-                )}
-              </div>
-            </div>
-            )}
+                </div>
+              );
+            })()}
           </div>
         ) : activeTab === 'tours' ? (
           // Tours Tab
