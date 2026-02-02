@@ -101,4 +101,28 @@
     <priority>0.8</priority>
   </url>
 
+  <!-- Layer 4: taj-mahal-full-day-tour -->
+  <url>
+    <loc>https://www.asiabylocals.com/india/agra/taj-mahal-full-day-tour</loc>
+    <lastmod>2026-01-26</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Layer 4: taj-mahal-entry-ticket -->
+  <url>
+    <loc>https://www.asiabylocals.com/india/agra/taj-mahal-entry-ticket</loc>
+    <lastmod>2026-01-26</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Layer 4: taj-mahal-official-guided-tour -->
+  <url>
+    <loc>https://www.asiabylocals.com/india/agra/taj-mahal-official-guided-tour</loc>
+    <lastmod>2026-01-26</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
 </urlset>

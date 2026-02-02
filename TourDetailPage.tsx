@@ -509,11 +509,28 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
   // Set SEO meta tags - MUST be called before any early returns
   useEffect(() => {
     if (tour) {
+      const countrySlug = country?.toLowerCase() || '';
+      const citySlug = city?.toLowerCase() || '';
+      const tourUrl = tour.slug && country && city 
+        ? `https://www.asiabylocals.com/${countrySlug}/${citySlug}/${tour.slug}`
+        : `https://www.asiabylocals.com/tour/${tour.id}`;
+      
+      const description = tour.shortDescription || tour.fullDescription?.substring(0, 155) || 'Discover authentic local tours and cultural experiences';
+      const imageUrl = (tour.images && Array.isArray(tour.images) && tour.images.length > 0) 
+        ? tour.images[0] 
+        : 'https://www.asiabylocals.com/logo.png';
+      
+      // Set page title
       document.title = `${tour.title} | ${city || 'Tour'} | AsiaByLocals`;
-      const metaDescription = document.querySelector('meta[name="description"]');
-      if (metaDescription) {
-        metaDescription.setAttribute('content', tour.shortDescription || tour.fullDescription?.substring(0, 155) || '');
+      
+      // Set meta description
+      let metaDescription = document.querySelector('meta[name="description"]');
+      if (!metaDescription) {
+        metaDescription = document.createElement('meta');
+        metaDescription.setAttribute('name', 'description');
+        document.head.appendChild(metaDescription);
       }
+      metaDescription.setAttribute('content', description);
       
       // Set canonical URL
       let canonical = document.querySelector('link[rel="canonical"]');
@@ -522,15 +539,120 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
         canonical.setAttribute('rel', 'canonical');
         document.head.appendChild(canonical);
       }
-      // Build canonical URL from tour slug
-      if (tour.slug && country && city) {
-        const countrySlug = country.toLowerCase();
-        const citySlug = city.toLowerCase();
-        canonical.setAttribute('href', `https://www.asiabylocals.com/${countrySlug}/${citySlug}/${tour.slug}`);
-      } else if (tour.id) {
-        // Fallback to ID-based URL if slug not available
-        canonical.setAttribute('href', `https://www.asiabylocals.com/tour/${tour.id}`);
-      }
+      canonical.setAttribute('href', tourUrl);
+      
+      // Open Graph tags
+      const ogTags = [
+        { property: 'og:type', content: 'website' },
+        { property: 'og:url', content: tourUrl },
+        { property: 'og:title', content: tour.title },
+        { property: 'og:description', content: description },
+        { property: 'og:image', content: imageUrl },
+        { property: 'og:site_name', content: 'AsiaByLocals' },
+        { property: 'og:locale', content: 'en_US' },
+      ];
+      
+      ogTags.forEach(tag => {
+        let meta = document.querySelector(`meta[property="${tag.property}"]`);
+        if (!meta) {
+          meta = document.createElement('meta');
+          meta.setAttribute('property', tag.property);
+          document.head.appendChild(meta);
+        }
+        meta.setAttribute('content', tag.content);
+      });
+      
+      // Twitter Card tags
+      const twitterTags = [
+        { name: 'twitter:card', content: 'summary_large_image' },
+        { name: 'twitter:title', content: tour.title },
+        { name: 'twitter:description', content: description },
+        { name: 'twitter:image', content: imageUrl },
+      ];
+      
+      twitterTags.forEach(tag => {
+        let meta = document.querySelector(`meta[name="${tag.name}"]`);
+        if (!meta) {
+          meta = document.createElement('meta');
+          meta.setAttribute('name', tag.name);
+          document.head.appendChild(meta);
+        }
+        meta.setAttribute('content', tag.content);
+      });
+      
+      // Structured Data (JSON-LD) - TouristTrip schema
+      const existingSchema = document.querySelector('script[type="application/ld+json"][data-tour-schema]');
+      if (existingSchema) existingSchema.remove();
+      
+      const parseImages = () => {
+        if (!tour.images) return [];
+        try {
+          return typeof tour.images === 'string' ? JSON.parse(tour.images) : tour.images;
+        } catch {
+          return Array.isArray(tour.images) ? tour.images : [];
+        }
+      };
+      
+      const parseLocations = () => {
+        if (!tour.locations) return [];
+        try {
+          return typeof tour.locations === 'string' ? JSON.parse(tour.locations) : tour.locations;
+        } catch {
+          return Array.isArray(tour.locations) ? tour.locations : [];
+        }
+      };
+      
+      const images = parseImages();
+      const locations = parseLocations();
+      
+      const structuredData = {
+        "@context": "https://schema.org",
+        "@type": "TouristTrip",
+        "name": tour.title,
+        "description": tour.fullDescription || tour.shortDescription || description,
+        "image": images.length > 0 ? images : ['https://www.asiabylocals.com/logo.png'],
+        "url": tourUrl,
+        "tourBookingPage": tourUrl,
+        "touristType": "Tourist",
+        "itinerary": locations.length > 0 ? {
+          "@type": "ItemList",
+          "itemListElement": locations.map((loc: string, idx: number) => ({
+            "@type": "ListItem",
+            "position": idx + 1,
+            "name": loc
+          }))
+        } : undefined,
+        "offers": {
+          "@type": "Offer",
+          "price": tour.pricePerPerson || 0,
+          "priceCurrency": tour.currency || "INR",
+          "availability": tour.status === 'approved' ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
+          "url": tourUrl
+        },
+        "duration": tour.duration || "PT3H",
+        "location": {
+          "@type": "Place",
+          "name": city || "Tour Location",
+          "address": {
+            "@type": "PostalAddress",
+            "addressLocality": city || "",
+            "addressCountry": country || ""
+          }
+        }
+      };
+      
+      // Remove undefined fields
+      Object.keys(structuredData).forEach(key => {
+        if (structuredData[key as keyof typeof structuredData] === undefined) {
+          delete structuredData[key as keyof typeof structuredData];
+        }
+      });
+      
+      const script = document.createElement('script');
+      script.type = 'application/ld+json';
+      script.setAttribute('data-tour-schema', 'true');
+      script.textContent = JSON.stringify(structuredData);
+      document.head.appendChild(script);
     }
   }, [tour, city, country]);
 

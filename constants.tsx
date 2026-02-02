@@ -142,6 +142,10 @@ export const CITY_LOCATIONS: Record<string, string[]> = {
     'City Palace', 'Lake Pichola', 'Jag Mandir', 'Jagdish Temple',
     'Monsoon Palace', 'Fateh Sagar Lake', 'Saheliyon Ki Bari'
   ],
+  'Jaisalmer': [
+    'Jaisalmer Fort', 'Patwon Ki Haveli', 'Sam Sand Dunes', 'Gadisar Lake',
+    'Bada Bagh', 'Nathmal Ki Haveli', 'Salim Singh Ki Haveli', 'Desert Safari Camp'
+  ],
   'Rishikesh': [
     'Laxman Jhula', 'Ram Jhula', 'Triveni Ghat', 'Neelkanth Mahadev Temple',
     'Beatles Ashram', 'Ganga Aarti', 'Adventure Activities'

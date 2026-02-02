@@ -218,11 +218,13 @@ const App: React.FC = () => {
   const [showTouristSignup, setShowTouristSignup] = useState(false);
   const [pendingWishlistTour, setPendingWishlistTour] = useState<any>(null);
   
-  // Focus cities: Agra, Delhi, Jaipur (India)
+  // Focus cities: Agra, Delhi, Jaipur, Udaipur, Jaisalmer (India)
   const focusCities = [
     { name: 'Agra', country: 'India', slug: 'agra' },
     { name: 'Delhi', country: 'India', slug: 'delhi' },
-    { name: 'Jaipur', country: 'India', slug: 'jaipur' }
+    { name: 'Jaipur', country: 'India', slug: 'jaipur' },
+    { name: 'Udaipur', country: 'India', slug: 'udaipur' },
+    { name: 'Jaisalmer', country: 'India', slug: 'jaisalmer' }
   ];
 
   // Filter suggestions based on search query
@@ -1106,15 +1108,16 @@ const App: React.FC = () => {
       </div>
 
       {/* Hero Section */}
-      <section className="relative h-[50vh] min-h-[400px] sm:h-[55vh] sm:min-h-[450px] md:h-[60vh] md:min-h-[500px] lg:h-[70vh] lg:min-h-[600px] xl:h-[750px] flex items-center justify-center overflow-hidden">
+      <section className="relative h-[60vh] min-h-[500px] sm:h-[65vh] sm:min-h-[550px] md:h-[70vh] md:min-h-[600px] lg:h-[80vh] lg:min-h-[700px] xl:h-[85vh] xl:min-h-[800px] flex items-center justify-center overflow-hidden">
         {heroImages.map((hero, index) => (
           <img 
             key={index}
             src={hero.url} 
             alt={`${hero.city} - Authentic local tours and cultural experiences in ${hero.city}, Asia`} 
-            className={`absolute inset-0 w-full h-full object-cover brightness-[0.7] transition-opacity duration-1000 ${
+            className={`absolute inset-0 w-full h-full object-cover object-center brightness-[0.7] transition-opacity duration-1000 ${
               index === currentImageIndex ? 'opacity-100 z-0' : 'opacity-0 z-0'
             }`}
+            style={{ minHeight: '100%' }}
             loading={index === 0 ? 'eager' : 'lazy'}
           />
         ))}
@@ -1176,7 +1179,7 @@ const App: React.FC = () => {
 
       <main className="flex-1">
         {/* Row 1: Things to do wherever you're going */}
-        <section className="max-w-[1200px] mx-auto px-4 sm:px-6 pt-8 sm:pt-12 md:pt-16 pb-8 sm:pb-12 md:pb-16">
+        <section className="max-w-[1200px] mx-auto px-4 sm:px-6 pt-4 sm:pt-6 md:pt-8 pb-8 sm:pb-12 md:pb-16">
           <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-[28px] font-black text-[#001A33] mb-6 sm:mb-8">
             Things to do wherever you're going
           </h2>

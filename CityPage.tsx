@@ -226,6 +226,92 @@ const CITY_DESCRIPTIONS: Record<string, {
         answer: 'Absolutely. Spice plantation tours offer hands-on experiences, traditional Goan cuisine, and insights into local agriculture and culture.'
       }
     ]
+  },
+  'Udaipur': {
+    title: 'Udaipur Tours & Things to Do | Guided Experiences by Locals',
+    description: 'Discover the best tours in Udaipur with licensed local guides. City Palace tours, Lake Pichola boat rides, heritage walks & authentic Rajasthan experiences.',
+    intro: [
+      'Udaipur, known as the City of Lakes, is a romantic destination in Rajasthan famous for its stunning palaces, serene lakes, and rich Mewar heritage.',
+      'At AsiaByLocals, explore Udaipur through expert-led tours with licensed local guides. Discover the magnificent City Palace overlooking Lake Pichola, the beautiful Jag Mandir and Jagdish Temple, and the historic Monsoon Palace. Our guides share the stories of Rajput royalty and take you to authentic markets, traditional workshops, and hidden gems that showcase Udaipur\'s timeless charm.'
+    ],
+    whyBook: [
+      'Licensed & experienced local experts',
+      'Cultural and historical context you won\'t find in guidebooks',
+      'Ethical, small-group experiences',
+      'Direct support to local communities'
+    ],
+    topAttractions: [
+      'City Palace',
+      'Lake Pichola',
+      'Jag Mandir',
+      'Jagdish Temple',
+      'Monsoon Palace',
+      'Fateh Sagar Lake',
+      'Saheliyon Ki Bari',
+      'Local markets & traditional crafts'
+    ],
+    bestTime: 'The best time to visit Udaipur is from October to March when the weather is pleasant. Early mornings and evenings are ideal for lake activities and palace visits.',
+    faqs: [
+      {
+        question: 'How long does a Udaipur palace tour take?',
+        answer: 'A typical City Palace tour takes 2-3 hours. Combined tours with Lake Pichola boat ride and other attractions can take 4-6 hours.'
+      },
+      {
+        question: 'Are Udaipur tours suitable for families?',
+        answer: 'Yes, Udaipur tours are very family-friendly. The palaces, lakes, and markets are engaging for children, and our guides make history come alive for all ages.'
+      },
+      {
+        question: 'Do I need a licensed guide in Udaipur?',
+        answer: 'While not mandatory, a licensed local guide enhances your experience by explaining the rich history, architecture, and cultural significance of Udaipur\'s royal heritage.'
+      },
+      {
+        question: 'Are boat rides on Lake Pichola worth it?',
+        answer: 'Absolutely. Lake Pichola boat rides offer stunning views of the City Palace and Jag Mandir, especially during sunrise and sunset, providing a unique perspective of Udaipur\'s beauty.'
+      }
+    ]
+  },
+  'Jaisalmer': {
+    title: 'Jaisalmer Tours & Things to Do | Guided Experiences by Locals',
+    description: 'Discover the best tours in Jaisalmer with licensed local guides. Golden Fort tours, desert safaris, camel rides & authentic Rajasthan experiences.',
+    intro: [
+      'Jaisalmer, known as the Golden City, is a magical destination in the heart of the Thar Desert, famous for its golden sandstone architecture and desert adventures.',
+      'At AsiaByLocals, explore Jaisalmer through expert-led tours with licensed local guides. Discover the magnificent Jaisalmer Fort, ancient havelis with intricate carvings, and experience authentic desert safaris with camel rides. Our guides share the stories of this desert kingdom and take you to authentic markets, traditional workshops, and hidden gems that showcase Jaisalmer\'s unique desert culture.'
+    ],
+    whyBook: [
+      'Licensed & experienced local experts',
+      'Cultural and historical context you won\'t find in guidebooks',
+      'Ethical, small-group experiences',
+      'Direct support to local communities'
+    ],
+    topAttractions: [
+      'Jaisalmer Fort',
+      'Patwon Ki Haveli',
+      'Sam Sand Dunes',
+      'Desert Safari',
+      'Camel rides',
+      'Gadisar Lake',
+      'Bada Bagh',
+      'Local markets & traditional crafts'
+    ],
+    bestTime: 'The best time to visit Jaisalmer is from October to March when the weather is pleasant. Early mornings and evenings are ideal for desert activities and fort visits.',
+    faqs: [
+      {
+        question: 'How long does a Jaisalmer fort tour take?',
+        answer: 'A typical Jaisalmer Fort tour takes 2-3 hours. Combined tours with havelis and markets can take 4-5 hours.'
+      },
+      {
+        question: 'Are desert safaris suitable for families?',
+        answer: 'Yes, desert safaris are family-friendly. Camel rides and cultural performances are enjoyable for all ages, though very young children may need special arrangements.'
+      },
+      {
+        question: 'Do I need a licensed guide in Jaisalmer?',
+        answer: 'While not mandatory, a licensed local guide enhances your experience by explaining the rich history, architecture, and cultural significance of Jaisalmer\'s desert heritage.'
+      },
+      {
+        question: 'Are camel rides safe?',
+        answer: 'Yes, camel rides are safe when conducted by experienced guides. Our tours use well-trained camels and follow safety protocols for a comfortable experience.'
+      }
+    ]
   }
 };
 
@@ -444,6 +530,7 @@ const ThingsToDoSection: React.FC<ThingsToDoSectionProps> = ({ city }) => {
 const CityPage: React.FC<CityPageProps> = ({ country, city }) => {
   const [tours, setTours] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadingTime, setLoadingTime] = useState(0);
   const [filterCategory, setFilterCategory] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [sortBy, setSortBy] = useState<string>('recommended');
@@ -452,8 +539,29 @@ const CityPage: React.FC<CityPageProps> = ({ country, city }) => {
     fetchTours();
   }, [country, city]);
 
+  // Loading timer effect
+  useEffect(() => {
+    let interval: NodeJS.Timeout | null = null;
+    if (loading) {
+      setLoadingTime(0);
+      interval = setInterval(() => {
+        setLoadingTime(prev => prev + 1);
+      }, 1000);
+    } else {
+      if (interval) {
+        clearInterval(interval);
+      }
+    }
+    return () => {
+      if (interval) {
+        clearInterval(interval);
+      }
+    };
+  }, [loading]);
+
   const fetchTours = async () => {
     setLoading(true);
+    setLoadingTime(0);
     try {
       const API_URL = import.meta.env.VITE_API_URL || (typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3001');
       const url = `${API_URL}/api/public/tours?country=${encodeURIComponent(country)}&city=${encodeURIComponent(city)}&status=approved`;
@@ -677,6 +785,42 @@ const CityPage: React.FC<CityPageProps> = ({ country, city }) => {
           Guided Tours & Things to Do in {city}
         </h1>
 
+        {/* Loading State - Show right after H1 */}
+        {loading && (
+          <div className="mb-8 bg-white rounded-2xl border border-gray-200 p-8">
+            <div className="flex flex-col items-center justify-center">
+              {/* Animated Spinner */}
+              <div className="relative mb-6">
+                <div className="animate-spin rounded-full h-16 w-16 border-4 border-gray-200 border-t-[#10B981]"></div>
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <Clock size={24} className="text-[#10B981]" />
+                </div>
+              </div>
+              
+              {/* Loading Text */}
+              <h3 className="text-xl font-black text-[#001A33] mb-2">Loading tours...</h3>
+              <p className="text-[14px] text-gray-500 font-semibold mb-4">
+                Please wait while we fetch the best tours in {city}
+              </p>
+              
+              {/* Loading Timer */}
+              <div className="flex items-center gap-2 px-4 py-2 bg-[#10B981]/10 rounded-full border border-[#10B981]/20">
+                <Clock size={16} className="text-[#10B981]" />
+                <span className="text-[14px] font-black text-[#10B981]">
+                  {loadingTime > 0 ? `${loadingTime}s` : 'Starting...'}
+                </span>
+              </div>
+              
+              {/* Animated Dots */}
+              <div className="flex gap-2 mt-6">
+                <div className="w-2 h-2 bg-[#10B981] rounded-full animate-bounce" style={{ animationDelay: '0s' }}></div>
+                <div className="w-2 h-2 bg-[#10B981] rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                <div className="w-2 h-2 bg-[#10B981] rounded-full animate-bounce" style={{ animationDelay: '0.4s' }}></div>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Intro Content - 2-3 Paragraphs (Mandatory for SEO) */}
         <div className="mb-10 space-y-4 text-[16px] text-gray-700 font-semibold leading-relaxed max-w-4xl">
           {cityInfo.intro.map((paragraph, index) => (
@@ -796,6 +940,37 @@ const CityPage: React.FC<CityPageProps> = ({ country, city }) => {
                           {durationHours} {durationHours === '1' ? 'hour' : 'hours'}
                         </div>
                       )}
+                      
+                      {/* Tour Types */}
+                      {tour.tourTypes && (() => {
+                        try {
+                          const tourTypesArray = typeof tour.tourTypes === 'string' ? JSON.parse(tour.tourTypes) : tour.tourTypes;
+                          if (Array.isArray(tourTypesArray) && tourTypesArray.length > 0) {
+                            // Display up to 2-3 tour types to avoid clutter
+                            const displayCount = Math.min(tourTypesArray.length, 3);
+                            return (
+                              <div className="flex flex-wrap gap-2 mb-3">
+                                {tourTypesArray.slice(0, displayCount).map((type: string, idx: number) => (
+                                  <span
+                                    key={idx}
+                                    className="px-2 py-1 bg-[#10B981]/10 text-[#10B981] text-[10px] font-semibold rounded-full border border-[#10B981]/20"
+                                  >
+                                    {type}
+                                  </span>
+                                ))}
+                                {tourTypesArray.length > displayCount && (
+                                  <span className="px-2 py-1 text-gray-500 text-[10px] font-semibold">
+                                    +{tourTypesArray.length - displayCount}
+                                  </span>
+                                )}
+                              </div>
+                            );
+                          }
+                        } catch (e) {
+                          console.error('Error parsing tourTypes:', e);
+                        }
+                        return null;
+                      })()}
                       
                       {/* Rating & Activity Provider Row */}
                       <div className="flex items-center justify-between mb-3">
@@ -961,14 +1136,6 @@ const CityPage: React.FC<CityPageProps> = ({ country, city }) => {
                 <option value="price-high">Price: High to Low</option>
               </select>
             </div>
-          </div>
-        )}
-
-        {/* Loading State */}
-        {loading && (
-          <div className="text-center py-12">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#10B981] mx-auto"></div>
-            <p className="text-[14px] text-gray-500 font-semibold mt-4">Loading tours...</p>
           </div>
         )}
 

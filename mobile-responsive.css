@@ -49,7 +49,7 @@
   /* Hero Section - Mobile */
   section:has(.hero-overlay) {
     height: 60vh !important;
-    min-height: 400px;
+    min-height: 500px;
   }
 
   /* Hero Title - Smaller font on mobile */
@@ -305,8 +305,8 @@
 
   /* Hero Section - Tablet */
   section:has(.hero-overlay) {
-    height: 50vh !important;
-    min-height: 450px;
+    height: 70vh !important;
+    min-height: 600px;
   }
 
   /* Hero Title - Tablet size */

@@ -12,7 +12,9 @@ const prisma = new PrismaClient();
 const FOCUS_CITIES = [
   { country: 'India', city: 'Agra' },
   { country: 'India', city: 'Delhi' },
-  { country: 'India', city: 'Jaipur' }
+  { country: 'India', city: 'Jaipur' },
+  { country: 'India', city: 'Udaipur' },
+  { country: 'India', city: 'Jaisalmer' }
 ];
 
 async function generateSitemap() {
@@ -79,13 +81,25 @@ async function generateSitemap() {
     });
 
     // Layer 4: Tour Pages (Only approved tours)
-    tours.forEach(tour => {
+    // Sort tours by updatedAt (newest first) for better indexing priority
+    const sortedTours = tours.sort((a, b) => {
+      const dateA = a.updatedAt ? new Date(a.updatedAt).getTime() : 0;
+      const dateB = b.updatedAt ? new Date(b.updatedAt).getTime() : 0;
+      return dateB - dateA; // Newest first
+    });
+    
+    sortedTours.forEach(tour => {
+      if (!tour.slug) {
+        console.warn(`⚠️  Skipping tour ${tour.id} - missing slug`);
+        return;
+      }
+      
       const countrySlug = createSlug(tour.country);
       const citySlug = createSlug(tour.city);
       const tourSlug = tour.slug;
       const lastmod = tour.updatedAt ? new Date(tour.updatedAt).toISOString().split('T')[0] : today;
       
-      xml += `  <!-- Layer 4: ${tour.title || tour.slug} -->
+      xml += `  <!-- Layer 4: Tour ${tour.id} - ${tourSlug} -->
   <url>
     <loc>https://www.asiabylocals.com/${countrySlug}/${citySlug}/${tourSlug}</loc>
     <lastmod>${lastmod}</lastmod>
