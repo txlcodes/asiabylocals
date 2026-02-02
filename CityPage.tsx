@@ -705,11 +705,47 @@ const CityPage: React.FC<CityPageProps> = ({ country, city }) => {
                 const durationMatch = tour.duration?.match(/(\d+)\s*hours?/i) || tour.duration?.match(/(\d+)\s*hrs?/i);
                 const durationHours = durationMatch ? durationMatch[1] : null;
                 
-                // Get lowest price from options or use pricePerPerson
-                let lowestPrice = tour.pricePerPerson;
-                if (tour.options && Array.isArray(tour.options) && tour.options.length > 0) {
-                  const prices = tour.options.map((opt: any) => opt.price || tour.pricePerPerson);
-                  lowestPrice = Math.min(...prices);
+                // Get lowest price from first tier of groupPricingTiers (price for 1 person)
+                let lowestPrice = 0;
+                
+                // PRIORITY 1: Check tour.groupPricingTiers directly (most reliable)
+                if (tour.groupPricingTiers) {
+                  try {
+                    const tiers = typeof tour.groupPricingTiers === 'string' 
+                      ? JSON.parse(tour.groupPricingTiers) 
+                      : tour.groupPricingTiers;
+                    if (Array.isArray(tiers) && tiers.length > 0 && tiers[0]?.price) {
+                      lowestPrice = parseFloat(tiers[0].price) || 0;
+                    }
+                  } catch (e) {
+                    console.error('Error parsing tour groupPricingTiers:', e);
+                  }
+                }
+                
+                // PRIORITY 2: Check tour options for groupPricingTiers
+                if (lowestPrice === 0 && tour.options && Array.isArray(tour.options) && tour.options.length > 0) {
+                  for (const opt of tour.options) {
+                    if (opt.groupPricingTiers) {
+                      try {
+                        const tiers = typeof opt.groupPricingTiers === 'string' 
+                          ? JSON.parse(opt.groupPricingTiers) 
+                          : opt.groupPricingTiers;
+                        if (Array.isArray(tiers) && tiers.length > 0 && tiers[0]?.price) {
+                          const firstTierPrice = parseFloat(tiers[0].price) || 0;
+                          if (firstTierPrice > 0) {
+                            lowestPrice = lowestPrice === 0 ? firstTierPrice : Math.min(lowestPrice, firstTierPrice);
+                          }
+                        }
+                      } catch (e) {
+                        console.error('Error parsing option groupPricingTiers:', e);
+                      }
+                    }
+                  }
+                }
+                
+                // FALLBACK: Use pricePerPerson only if no tiers found
+                if (lowestPrice === 0) {
+                  lowestPrice = tour.pricePerPerson || 0;
                 }
                 
                 return (
@@ -795,9 +831,8 @@ const CityPage: React.FC<CityPageProps> = ({ country, city }) => {
                       <div className="flex items-center justify-between pt-2 border-t border-gray-100">
                         <div className="text-right w-full">
                           <div className="text-[18px] font-black text-[#001A33]">
-                            From {tour.currency === 'INR' ? '₹' : '$'}{lowestPrice.toLocaleString()}
+                            Starting from {tour.currency === 'INR' ? '₹' : '$'}{lowestPrice.toLocaleString()}
                           </div>
-                          <div className="text-[11px] text-gray-500 font-semibold">per person</div>
                         </div>
                       </div>
                     </div>

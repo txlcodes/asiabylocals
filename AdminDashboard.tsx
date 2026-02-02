@@ -1088,7 +1088,47 @@ const AdminDashboard: React.FC = () => {
                           {tour.category}
                         </span>
                         <span className="px-3 py-1 bg-[#001A33] text-white text-[11px] font-black rounded-full">
-                          {tour.currency} {tour.pricePerPerson}/person
+                          {(() => {
+                            // Get price from first tier of groupPricingTiers (price for 1 person)
+                            let displayPrice = tour.pricePerPerson || 0;
+                            
+                            // PRIORITY 1: Check tour.groupPricingTiers directly
+                            if (tour.groupPricingTiers) {
+                              try {
+                                const tiers = typeof tour.groupPricingTiers === 'string' 
+                                  ? JSON.parse(tour.groupPricingTiers) 
+                                  : tour.groupPricingTiers;
+                                if (Array.isArray(tiers) && tiers.length > 0 && tiers[0]?.price) {
+                                  displayPrice = parseFloat(tiers[0].price) || 0;
+                                }
+                              } catch (e) {
+                                console.error('Error parsing tour groupPricingTiers:', e);
+                              }
+                            }
+                            
+                            // PRIORITY 2: Check tour options for groupPricingTiers
+                            if (displayPrice === 0 && tour.options && Array.isArray(tour.options) && tour.options.length > 0) {
+                              for (const opt of tour.options) {
+                                if (opt.groupPricingTiers) {
+                                  try {
+                                    const tiers = typeof opt.groupPricingTiers === 'string' 
+                                      ? JSON.parse(opt.groupPricingTiers) 
+                                      : opt.groupPricingTiers;
+                                    if (Array.isArray(tiers) && tiers.length > 0 && tiers[0]?.price) {
+                                      const firstTierPrice = parseFloat(tiers[0].price) || 0;
+                                      if (firstTierPrice > 0) {
+                                        displayPrice = displayPrice === 0 ? firstTierPrice : Math.min(displayPrice, firstTierPrice);
+                                      }
+                                    }
+                                  } catch (e) {
+                                    console.error('Error parsing option groupPricingTiers:', e);
+                                  }
+                                }
+                              }
+                            }
+                            
+                            return `${tour.currency} ${displayPrice.toLocaleString()}`;
+                          })()}
                         </span>
                       </div>
                       <div className="text-[12px] text-gray-500 font-semibold">
@@ -1187,7 +1227,47 @@ const AdminDashboard: React.FC = () => {
                     <div>
                       <div className="text-[11px] font-bold text-gray-500 uppercase mb-1">Price</div>
                       <div className="text-[14px] font-bold text-[#001A33]">
-                        {selectedTour.currency} {selectedTour.pricePerPerson} per person
+                        {(() => {
+                          // Get price from first tier of groupPricingTiers (price for 1 person)
+                          let displayPrice = selectedTour.pricePerPerson || 0;
+                          
+                          // PRIORITY 1: Check tour.groupPricingTiers directly
+                          if (selectedTour.groupPricingTiers) {
+                            try {
+                              const tiers = typeof selectedTour.groupPricingTiers === 'string' 
+                                ? JSON.parse(selectedTour.groupPricingTiers) 
+                                : selectedTour.groupPricingTiers;
+                              if (Array.isArray(tiers) && tiers.length > 0 && tiers[0]?.price) {
+                                displayPrice = parseFloat(tiers[0].price) || 0;
+                              }
+                            } catch (e) {
+                              console.error('Error parsing tour groupPricingTiers:', e);
+                            }
+                          }
+                          
+                          // PRIORITY 2: Check tour options for groupPricingTiers
+                          if (displayPrice === 0 && selectedTour.options && Array.isArray(selectedTour.options) && selectedTour.options.length > 0) {
+                            for (const opt of selectedTour.options) {
+                              if (opt.groupPricingTiers) {
+                                try {
+                                  const tiers = typeof opt.groupPricingTiers === 'string' 
+                                    ? JSON.parse(opt.groupPricingTiers) 
+                                    : opt.groupPricingTiers;
+                                  if (Array.isArray(tiers) && tiers.length > 0 && tiers[0]?.price) {
+                                    const firstTierPrice = parseFloat(tiers[0].price) || 0;
+                                    if (firstTierPrice > 0) {
+                                      displayPrice = displayPrice === 0 ? firstTierPrice : Math.min(displayPrice, firstTierPrice);
+                                    }
+                                  }
+                                } catch (e) {
+                                  console.error('Error parsing option groupPricingTiers:', e);
+                                }
+                              }
+                            }
+                          }
+                          
+                          return `Starting from ${selectedTour.currency} ${displayPrice.toLocaleString()}`;
+                        })()}
                       </div>
                     </div>
                     <div>

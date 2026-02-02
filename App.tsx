@@ -1456,7 +1456,52 @@ const App: React.FC = () => {
                         <p className="text-sm text-gray-600 mb-2">{tour.city}, {tour.country}</p>
                         <div className="flex items-center justify-between">
                           <span className="font-black text-[#10B981]">
-                            {tour.currency === 'INR' ? '₹' : '$'}{tour.pricePerPerson?.toLocaleString() || '0'} per person
+                            {(() => {
+                              // Get price from first tier of groupPricingTiers (price for 1 person)
+                              let displayPrice = 0;
+                              
+                              // PRIORITY 1: Check tour.groupPricingTiers directly
+                              if (tour.groupPricingTiers) {
+                                try {
+                                  const tiers = typeof tour.groupPricingTiers === 'string' 
+                                    ? JSON.parse(tour.groupPricingTiers) 
+                                    : tour.groupPricingTiers;
+                                  if (Array.isArray(tiers) && tiers.length > 0 && tiers[0]?.price) {
+                                    displayPrice = parseFloat(tiers[0].price) || 0;
+                                  }
+                                } catch (e) {
+                                  console.error('Error parsing tour groupPricingTiers:', e);
+                                }
+                              }
+                              
+                              // PRIORITY 2: Check tour options for groupPricingTiers
+                              if (displayPrice === 0 && tour.options && Array.isArray(tour.options) && tour.options.length > 0) {
+                                for (const opt of tour.options) {
+                                  if (opt.groupPricingTiers) {
+                                    try {
+                                      const tiers = typeof opt.groupPricingTiers === 'string' 
+                                        ? JSON.parse(opt.groupPricingTiers) 
+                                        : opt.groupPricingTiers;
+                                      if (Array.isArray(tiers) && tiers.length > 0 && tiers[0]?.price) {
+                                        const firstTierPrice = parseFloat(tiers[0].price) || 0;
+                                        if (firstTierPrice > 0) {
+                                          displayPrice = displayPrice === 0 ? firstTierPrice : Math.min(displayPrice, firstTierPrice);
+                                        }
+                                      }
+                                    } catch (e) {
+                                      console.error('Error parsing option groupPricingTiers:', e);
+                                    }
+                                  }
+                                }
+                              }
+                              
+                              // FALLBACK: Use pricePerPerson only if no tiers found
+                              if (displayPrice === 0) {
+                                displayPrice = tour.pricePerPerson || 0;
+                              }
+                              
+                              return `Starting from ${tour.currency === 'INR' ? '₹' : '$'}${displayPrice.toLocaleString()}`;
+                            })()}
                           </span>
                           <div className="flex gap-2">
                             <button
@@ -1522,7 +1567,52 @@ const App: React.FC = () => {
                         <p className="text-sm text-gray-600 mb-2">{tour.city}, {tour.country}</p>
                         <div className="flex items-center justify-between">
                           <span className="font-black text-[#10B981]">
-                            {tour.currency === 'INR' ? '₹' : '$'}{tour.pricePerPerson?.toLocaleString() || '0'} per person
+                            {(() => {
+                              // Get price from first tier of groupPricingTiers (price for 1 person)
+                              let displayPrice = 0;
+                              
+                              // PRIORITY 1: Check tour.groupPricingTiers directly
+                              if (tour.groupPricingTiers) {
+                                try {
+                                  const tiers = typeof tour.groupPricingTiers === 'string' 
+                                    ? JSON.parse(tour.groupPricingTiers) 
+                                    : tour.groupPricingTiers;
+                                  if (Array.isArray(tiers) && tiers.length > 0 && tiers[0]?.price) {
+                                    displayPrice = parseFloat(tiers[0].price) || 0;
+                                  }
+                                } catch (e) {
+                                  console.error('Error parsing tour groupPricingTiers:', e);
+                                }
+                              }
+                              
+                              // PRIORITY 2: Check tour options for groupPricingTiers
+                              if (displayPrice === 0 && tour.options && Array.isArray(tour.options) && tour.options.length > 0) {
+                                for (const opt of tour.options) {
+                                  if (opt.groupPricingTiers) {
+                                    try {
+                                      const tiers = typeof opt.groupPricingTiers === 'string' 
+                                        ? JSON.parse(opt.groupPricingTiers) 
+                                        : opt.groupPricingTiers;
+                                      if (Array.isArray(tiers) && tiers.length > 0 && tiers[0]?.price) {
+                                        const firstTierPrice = parseFloat(tiers[0].price) || 0;
+                                        if (firstTierPrice > 0) {
+                                          displayPrice = displayPrice === 0 ? firstTierPrice : Math.min(displayPrice, firstTierPrice);
+                                        }
+                                      }
+                                    } catch (e) {
+                                      console.error('Error parsing option groupPricingTiers:', e);
+                                    }
+                                  }
+                                }
+                              }
+                              
+                              // FALLBACK: Use pricePerPerson only if no tiers found
+                              if (displayPrice === 0) {
+                                displayPrice = tour.pricePerPerson || 0;
+                              }
+                              
+                              return `Starting from ${tour.currency === 'INR' ? '₹' : '$'}${displayPrice.toLocaleString()}`;
+                            })()}
                           </span>
                           <div className="flex gap-2">
                             <button
