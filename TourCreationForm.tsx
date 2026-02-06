@@ -669,8 +669,8 @@ const TourCreationForm: React.FC<TourCreationFormProps> = ({
         city: formData.city.trim(),
         category: formData.category.trim(),
         locations: JSON.stringify(locationsToSave),
-        multiCityLocations: formData.isMultiDayTour ? JSON.stringify(formData.multiCityLocations) : null,
-        isMultiDayTour: formData.isMultiDayTour || false,
+        // Note: multiCityLocations and isMultiDayTour are stored in locations field for now
+        // Backend schema doesn't have these fields yet, but locations JSON can handle the structure
         duration: formData.duration.trim(),
         // Use first tier price (price for 1 person) as pricePerPerson for display - shows as "Starting from"
         pricePerPerson: formData.groupPricingTiers && formData.groupPricingTiers.length > 0 && formData.groupPricingTiers[0]?.price
