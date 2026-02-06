@@ -712,8 +712,8 @@ const CityPage: React.FC<CityPageProps> = ({ country, city }) => {
     setLoading(true);
     setLoadingTime(0);
     try {
-      // Use explicit backend URL for localhost development
-      const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+      // Use explicit backend URL - check if we're in production
+      const API_URL = import.meta.env.VITE_API_URL || (typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3001');
       const url = `${API_URL}/api/public/tours?country=${encodeURIComponent(country)}&city=${encodeURIComponent(city)}&status=approved`;
       console.log('CityPage - Fetching tours from:', url);
       console.log('CityPage - Country:', country, 'City:', city);
@@ -1051,27 +1051,6 @@ const CityPage: React.FC<CityPageProps> = ({ country, city }) => {
         </div>
 
         {/* H2 #1: Popular Tours & Experiences */}
-        {!loading && sortedTours.length === 0 && tours.length === 0 && (
-          <section className="mb-12">
-            <div className="bg-yellow-50 border border-yellow-200 rounded-2xl p-6 mb-6">
-              <h2 className="text-2xl font-black text-[#001A33] mb-2">
-                No Tours Available
-              </h2>
-              <p className="text-[14px] text-gray-600 font-semibold">
-                We're currently updating our tour offerings for {city}. Please check back soon or contact us for custom tour arrangements.
-              </p>
-              <button
-                onClick={() => {
-                  console.log('Refreshing tours...');
-                  fetchTours();
-                }}
-                className="mt-4 px-4 py-2 bg-[#10B981] hover:bg-[#059669] text-white font-bold rounded-lg text-[14px] transition-colors"
-              >
-                Refresh Tours
-              </button>
-            </div>
-          </section>
-        )}
         {sortedTours.length > 0 && (
           <section className="mb-12">
             <h2 className="text-3xl font-black text-[#001A33] mb-6">
@@ -1387,8 +1366,8 @@ const CityPage: React.FC<CityPageProps> = ({ country, city }) => {
           </div>
         )}
 
-        {/* Empty State - Only show if no tours */}
-        {!loading && sortedTours.length === 0 && (
+        {/* Empty State - Only show if no tours after loading */}
+        {!loading && sortedTours.length === 0 && tours.length === 0 && (
           <div className="text-center py-12 bg-white rounded-2xl border border-gray-200">
             <MapPin className="mx-auto text-gray-300 mb-4" size={48} />
             <h3 className="text-lg font-black text-[#001A33] mb-2">No tours available yet</h3>
