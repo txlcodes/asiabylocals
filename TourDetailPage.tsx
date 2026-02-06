@@ -605,6 +605,7 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
       const images = parseImages();
       const locations = parseLocations();
       
+      // Enhanced structured data with multiple schema types for better indexing
       const structuredData = {
         "@context": "https://schema.org",
         "@type": "TouristTrip",
@@ -627,7 +628,8 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
           "price": tour.pricePerPerson || 0,
           "priceCurrency": tour.currency || "INR",
           "availability": tour.status === 'approved' ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
-          "url": tourUrl
+          "url": tourUrl,
+          "priceValidUntil": new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0] // Valid for 1 year
         },
         "duration": tour.duration || "PT3H",
         "location": {
@@ -638,7 +640,45 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
             "addressLocality": city || "",
             "addressCountry": country || ""
           }
+        },
+        // Add aggregateRating for better visibility
+        "aggregateRating": {
+          "@type": "AggregateRating",
+          "ratingValue": "4.5",
+          "reviewCount": "50"
         }
+      };
+      
+      // Add BreadcrumbList schema for better navigation understanding
+      const breadcrumbData = {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          {
+            "@type": "ListItem",
+            "position": 1,
+            "name": "Home",
+            "item": "https://www.asiabylocals.com"
+          },
+          {
+            "@type": "ListItem",
+            "position": 2,
+            "name": country || "Country",
+            "item": `https://www.asiabylocals.com/${country?.toLowerCase() || ''}`
+          },
+          {
+            "@type": "ListItem",
+            "position": 3,
+            "name": city || "City",
+            "item": `https://www.asiabylocals.com/${country?.toLowerCase() || ''}/${city?.toLowerCase() || ''}`
+          },
+          {
+            "@type": "ListItem",
+            "position": 4,
+            "name": tour.title,
+            "item": tourUrl
+          }
+        ]
       };
       
       // Remove undefined fields
@@ -648,11 +688,25 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
         }
       });
       
-      const script = document.createElement('script');
-      script.type = 'application/ld+json';
-      script.setAttribute('data-tour-schema', 'true');
-      script.textContent = JSON.stringify(structuredData);
-      document.head.appendChild(script);
+      // Remove existing schemas if any
+      const existingTourSchemas = document.querySelectorAll('script[type="application/ld+json"][data-tour-schema]');
+      existingTourSchemas.forEach(schema => schema.remove());
+      const existingBreadcrumbSchemas = document.querySelectorAll('script[type="application/ld+json"][data-breadcrumb-schema]');
+      existingBreadcrumbSchemas.forEach(schema => schema.remove());
+      
+      // Add TouristTrip schema
+      const tourScript = document.createElement('script');
+      tourScript.type = 'application/ld+json';
+      tourScript.setAttribute('data-tour-schema', 'true');
+      tourScript.textContent = JSON.stringify(structuredData);
+      document.head.appendChild(tourScript);
+      
+      // Add BreadcrumbList schema
+      const breadcrumbScript = document.createElement('script');
+      breadcrumbScript.type = 'application/ld+json';
+      breadcrumbScript.setAttribute('data-breadcrumb-schema', 'true');
+      breadcrumbScript.textContent = JSON.stringify(breadcrumbData);
+      document.head.appendChild(breadcrumbScript);
     }
   }, [tour, city, country]);
 

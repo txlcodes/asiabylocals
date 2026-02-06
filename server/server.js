@@ -1030,6 +1030,156 @@ app.post('/api/tourists/login', async (req, res) => {
   }
 });
 
+// Email Subscription Endpoints
+
+// Subscribe to city itinerary email
+app.post('/api/email/subscribe', async (req, res) => {
+  try {
+    const { email: rawEmail, city, country, subscriptionType = 'itinerary' } = req.body;
+
+    // Normalize email
+    const email = rawEmail ? rawEmail.trim().toLowerCase() : null;
+
+    // Validate required fields
+    if (!email || !city || !country) {
+      return res.status(400).json({ 
+        error: 'Missing required fields',
+        message: 'Email, city, and country are required'
+      });
+    }
+
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({ 
+        error: 'Invalid email format',
+        message: 'Please provide a valid email address'
+      });
+    }
+
+    // Check for existing subscription
+    const existingSubscription = await prisma.emailSubscription.findUnique({
+      where: {
+        email_city_subscriptionType: {
+          email,
+          city,
+          subscriptionType
+        }
+      }
+    });
+
+    if (existingSubscription) {
+      if (existingSubscription.verified) {
+        return res.status(400).json({ 
+          error: 'Already subscribed',
+          message: 'You are already subscribed to this itinerary'
+        });
+      } else {
+        // Resend verification email if not verified
+        const verificationToken = randomBytes(32).toString('hex');
+        await prisma.emailSubscription.update({
+          where: { id: existingSubscription.id },
+          data: { verificationToken }
+        });
+        
+        // Import email function dynamically to avoid circular dependency
+        const { sendItineraryVerificationEmail } = await import('./utils/email.js');
+        await sendItineraryVerificationEmail(email, city, verificationToken);
+        
+        return res.json({
+          success: true,
+          message: 'Verification email sent. Please check your inbox.'
+        });
+      }
+    }
+
+    // Generate verification token
+    const verificationToken = randomBytes(32).toString('hex');
+
+    // Create subscription
+    await prisma.emailSubscription.create({
+      data: {
+        email,
+        city,
+        country,
+        subscriptionType,
+        verificationToken,
+        verified: false
+      }
+    });
+
+    // Send verification email
+    const { sendItineraryVerificationEmail } = await import('./utils/email.js');
+    await sendItineraryVerificationEmail(email, city, verificationToken);
+
+    res.json({
+      success: true,
+      message: 'Subscription created. Please check your email to verify.'
+    });
+  } catch (error) {
+    console.error('Email subscription error:', error);
+    res.status(500).json({ 
+      error: 'Internal server error',
+      message: 'Failed to create subscription. Please try again later.'
+    });
+  }
+});
+
+// Verify email subscription
+app.get('/api/email/verify/:token', async (req, res) => {
+  try {
+    const { token } = req.params;
+
+    if (!token) {
+      return res.status(400).json({ 
+        error: 'Verification token is required'
+      });
+    }
+
+    // Find subscription by token
+    const subscription = await prisma.emailSubscription.findFirst({
+      where: { verificationToken: token }
+    });
+
+    if (!subscription) {
+      return res.status(404).json({ 
+        error: 'Invalid token',
+        message: 'Verification token not found or expired'
+      });
+    }
+
+    if (subscription.verified) {
+      // Already verified - redirect to success page
+      const frontendUrl = process.env.FRONTEND_URL || process.env.VITE_FRONTEND_URL || 'http://localhost:3000';
+      return res.redirect(`${frontendUrl}/email-verified?city=${encodeURIComponent(subscription.city || '')}`);
+    }
+
+    // Mark as verified
+    await prisma.emailSubscription.update({
+      where: { id: subscription.id },
+      data: {
+        verified: true,
+        verifiedAt: new Date(),
+        verificationToken: null // Clear token after verification
+      }
+    });
+
+    // Send welcome email with itinerary
+    const { sendItineraryWelcomeEmail } = await import('./utils/email.js');
+    await sendItineraryWelcomeEmail(subscription.email, subscription.city || '');
+
+    // Redirect to success page
+    const frontendUrl = process.env.FRONTEND_URL || process.env.VITE_FRONTEND_URL || 'http://localhost:3000';
+    res.redirect(`${frontendUrl}/email-verified?city=${encodeURIComponent(subscription.city || '')}`);
+  } catch (error) {
+    console.error('Email verification error:', error);
+    res.status(500).json({ 
+      error: 'Internal server error',
+      message: 'Failed to verify subscription. Please try again later.'
+    });
+  }
+});
+
 // Verify email endpoint - MUST come before /api/suppliers/:id route
 app.get('/api/suppliers/verify-email', async (req, res) => {
   try {
@@ -1349,7 +1499,17 @@ app.get('/api/suppliers/:id', async (req, res) => {
             whatsapp: true,
             emailVerified: true,
             verificationDocumentUrl: true,
-            certificates: true
+            certificates: true,
+            paymentMethod: true,
+            paymentMethodDetails: true,
+            paymentCurrency: true,
+            paymentFrequency: true,
+            taxId: true,
+            taxIdType: true,
+            taxCountry: true,
+            taxVerified: true,
+            paymentDetailsVerified: true,
+            paymentDetailsVerifiedAt: true
           }
         });
         console.log('✅ Database query successful');
@@ -1499,7 +1659,8 @@ app.get('/api/suppliers', async (req, res) => {
           phone: true,
           whatsapp: true,
           emailVerified: true,
-          verificationDocumentUrl: true
+          verificationDocumentUrl: true,
+          certificates: true
         },
         orderBy: {
           createdAt: 'desc'
@@ -1743,7 +1904,8 @@ app.patch('/api/suppliers/:id/update-document', async (req, res) => {
       });
     }
 
-    if (!verificationDocumentUrl) {
+    // Allow updating certificates without license if license already exists
+    if (!verificationDocumentUrl && !existingSupplier.verificationDocumentUrl) {
       return res.status(400).json({ 
         success: false,
         error: 'Document URL is required',
@@ -1762,6 +1924,40 @@ app.patch('/api/suppliers/:id/update-document', async (req, res) => {
         error: 'Supplier not found',
         message: 'No supplier found with the provided ID'
       });
+    }
+
+    // Process license document - upload to Cloudinary if available
+    let finalLicenseUrl = verificationDocumentUrl;
+    if (verificationDocumentUrl && process.env.CLOUDINARY_CLOUD_NAME && process.env.CLOUDINARY_API_KEY && process.env.CLOUDINARY_API_SECRET) {
+      try {
+        const isPDF = verificationDocumentUrl.startsWith('data:application/pdf');
+        const isImage = verificationDocumentUrl.startsWith('data:image/');
+        
+        if (isPDF || isImage) {
+          console.log('☁️  Uploading license document to Cloudinary...');
+          const cloudinary = (await import('./utils/cloudinary.js')).default;
+          
+          if (isPDF) {
+            const base64Data = verificationDocumentUrl.includes(',') ? verificationDocumentUrl.split(',')[1] : verificationDocumentUrl;
+            const result = await cloudinary.uploader.upload(
+              `data:application/pdf;base64,${base64Data}`,
+              {
+                folder: 'asiabylocals/suppliers/licenses',
+                resource_type: 'raw',
+                public_id: `license_${supplierId}_${Date.now()}`
+              }
+            );
+            finalLicenseUrl = result.secure_url;
+          } else if (isImage) {
+            const { uploadImage } = await import('./utils/cloudinary.js');
+            finalLicenseUrl = await uploadImage(verificationDocumentUrl, 'asiabylocals/suppliers/licenses', `license_${supplierId}_${Date.now()}`);
+          }
+          console.log('✅ License document uploaded to Cloudinary');
+        }
+      } catch (err) {
+        console.error('❌ Error uploading license document to Cloudinary:', err);
+        // Continue with original URL if Cloudinary upload fails
+      }
     }
 
     // Process certificates - upload to Cloudinary if available
@@ -1812,14 +2008,20 @@ app.patch('/api/suppliers/:id/update-document', async (req, res) => {
       }
     }
 
+    // Build update data - only update fields that are provided
+    const updateData = {};
+    if (finalLicenseUrl) {
+      updateData.verificationDocumentUrl = finalLicenseUrl;
+      // Reset status to pending when license is updated
+      updateData.status = 'pending';
+    }
+    if (finalCertificates !== null) {
+      updateData.certificates = finalCertificates;
+    }
+
     const supplier = await prisma.supplier.update({
       where: { id: supplierId },
-      data: {
-        verificationDocumentUrl,
-        certificates: finalCertificates,
-        // Keep status as 'pending' - admin needs to approve after reviewing license
-        status: 'pending'
-      },
+      data: updateData,
       select: {
         id: true,
         email: true,
@@ -1849,6 +2051,345 @@ app.patch('/api/suppliers/:id/update-document', async (req, res) => {
       error: 'Internal server error',
       message: 'Failed to update document',
       details: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
+  }
+});
+
+// ==================== PAYMENT DETAILS ENDPOINTS ====================
+
+// Get supplier payment details
+app.get('/api/suppliers/:id/payment-details', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const supplierId = parseInt(id);
+
+    if (isNaN(supplierId)) {
+      return res.status(400).json({ 
+        success: false,
+        error: 'Invalid supplier ID'
+      });
+    }
+
+    const supplier = await prisma.supplier.findUnique({
+      where: { id: supplierId },
+      select: {
+        id: true,
+        paymentMethod: true,
+        paymentMethodDetails: true,
+        paymentCurrency: true,
+        paymentFrequency: true,
+        taxId: true,
+        taxIdType: true,
+        taxCountry: true,
+        taxVerified: true,
+        paymentDetailsVerified: true,
+        paymentDetailsVerifiedAt: true
+      }
+    });
+
+    if (!supplier) {
+      return res.status(404).json({ 
+        success: false,
+        error: 'Supplier not found'
+      });
+    }
+
+    // Parse payment method details if exists
+    let paymentDetails = null;
+    if (supplier.paymentMethodDetails) {
+      try {
+        paymentDetails = typeof supplier.paymentMethodDetails === 'string' 
+          ? JSON.parse(supplier.paymentMethodDetails) 
+          : supplier.paymentMethodDetails;
+      } catch (e) {
+        console.error('Error parsing paymentMethodDetails:', e);
+      }
+    }
+
+    res.json({
+      success: true,
+      paymentDetails: {
+        paymentMethod: supplier.paymentMethod,
+        paymentMethodDetails: paymentDetails,
+        paymentCurrency: supplier.paymentCurrency,
+        paymentFrequency: supplier.paymentFrequency || 'monthly',
+        taxId: supplier.taxId,
+        taxIdType: supplier.taxIdType,
+        taxCountry: supplier.taxCountry,
+        taxVerified: supplier.taxVerified,
+        paymentDetailsVerified: supplier.paymentDetailsVerified,
+        paymentDetailsVerifiedAt: supplier.paymentDetailsVerifiedAt
+      }
+    });
+  } catch (error) {
+    console.error('Get payment details error:', error);
+    res.status(500).json({ 
+      success: false,
+      error: 'Internal server error',
+      message: 'Failed to fetch payment details'
+    });
+  }
+});
+
+// Update supplier payment details
+app.put('/api/suppliers/:id/payment-details', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const supplierId = parseInt(id);
+    const {
+      paymentMethod,
+      paymentMethodDetails,
+      paymentCurrency,
+      paymentFrequency,
+      taxId,
+      taxIdType,
+      taxCountry
+    } = req.body;
+
+    if (isNaN(supplierId)) {
+      return res.status(400).json({ 
+        success: false,
+        error: 'Invalid supplier ID'
+      });
+    }
+
+    // Check if supplier exists
+    const existingSupplier = await prisma.supplier.findUnique({
+      where: { id: supplierId }
+    });
+
+    if (!existingSupplier) {
+      return res.status(404).json({ 
+        success: false,
+        error: 'Supplier not found'
+      });
+    }
+
+    // Validate payment method
+    const validPaymentMethods = ['bank_transfer', 'paypal', 'credit_card', 'upi', 'wise'];
+    if (paymentMethod && !validPaymentMethods.includes(paymentMethod)) {
+      return res.status(400).json({ 
+        success: false,
+        error: 'Invalid payment method',
+        message: `Payment method must be one of: ${validPaymentMethods.join(', ')}`
+      });
+    }
+
+    // Validate and sanitize payment method details
+    let sanitizedPaymentDetails = null;
+    if (paymentMethodDetails) {
+      try {
+        const details = typeof paymentMethodDetails === 'string' 
+          ? JSON.parse(paymentMethodDetails) 
+          : paymentMethodDetails;
+
+        // Sanitize sensitive data - mask account numbers, card numbers
+        if (details.accountNumber && details.accountNumber.length > 4) {
+          const last4 = details.accountNumber.slice(-4);
+          details.accountNumber = `******${last4}`;
+        }
+        if (details.cardNumber && details.cardNumber.length > 4) {
+          const last4 = details.cardNumber.slice(-4);
+          details.cardNumber = `******${last4}`;
+        }
+
+        sanitizedPaymentDetails = JSON.stringify(details);
+      } catch (e) {
+        return res.status(400).json({ 
+          success: false,
+          error: 'Invalid payment method details format',
+          message: 'Payment method details must be valid JSON'
+        });
+      }
+    }
+
+    // Validate payment frequency
+    if (paymentFrequency && !['monthly', 'biweekly'].includes(paymentFrequency)) {
+      return res.status(400).json({ 
+        success: false,
+        error: 'Invalid payment frequency',
+        message: 'Payment frequency must be "monthly" or "biweekly"'
+      });
+    }
+
+    // Update supplier payment details
+    const updatedSupplier = await prisma.supplier.update({
+      where: { id: supplierId },
+      data: {
+        paymentMethod: paymentMethod || null,
+        paymentMethodDetails: sanitizedPaymentDetails,
+        paymentCurrency: paymentCurrency || null,
+        paymentFrequency: paymentFrequency || 'monthly',
+        taxId: taxId || null,
+        taxIdType: taxIdType || null,
+        taxCountry: taxCountry || null,
+        paymentDetailsVerified: false // Reset verification when details are updated
+      },
+      select: {
+        id: true,
+        paymentMethod: true,
+        paymentMethodDetails: true,
+        paymentCurrency: true,
+        paymentFrequency: true,
+        taxId: true,
+        taxIdType: true,
+        taxCountry: true,
+        paymentDetailsVerified: true
+      }
+    });
+
+    // Parse payment details for response
+    let paymentDetails = null;
+    if (updatedSupplier.paymentMethodDetails) {
+      try {
+        paymentDetails = JSON.parse(updatedSupplier.paymentMethodDetails);
+      } catch (e) {
+        console.error('Error parsing paymentMethodDetails:', e);
+      }
+    }
+
+    res.json({
+      success: true,
+      message: 'Payment details updated successfully',
+      paymentDetails: {
+        paymentMethod: updatedSupplier.paymentMethod,
+        paymentMethodDetails: paymentDetails,
+        paymentCurrency: updatedSupplier.paymentCurrency,
+        paymentFrequency: updatedSupplier.paymentFrequency,
+        taxId: updatedSupplier.taxId,
+        taxIdType: updatedSupplier.taxIdType,
+        taxCountry: updatedSupplier.taxCountry,
+        paymentDetailsVerified: updatedSupplier.paymentDetailsVerified
+      }
+    });
+  } catch (error) {
+    console.error('Update payment details error:', error);
+    res.status(500).json({ 
+      success: false,
+      error: 'Internal server error',
+      message: 'Failed to update payment details'
+    });
+  }
+});
+
+// Helper function to calculate TDS (Tax Deducted at Source)
+// Simplified: 5% TDS for Indian suppliers without verified GSTIN, 0% otherwise
+function calculateTDS(grossEarnings, taxCountry, taxVerified) {
+  if (taxCountry === 'India' && !taxVerified) {
+    return grossEarnings * 0.05; // 5% TDS
+  }
+  return 0;
+}
+
+// Get supplier earnings summary
+app.get('/api/suppliers/:id/earnings', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const supplierId = parseInt(id);
+
+    if (isNaN(supplierId)) {
+      return res.status(400).json({ 
+        success: false,
+        error: 'Invalid supplier ID'
+      });
+    }
+
+    // Get supplier tax details
+    const supplier = await prisma.supplier.findUnique({
+      where: { id: supplierId },
+      select: {
+        taxCountry: true,
+        taxVerified: true
+      }
+    });
+
+    // Get all bookings for this supplier
+    const bookings = await prisma.booking.findMany({
+      where: { supplierId },
+      select: {
+        id: true,
+        totalAmount: true,
+        currency: true,
+        status: true,
+        paymentStatus: true,
+        createdAt: true,
+        tour: {
+          select: {
+            title: true
+          }
+        }
+      },
+      orderBy: { createdAt: 'desc' }
+    });
+
+    // Calculate earnings (70% to supplier, 30% platform commission)
+    const commissionRate = 0.30;
+    const supplierRate = 0.70;
+
+    const completedBookings = bookings.filter(b => b.status === 'completed' && b.paymentStatus === 'paid');
+    const pendingBookings = bookings.filter(b => b.status === 'confirmed' && b.paymentStatus === 'paid');
+
+    const grossEarnings = completedBookings.reduce((sum, b) => sum + (b.totalAmount * supplierRate), 0);
+    const pendingEarnings = pendingBookings.reduce((sum, b) => sum + (b.totalAmount * supplierRate), 0);
+
+    // Calculate TDS (Tax Deducted at Source)
+    const tdsDeducted = calculateTDS(grossEarnings, supplier?.taxCountry || null, supplier?.taxVerified || false);
+    const netEarnings = grossEarnings - tdsDeducted;
+
+    // Calculate this month's earnings
+    const now = new Date();
+    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+    const thisMonthBookings = completedBookings.filter(b => {
+      const bookingDate = new Date(b.createdAt);
+      return bookingDate >= startOfMonth;
+    });
+    const thisMonthGrossEarnings = thisMonthBookings.reduce((sum, b) => sum + (b.totalAmount * supplierRate), 0);
+    const thisMonthTDS = calculateTDS(thisMonthGrossEarnings, supplier?.taxCountry || null, supplier?.taxVerified || false);
+    const thisMonthEarnings = thisMonthGrossEarnings - thisMonthTDS;
+
+    // Calculate next payout date (5th of next month)
+    const nextPayoutDate = new Date(now.getFullYear(), now.getMonth() + 1, 5);
+    // If 5th is weekend, move to next business day
+    while (nextPayoutDate.getDay() === 0 || nextPayoutDate.getDay() === 6) {
+      nextPayoutDate.setDate(nextPayoutDate.getDate() + 1);
+    }
+
+    res.json({
+      success: true,
+      earnings: {
+        grossEarnings: grossEarnings,
+        tdsDeducted: tdsDeducted,
+        netEarnings: netEarnings,
+        totalEarnings: netEarnings, // For backward compatibility
+        thisMonthGrossEarnings: thisMonthGrossEarnings,
+        thisMonthTDS: thisMonthTDS,
+        thisMonthEarnings: thisMonthEarnings,
+        pendingEarnings: pendingEarnings,
+        nextPayoutDate: nextPayoutDate.toISOString(),
+        paymentFrequency: 'monthly',
+        commissionRate: commissionRate,
+        supplierRate: supplierRate,
+        totalBookings: bookings.length,
+        completedBookings: completedBookings.length,
+        pendingBookings: pendingBookings.length
+      },
+      bookings: bookings.map(b => ({
+        id: b.id,
+        tourTitle: b.tour.title,
+        amount: b.totalAmount,
+        supplierAmount: b.totalAmount * supplierRate,
+        currency: b.currency,
+        status: b.status,
+        paymentStatus: b.paymentStatus,
+        createdAt: b.createdAt
+      }))
+    });
+  } catch (error) {
+    console.error('Get earnings error:', error);
+    res.status(500).json({ 
+      success: false,
+      error: 'Internal server error',
+      message: 'Failed to fetch earnings'
     });
   }
 });
@@ -6515,7 +7056,8 @@ app.get('/api/admin/suppliers/pending', verifyAdmin, async (req, res) => {
             city: true,
             phone: true,
             whatsapp: true,
-            verificationDocumentUrl: true
+            verificationDocumentUrl: true,
+            certificates: true
           }
         });
         break; // Success, exit retry loop
@@ -6573,6 +7115,158 @@ app.get('/api/admin/suppliers/pending', verifyAdmin, async (req, res) => {
       error: 'Internal server error',
       message: 'Failed to fetch pending suppliers. Please try again.',
       details: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
+  }
+});
+
+// Get all suppliers with payment details (admin) - OPTIMIZED for bulk operations
+app.get('/api/admin/suppliers/payment-details', verifyAdmin, async (req, res) => {
+  try {
+    console.log('📋 Fetching suppliers with payment details for admin (optimized)');
+    
+    // Fetch all suppliers with payment/tax details
+    const suppliers = await prisma.supplier.findMany({
+      select: {
+        id: true,
+        email: true,
+        fullName: true,
+        companyName: true,
+        businessType: true,
+        status: true,
+        createdAt: true,
+        paymentMethod: true,
+        paymentMethodDetails: true,
+        paymentCurrency: true,
+        paymentFrequency: true,
+        taxId: true,
+        taxIdType: true,
+        taxCountry: true,
+        taxVerified: true,
+        paymentDetailsVerified: true,
+        paymentDetailsVerifiedAt: true
+      },
+      orderBy: {
+        createdAt: 'desc'
+      }
+    });
+
+    // Fetch all bookings in a single optimized query (instead of N+1 queries)
+    const supplierIds = suppliers.map(s => parseInt(s.id));
+    const allBookings = await prisma.booking.findMany({
+      where: {
+        supplierId: { in: supplierIds }
+      },
+      select: {
+        id: true,
+        supplierId: true,
+        totalAmount: true,
+        paymentStatus: true,
+        createdAt: true
+      }
+    });
+
+    // Group bookings by supplier ID for fast lookup
+    const bookingsBySupplier = {};
+    allBookings.forEach(booking => {
+      const supplierId = String(booking.supplierId);
+      if (!bookingsBySupplier[supplierId]) {
+        bookingsBySupplier[supplierId] = [];
+      }
+      bookingsBySupplier[supplierId].push(booking);
+    });
+
+    // Commission rate: 70% to supplier, 30% platform
+    const supplierRate = 0.70;
+
+    // Process suppliers with earnings calculation
+    const suppliersWithEarnings = suppliers.map(supplier => {
+      const supplierId = String(supplier.id);
+      const bookings = bookingsBySupplier[supplierId] || [];
+
+      const paidBookings = bookings.filter(b => b.paymentStatus === 'paid');
+      const pendingBookings = bookings.filter(b => b.paymentStatus === 'pending');
+
+      const grossEarnings = paidBookings.reduce((sum, b) => sum + (parseFloat(b.totalAmount) * supplierRate), 0);
+      const pendingEarnings = pendingBookings.reduce((sum, b) => sum + (parseFloat(b.totalAmount) * supplierRate), 0);
+
+      // Calculate TDS
+      const tdsDeducted = calculateTDS(grossEarnings, supplier.taxCountry, supplier.taxVerified || false);
+      const netEarnings = grossEarnings - tdsDeducted;
+
+      // Parse paymentMethodDetails if it's a string
+      let paymentDetails = null;
+      if (supplier.paymentMethodDetails) {
+        try {
+          paymentDetails = typeof supplier.paymentMethodDetails === 'string' 
+            ? JSON.parse(supplier.paymentMethodDetails) 
+            : supplier.paymentMethodDetails;
+        } catch (e) {
+          console.error(`Error parsing paymentMethodDetails for supplier ${supplier.id}:`, e);
+        }
+      }
+
+      return {
+        ...supplier,
+        id: supplierId,
+        paymentMethodDetails: paymentDetails,
+        grossEarnings,
+        tdsDeducted,
+        netEarnings,
+        totalEarnings: netEarnings, // For backward compatibility
+        pendingEarnings,
+        bookingCount: bookings.length
+      };
+    });
+
+    res.json({
+      success: true,
+      suppliers: suppliersWithEarnings
+    });
+  } catch (error) {
+    console.error('❌ Get suppliers with payment details error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Internal server error',
+      message: 'Failed to fetch suppliers with payment details'
+    });
+  }
+});
+
+// Verify supplier payment details (admin)
+app.post('/api/admin/suppliers/:id/verify-payment', verifyAdmin, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const supplierId = parseInt(id);
+
+    if (isNaN(supplierId)) {
+      return res.status(400).json({
+        success: false,
+        error: 'Invalid supplier ID'
+      });
+    }
+
+    const supplier = await prisma.supplier.update({
+      where: { id: supplierId },
+      data: {
+        paymentDetailsVerified: true,
+        paymentDetailsVerifiedAt: new Date()
+      }
+    });
+
+    res.json({
+      success: true,
+      message: 'Payment details verified successfully',
+      supplier: {
+        ...supplier,
+        id: String(supplier.id)
+      }
+    });
+  } catch (error) {
+    console.error('❌ Verify payment details error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Internal server error',
+      message: 'Failed to verify payment details'
     });
   }
 });

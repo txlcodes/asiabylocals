@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { CheckCircle2, XCircle, Clock, Eye, MapPin, Star, Calendar, Phone, MessageCircle, Mail, Info, User, Building2, X, LogOut, Trash2 } from 'lucide-react';
+import { CheckCircle2, XCircle, Clock, Eye, MapPin, Star, Calendar, Phone, MessageCircle, Mail, Info, User, Building2, X, LogOut, Trash2, DollarSign, CreditCard, Building, Wallet, Search, Filter, ShieldCheck, ChevronDown, ChevronUp } from 'lucide-react';
 import AdminLogin from './AdminLogin';
 
 const AdminDashboard: React.FC = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [activeTab, setActiveTab] = useState<'tours' | 'suppliers' | 'bookings'>('suppliers');
+  const [activeTab, setActiveTab] = useState<'tours' | 'suppliers' | 'bookings' | 'payments'>('suppliers');
   const [pendingTours, setPendingTours] = useState<any[]>([]);
   const [pendingSuppliers, setPendingSuppliers] = useState<any[]>([]);
   const [approvedSuppliers, setApprovedSuppliers] = useState<any[]>([]);
@@ -19,6 +19,17 @@ const AdminDashboard: React.FC = () => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [showLicenseModal, setShowLicenseModal] = useState(false);
   const [licenseUrl, setLicenseUrl] = useState<string | null>(null);
+  
+  // Payment Details State
+  const [suppliersWithPayments, setSuppliersWithPayments] = useState<any[]>([]);
+  const [loadingPayments, setLoadingPayments] = useState(false);
+  const [paymentSearchQuery, setPaymentSearchQuery] = useState('');
+  const [paymentFilter, setPaymentFilter] = useState<'all' | 'verified' | 'unverified' | 'no_details'>('all');
+  const [paymentMethodFilter, setPaymentMethodFilter] = useState<string>('all');
+  const [selectedPaymentSupplier, setSelectedPaymentSupplier] = useState<any>(null);
+  const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set());
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(50);
 
   // Check authentication on mount
   useEffect(() => {
@@ -317,6 +328,71 @@ const AdminDashboard: React.FC = () => {
     }
   };
 
+  // Fetch suppliers with payment details
+  const fetchSuppliersWithPayments = async () => {
+    setLoadingPayments(true);
+    try {
+      const API_URL = import.meta.env.VITE_API_URL || (typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3001');
+      const response = await fetch(`${API_URL}/api/admin/suppliers/payment-details`, {
+        headers: getAuthHeaders()
+      });
+      
+      if (!response.ok) {
+        if (response.status === 401 || response.status === 403) {
+          localStorage.removeItem('admin');
+          setIsAuthenticated(false);
+          throw new Error('Authentication failed');
+        }
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      if (data.success) {
+        setSuppliersWithPayments(data.suppliers || []);
+      } else {
+        setSuppliersWithPayments([]);
+      }
+    } catch (error: any) {
+      console.error('Error fetching suppliers with payment details:', error);
+      setSuppliersWithPayments([]);
+    } finally {
+      setLoadingPayments(false);
+    }
+  };
+
+  // Verify payment details (admin action)
+  const handleVerifyPaymentDetails = async (supplierId: string) => {
+    if (!confirm('Are you sure you want to verify this supplier\'s payment details?')) {
+      return;
+    }
+    
+    setIsProcessing(true);
+    try {
+      const API_URL = import.meta.env.VITE_API_URL || (typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3001');
+      const response = await fetch(`${API_URL}/api/admin/suppliers/${supplierId}/verify-payment`, {
+        method: 'POST',
+        headers: getAuthHeaders()
+      });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      if (data.success) {
+        alert('Payment details verified successfully!');
+        fetchSuppliersWithPayments();
+      } else {
+        alert(data.message || 'Failed to verify payment details');
+      }
+    } catch (error: any) {
+      console.error('Error verifying payment details:', error);
+      alert('Failed to verify payment details. Please try again.');
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
   // Fetch data when authenticated and tab changes
   useEffect(() => {
     if (isAuthenticated) {
@@ -334,6 +410,8 @@ const AdminDashboard: React.FC = () => {
         }
       } else if (activeTab === 'bookings') {
         fetchBookings();
+      } else if (activeTab === 'payments') {
+        fetchSuppliersWithPayments();
       }
     }
   }, [activeTab, isAuthenticated, tourFilter, supplierFilter]);
@@ -647,6 +725,20 @@ const AdminDashboard: React.FC = () => {
             >
               Bookings ({bookings.filter(b => b.paymentStatus === 'paid').length})
             </button>
+            <button
+              onClick={() => {
+                setActiveTab('payments');
+                setSelectedTour(null);
+                setSelectedSupplier(null);
+              }}
+              className={`px-6 py-3 font-black text-[14px] border-b-2 transition-colors ${
+                activeTab === 'payments'
+                  ? 'border-[#10B981] text-[#10B981]'
+                  : 'border-transparent text-gray-500 hover:text-[#001A33]'
+              }`}
+            >
+              Payment Details ({suppliersWithPayments.filter(s => s.paymentDetailsVerified).length}/{suppliersWithPayments.length})
+            </button>
           </div>
         </div>
       </header>
@@ -914,6 +1006,49 @@ const AdminDashboard: React.FC = () => {
                               </div>
                             </div>
                           )}
+                          {/* Certificates */}
+                          <div>
+                            <div className="text-[11px] font-bold text-gray-500 uppercase mb-2">Additional Certificates</div>
+                            {selectedSupplier.certificates ? (
+                              (() => {
+                                try {
+                                  const certs = typeof selectedSupplier.certificates === 'string' 
+                                    ? JSON.parse(selectedSupplier.certificates) 
+                                    : selectedSupplier.certificates;
+                                  if (Array.isArray(certs) && certs.length > 0) {
+                                    return (
+                                      <div className="space-y-2">
+                                        {certs.map((cert: string, index: number) => (
+                                          <button
+                                            key={index}
+                                            onClick={() => {
+                                              setLicenseUrl(cert);
+                                              setShowLicenseModal(true);
+                                            }}
+                                            className="w-full text-left text-[#0071EB] text-[13px] font-semibold hover:underline flex items-center gap-2 cursor-pointer p-2 hover:bg-blue-50 rounded-lg transition-colors"
+                                          >
+                                            <Eye size={14} />
+                                            Certificate {index + 1}
+                                          </button>
+                                        ))}
+                                      </div>
+                                    );
+                                  }
+                                } catch (e) {
+                                  console.error('Error parsing certificates:', e);
+                                }
+                                return (
+                                  <div className="text-[12px] text-gray-500 font-semibold">
+                                    No certificates uploaded
+                                  </div>
+                                );
+                              })()
+                            ) : (
+                              <div className="text-[12px] text-gray-500 font-semibold">
+                                No certificates uploaded
+                              </div>
+                            )}
+                          </div>
                           <div>
                             <div className="text-[11px] font-bold text-gray-500 uppercase mb-1">Registration Date</div>
                             <div className="text-[14px] font-semibold text-[#001A33]">
@@ -1433,6 +1568,501 @@ const AdminDashboard: React.FC = () => {
             </div>
           </div>
           )
+        ) : activeTab === 'payments' ? (
+          // Payment Details Tab
+          <div className="space-y-6">
+            {/* Header with Search and Filters */}
+            <div className="bg-white rounded-2xl p-6 border border-gray-200">
+              <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
+                <div>
+                  <h2 className="text-2xl font-black text-[#001A33] mb-2">Supplier Payment Details</h2>
+                  <p className="text-[14px] text-gray-500 font-semibold">
+                    Manage payment details for all suppliers. Verify payment information before processing payouts.
+                  </p>
+                </div>
+                <div className="flex items-center gap-4 text-[14px]">
+                  <div className="px-4 py-2 bg-[#10B981]/10 rounded-lg">
+                    <span className="text-gray-600 font-semibold">Verified: </span>
+                    <span className="font-black text-[#10B981]">{suppliersWithPayments.filter(s => s.paymentDetailsVerified).length}</span>
+                  </div>
+                  <div className="px-4 py-2 bg-yellow-50 rounded-lg">
+                    <span className="text-gray-600 font-semibold">Pending: </span>
+                    <span className="font-black text-yellow-700">{suppliersWithPayments.filter(s => !s.paymentDetailsVerified && s.paymentMethod).length}</span>
+                  </div>
+                  <div className="px-4 py-2 bg-gray-100 rounded-lg">
+                    <span className="text-gray-600 font-semibold">No Details: </span>
+                    <span className="font-black text-gray-700">{suppliersWithPayments.filter(s => !s.paymentMethod).length}</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Search and Filters */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
+                  <input
+                    type="text"
+                    placeholder="Search by name, email, or ID..."
+                    value={paymentSearchQuery}
+                    onChange={(e) => {
+                    setPaymentSearchQuery(e.target.value);
+                    setCurrentPage(1); // Reset to first page on search
+                  }}
+                    className="w-full pl-10 pr-4 py-2.5 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-[#10B981] focus:border-[#10B981] outline-none text-[14px] font-semibold"
+                  />
+                </div>
+                <select
+                  value={paymentFilter}
+                  onChange={(e) => {
+                    setPaymentFilter(e.target.value as any);
+                    setCurrentPage(1); // Reset to first page on filter change
+                  }}
+                  className="px-4 py-2.5 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-[#10B981] focus:border-[#10B981] outline-none text-[14px] font-bold text-[#001A33]"
+                >
+                  <option value="all">All Suppliers</option>
+                  <option value="verified">Verified Only</option>
+                  <option value="unverified">Pending Verification</option>
+                  <option value="no_details">No Payment Details</option>
+                </select>
+                <select
+                  value={paymentMethodFilter}
+                  onChange={(e) => {
+                    setPaymentMethodFilter(e.target.value);
+                    setCurrentPage(1); // Reset to first page on filter change
+                  }}
+                  className="px-4 py-2.5 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-[#10B981] focus:border-[#10B981] outline-none text-[14px] font-bold text-[#001A33]"
+                >
+                  <option value="all">All Payment Methods</option>
+                  <option value="bank_transfer">Bank Transfer</option>
+                  <option value="paypal">PayPal</option>
+                  <option value="credit_card">Credit/Debit Card</option>
+                  <option value="upi">UPI</option>
+                  <option value="wise">Wise</option>
+                </select>
+              </div>
+            </div>
+
+            {/* Payment Details Table */}
+            {loadingPayments ? (
+              <div className="bg-white rounded-2xl p-12 text-center border border-gray-200">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#10B981] mx-auto"></div>
+                <p className="text-[14px] text-gray-500 font-semibold mt-4">Loading payment details...</p>
+              </div>
+            ) : (
+              <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden">
+                <div className="overflow-x-auto">
+                  <table className="w-full">
+                    <thead className="bg-gray-50 border-b border-gray-200">
+                      <tr>
+                        <th className="px-6 py-4 text-left text-[12px] font-black text-gray-600 uppercase tracking-wider">Supplier</th>
+                        <th className="px-6 py-4 text-left text-[12px] font-black text-gray-600 uppercase tracking-wider">Payment Method</th>
+                        <th className="px-6 py-4 text-left text-[12px] font-black text-gray-600 uppercase tracking-wider">Currency</th>
+                        <th className="px-6 py-4 text-left text-[12px] font-black text-gray-600 uppercase tracking-wider">Status</th>
+                        <th className="px-6 py-4 text-left text-[12px] font-black text-gray-600 uppercase tracking-wider">Earnings</th>
+                        <th className="px-6 py-4 text-left text-[12px] font-black text-gray-600 uppercase tracking-wider">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-200">
+                      {(() => {
+                        // Filter suppliers
+                        let filtered = suppliersWithPayments.filter(supplier => {
+                          // Search filter
+                          if (paymentSearchQuery) {
+                            const query = paymentSearchQuery.toLowerCase();
+                            const matchesSearch = 
+                              supplier.fullName?.toLowerCase().includes(query) ||
+                              supplier.email?.toLowerCase().includes(query) ||
+                              supplier.id?.toString().includes(query) ||
+                              supplier.companyName?.toLowerCase().includes(query);
+                            if (!matchesSearch) return false;
+                          }
+
+                          // Status filter
+                          if (paymentFilter === 'verified' && !supplier.paymentDetailsVerified) return false;
+                          if (paymentFilter === 'unverified' && (!supplier.paymentMethod || supplier.paymentDetailsVerified)) return false;
+                          if (paymentFilter === 'no_details' && supplier.paymentMethod) return false;
+
+                          // Payment method filter
+                          if (paymentMethodFilter !== 'all' && supplier.paymentMethod !== paymentMethodFilter) return false;
+
+                          return true;
+                        });
+
+                        if (filtered.length === 0) {
+                          return (
+                            <tr>
+                              <td colSpan={6} className="px-6 py-12 text-center">
+                                <DollarSign className="mx-auto text-gray-300 mb-4" size={48} />
+                                <h3 className="text-lg font-black text-[#001A33] mb-2">No suppliers found</h3>
+                                <p className="text-[14px] text-gray-500 font-semibold">
+                                  {paymentSearchQuery || paymentFilter !== 'all' || paymentMethodFilter !== 'all'
+                                    ? 'Try adjusting your filters'
+                                    : 'No suppliers have payment details yet'}
+                                </p>
+                              </td>
+                            </tr>
+                          );
+                        }
+
+                        // Pagination
+                        const totalPages = Math.ceil(filtered.length / itemsPerPage);
+                        const startIndex = (currentPage - 1) * itemsPerPage;
+                        const endIndex = startIndex + itemsPerPage;
+                        const paginatedSuppliers = filtered.slice(startIndex, endIndex);
+
+                        return (
+                          <>
+                            {paginatedSuppliers.map((supplier) => {
+                          const paymentMethodLabels: Record<string, string> = {
+                            'bank_transfer': 'Bank Transfer',
+                            'paypal': 'PayPal',
+                            'credit_card': 'Credit/Debit Card',
+                            'upi': 'UPI (India)',
+                            'wise': 'Wise (formerly TransferWise)'
+                          };
+
+                          const getPaymentMethodIcon = (method: string) => {
+                            switch (method) {
+                              case 'bank_transfer':
+                                return <Building size={18} className="text-blue-600" />;
+                              case 'paypal':
+                                return <Wallet size={18} className="text-blue-500" />;
+                              case 'credit_card':
+                                return <CreditCard size={18} className="text-purple-600" />;
+                              case 'upi':
+                                return <Wallet size={18} className="text-green-600" />;
+                              case 'wise':
+                                return <Wallet size={18} className="text-teal-600" />;
+                              default:
+                                return <DollarSign size={18} className="text-gray-400" />;
+                            }
+                          };
+
+                          const paymentDetails = supplier.paymentMethodDetails ? 
+                            (typeof supplier.paymentMethodDetails === 'string' 
+                              ? JSON.parse(supplier.paymentMethodDetails) 
+                              : supplier.paymentMethodDetails) 
+                            : {};
+
+                          const isExpanded = expandedRows.has(supplier.id);
+
+                          return (
+                            <React.Fragment key={supplier.id}>
+                              <tr className={`hover:bg-gray-50 transition-colors ${isExpanded ? 'bg-gray-50' : ''}`}>
+                                <td className="px-6 py-4">
+                                  <div className="flex items-center gap-3">
+                                    <div className="w-10 h-10 bg-[#10B981]/10 rounded-lg flex items-center justify-center">
+                                      {supplier.businessType === 'company' ? (
+                                        <Building2 size={18} className="text-[#10B981]" />
+                                      ) : (
+                                        <User size={18} className="text-[#10B981]" />
+                                      )}
+                                    </div>
+                                    <div>
+                                      <div className="text-[14px] font-black text-[#001A33]">
+                                        {supplier.fullName}
+                                        {supplier.companyName && ` - ${supplier.companyName}`}
+                                      </div>
+                                      <div className="text-[12px] text-gray-500 font-semibold">{supplier.email}</div>
+                                      <div className="text-[10px] font-mono text-gray-400">ID: {supplier.id}</div>
+                                    </div>
+                                  </div>
+                                </td>
+                                <td className="px-6 py-4">
+                                  {supplier.paymentMethod ? (
+                                    <div className="flex items-center gap-2">
+                                      {getPaymentMethodIcon(supplier.paymentMethod)}
+                                      <span className="text-[14px] font-bold text-[#001A33]">
+                                        {paymentMethodLabels[supplier.paymentMethod] || supplier.paymentMethod}
+                                      </span>
+                                    </div>
+                                  ) : (
+                                    <span className="text-[13px] text-gray-400 font-semibold">Not set</span>
+                                  )}
+                                </td>
+                                <td className="px-6 py-4">
+                                  <span className="text-[14px] font-bold text-[#001A33]">
+                                    {supplier.paymentCurrency || 'N/A'}
+                                  </span>
+                                </td>
+                                <td className="px-6 py-4">
+                                  {supplier.paymentDetailsVerified ? (
+                                    <span className="inline-flex items-center gap-1 px-3 py-1 bg-[#10B981]/10 text-[#10B981] rounded-full text-[12px] font-black">
+                                      <CheckCircle2 size={14} />
+                                      Verified
+                                    </span>
+                                  ) : supplier.paymentMethod ? (
+                                    <span className="inline-flex items-center gap-1 px-3 py-1 bg-yellow-50 text-yellow-700 rounded-full text-[12px] font-black">
+                                      <Clock size={14} />
+                                      Pending
+                                    </span>
+                                  ) : (
+                                    <span className="inline-flex items-center gap-1 px-3 py-1 bg-gray-100 text-gray-600 rounded-full text-[12px] font-black">
+                                      <XCircle size={14} />
+                                      Not Set
+                                    </span>
+                                  )}
+                                </td>
+                                <td className="px-6 py-4">
+                                  <div className="space-y-1">
+                                    <div className="text-[14px] font-black text-[#001A33]">
+                                      Net: {supplier.netEarnings !== undefined ? `${supplier.paymentCurrency || '₹'}${supplier.netEarnings.toLocaleString('en-IN', { minimumFractionDigits: 2 })}` : (supplier.totalEarnings ? `${supplier.paymentCurrency || '₹'}${supplier.totalEarnings.toLocaleString('en-IN', { minimumFractionDigits: 2 })}` : '₹0.00')}
+                                    </div>
+                                    {supplier.grossEarnings !== undefined && supplier.grossEarnings > 0 && (
+                                      <div className="text-[11px] text-gray-500 font-semibold">
+                                        Gross: {supplier.paymentCurrency || '₹'}{supplier.grossEarnings.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                                      </div>
+                                    )}
+                                    {supplier.tdsDeducted !== undefined && supplier.tdsDeducted > 0 && (
+                                      <div className="text-[11px] text-orange-600 font-semibold">
+                                        TDS: {supplier.paymentCurrency || '₹'}{supplier.tdsDeducted.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                                      </div>
+                                    )}
+                                    {supplier.pendingEarnings > 0 && (
+                                      <div className="text-[12px] text-yellow-600 font-semibold mt-1">
+                                        Pending: {supplier.paymentCurrency || '₹'}{supplier.pendingEarnings.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                                      </div>
+                                    )}
+                                  </div>
+                                </td>
+                                <td className="px-6 py-4">
+                                  <div className="flex items-center gap-2">
+                                    <button
+                                      onClick={() => {
+                                        const newExpanded = new Set(expandedRows);
+                                        if (isExpanded) {
+                                          newExpanded.delete(supplier.id);
+                                        } else {
+                                          newExpanded.add(supplier.id);
+                                        }
+                                        setExpandedRows(newExpanded);
+                                      }}
+                                      className="px-3 py-1.5 bg-gray-100 hover:bg-gray-200 text-[#001A33] rounded-lg text-[12px] font-bold transition-colors flex items-center gap-1"
+                                    >
+                                      {isExpanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+                                      {isExpanded ? 'Hide' : 'View'}
+                                    </button>
+                                    {supplier.paymentMethod && !supplier.paymentDetailsVerified && (
+                                      <button
+                                        onClick={() => handleVerifyPaymentDetails(supplier.id)}
+                                        disabled={isProcessing}
+                                        className="px-3 py-1.5 bg-[#10B981] hover:bg-[#059669] text-white rounded-lg text-[12px] font-bold transition-colors flex items-center gap-1 disabled:opacity-50"
+                                      >
+                                        <ShieldCheck size={14} />
+                                        Verify
+                                      </button>
+                                    )}
+                                  </div>
+                                </td>
+                              </tr>
+                              {isExpanded && (
+                                <tr>
+                                  <td colSpan={6} className="px-6 py-4 bg-gray-50">
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                      {/* Payment Details */}
+                                      <div className="space-y-4">
+                                        <h4 className="text-[16px] font-black text-[#001A33] border-b border-gray-200 pb-2">
+                                          Payment Details
+                                        </h4>
+                                        {supplier.paymentMethod === 'bank_transfer' && (
+                                          <div className="space-y-2 text-[13px]">
+                                            {paymentDetails.bankName && (
+                                              <div className="flex justify-between">
+                                                <span className="font-bold text-gray-600">Bank Name:</span>
+                                                <span className="text-[#001A33]">{paymentDetails.bankName}</span>
+                                              </div>
+                                            )}
+                                            {paymentDetails.accountNumber && (
+                                              <div className="flex justify-between">
+                                                <span className="font-bold text-gray-600">Account Number:</span>
+                                                <span className="text-[#001A33] font-mono">{paymentDetails.accountNumber}</span>
+                                              </div>
+                                            )}
+                                            {paymentDetails.ifscCode && (
+                                              <div className="flex justify-between">
+                                                <span className="font-bold text-gray-600">IFSC Code:</span>
+                                                <span className="text-[#001A33] font-mono">{paymentDetails.ifscCode}</span>
+                                              </div>
+                                            )}
+                                            {paymentDetails.swiftCode && (
+                                              <div className="flex justify-between">
+                                                <span className="font-bold text-gray-600">SWIFT/BIC:</span>
+                                                <span className="text-[#001A33] font-mono">{paymentDetails.swiftCode}</span>
+                                              </div>
+                                            )}
+                                            {paymentDetails.beneficiaryName && (
+                                              <div className="flex justify-between">
+                                                <span className="font-bold text-gray-600">Beneficiary:</span>
+                                                <span className="text-[#001A33]">{paymentDetails.beneficiaryName}</span>
+                                              </div>
+                                            )}
+                                          </div>
+                                        )}
+                                        {supplier.paymentMethod === 'paypal' && paymentDetails.paypalEmail && (
+                                          <div className="space-y-2 text-[13px]">
+                                            <div className="flex justify-between">
+                                              <span className="font-bold text-gray-600">PayPal Email:</span>
+                                              <span className="text-[#001A33]">{paymentDetails.paypalEmail}</span>
+                                            </div>
+                                            {paymentDetails.accountType && (
+                                              <div className="flex justify-between">
+                                                <span className="font-bold text-gray-600">Account Type:</span>
+                                                <span className="text-[#001A33]">{paymentDetails.accountType}</span>
+                                              </div>
+                                            )}
+                                          </div>
+                                        )}
+                                        {supplier.paymentMethod === 'credit_card' && paymentDetails.cardHolderName && (
+                                          <div className="space-y-2 text-[13px]">
+                                            <div className="flex justify-between">
+                                              <span className="font-bold text-gray-600">Card Holder:</span>
+                                              <span className="text-[#001A33]">{paymentDetails.cardHolderName}</span>
+                                            </div>
+                                            {paymentDetails.last4Digits && (
+                                              <div className="flex justify-between">
+                                                <span className="font-bold text-gray-600">Card Number:</span>
+                                                <span className="text-[#001A33] font-mono">****{paymentDetails.last4Digits}</span>
+                                              </div>
+                                            )}
+                                          </div>
+                                        )}
+                                        {supplier.paymentMethod === 'upi' && paymentDetails.upiId && (
+                                          <div className="space-y-2 text-[13px]">
+                                            <div className="flex justify-between">
+                                              <span className="font-bold text-gray-600">UPI ID:</span>
+                                              <span className="text-[#001A33]">{paymentDetails.upiId}</span>
+                                            </div>
+                                          </div>
+                                        )}
+                                        {supplier.paymentMethod === 'wise' && paymentDetails.wiseEmail && (
+                                          <div className="space-y-2 text-[13px]">
+                                            <div className="flex justify-between">
+                                              <span className="font-bold text-gray-600">Wise Email:</span>
+                                              <span className="text-[#001A33]">{paymentDetails.wiseEmail}</span>
+                                            </div>
+                                            {paymentDetails.accountHolderName && (
+                                              <div className="flex justify-between">
+                                                <span className="font-bold text-gray-600">Account Holder:</span>
+                                                <span className="text-[#001A33]">{paymentDetails.accountHolderName}</span>
+                                              </div>
+                                            )}
+                                          </div>
+                                        )}
+                                        {!supplier.paymentMethod && (
+                                          <p className="text-[13px] text-gray-500 font-semibold">No payment details added yet.</p>
+                                        )}
+                                      </div>
+
+                                      {/* Tax Details */}
+                                      <div className="space-y-4">
+                                        <h4 className="text-[16px] font-black text-[#001A33] border-b border-gray-200 pb-2">
+                                          Tax Details
+                                        </h4>
+                                        {supplier.taxId ? (
+                                          <div className="space-y-2 text-[13px]">
+                                            {supplier.taxIdType && (
+                                              <div className="flex justify-between">
+                                                <span className="font-bold text-gray-600">Tax ID Type:</span>
+                                                <span className="text-[#001A33]">{supplier.taxIdType}</span>
+                                              </div>
+                                            )}
+                                            <div className="flex justify-between">
+                                              <span className="font-bold text-gray-600">Tax ID:</span>
+                                              <span className="text-[#001A33] font-mono">{supplier.taxId}</span>
+                                            </div>
+                                            {supplier.taxCountry && (
+                                              <div className="flex justify-between">
+                                                <span className="font-bold text-gray-600">Country:</span>
+                                                <span className="text-[#001A33]">{supplier.taxCountry}</span>
+                                              </div>
+                                            )}
+                                            {supplier.taxVerified && (
+                                              <div className="flex justify-between">
+                                                <span className="font-bold text-gray-600">Status:</span>
+                                                <span className="text-[#10B981] font-bold">✓ Verified</span>
+                                              </div>
+                                            )}
+                                          </div>
+                                        ) : (
+                                          <p className="text-[13px] text-gray-500 font-semibold">No tax details provided.</p>
+                                        )}
+                                      </div>
+                                    </div>
+                                  </td>
+                                </tr>
+                              )}
+                            </React.Fragment>
+                          );
+                        })}
+                            {/* Pagination Controls */}
+                            {filtered.length > itemsPerPage && (
+                              <tr>
+                                <td colSpan={6} className="px-6 py-4 bg-gray-50 border-t border-gray-200">
+                                  <div className="flex items-center justify-between">
+                                    <div className="flex items-center gap-4">
+                                      <span className="text-[13px] font-semibold text-gray-600">
+                                        Showing {startIndex + 1} - {Math.min(endIndex, filtered.length)} of {filtered.length} suppliers
+                                      </span>
+                                      <select
+                                        value={itemsPerPage}
+                                        onChange={(e) => {
+                                          setItemsPerPage(Number(e.target.value));
+                                          setCurrentPage(1);
+                                        }}
+                                        className="px-3 py-1.5 border border-gray-300 rounded-lg text-[13px] font-bold text-[#001A33] focus:ring-2 focus:ring-[#10B981] outline-none"
+                                      >
+                                        <option value={25}>25 per page</option>
+                                        <option value={50}>50 per page</option>
+                                        <option value={100}>100 per page</option>
+                                        <option value={200}>200 per page</option>
+                                      </select>
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                      <button
+                                        onClick={() => setCurrentPage(1)}
+                                        disabled={currentPage === 1}
+                                        className="px-3 py-1.5 bg-white border border-gray-300 rounded-lg text-[13px] font-bold text-[#001A33] disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 transition-colors"
+                                      >
+                                        First
+                                      </button>
+                                      <button
+                                        onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                                        disabled={currentPage === 1}
+                                        className="px-3 py-1.5 bg-white border border-gray-300 rounded-lg text-[13px] font-bold text-[#001A33] disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 transition-colors"
+                                      >
+                                        Previous
+                                      </button>
+                                      <span className="px-4 py-1.5 text-[13px] font-bold text-[#001A33]">
+                                        Page {currentPage} of {totalPages}
+                                      </span>
+                                      <button
+                                        onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                                        disabled={currentPage === totalPages}
+                                        className="px-3 py-1.5 bg-white border border-gray-300 rounded-lg text-[13px] font-bold text-[#001A33] disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 transition-colors"
+                                      >
+                                        Next
+                                      </button>
+                                      <button
+                                        onClick={() => setCurrentPage(totalPages)}
+                                        disabled={currentPage === totalPages}
+                                        className="px-3 py-1.5 bg-white border border-gray-300 rounded-lg text-[13px] font-bold text-[#001A33] disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 transition-colors"
+                                      >
+                                        Last
+                                      </button>
+                                    </div>
+                                  </div>
+                                </td>
+                              </tr>
+                            )}
+                          </>
+                        );
+                      })()}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
+          </div>
         ) : activeTab === 'bookings' ? (
           // Bookings Tab
           <div className="space-y-6">

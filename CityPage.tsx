@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { MapPin, Star, Clock, Users, Search, Filter, Heart, ShoppingCart, User, Globe, ChevronDown, Calendar, ChevronUp } from 'lucide-react';
+import { MapPin, Star, Clock, Users, Search, Filter, Heart, ShoppingCart, User, Globe, ChevronDown, Calendar, ChevronUp, Mail, ArrowLeft } from 'lucide-react';
 import { CITY_LOCATIONS } from './constants';
 
 interface CityPageProps {
@@ -527,6 +527,148 @@ const ThingsToDoSection: React.FC<ThingsToDoSectionProps> = ({ city }) => {
   );
 };
 
+// Email Signup Box Component
+interface EmailSignupBoxProps {
+  city: string;
+  country: string;
+}
+
+const EmailSignupBox: React.FC<EmailSignupBoxProps> = ({ city, country }) => {
+  const [email, setEmail] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState(false);
+  const [error, setError] = useState('');
+
+  // City-specific images
+  const cityImages: Record<string, string> = {
+    'Agra': '/agra-itinerary-hero.jpg',
+    'Delhi': '/delhi-itinerary-hero.jpg',
+    'Jaipur': '/jaipur-itinerary-hero.jpg'
+  };
+
+  // Fallback to city hero image if itinerary-specific image doesn't exist
+  const imageSrc = cityImages[city] || `/${city.toLowerCase()}-hero.jpg`;
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError('');
+    setLoading(true);
+
+    try {
+      const API_URL = import.meta.env.VITE_API_URL || (typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3001');
+      const response = await fetch(`${API_URL}/api/email/subscribe`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email,
+          city,
+          country,
+          subscriptionType: 'itinerary'
+        })
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        setSuccess(true);
+        setEmail('');
+      } else {
+        setError(data.message || 'Something went wrong. Please try again.');
+      }
+    } catch (err) {
+      setError('Network error. Please check your connection and try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (success) {
+    return (
+      <section className="mb-12">
+        <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden">
+          <div className="bg-[#10B981] p-8 text-center">
+            <div className="text-4xl mb-4">✅</div>
+            <h2 className="text-2xl font-black text-white mb-2">Check Your Email!</h2>
+            <p className="text-white opacity-95">
+              We've sent you a verification email. Click the link to receive your {city} itinerary.
+            </p>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  return (
+    <section className="mb-10">
+      <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-0">
+          {/* Image Section */}
+          <div className="md:col-span-2 relative h-52 md:h-56 overflow-hidden">
+            <img
+              src={imageSrc}
+              alt={`${city} travel experience`}
+              className="w-full h-full object-cover object-center"
+              onError={(e) => {
+                // Fallback to a placeholder if image doesn't exist
+                (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1488646953014-85cb44e25828?auto=format&fit=crop&q=80&w=800';
+              }}
+            />
+          </div>
+
+          {/* Form Section */}
+          <div className="md:col-span-1 bg-[#10B981]/10 p-4 md:p-5 flex flex-col justify-center">
+            <h2 className="text-xl md:text-2xl font-black text-[#001A33] mb-2">
+              Your {city} itinerary is waiting
+            </h2>
+            <p className="text-[13px] md:text-[14px] text-[#001A33] mb-4 font-semibold">
+              Receive a curated 48-hour itinerary featuring the most iconic experiences in {city}, straight to your inbox.
+            </p>
+
+            <form onSubmit={handleSubmit} className="space-y-3">
+              <div className="relative">
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="Email"
+                  required
+                  className="w-full px-3 py-2.5 pr-10 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#10B981] focus:border-transparent text-[14px]"
+                  disabled={loading}
+                />
+                <Mail size={18} className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+              </div>
+
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full bg-[#10B981] hover:bg-[#059669] text-white font-bold py-2.5 px-4 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-[14px]"
+              >
+                {loading ? 'Signing up...' : 'Sign up'}
+              </button>
+
+              {error && (
+                <p className="text-red-600 text-xs font-semibold">{error}</p>
+              )}
+            </form>
+          </div>
+        </div>
+
+        {/* Privacy Disclaimer */}
+        <div className="p-3 bg-gray-50 border-t border-gray-200">
+          <p className="text-[11px] text-gray-600 text-center">
+            By signing up, you agree to receive promotional emails on activities and insider tips. You can unsubscribe or withdraw your consent at any time with future effect. For more information, read our{' '}
+            <a href="/privacy-policy" className="underline text-[#10B981] hover:text-[#059669]">
+              Privacy statement
+            </a>.
+          </p>
+        </div>
+      </div>
+    </section>
+  );
+};
+
 const CityPage: React.FC<CityPageProps> = ({ country, city }) => {
   const [tours, setTours] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -536,7 +678,14 @@ const CityPage: React.FC<CityPageProps> = ({ country, city }) => {
   const [sortBy, setSortBy] = useState<string>('recommended');
 
   useEffect(() => {
-    fetchTours();
+    console.log('CityPage - useEffect triggered:', { country, city });
+    if (country && city) {
+      fetchTours();
+    } else {
+      console.warn('CityPage - Missing country or city:', { country, city });
+      setTours([]);
+      setLoading(false);
+    }
   }, [country, city]);
 
   // Loading timer effect
@@ -563,30 +712,88 @@ const CityPage: React.FC<CityPageProps> = ({ country, city }) => {
     setLoading(true);
     setLoadingTime(0);
     try {
-      const API_URL = import.meta.env.VITE_API_URL || (typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3001');
+      // Use explicit backend URL for localhost development
+      const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
       const url = `${API_URL}/api/public/tours?country=${encodeURIComponent(country)}&city=${encodeURIComponent(city)}&status=approved`;
       console.log('CityPage - Fetching tours from:', url);
+      console.log('CityPage - Country:', country, 'City:', city);
+      
       const response = await fetch(url);
       console.log('CityPage - Response status:', response.status);
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
       const data = await response.json();
       console.log('CityPage - Response data:', data);
+      console.log('CityPage - Tours count:', data.tours?.length || 0);
+      
       if (data.success) {
-        // Ensure all tours have slugs
-        const toursWithSlugs = data.tours.map((tour: any) => ({
-          ...tour,
-          slug: tour.slug || `tour-${tour.id}` // Fallback slug if missing
-        }));
-        console.log('CityPage - Setting tours:', toursWithSlugs.length, toursWithSlugs);
-        setTours(toursWithSlugs);
+        // Handle both array and object responses
+        let toursArray: any[] = [];
+        
+        if (Array.isArray(data.tours)) {
+          toursArray = data.tours;
+        } else if (data.tours && typeof data.tours === 'object') {
+          // Handle nested structure
+          if (Array.isArray(data.tours.tours)) {
+            toursArray = data.tours.tours;
+          } else if (data.count !== undefined && data.count === 0) {
+            toursArray = [];
+          }
+        }
+        
+        console.log('CityPage - Parsed tours array length:', toursArray.length);
+        console.log('CityPage - Raw data.tours:', data.tours);
+        console.log('CityPage - Data count:', data.count);
+        
+        if (toursArray.length > 0) {
+          // Ensure all tours have slugs
+          const toursWithSlugs = toursArray.map((tour: any) => ({
+            ...tour,
+            slug: tour.slug || `tour-${tour.id}` // Fallback slug if missing
+          }));
+          console.log('CityPage - ✅ Setting tours:', toursWithSlugs.length);
+          console.log('CityPage - Tour titles:', toursWithSlugs.map((t: any) => t.title));
+          console.log('CityPage - First tour sample:', toursWithSlugs[0]);
+          setTours(toursWithSlugs);
+        } else {
+          console.warn('CityPage - ⚠️ API returned success=true but no tours found');
+          console.warn('CityPage - Data structure:', {
+            success: data.success,
+            tours: data.tours,
+            toursType: typeof data.tours,
+            toursIsArray: Array.isArray(data.tours),
+            count: data.count,
+            hasToursProperty: !!data.tours
+          });
+          setTours([]);
+        }
       } else {
         console.error('CityPage - API returned success=false:', data);
+        console.error('CityPage - Data structure:', {
+          success: data.success,
+          hasTours: !!data.tours,
+          toursIsArray: Array.isArray(data.tours),
+          toursType: typeof data.tours,
+          error: data.error,
+          message: data.message
+        });
         setTours([]);
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('CityPage - Error fetching tours:', error);
+      console.error('CityPage - Error details:', {
+        message: error.message,
+        stack: error.stack,
+        name: error.name
+      });
       setTours([]);
     } finally {
       setLoading(false);
+      // Note: tours.length here is the OLD state value (React state updates are async)
+      // The actual tours will be logged in the setTours callback above
       console.log('CityPage - Loading complete');
     }
   };
@@ -780,6 +987,21 @@ const CityPage: React.FC<CityPageProps> = ({ country, city }) => {
 
 
       <div className="max-w-7xl mx-auto px-6 py-6">
+        {/* Back Button */}
+        <button
+          onClick={() => {
+            if (window.history.length > 1) {
+              window.history.back();
+            } else {
+              window.location.href = '/';
+            }
+          }}
+          className="flex items-center gap-2 text-[#10B981] hover:text-[#059669] font-semibold mb-4 transition-colors group"
+        >
+          <ArrowLeft size={20} className="group-hover:-translate-x-1 transition-transform" />
+          <span>Back</span>
+        </button>
+
         {/* H1 - SEO Gold (ONLY ONE H1) */}
         <h1 className="text-4xl md:text-5xl font-black text-[#001A33] mb-8">
           Guided Tours & Things to Do in {city}
@@ -829,6 +1051,27 @@ const CityPage: React.FC<CityPageProps> = ({ country, city }) => {
         </div>
 
         {/* H2 #1: Popular Tours & Experiences */}
+        {!loading && sortedTours.length === 0 && tours.length === 0 && (
+          <section className="mb-12">
+            <div className="bg-yellow-50 border border-yellow-200 rounded-2xl p-6 mb-6">
+              <h2 className="text-2xl font-black text-[#001A33] mb-2">
+                No Tours Available
+              </h2>
+              <p className="text-[14px] text-gray-600 font-semibold">
+                We're currently updating our tour offerings for {city}. Please check back soon or contact us for custom tour arrangements.
+              </p>
+              <button
+                onClick={() => {
+                  console.log('Refreshing tours...');
+                  fetchTours();
+                }}
+                className="mt-4 px-4 py-2 bg-[#10B981] hover:bg-[#059669] text-white font-bold rounded-lg text-[14px] transition-colors"
+              >
+                Refresh Tours
+              </button>
+            </div>
+          </section>
+        )}
         {sortedTours.length > 0 && (
           <section className="mb-12">
             <h2 className="text-3xl font-black text-[#001A33] mb-6">
@@ -1064,6 +1307,11 @@ const CityPage: React.FC<CityPageProps> = ({ country, city }) => {
             {cityInfo.bestTime}
           </p>
         </section>
+
+        {/* Email Signup Box - Only show for cities with itineraries */}
+        {(city === 'Agra' || city === 'Delhi' || city === 'Jaipur') && (
+          <EmailSignupBox city={city} country={country} />
+        )}
 
         {/* H2 #5: FAQs */}
         {cityInfo.faqs.length > 0 && (

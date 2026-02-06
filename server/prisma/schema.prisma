@@ -31,6 +31,23 @@ model Supplier {
   status                   String    @default("pending")
   createdAt                DateTime  @default(now()) @map("created_at")
   updatedAt                DateTime  @updatedAt @map("updated_at")
+  
+  // Payment Details
+  paymentMethod            String?   @map("payment_method") // "bank_transfer", "paypal", "credit_card", "upi"
+  paymentMethodDetails     String?   @map("payment_method_details") // JSON string with method-specific details
+  paymentCurrency          String?   @map("payment_currency") // Currency for payouts (INR, USD, etc.)
+  paymentFrequency         String    @default("monthly") @map("payment_frequency") // "monthly", "biweekly"
+  
+  // Tax Details (Optional)
+  taxId                    String?   @map("tax_id") // GSTIN, PAN, VAT number, etc.
+  taxIdType                String?   @map("tax_id_type") // "GSTIN", "PAN", "VAT", "EIN", etc.
+  taxCountry               String?   @map("tax_country") // Country of tax registration
+  taxVerified              Boolean   @default(false) @map("tax_verified")
+  
+  // Payment Status
+  paymentDetailsVerified   Boolean   @default(false) @map("payment_details_verified")
+  paymentDetailsVerifiedAt DateTime? @map("payment_details_verified_at")
+  
   tours                    Tour[]
   bookings                 Booking[]
 
@@ -173,4 +190,22 @@ model Tourist {
 
   @@index([email])
   @@map("tourists")
+}
+
+model EmailSubscription {
+  id               Int       @id @default(autoincrement())
+  email            String
+  city             String?   // City name (e.g., "Agra", "Delhi", "Jaipur")
+  country          String?   // Country name (e.g., "India")
+  subscriptionType String    @default("itinerary") // "itinerary" or "newsletter"
+  verified         Boolean   @default(false)
+  verificationToken String?  @map("verification_token")
+  verifiedAt       DateTime? @map("verified_at")
+  createdAt        DateTime  @default(now()) @map("created_at")
+  updatedAt        DateTime  @updatedAt @map("updated_at")
+
+  @@unique([email, city, subscriptionType])
+  @@index([email])
+  @@index([city])
+  @@map("email_subscriptions")
 }

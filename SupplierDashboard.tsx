@@ -22,9 +22,772 @@ import {
   Home,
   RefreshCw,
   Download,
-  ShieldCheck
+  ShieldCheck,
+  CreditCard,
+  Building2,
+  Wallet,
+  Info
 } from 'lucide-react';
 import TourCreationForm from './TourCreationForm';
+
+// Country to payment methods mapping
+const COUNTRY_PAYMENT_METHODS: Record<string, string[]> = {
+  'India': ['bank_transfer', 'upi', 'paypal', 'wise'],
+  'Thailand': ['bank_transfer', 'paypal', 'credit_card', 'wise'],
+  'Japan': ['bank_transfer', 'paypal', 'wise'],
+  'Singapore': ['bank_transfer', 'paypal', 'credit_card', 'wise'],
+  'Indonesia': ['bank_transfer', 'paypal', 'wise'],
+  'Malaysia': ['bank_transfer', 'paypal', 'credit_card', 'wise'],
+  'Vietnam': ['bank_transfer', 'paypal', 'wise'],
+  'South Korea': ['bank_transfer', 'paypal', 'credit_card', 'wise'],
+  'Philippines': ['bank_transfer', 'paypal', 'credit_card', 'wise'],
+  'China': ['bank_transfer', 'paypal', 'wise'],
+  'Taiwan': ['bank_transfer', 'paypal', 'credit_card', 'wise'],
+  'Hong Kong': ['bank_transfer', 'paypal', 'credit_card', 'wise'],
+  'Sri Lanka': ['bank_transfer', 'paypal', 'wise'],
+  'Nepal': ['bank_transfer', 'paypal', 'wise'],
+  'Cambodia': ['bank_transfer', 'paypal', 'wise'],
+  'Myanmar': ['bank_transfer', 'paypal', 'wise'],
+  'Laos': ['bank_transfer', 'paypal', 'wise'],
+  'Bangladesh': ['bank_transfer', 'paypal', 'wise']
+};
+
+// Payment method labels
+const PAYMENT_METHOD_LABELS: Record<string, string> = {
+  'bank_transfer': 'Bank Transfer',
+  'paypal': 'PayPal',
+  'credit_card': 'Credit/Debit Card',
+  'upi': 'UPI (India)',
+  'wise': 'Wise (formerly TransferWise)'
+};
+
+// Tax ID types by country
+const TAX_ID_TYPES: Record<string, string[]> = {
+  'India': ['GSTIN', 'PAN'],
+  'Thailand': ['VAT', 'Tax ID'],
+  'Japan': ['Tax ID'],
+  'Singapore': ['GST', 'UEN'],
+  'Indonesia': ['NPWP'],
+  'Malaysia': ['SST', 'Tax ID'],
+  'Vietnam': ['Tax Code'],
+  'South Korea': ['Business Registration Number'],
+  'Philippines': ['TIN'],
+  'China': ['Tax ID'],
+  'Taiwan': ['Tax ID'],
+  'Hong Kong': ['BRN'],
+  'Sri Lanka': ['VAT', 'Tax ID'],
+  'Nepal': ['PAN', 'VAT'],
+  'Cambodia': ['Tax ID'],
+  'Myanmar': ['Tax ID'],
+  'Laos': ['Tax ID'],
+  'Bangladesh': ['TIN', 'VAT']
+};
+
+
+// Payment Details Display Component
+const PaymentDetailsDisplay: React.FC<{ paymentDetails: any }> = ({ paymentDetails }) => {
+  const getPaymentMethodIcon = (method: string) => {
+    switch (method) {
+      case 'bank_transfer':
+        return <Building2 size={20} className="text-[#10B981]" />;
+      case 'paypal':
+        return <Wallet size={20} className="text-[#10B981]" />;
+      case 'credit_card':
+        return <CreditCard size={20} className="text-[#10B981]" />;
+      case 'upi':
+        return <Wallet size={20} className="text-[#10B981]" />;
+      case 'wise':
+        return <Wallet size={20} className="text-[#10B981]" />;
+      default:
+        return <DollarSign size={20} className="text-[#10B981]" />;
+    }
+  };
+
+  const details = paymentDetails.paymentMethodDetails || {};
+
+  return (
+    <div className="space-y-4">
+      {/* Payment Method */}
+      <div className="p-4 bg-gray-50 rounded-xl border border-gray-200">
+        <div className="flex items-center gap-3 mb-3">
+          {getPaymentMethodIcon(paymentDetails.paymentMethod)}
+          <div>
+            <p className="text-[12px] font-bold text-gray-600">Payment Method</p>
+            <p className="text-[16px] font-black text-[#001A33]">
+              {PAYMENT_METHOD_LABELS[paymentDetails.paymentMethod] || paymentDetails.paymentMethod}
+            </p>
+          </div>
+          {paymentDetails.paymentDetailsVerified && (
+            <span className="ml-auto px-3 py-1 bg-[#10B981]/10 text-[#10B981] rounded-full text-[11px] font-bold flex items-center gap-1">
+              <CheckCircle2 size={12} />
+              Verified
+            </span>
+          )}
+        </div>
+
+        {/* Bank Transfer Details */}
+        {paymentDetails.paymentMethod === 'bank_transfer' && details.bankName && (
+          <div className="mt-4 space-y-2 text-[13px]">
+            <div className="flex justify-between">
+              <span className="font-bold text-gray-600">Bank Name:</span>
+              <span className="text-[#001A33]">{details.bankName}</span>
+            </div>
+            {details.accountNumber && (
+              <div className="flex justify-between">
+                <span className="font-bold text-gray-600">Account Number:</span>
+                <span className="text-[#001A33]">{details.accountNumber}</span>
+              </div>
+            )}
+            {details.accountType && (
+              <div className="flex justify-between">
+                <span className="font-bold text-gray-600">Account Type:</span>
+                <span className="text-[#001A33]">{details.accountType}</span>
+              </div>
+            )}
+            {details.ifscCode && (
+              <div className="flex justify-between">
+                <span className="font-bold text-gray-600">IFSC Code:</span>
+                <span className="text-[#001A33]">{details.ifscCode}</span>
+              </div>
+            )}
+            {details.swiftCode && (
+              <div className="flex justify-between">
+                <span className="font-bold text-gray-600">SWIFT/BIC:</span>
+                <span className="text-[#001A33]">{details.swiftCode}</span>
+              </div>
+            )}
+            {details.beneficiaryName && (
+              <div className="flex justify-between">
+                <span className="font-bold text-gray-600">Beneficiary Name:</span>
+                <span className="text-[#001A33]">{details.beneficiaryName}</span>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* PayPal Details */}
+        {paymentDetails.paymentMethod === 'paypal' && details.paypalEmail && (
+          <div className="mt-4 space-y-2 text-[13px]">
+            <div className="flex justify-between">
+              <span className="font-bold text-gray-600">PayPal Email:</span>
+              <span className="text-[#001A33]">{details.paypalEmail}</span>
+            </div>
+            {details.accountType && (
+              <div className="flex justify-between">
+                <span className="font-bold text-gray-600">Account Type:</span>
+                <span className="text-[#001A33]">{details.accountType}</span>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Credit Card Details */}
+        {paymentDetails.paymentMethod === 'credit_card' && details.cardHolderName && (
+          <div className="mt-4 space-y-2 text-[13px]">
+            <div className="flex justify-between">
+              <span className="font-bold text-gray-600">Card Holder:</span>
+              <span className="text-[#001A33]">{details.cardHolderName}</span>
+            </div>
+            {details.cardType && (
+              <div className="flex justify-between">
+                <span className="font-bold text-gray-600">Card Type:</span>
+                <span className="text-[#001A33]">{details.cardType}</span>
+              </div>
+            )}
+            {details.last4Digits && (
+              <div className="flex justify-between">
+                <span className="font-bold text-gray-600">Card Number:</span>
+                <span className="text-[#001A33]">****{details.last4Digits}</span>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* UPI Details */}
+        {paymentDetails.paymentMethod === 'upi' && details.upiId && (
+          <div className="mt-4 space-y-2 text-[13px]">
+            <div className="flex justify-between">
+              <span className="font-bold text-gray-600">UPI ID:</span>
+              <span className="text-[#001A33]">{details.upiId}</span>
+            </div>
+          </div>
+        )}
+
+        {/* Wise Details */}
+        {paymentDetails.paymentMethod === 'wise' && details.wiseEmail && (
+          <div className="mt-4 space-y-2 text-[13px]">
+            <div className="flex justify-between">
+              <span className="font-bold text-gray-600">Wise Email:</span>
+              <span className="text-[#001A33]">{details.wiseEmail}</span>
+            </div>
+            {details.accountHolderName && (
+              <div className="flex justify-between">
+                <span className="font-bold text-gray-600">Account Holder:</span>
+                <span className="text-[#001A33]">{details.accountHolderName}</span>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* Tax Details */}
+      {paymentDetails.taxId && (
+        <div className="p-4 bg-gray-50 rounded-xl border border-gray-200">
+          <div className="flex items-center gap-2 mb-3">
+            <FileText className="text-[#10B981]" size={20} />
+            <div>
+              <p className="text-[12px] font-bold text-gray-600">Tax Details</p>
+              {paymentDetails.taxVerified && (
+                <span className="text-[11px] text-[#10B981] font-bold flex items-center gap-1 mt-1">
+                  <CheckCircle2 size={10} />
+                  Verified
+                </span>
+              )}
+            </div>
+          </div>
+          <div className="space-y-2 text-[13px]">
+            {paymentDetails.taxIdType && (
+              <div className="flex justify-between">
+                <span className="font-bold text-gray-600">Tax ID Type:</span>
+                <span className="text-[#001A33]">{paymentDetails.taxIdType}</span>
+              </div>
+            )}
+            <div className="flex justify-between">
+              <span className="font-bold text-gray-600">Tax ID:</span>
+              <span className="text-[#001A33]">{paymentDetails.taxId}</span>
+            </div>
+            {paymentDetails.taxCountry && (
+              <div className="flex justify-between">
+                <span className="font-bold text-gray-600">Country:</span>
+                <span className="text-[#001A33]">{paymentDetails.taxCountry}</span>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Payment Currency */}
+      {paymentDetails.paymentCurrency && (
+        <div className="p-3 bg-blue-50 rounded-xl border border-blue-200">
+          <div className="flex justify-between items-center">
+            <span className="text-[13px] font-bold text-gray-600">Payment Currency:</span>
+            <span className="text-[16px] font-black text-[#001A33]">{paymentDetails.paymentCurrency}</span>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+// Payment Details Form Component
+interface PaymentDetailsFormProps {
+  paymentFormData: any;
+  setPaymentFormData: (data: any) => void;
+  selectedCountry: string;
+  setSelectedCountry: (country: string) => void;
+  onSave: () => void;
+  onCancel: () => void;
+  isSaving: boolean;
+}
+
+const PaymentDetailsForm: React.FC<PaymentDetailsFormProps> = ({
+  paymentFormData,
+  setPaymentFormData,
+  selectedCountry,
+  setSelectedCountry,
+  onSave,
+  onCancel,
+  isSaving
+}) => {
+  const availableMethods = COUNTRY_PAYMENT_METHODS[selectedCountry] || ['bank_transfer', 'paypal'];
+  const availableTaxTypes = TAX_ID_TYPES[selectedCountry] || ['Tax ID'];
+
+  const updatePaymentMethodDetails = (field: string, value: any) => {
+    setPaymentFormData({
+      ...paymentFormData,
+      paymentMethodDetails: {
+        ...paymentFormData.paymentMethodDetails,
+        [field]: value
+      }
+    });
+  };
+
+  return (
+    <div className="space-y-6">
+      {/* Info Banner */}
+      <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
+        <div className="flex items-start gap-3">
+          <Info className="text-blue-600 mt-0.5" size={20} />
+          <div>
+            <h4 className="text-[14px] font-black text-[#001A33] mb-1">Payment Details Required</h4>
+            <p className="text-[13px] text-gray-700 font-semibold">
+              Add your payment details to receive monthly payouts. All information is encrypted and secure. Payments are processed on the 5th of each month.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Country Selection */}
+      <div>
+        <label className="block text-[14px] font-bold text-[#001A33] mb-2">
+          Country <span className="text-red-500">*</span>
+        </label>
+        <select
+          value={selectedCountry}
+          onChange={(e) => {
+            setSelectedCountry(e.target.value);
+            setPaymentFormData({
+              ...paymentFormData,
+              paymentMethod: '',
+              paymentMethodDetails: {}
+            });
+          }}
+          className="w-full bg-white border-2 border-gray-200 rounded-xl py-3 px-4 font-bold text-[#001A33] text-[14px] focus:ring-2 focus:ring-[#10B981] focus:border-[#10B981] outline-none"
+        >
+          {Object.keys(COUNTRY_PAYMENT_METHODS).map(country => (
+            <option key={country} value={country}>{country}</option>
+          ))}
+        </select>
+        <p className="text-[12px] text-gray-500 font-semibold mt-1.5">
+          Select the country where your payment account is located
+        </p>
+      </div>
+
+      {/* Payment Method Selection */}
+      <div>
+        <label className="block text-[14px] font-bold text-[#001A33] mb-2">Payment Method *</label>
+        <select
+          value={paymentFormData.paymentMethod}
+          onChange={(e) => {
+            setPaymentFormData({
+              ...paymentFormData,
+              paymentMethod: e.target.value,
+              paymentMethodDetails: {}
+            });
+          }}
+          className="w-full bg-white border-2 border-gray-200 rounded-xl py-3 px-4 font-bold text-[#001A33] text-[14px] focus:ring-2 focus:ring-[#10B981] focus:border-[#10B981] outline-none"
+        >
+          <option value="">Select payment method</option>
+          {availableMethods.map(method => (
+            <option key={method} value={method}>{PAYMENT_METHOD_LABELS[method]}</option>
+          ))}
+        </select>
+      </div>
+
+      {/* Bank Transfer Form */}
+      {paymentFormData.paymentMethod === 'bank_transfer' && (
+        <div className="p-4 bg-gray-50 rounded-xl border border-gray-200 space-y-4">
+          <div className="flex items-center gap-2 mb-4 pb-3 border-b border-gray-300">
+            <Building2 className="text-[#10B981]" size={20} />
+            <h4 className="text-[16px] font-black text-[#001A33]">Bank Transfer Details</h4>
+          </div>
+          <div>
+            <label className="block text-[13px] font-bold text-[#001A33] mb-2">
+              Bank Name <span className="text-red-500">*</span>
+            </label>
+            <input
+              type="text"
+              value={paymentFormData.paymentMethodDetails.bankName || ''}
+              onChange={(e) => updatePaymentMethodDetails('bankName', e.target.value)}
+              placeholder="e.g., Axis Bank"
+              className="w-full bg-white border-2 border-gray-200 rounded-xl py-3 px-4 font-semibold text-[#001A33] text-[14px] focus:ring-2 focus:ring-[#10B981] focus:border-[#10B981] outline-none"
+            />
+          </div>
+          <div>
+            <label className="block text-[13px] font-bold text-[#001A33] mb-2">Account Number *</label>
+            <input
+              type="text"
+              value={paymentFormData.paymentMethodDetails.accountNumber || ''}
+              onChange={(e) => updatePaymentMethodDetails('accountNumber', e.target.value)}
+              placeholder="Enter account number"
+              className="w-full bg-white border-2 border-gray-200 rounded-xl py-3 px-4 font-semibold text-[#001A33] text-[14px] focus:ring-2 focus:ring-[#10B981] focus:border-[#10B981] outline-none"
+            />
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-[13px] font-bold text-[#001A33] mb-2">Account Type *</label>
+              <select
+                value={paymentFormData.paymentMethodDetails.accountType || ''}
+                onChange={(e) => updatePaymentMethodDetails('accountType', e.target.value)}
+                className="w-full bg-white border-2 border-gray-200 rounded-xl py-3 px-4 font-semibold text-[#001A33] text-[14px] focus:ring-2 focus:ring-[#10B981] focus:border-[#10B981] outline-none"
+              >
+                <option value="">Select type</option>
+                <option value="Savings">Savings</option>
+                <option value="Current">Current</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-[13px] font-bold text-[#001A33] mb-2">Beneficiary Name *</label>
+              <input
+                type="text"
+                value={paymentFormData.paymentMethodDetails.beneficiaryName || ''}
+                onChange={(e) => updatePaymentMethodDetails('beneficiaryName', e.target.value)}
+                placeholder="Account holder name"
+                className="w-full bg-white border-2 border-gray-200 rounded-xl py-3 px-4 font-semibold text-[#001A33] text-[14px] focus:ring-2 focus:ring-[#10B981] focus:border-[#10B981] outline-none"
+              />
+            </div>
+          </div>
+          {selectedCountry === 'India' ? (
+            <div>
+              <label className="block text-[13px] font-bold text-[#001A33] mb-2">IFSC Code *</label>
+              <input
+                type="text"
+                value={paymentFormData.paymentMethodDetails.ifscCode || ''}
+                onChange={(e) => updatePaymentMethodDetails('ifscCode', e.target.value.toUpperCase())}
+                placeholder="e.g., UTIB0000643"
+                maxLength={11}
+                className="w-full bg-white border-2 border-gray-200 rounded-xl py-3 px-4 font-semibold text-[#001A33] text-[14px] focus:ring-2 focus:ring-[#10B981] focus:border-[#10B981] outline-none"
+              />
+            </div>
+          ) : (
+            <div>
+              <label className="block text-[13px] font-bold text-[#001A33] mb-2">SWIFT/BIC Code *</label>
+              <input
+                type="text"
+                value={paymentFormData.paymentMethodDetails.swiftCode || ''}
+                onChange={(e) => updatePaymentMethodDetails('swiftCode', e.target.value.toUpperCase())}
+                placeholder="e.g., AXISINBB643"
+                className="w-full bg-white border-2 border-gray-200 rounded-xl py-3 px-4 font-semibold text-[#001A33] text-[14px] focus:ring-2 focus:ring-[#10B981] focus:border-[#10B981] outline-none"
+              />
+            </div>
+          )}
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-[13px] font-bold text-[#001A33] mb-2">Bank City *</label>
+              <input
+                type="text"
+                value={paymentFormData.paymentMethodDetails.bankCity || ''}
+                onChange={(e) => updatePaymentMethodDetails('bankCity', e.target.value)}
+                placeholder="e.g., Agra"
+                className="w-full bg-white border-2 border-gray-200 rounded-xl py-3 px-4 font-semibold text-[#001A33] text-[14px] focus:ring-2 focus:ring-[#10B981] focus:border-[#10B981] outline-none"
+              />
+            </div>
+            <div>
+              <label className="block text-[13px] font-bold text-[#001A33] mb-2">Bank Zip/Postal Code *</label>
+              <input
+                type="text"
+                value={paymentFormData.paymentMethodDetails.bankZip || ''}
+                onChange={(e) => updatePaymentMethodDetails('bankZip', e.target.value)}
+                placeholder="e.g., 282001"
+                className="w-full bg-white border-2 border-gray-200 rounded-xl py-3 px-4 font-semibold text-[#001A33] text-[14px] focus:ring-2 focus:ring-[#10B981] focus:border-[#10B981] outline-none"
+              />
+            </div>
+          </div>
+          <div>
+            <label className="block text-[13px] font-bold text-[#001A33] mb-2">Bank Address *</label>
+            <input
+              type="text"
+              value={paymentFormData.paymentMethodDetails.bankAddress || ''}
+              onChange={(e) => updatePaymentMethodDetails('bankAddress', e.target.value)}
+              placeholder="Full bank address"
+              className="w-full bg-white border-2 border-gray-200 rounded-xl py-3 px-4 font-semibold text-[#001A33] text-[14px] focus:ring-2 focus:ring-[#10B981] focus:border-[#10B981] outline-none"
+            />
+          </div>
+          <div>
+            <label className="block text-[13px] font-bold text-[#001A33] mb-2">Bank Country *</label>
+            <input
+              type="text"
+              value={paymentFormData.paymentMethodDetails.bankCountry || selectedCountry}
+              onChange={(e) => updatePaymentMethodDetails('bankCountry', e.target.value)}
+              className="w-full bg-white border-2 border-gray-200 rounded-xl py-3 px-4 font-semibold text-[#001A33] text-[14px] focus:ring-2 focus:ring-[#10B981] focus:border-[#10B981] outline-none"
+            />
+          </div>
+        </div>
+      )}
+
+      {/* PayPal Form */}
+      {paymentFormData.paymentMethod === 'paypal' && (
+        <div className="p-4 bg-gray-50 rounded-xl border border-gray-200 space-y-4">
+          <div className="flex items-center gap-2 mb-4 pb-3 border-b border-gray-300">
+            <Wallet className="text-[#10B981]" size={20} />
+            <h4 className="text-[16px] font-black text-[#001A33]">PayPal Details</h4>
+          </div>
+          <div>
+            <label className="block text-[13px] font-bold text-[#001A33] mb-2">
+              PayPal Email <span className="text-red-500">*</span>
+            </label>
+            <input
+              type="email"
+              value={paymentFormData.paymentMethodDetails.paypalEmail || ''}
+              onChange={(e) => updatePaymentMethodDetails('paypalEmail', e.target.value)}
+              placeholder="your.email@example.com"
+              className="w-full bg-white border-2 border-gray-200 rounded-xl py-3 px-4 font-semibold text-[#001A33] text-[14px] focus:ring-2 focus:ring-[#10B981] focus:border-[#10B981] outline-none"
+            />
+          </div>
+          <div>
+            <label className="block text-[13px] font-bold text-[#001A33] mb-2">Account Type *</label>
+            <select
+              value={paymentFormData.paymentMethodDetails.accountType || ''}
+              onChange={(e) => updatePaymentMethodDetails('accountType', e.target.value)}
+              className="w-full bg-white border-2 border-gray-200 rounded-xl py-3 px-4 font-semibold text-[#001A33] text-[14px] focus:ring-2 focus:ring-[#10B981] focus:border-[#10B981] outline-none"
+            >
+              <option value="">Select type</option>
+              <option value="Personal">Personal</option>
+              <option value="Business">Business</option>
+            </select>
+          </div>
+          <div>
+            <label className="block text-[13px] font-bold text-[#001A33] mb-2">Country *</label>
+            <input
+              type="text"
+              value={paymentFormData.paymentMethodDetails.country || selectedCountry}
+              onChange={(e) => updatePaymentMethodDetails('country', e.target.value)}
+              className="w-full bg-white border-2 border-gray-200 rounded-xl py-3 px-4 font-semibold text-[#001A33] text-[14px] focus:ring-2 focus:ring-[#10B981] focus:border-[#10B981] outline-none"
+            />
+          </div>
+        </div>
+      )}
+
+      {/* Credit Card Form */}
+      {paymentFormData.paymentMethod === 'credit_card' && (
+        <div className="p-4 bg-gray-50 rounded-xl border border-gray-200 space-y-4">
+          <div className="flex items-center gap-2 mb-4 pb-3 border-b border-gray-300">
+            <CreditCard className="text-[#10B981]" size={20} />
+            <h4 className="text-[16px] font-black text-[#001A33]">Credit/Debit Card Details</h4>
+          </div>
+          <div>
+            <label className="block text-[13px] font-bold text-[#001A33] mb-2">
+              Card Holder Name <span className="text-red-500">*</span>
+            </label>
+            <input
+              type="text"
+              value={paymentFormData.paymentMethodDetails.cardHolderName || ''}
+              onChange={(e) => updatePaymentMethodDetails('cardHolderName', e.target.value)}
+              placeholder="Name on card"
+              className="w-full bg-white border-2 border-gray-200 rounded-xl py-3 px-4 font-semibold text-[#001A33] text-[14px] focus:ring-2 focus:ring-[#10B981] focus:border-[#10B981] outline-none"
+            />
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-[13px] font-bold text-[#001A33] mb-2">Card Type *</label>
+              <select
+                value={paymentFormData.paymentMethodDetails.cardType || ''}
+                onChange={(e) => updatePaymentMethodDetails('cardType', e.target.value)}
+                className="w-full bg-white border-2 border-gray-200 rounded-xl py-3 px-4 font-semibold text-[#001A33] text-[14px] focus:ring-2 focus:ring-[#10B981] focus:border-[#10B981] outline-none"
+              >
+                <option value="">Select type</option>
+                <option value="Visa">Visa</option>
+                <option value="Mastercard">Mastercard</option>
+                <option value="Amex">American Express</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-[13px] font-bold text-[#001A33] mb-2">Last 4 Digits *</label>
+              <input
+                type="text"
+                value={paymentFormData.paymentMethodDetails.last4Digits || ''}
+                onChange={(e) => {
+                  const value = e.target.value.replace(/\D/g, '').slice(0, 4);
+                  updatePaymentMethodDetails('last4Digits', value);
+                }}
+                placeholder="1234"
+                maxLength={4}
+                className="w-full bg-white border-2 border-gray-200 rounded-xl py-3 px-4 font-semibold text-[#001A33] text-[14px] focus:ring-2 focus:ring-[#10B981] focus:border-[#10B981] outline-none"
+              />
+            </div>
+          </div>
+          <div>
+            <label className="block text-[13px] font-bold text-[#001A33] mb-2">Expiry Date (MM/YY) *</label>
+            <input
+              type="text"
+              value={paymentFormData.paymentMethodDetails.expiryDate || ''}
+              onChange={(e) => {
+                let value = e.target.value.replace(/\D/g, '');
+                if (value.length >= 2) {
+                  value = value.slice(0, 2) + '/' + value.slice(2, 4);
+                }
+                updatePaymentMethodDetails('expiryDate', value);
+              }}
+              placeholder="MM/YY"
+              maxLength={5}
+              className="w-full bg-white border-2 border-gray-200 rounded-xl py-3 px-4 font-semibold text-[#001A33] text-[14px] focus:ring-2 focus:ring-[#10B981] focus:border-[#10B981] outline-none"
+            />
+          </div>
+          <div>
+            <label className="block text-[13px] font-bold text-[#001A33] mb-2">Billing Address *</label>
+            <input
+              type="text"
+              value={paymentFormData.paymentMethodDetails.billingAddress || ''}
+              onChange={(e) => updatePaymentMethodDetails('billingAddress', e.target.value)}
+              placeholder="Billing address"
+              className="w-full bg-white border-2 border-gray-200 rounded-xl py-3 px-4 font-semibold text-[#001A33] text-[14px] focus:ring-2 focus:ring-[#10B981] focus:border-[#10B981] outline-none"
+            />
+          </div>
+        </div>
+      )}
+
+      {/* UPI Form */}
+      {paymentFormData.paymentMethod === 'upi' && (
+        <div className="p-4 bg-gray-50 rounded-xl border border-gray-200 space-y-4">
+          <div className="flex items-center gap-2 mb-4 pb-3 border-b border-gray-300">
+            <Wallet className="text-[#10B981]" size={20} />
+            <h4 className="text-[16px] font-black text-[#001A33]">UPI Details</h4>
+          </div>
+          <div>
+            <label className="block text-[13px] font-bold text-[#001A33] mb-2">
+              UPI ID <span className="text-red-500">*</span>
+            </label>
+            <input
+              type="text"
+              value={paymentFormData.paymentMethodDetails.upiId || ''}
+              onChange={(e) => updatePaymentMethodDetails('upiId', e.target.value.toLowerCase())}
+              placeholder="yourname@paytm or yourname@phonepe"
+              className="w-full bg-white border-2 border-gray-200 rounded-xl py-3 px-4 font-semibold text-[#001A33] text-[14px] focus:ring-2 focus:ring-[#10B981] focus:border-[#10B981] outline-none"
+            />
+            <p className="text-[11px] text-gray-500 font-semibold mt-2">
+              Format: name@paytm, name@phonepe, name@googlepay, etc.
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* Wise Form */}
+      {paymentFormData.paymentMethod === 'wise' && (
+        <div className="p-4 bg-gray-50 rounded-xl border border-gray-200 space-y-4">
+          <div className="flex items-center gap-2 mb-4 pb-3 border-b border-gray-300">
+            <Wallet className="text-[#10B981]" size={20} />
+            <h4 className="text-[16px] font-black text-[#001A33]">Wise Details</h4>
+          </div>
+          <div>
+            <label className="block text-[13px] font-bold text-[#001A33] mb-2">
+              Wise Email Address <span className="text-red-500">*</span>
+            </label>
+            <input
+              type="email"
+              value={paymentFormData.paymentMethodDetails.wiseEmail || ''}
+              onChange={(e) => updatePaymentMethodDetails('wiseEmail', e.target.value)}
+              placeholder="your.email@example.com"
+              className="w-full bg-white border-2 border-gray-200 rounded-xl py-3 px-4 font-semibold text-[#001A33] text-[14px] focus:ring-2 focus:ring-[#10B981] focus:border-[#10B981] outline-none"
+            />
+            <p className="text-[11px] text-gray-500 font-semibold mt-2">
+              Enter the email address associated with your Wise account
+            </p>
+          </div>
+          <div>
+            <label className="block text-[13px] font-bold text-[#001A33] mb-2">
+              Account Holder Name <span className="text-red-500">*</span>
+            </label>
+            <input
+              type="text"
+              value={paymentFormData.paymentMethodDetails.accountHolderName || ''}
+              onChange={(e) => updatePaymentMethodDetails('accountHolderName', e.target.value)}
+              placeholder="Name as it appears on your Wise account"
+              className="w-full bg-white border-2 border-gray-200 rounded-xl py-3 px-4 font-semibold text-[#001A33] text-[14px] focus:ring-2 focus:ring-[#10B981] focus:border-[#10B981] outline-none"
+            />
+          </div>
+        </div>
+      )}
+
+      {/* Payment Currency */}
+      <div>
+        <label className="block text-[14px] font-bold text-[#001A33] mb-2">Payment Currency *</label>
+        <select
+          value={paymentFormData.paymentCurrency}
+          onChange={(e) => setPaymentFormData({ ...paymentFormData, paymentCurrency: e.target.value })}
+          className="w-full bg-white border-2 border-gray-200 rounded-xl py-3 px-4 font-bold text-[#001A33] text-[14px] focus:ring-2 focus:ring-[#10B981] focus:border-[#10B981] outline-none"
+        >
+          <option value="INR">Indian Rupee (₹)</option>
+          <option value="USD">US Dollar ($)</option>
+          <option value="THB">Thai Baht (฿)</option>
+          <option value="JPY">Japanese Yen (¥)</option>
+          <option value="SGD">Singapore Dollar (S$)</option>
+          <option value="IDR">Indonesian Rupiah (Rp)</option>
+          <option value="MYR">Malaysian Ringgit (RM)</option>
+          <option value="VND">Vietnamese Dong (₫)</option>
+          <option value="KRW">South Korean Won (₩)</option>
+          <option value="PHP">Philippine Peso (₱)</option>
+          <option value="CNY">Chinese Yuan (¥)</option>
+          <option value="TWD">Taiwan Dollar (NT$)</option>
+          <option value="HKD">Hong Kong Dollar (HK$)</option>
+          <option value="LKR">Sri Lankan Rupee (Rs)</option>
+          <option value="NPR">Nepalese Rupee (Rs)</option>
+        </select>
+      </div>
+
+      {/* Payment Frequency */}
+      <div>
+        <label className="block text-[14px] font-bold text-[#001A33] mb-2">Payment Frequency</label>
+        <div className="space-y-2">
+          <label className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl border border-gray-200 cursor-pointer">
+            <input
+              type="radio"
+              name="paymentFrequency"
+              value="monthly"
+              checked={paymentFormData.paymentFrequency === 'monthly'}
+              onChange={(e) => setPaymentFormData({ ...paymentFormData, paymentFrequency: e.target.value })}
+              className="w-4 h-4 text-[#10B981] focus:ring-[#10B981]"
+            />
+            <div>
+              <p className="text-[14px] font-black text-[#001A33]">Once per month</p>
+              <p className="text-[12px] text-gray-500 font-semibold">Payment will occur on the 5th business working day of the month</p>
+            </div>
+          </label>
+        </div>
+      </div>
+
+      {/* Tax Details Section (Optional) */}
+      <div className="pt-6 border-t border-gray-200">
+        <h4 className="text-[16px] font-black text-[#001A33] mb-4">Tax Details (Optional)</h4>
+        <div className="space-y-4">
+          <div>
+            <label className="block text-[13px] font-bold text-[#001A33] mb-2">Tax ID Type</label>
+            <select
+              value={paymentFormData.taxIdType}
+              onChange={(e) => setPaymentFormData({ ...paymentFormData, taxIdType: e.target.value })}
+              className="w-full bg-white border-2 border-gray-200 rounded-xl py-3 px-4 font-semibold text-[#001A33] text-[14px] focus:ring-2 focus:ring-[#10B981] focus:border-[#10B981] outline-none"
+            >
+              <option value="">Select tax ID type</option>
+              {availableTaxTypes.map(type => (
+                <option key={type} value={type}>{type}</option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label className="block text-[13px] font-bold text-[#001A33] mb-2">Tax ID Number</label>
+            <input
+              type="text"
+              value={paymentFormData.taxId}
+              onChange={(e) => setPaymentFormData({ ...paymentFormData, taxId: e.target.value })}
+              placeholder="Enter tax identification number"
+              className="w-full bg-white border-2 border-gray-200 rounded-xl py-3 px-4 font-semibold text-[#001A33] text-[14px] focus:ring-2 focus:ring-[#10B981] focus:border-[#10B981] outline-none"
+            />
+          </div>
+          <div>
+            <label className="block text-[13px] font-bold text-[#001A33] mb-2">Country of Tax Registration</label>
+            <select
+              value={paymentFormData.taxCountry || ''}
+              onChange={(e) => setPaymentFormData({ ...paymentFormData, taxCountry: e.target.value })}
+              className="w-full bg-white border-2 border-gray-200 rounded-xl py-3 px-4 font-semibold text-[#001A33] text-[14px] focus:ring-2 focus:ring-[#10B981] focus:border-[#10B981] outline-none"
+            >
+              <option value="">Select country</option>
+              {Object.keys(COUNTRY_PAYMENT_METHODS).map(country => (
+                <option key={country} value={country}>{country}</option>
+              ))}
+            </select>
+          </div>
+        </div>
+      </div>
+
+      {/* Save/Cancel Buttons */}
+      <div className="flex gap-4 pt-4 border-t border-gray-200">
+        <button
+          onClick={onSave}
+          disabled={isSaving || !paymentFormData.paymentMethod}
+          className="flex-1 bg-[#10B981] hover:bg-[#059669] text-white font-black py-4 rounded-xl text-[16px] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          {isSaving ? 'Saving...' : 'Save Payment Details'}
+        </button>
+        <button
+          onClick={onCancel}
+          disabled={isSaving}
+          className="px-6 py-4 bg-gray-100 hover:bg-gray-200 text-[#001A33] font-bold rounded-xl text-[16px] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          Cancel
+        </button>
+      </div>
+    </div>
+  );
+};
 
 interface SupplierDashboardProps {
   supplier: {
@@ -98,6 +861,189 @@ const SupplierDashboard: React.FC<SupplierDashboardProps> = ({ supplier, onLogou
     license: null,
     certificates: []
   });
+  const [isUploadingLicense, setIsUploadingLicense] = useState(false);
+  const [isUploadingCertificates, setIsUploadingCertificates] = useState(false);
+  const [certificateFiles, setCertificateFiles] = useState<File[]>([]);
+
+  // Convert file to base64
+  const fileToBase64 = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onloadend = () => resolve(reader.result as string);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  };
+
+  // Upload license document
+  const handleLicenseUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file || !supplier?.id) return;
+
+    // Validate file type
+    const validTypes = ['application/pdf', 'image/jpeg', 'image/jpg', 'image/png'];
+    if (!validTypes.includes(file.type)) {
+      alert('Please upload a PDF, JPEG, or PNG file');
+      return;
+    }
+
+    // Validate file size (max 10MB)
+    if (file.size > 10 * 1024 * 1024) {
+      alert('File size must be less than 10MB');
+      return;
+    }
+
+    setIsUploadingLicense(true);
+    try {
+      const base64Url = await fileToBase64(file);
+      const API_URL = import.meta.env.VITE_API_URL || (typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3001');
+      
+      const response = await fetch(`${API_URL}/api/suppliers/${supplier.id}/update-document`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          verificationDocumentUrl: base64Url,
+          certificates: documents.certificates.length > 0 ? JSON.stringify(documents.certificates) : null
+        }),
+      });
+
+      const data = await response.json();
+      if (data.success) {
+        setDocuments(prev => ({ ...prev, license: data.supplier.verificationDocumentUrl }));
+        alert('License document uploaded successfully!');
+        // Refresh supplier data
+        fetchSupplierStatus();
+      } else {
+        alert(data.message || 'Failed to upload license document');
+      }
+    } catch (error) {
+      console.error('Error uploading license:', error);
+      alert('Failed to upload license document. Please try again.');
+    } finally {
+      setIsUploadingLicense(false);
+      // Reset input
+      event.target.value = '';
+    }
+  };
+
+  // Upload certificates
+  const handleCertificatesUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(event.target.files || []);
+    if (files.length === 0 || !supplier?.id) return;
+
+    // Validate file types and sizes
+    const validTypes = ['application/pdf', 'image/jpeg', 'image/jpg', 'image/png'];
+    const invalidFiles = files.filter(f => !validTypes.includes(f.type));
+    if (invalidFiles.length > 0) {
+      alert('Please upload only PDF, JPEG, or PNG files');
+      return;
+    }
+
+    const oversizedFiles = files.filter(f => f.size > 10 * 1024 * 1024);
+    if (oversizedFiles.length > 0) {
+      alert('All files must be less than 10MB');
+      return;
+    }
+
+    // Check total count (max 5 certificates)
+    const totalCount = documents.certificates.length + files.length;
+    if (totalCount > 5) {
+      alert('Maximum 5 certificates allowed. Please select fewer files.');
+      return;
+    }
+
+    setIsUploadingCertificates(true);
+    try {
+      const base64Urls = await Promise.all(files.map(fileToBase64));
+      const updatedCertificates = [...documents.certificates, ...base64Urls];
+      
+      const API_URL = import.meta.env.VITE_API_URL || (typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3001');
+      
+      const response = await fetch(`${API_URL}/api/suppliers/${supplier.id}/update-document`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          verificationDocumentUrl: documents.license || '',
+          certificates: JSON.stringify(updatedCertificates)
+        }),
+      });
+
+      const data = await response.json();
+      if (data.success) {
+        const certUrls = data.supplier.certificates 
+          ? (typeof data.supplier.certificates === 'string' ? JSON.parse(data.supplier.certificates) : data.supplier.certificates)
+          : [];
+        setDocuments(prev => ({ ...prev, certificates: certUrls }));
+        alert('Certificates uploaded successfully!');
+        // Refresh supplier data
+        fetchSupplierStatus();
+      } else {
+        alert(data.message || 'Failed to upload certificates');
+      }
+    } catch (error) {
+      console.error('Error uploading certificates:', error);
+      alert('Failed to upload certificates. Please try again.');
+    } finally {
+      setIsUploadingCertificates(false);
+      // Reset input
+      event.target.value = '';
+    }
+  };
+
+  // Delete certificate
+  const handleDeleteCertificate = async (index: number) => {
+    if (!supplier?.id || !confirm('Are you sure you want to delete this certificate?')) return;
+
+    const updatedCertificates = documents.certificates.filter((_, i) => i !== index);
+    
+    try {
+      const API_URL = import.meta.env.VITE_API_URL || (typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3001');
+      
+      const response = await fetch(`${API_URL}/api/suppliers/${supplier.id}/update-document`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          verificationDocumentUrl: documents.license || '',
+          certificates: updatedCertificates.length > 0 ? JSON.stringify(updatedCertificates) : null
+        }),
+      });
+
+      const data = await response.json();
+      if (data.success) {
+        setDocuments(prev => ({ ...prev, certificates: updatedCertificates }));
+        alert('Certificate deleted successfully!');
+        fetchSupplierStatus();
+      } else {
+        alert(data.message || 'Failed to delete certificate');
+      }
+    } catch (error) {
+      console.error('Error deleting certificate:', error);
+      alert('Failed to delete certificate. Please try again.');
+    }
+  };
+
+  // Payment Details State
+  const [paymentDetails, setPaymentDetails] = useState<any>(null);
+  const [earnings, setEarnings] = useState<any>(null);
+  const [isLoadingPayment, setIsLoadingPayment] = useState(false);
+  const [isSavingPayment, setIsSavingPayment] = useState(false);
+  const [isEditingPayment, setIsEditingPayment] = useState(false);
+  const [paymentFormData, setPaymentFormData] = useState({
+    paymentMethod: '',
+    paymentCurrency: 'INR',
+    paymentFrequency: 'monthly',
+    paymentMethodDetails: {} as any,
+    taxId: '',
+    taxIdType: '',
+    taxCountry: ''
+  });
+  const [selectedCountry, setSelectedCountry] = useState('India');
 
   // Fetch latest supplier data to check for status updates
   const fetchSupplierStatus = async () => {
@@ -329,6 +1275,154 @@ const SupplierDashboard: React.FC<SupplierDashboardProps> = ({ supplier, onLogou
       fetchBookings();
     }
   }, [supplier?.id, activeTab]);
+
+  // Fetch payment details and earnings when earnings tab is active
+  useEffect(() => {
+    if (supplier && supplier.id && activeTab === 'earnings') {
+      fetchPaymentDetails();
+      fetchEarnings();
+    }
+  }, [supplier?.id, activeTab]);
+
+  // Fetch payment details
+  const fetchPaymentDetails = async () => {
+    if (!supplier?.id) return;
+    setIsLoadingPayment(true);
+    try {
+      const API_URL = import.meta.env.VITE_API_URL || (typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3001');
+      const response = await fetch(`${API_URL}/api/suppliers/${supplier.id}/payment-details`);
+      const data = await response.json();
+      if (data.success && data.paymentDetails) {
+        setPaymentDetails(data.paymentDetails);
+        // Initialize form data
+        setPaymentFormData({
+          paymentMethod: data.paymentDetails.paymentMethod || '',
+          paymentCurrency: data.paymentDetails.paymentCurrency || 'INR',
+          paymentFrequency: data.paymentDetails.paymentFrequency || 'monthly',
+          paymentMethodDetails: data.paymentDetails.paymentMethodDetails || {},
+          taxId: data.paymentDetails.taxId || '',
+          taxIdType: data.paymentDetails.taxIdType || '',
+          taxCountry: data.paymentDetails.taxCountry || ''
+        });
+        // Set selected country from tax country or default to India
+        if (data.paymentDetails.taxCountry) {
+          setSelectedCountry(data.paymentDetails.taxCountry);
+        } else if (data.paymentDetails.paymentMethodDetails?.bankCountry) {
+          setSelectedCountry(data.paymentDetails.paymentMethodDetails.bankCountry);
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching payment details:', error);
+    } finally {
+      setIsLoadingPayment(false);
+    }
+  };
+
+  // Fetch earnings
+  const fetchEarnings = async () => {
+    if (!supplier?.id) return;
+    try {
+      const API_URL = import.meta.env.VITE_API_URL || (typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3001');
+      const response = await fetch(`${API_URL}/api/suppliers/${supplier.id}/earnings`);
+      const data = await response.json();
+      if (data.success) {
+        setEarnings(data.earnings);
+      }
+    } catch (error) {
+      console.error('Error fetching earnings:', error);
+    }
+  };
+
+  // Validate payment form
+  const validatePaymentForm = (): string | null => {
+    if (!paymentFormData.paymentMethod) {
+      return 'Please select a payment method';
+    }
+
+    const details = paymentFormData.paymentMethodDetails || {};
+
+    if (paymentFormData.paymentMethod === 'bank_transfer') {
+      if (!details.bankName) return 'Bank name is required';
+      if (!details.accountNumber) return 'Account number is required';
+      if (!details.accountType) return 'Account type is required';
+      if (!details.beneficiaryName) return 'Beneficiary name is required';
+      if (selectedCountry === 'India' && !details.ifscCode) return 'IFSC code is required for India';
+      if (selectedCountry !== 'India' && !details.swiftCode) return 'SWIFT/BIC code is required';
+      if (!details.bankCity) return 'Bank city is required';
+      if (!details.bankZip) return 'Bank zip/postal code is required';
+      if (!details.bankAddress) return 'Bank address is required';
+    } else if (paymentFormData.paymentMethod === 'paypal') {
+      if (!details.paypalEmail) return 'PayPal email is required';
+      if (!details.accountType) return 'Account type is required';
+    } else if (paymentFormData.paymentMethod === 'credit_card') {
+      if (!details.cardHolderName) return 'Card holder name is required';
+      if (!details.cardType) return 'Card type is required';
+      if (!details.last4Digits || details.last4Digits.length !== 4) return 'Last 4 digits of card are required';
+      if (!details.expiryDate) return 'Card expiry date is required';
+      if (!details.billingAddress) return 'Billing address is required';
+    } else     if (paymentFormData.paymentMethod === 'upi') {
+      if (!details.upiId) return 'UPI ID is required';
+      if (!details.upiId.includes('@')) return 'UPI ID must be in format: name@provider';
+    } else if (paymentFormData.paymentMethod === 'wise') {
+      if (!details.wiseEmail) return 'Wise email address is required';
+      if (!details.wiseEmail.includes('@')) return 'Please enter a valid email address';
+      if (!details.accountHolderName) return 'Account holder name is required';
+    }
+
+    return null;
+  };
+
+  // Save payment details
+  const handleSavePaymentDetails = async () => {
+    if (!supplier?.id) return;
+    
+    // Validate form
+    const validationError = validatePaymentForm();
+    if (validationError) {
+      alert(validationError);
+      return;
+    }
+
+    setIsSavingPayment(true);
+    try {
+      const API_URL = import.meta.env.VITE_API_URL || (typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3001');
+      const response = await fetch(`${API_URL}/api/suppliers/${supplier.id}/payment-details`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          paymentMethod: paymentFormData.paymentMethod,
+          paymentMethodDetails: paymentFormData.paymentMethodDetails,
+          paymentCurrency: paymentFormData.paymentCurrency,
+          paymentFrequency: paymentFormData.paymentFrequency,
+          taxId: paymentFormData.taxId || null,
+          taxIdType: paymentFormData.taxIdType || null,
+          taxCountry: paymentFormData.taxCountry || null
+        })
+      });
+      const data = await response.json();
+      if (data.success) {
+        setPaymentDetails(data.paymentDetails);
+        setIsEditingPayment(false);
+        // Show success message
+        const successMsg = document.createElement('div');
+        successMsg.className = 'fixed top-4 right-4 bg-[#10B981] text-white px-6 py-4 rounded-xl shadow-lg z-50 font-bold text-[14px] flex items-center gap-2';
+        successMsg.innerHTML = '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> Payment details saved successfully!';
+        document.body.appendChild(successMsg);
+        setTimeout(() => {
+          successMsg.remove();
+        }, 3000);
+      } else {
+        alert(data.message || 'Failed to save payment details');
+      }
+    } catch (error) {
+      console.error('Error saving payment details:', error);
+      alert('Failed to save payment details. Please check your connection and try again.');
+    } finally {
+      setIsSavingPayment(false);
+    }
+  };
 
   const fetchBookings = async () => {
     if (!supplier?.id) return;
@@ -1125,14 +2219,176 @@ const SupplierDashboard: React.FC<SupplierDashboardProps> = ({ supplier, onLogou
           )}
 
           {activeTab === 'earnings' && (
-            <div className="bg-white rounded-2xl p-6 border border-gray-200">
-              <h2 className="text-2xl font-black text-[#001A33] mb-6">Earnings</h2>
-              <div className="text-center py-12">
-                <DollarSign className="mx-auto text-gray-300 mb-4" size={48} />
-                <h3 className="text-lg font-black text-[#001A33] mb-2">No earnings yet</h3>
-                <p className="text-[14px] text-gray-500 font-semibold">
-                  Your earnings will be displayed here once you start receiving bookings.
-                </p>
+            <div className="space-y-6">
+              {/* Earnings Overview */}
+              <div className="bg-white rounded-2xl p-6 border border-gray-200">
+                <h2 className="text-2xl font-black text-[#001A33] mb-6">Earnings</h2>
+                
+                {isLoadingPayment ? (
+                  <div className="text-center py-12">
+                    <RefreshCw className="mx-auto text-[#10B981] mb-4 animate-spin" size={48} />
+                    <p className="text-[14px] text-gray-500 font-semibold">Loading earnings...</p>
+                  </div>
+                ) : earnings ? (
+                  <>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                      <div className="bg-[#10B981]/10 rounded-xl p-4 border border-[#10B981]/20">
+                        <div className="flex items-center gap-2 mb-2">
+                          <DollarSign className="text-[#10B981]" size={20} />
+                          <span className="text-[12px] font-bold text-gray-600">Gross Earnings</span>
+                        </div>
+                        <p className="text-2xl font-black text-[#001A33]">
+                          {earnings.currency || '₹'}{(earnings.grossEarnings || earnings.totalEarnings || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                        </p>
+                      </div>
+                      <div className="bg-blue-50 rounded-xl p-4 border border-blue-200">
+                        <div className="flex items-center gap-2 mb-2">
+                          <DollarSign className="text-blue-600" size={20} />
+                          <span className="text-[12px] font-bold text-gray-600">Net Payout</span>
+                        </div>
+                        <p className="text-2xl font-black text-[#001A33]">
+                          {earnings.currency || '₹'}{(earnings.netEarnings || earnings.totalEarnings || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                        </p>
+                        {earnings.tdsDeducted !== undefined && earnings.tdsDeducted > 0 && (
+                          <p className="text-[11px] text-orange-600 font-semibold mt-1">
+                            (TDS: {earnings.currency || '₹'}{earnings.tdsDeducted.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })})
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                      <div className="bg-purple-50 rounded-xl p-4 border border-purple-200">
+                        <div className="flex items-center gap-2 mb-2">
+                          <Calendar className="text-purple-600" size={20} />
+                          <span className="text-[12px] font-bold text-gray-600">This Month</span>
+                        </div>
+                        <p className="text-2xl font-black text-[#001A33]">
+                          {earnings.currency || '₹'}{earnings.thisMonthEarnings.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                        </p>
+                        {earnings.thisMonthTDS !== undefined && earnings.thisMonthTDS > 0 && (
+                          <p className="text-[11px] text-gray-500 font-semibold mt-1">
+                            (TDS: {earnings.currency || '₹'}{earnings.thisMonthTDS.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })})
+                          </p>
+                        )}
+                      </div>
+                      <div className="bg-yellow-50 rounded-xl p-4 border border-yellow-200">
+                        <div className="flex items-center gap-2 mb-2">
+                          <Clock className="text-yellow-600" size={20} />
+                          <span className="text-[12px] font-bold text-gray-600">Pending</span>
+                        </div>
+                        <p className="text-2xl font-black text-[#001A33]">
+                          {earnings.currency || '₹'}{earnings.pendingEarnings.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                        </p>
+                      </div>
+                    </div>
+                  </>
+                ) : (
+                  <div className="text-center py-12">
+                    <DollarSign className="mx-auto text-gray-300 mb-4" size={48} />
+                    <h3 className="text-lg font-black text-[#001A33] mb-2">No earnings yet</h3>
+                    <p className="text-[14px] text-gray-500 font-semibold">
+                      Your earnings will be displayed here once you start receiving bookings.
+                    </p>
+                  </div>
+                )}
+
+                {earnings && (
+                  <div className="mt-6 p-4 bg-gray-50 rounded-xl border border-gray-200">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-[12px] font-bold text-gray-600 mb-1">Next Payout Date</p>
+                        <p className="text-lg font-black text-[#001A33]">
+                          {new Date(earnings.nextPayoutDate).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
+                        </p>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-[12px] font-bold text-gray-600 mb-1">Payment Frequency</p>
+                        <p className="text-lg font-black text-[#001A33] capitalize">{earnings.paymentFrequency}</p>
+                      </div>
+                    </div>
+                    <p className="text-[11px] text-gray-500 font-semibold mt-3">
+                      Payments are processed on the 5th of each month (or next business day if the 5th falls on a weekend).
+                    </p>
+                  </div>
+                )}
+              </div>
+
+              {/* Payment Details Section */}
+              <div className="bg-white rounded-2xl p-6 border border-gray-200">
+                <div className="flex items-center justify-between mb-6">
+                  <div>
+                    <h3 className="text-xl font-black text-[#001A33] mb-1">Payment & Tax Details</h3>
+                    <p className="text-[13px] text-gray-500 font-semibold">
+                      Add your payment details to receive payouts. All payments are processed once per month.
+                    </p>
+                  </div>
+                  {!isEditingPayment && paymentDetails && (
+                    <button
+                      onClick={() => setIsEditingPayment(true)}
+                      className="flex items-center gap-2 px-4 py-2 bg-[#10B981] hover:bg-[#059669] text-white font-bold rounded-lg transition-colors text-[14px]"
+                    >
+                      <Edit size={16} />
+                      Edit
+                    </button>
+                  )}
+                </div>
+
+                {isEditingPayment ? (
+                  <PaymentDetailsForm
+                    paymentFormData={paymentFormData}
+                    setPaymentFormData={setPaymentFormData}
+                    selectedCountry={selectedCountry}
+                    setSelectedCountry={setSelectedCountry}
+                    onSave={handleSavePaymentDetails}
+                    onCancel={() => {
+                      setIsEditingPayment(false);
+                      // Reset form data
+                      if (paymentDetails) {
+                        setPaymentFormData({
+                          paymentMethod: paymentDetails.paymentMethod || '',
+                          paymentCurrency: paymentDetails.paymentCurrency || 'INR',
+                          paymentFrequency: paymentDetails.paymentFrequency || 'monthly',
+                          paymentMethodDetails: paymentDetails.paymentMethodDetails || {},
+                          taxId: paymentDetails.taxId || '',
+                          taxIdType: paymentDetails.taxIdType || '',
+                          taxCountry: paymentDetails.taxCountry || ''
+                        });
+                        if (paymentDetails.taxCountry) {
+                          setSelectedCountry(paymentDetails.taxCountry);
+                        }
+                      }
+                    }}
+                    isSaving={isSavingPayment}
+                  />
+                ) : paymentDetails && paymentDetails.paymentMethod ? (
+                  <PaymentDetailsDisplay paymentDetails={paymentDetails} />
+                ) : (
+                  <div className="text-center py-8">
+                    <Wallet className="mx-auto text-gray-300 mb-4" size={48} />
+                    <h4 className="text-lg font-black text-[#001A33] mb-2">No Payment Details Added</h4>
+                    <p className="text-[14px] text-gray-500 font-semibold mb-4">
+                      Add your payment details to start receiving payouts.
+                    </p>
+                    <button
+                      onClick={() => setIsEditingPayment(true)}
+                      className="px-6 py-3 bg-[#10B981] hover:bg-[#059669] text-white font-bold rounded-lg transition-colors"
+                    >
+                      Add Payment Details
+                    </button>
+                  </div>
+                )}
+
+                {/* Terms and Conditions */}
+                <div className="mt-6 bg-gray-50 rounded-xl p-4 border border-gray-200">
+                  <h4 className="text-[14px] font-black text-[#001A33] mb-3">Terms & Conditions</h4>
+                  <div className="text-[12px] text-gray-600 font-semibold space-y-2">
+                    <p>• Commission Structure: 70% of booking amount goes to supplier, 30% platform fee.</p>
+                    <p>• TDS (Tax Deducted at Source): 5% TDS applies for Indian suppliers without verified GSTIN. No TDS for non-Indian suppliers or Indian suppliers with verified GSTIN.</p>
+                    <p>• Payment Schedule: Payments are processed monthly on the 5th of each month (or next business day if weekend).</p>
+                    <p>• Payment Method: Ensure your payment details are verified and up-to-date to receive payouts without delay.</p>
+                    <p>• Tax Compliance: Suppliers are responsible for their own tax obligations in their respective countries.</p>
+                  </div>
+                </div>
               </div>
             </div>
           )}
@@ -1226,7 +2482,35 @@ const SupplierDashboard: React.FC<SupplierDashboardProps> = ({ supplier, onLogou
 
                   {/* License Document */}
                   <div className="mb-4">
-                    <label className="block text-[13px] font-bold text-[#001A33] mb-2">License / Verification Document</label>
+                    <div className="flex items-center justify-between mb-2">
+                      <label className="block text-[13px] font-bold text-[#001A33]">License / Verification Document</label>
+                      <label className="cursor-pointer">
+                        <input
+                          type="file"
+                          accept=".pdf,.jpg,.jpeg,.png"
+                          onChange={handleLicenseUpload}
+                          disabled={isUploadingLicense}
+                          className="hidden"
+                        />
+                        <button
+                          type="button"
+                          disabled={isUploadingLicense}
+                          className="flex items-center gap-2 px-3 py-1.5 bg-[#10B981] hover:bg-[#059669] text-white rounded-lg text-[12px] font-bold transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                          {isUploadingLicense ? (
+                            <>
+                              <RefreshCw size={14} className="animate-spin" />
+                              Uploading...
+                            </>
+                          ) : (
+                            <>
+                              <Upload size={14} />
+                              {documents.license ? 'Replace' : 'Upload'}
+                            </>
+                          )}
+                        </button>
+                      </label>
+                    </div>
                     {documents.license ? (
                       <div className="flex items-center justify-between p-3 bg-gray-50 rounded-xl border border-gray-200">
                         <div className="flex items-center gap-3">
@@ -1262,9 +2546,40 @@ const SupplierDashboard: React.FC<SupplierDashboardProps> = ({ supplier, onLogou
 
                   {/* Certificates */}
                   <div>
-                    <label className="block text-[13px] font-bold text-[#001A33] mb-2">
-                      Additional Certificates ({documents.certificates.length})
-                    </label>
+                    <div className="flex items-center justify-between mb-2">
+                      <label className="block text-[13px] font-bold text-[#001A33]">
+                        Additional Certificates ({documents.certificates.length}/5)
+                      </label>
+                      {documents.certificates.length < 5 && (
+                        <label className="cursor-pointer">
+                          <input
+                            type="file"
+                            accept=".pdf,.jpg,.jpeg,.png"
+                            multiple
+                            onChange={handleCertificatesUpload}
+                            disabled={isUploadingCertificates}
+                            className="hidden"
+                          />
+                          <button
+                            type="button"
+                            disabled={isUploadingCertificates}
+                            className="flex items-center gap-2 px-3 py-1.5 bg-blue-500 hover:bg-blue-600 text-white rounded-lg text-[12px] font-bold transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                          >
+                            {isUploadingCertificates ? (
+                              <>
+                                <RefreshCw size={14} className="animate-spin" />
+                                Uploading...
+                              </>
+                            ) : (
+                              <>
+                                <Plus size={14} />
+                                Add Certificates
+                              </>
+                            )}
+                          </button>
+                        </label>
+                      )}
+                    </div>
                     {documents.certificates.length > 0 ? (
                       <div className="space-y-2">
                         {documents.certificates.map((cert, index) => (
@@ -1291,6 +2606,13 @@ const SupplierDashboard: React.FC<SupplierDashboardProps> = ({ supplier, onLogou
                               >
                                 <Download size={18} />
                               </a>
+                              <button
+                                onClick={() => handleDeleteCertificate(index)}
+                                className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                                title="Delete certificate"
+                              >
+                                <Trash2 size={18} />
+                              </button>
                             </div>
                           </div>
                         ))}
