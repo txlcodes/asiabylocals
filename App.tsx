@@ -658,11 +658,16 @@ const App: React.FC = () => {
     <div className="flex flex-col min-h-screen">
       {/* Header Navigation */}
       <header className="sticky top-0 z-50 bg-white border-b border-gray-100 shadow-sm">
-        <div className="w-full pt-2 pb-1 flex items-center justify-between px-3 sm:px-4 md:px-6">
-          <div className="flex items-center gap-3">
+        <div className="w-full h-16 sm:h-20 md:h-24 flex items-center justify-between px-3 sm:px-4 md:px-6">
+          <div className="flex items-center gap-3 h-full">
             {/* Logo */}
-            <div className="flex items-center cursor-pointer mt-2 md:mt-3">
-              <img src="/logo.svg?v=4" alt="Asia By Locals" className="h-[60px] sm:h-[70px] md:h-[80px] lg:h-[96px] xl:h-[115px] w-auto object-contain" />
+            <div className="cursor-pointer">
+              <img 
+                src="/logo.png" 
+                alt="Asia By Locals" 
+                className="h-[100px] sm:h-[120px] md:h-[140px] lg:h-[160px] xl:h-[180px] w-auto object-contain" 
+                style={{ transform: 'translateY(13px)' }}
+              />
             </div>
 
             {/* Nav Links */}
@@ -1115,7 +1120,7 @@ const App: React.FC = () => {
       </div>
 
       {/* Hero Section */}
-      <section className="relative h-[60vh] min-h-[500px] sm:h-[65vh] sm:min-h-[550px] md:h-[70vh] md:min-h-[600px] lg:h-[80vh] lg:min-h-[700px] xl:h-[85vh] xl:min-h-[800px] flex items-center justify-center overflow-hidden">
+      <section className="relative h-screen flex items-center justify-center overflow-hidden">
         {heroImages.map((hero, index) => (
           <img 
             key={index}
@@ -1124,7 +1129,12 @@ const App: React.FC = () => {
             className={`absolute inset-0 w-full h-full object-cover object-center brightness-[0.7] transition-opacity duration-1000 ${
               index === currentImageIndex ? 'opacity-100 z-0' : 'opacity-0 z-0'
             }`}
-            style={{ minHeight: '100%' }}
+            style={{ 
+              width: '100%',
+              height: '100%',
+              objectFit: 'cover',
+              objectPosition: 'center'
+            }}
             loading={index === 0 ? 'eager' : 'lazy'}
           />
         ))}

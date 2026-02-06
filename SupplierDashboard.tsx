@@ -1717,8 +1717,13 @@ const SupplierDashboard: React.FC<SupplierDashboardProps> = ({ supplier, onLogou
         <div className="max-w-7xl mx-auto px-6 pt-6 pb-0">
           <div className="flex items-center justify-between">
             {/* Left side - Logo */}
-            <div className="flex items-center flex-1">
-              <img src="/logo.svg?v=4" alt="AsiaByLocals" className="h-24 md:h-32 w-auto object-contain" style={{ display: 'block', border: 'none', background: 'transparent' }} />
+            <div className="flex items-center flex-1 cursor-pointer">
+              <img 
+                src="/logo.png" 
+                alt="AsiaByLocals" 
+                className="h-[100px] sm:h-[120px] md:h-[140px] lg:h-[160px] xl:h-[180px] w-auto object-contain" 
+                style={{ transform: 'translateY(13px)' }}
+              />
             </div>
             
             {/* Center - Supplier Portal */}

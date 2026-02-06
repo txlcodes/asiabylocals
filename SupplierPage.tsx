@@ -217,7 +217,7 @@ const SupplierPage: React.FC<SupplierPageProps> = ({ onClose }) => {
     <div className="bg-white min-h-screen relative font-['Plus_Jakarta_Sans']">
       {/* Header with Back Button */}
       <header className="sticky top-0 z-50 bg-white border-b border-gray-100 shadow-sm">
-        <div className="max-w-[1280px] mx-auto px-8 py-4 flex items-center justify-between">
+        <div className="max-w-[1280px] mx-auto px-8 h-20 md:h-24 flex items-center justify-between">
           {onClose ? (
             <button 
               onClick={onClose}
@@ -241,11 +241,14 @@ const SupplierPage: React.FC<SupplierPageProps> = ({ onClose }) => {
               Back to Home
             </button>
           )}
-          <img 
-            src="/logo.svg?v=4" 
-            alt="AsiaByLocals" 
-            className="h-24 w-auto"
-          />
+          <div className="cursor-pointer">
+            <img 
+              src="/logo.png" 
+              alt="AsiaByLocals" 
+              className="h-[100px] sm:h-[120px] md:h-[140px] lg:h-[160px] xl:h-[180px] w-auto object-contain"
+              style={{ transform: 'translateY(13px)' }}
+            />
+          </div>
           <button
             onClick={() => setShowLogin(true)}
             className="px-6 py-2 border-2 border-[#10B981] text-[#10B981] font-black rounded-full text-[14px] hover:bg-[#10B981] hover:text-white transition-all"

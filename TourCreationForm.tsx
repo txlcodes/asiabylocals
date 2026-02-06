@@ -333,6 +333,8 @@ const TourCreationForm: React.FC<TourCreationFormProps> = ({
       usesTransportation: false,
       transportationTypes: [] as string[],
       multiCityTravel: false,
+      isMultiDayTour: false,
+      multiCityLocations: {} as Record<string, string[]>, // City -> locations mapping for multi-day tours
       tourOptions: [] as Array<{
         optionTitle: string;
         optionDescription: string;
@@ -484,12 +486,25 @@ const TourCreationForm: React.FC<TourCreationFormProps> = ({
       case 2:
         return formData.city && formData.category;
       case 3:
-        // Check that title exists, locations are selected, and entry ticket options are set for all locations
+        // Check that title exists
         if (!formData.title || formData.title.trim() === '') return false;
-        if (formData.locations.length === 0) return false;
-        // Check that all locations have entry ticket options set
-        const hasAllEntryTickets = formData.locations.every(loc => formData.locationEntryTickets[loc]);
-        return hasAllEntryTickets;
+        
+        // For multi-day tours, check multiCityLocations
+        if (formData.isMultiDayTour) {
+          const multiCityKeys = Object.keys(formData.multiCityLocations);
+          if (multiCityKeys.length === 0) return false;
+          // Check that at least one city has at least one location selected
+          const hasLocations = multiCityKeys.some(city => 
+            formData.multiCityLocations[city] && formData.multiCityLocations[city].length > 0
+          );
+          return hasLocations;
+        } else {
+          // For regular tours, check single city locations
+          if (formData.locations.length === 0) return false;
+          // Check that all locations have entry ticket options set
+          const hasAllEntryTickets = formData.locations.every(loc => formData.locationEntryTickets[loc]);
+          return hasAllEntryTickets;
+        }
       case 4:
         if (!formData.duration) return false;
         // Check that maxGroupSize is set and at least price for 1 person is entered
@@ -500,6 +515,13 @@ const TourCreationForm: React.FC<TourCreationFormProps> = ({
         if (!hasPriceForOne) return false;
         return true;
       case 5:
+        // Step 5: Description & Details
+        return formData.fullDescription && formData.included && formData.highlights.filter(h => h.trim()).length >= 3;
+      case 6:
+        // Step 6: Photos & Languages
+        return formData.images.length >= 4 && formData.languages.length > 0;
+      case 7:
+        // Step 7: Tour Options (last before preview)
         return formData.tourOptions.length > 0 && formData.tourOptions.every(opt => {
           const hasBasicFields = opt.optionTitle.trim() && opt.optionDescription.trim() && opt.durationHours;
           if (!hasBasicFields) return false;
@@ -510,10 +532,6 @@ const TourCreationForm: React.FC<TourCreationFormProps> = ({
           if (!hasPriceForOne) return false;
           return true;
         });
-      case 6:
-        return formData.fullDescription && formData.included && formData.highlights.filter(h => h.trim()).length >= 3;
-      case 7:
-        return formData.images.length >= 4 && formData.languages.length > 0;
       case 8:
         return true; // Mini tours selection is optional
       default:
@@ -632,13 +650,27 @@ const TourCreationForm: React.FC<TourCreationFormProps> = ({
 
       // STEP 2: Create tour with image URLs (much smaller payload - just URLs, not base64)
       setSubmissionStatus('Creating tour...');
+      // Handle locations for multi-day vs single-city tours
+      let locationsToSave: string[] = [];
+      if (formData.isMultiDayTour) {
+        // For multi-day tours, flatten all cities' locations into one array
+        Object.values(formData.multiCityLocations).forEach(cityLocations => {
+          locationsToSave.push(...cityLocations);
+        });
+      } else {
+        // For regular tours, use the single city locations
+        locationsToSave = formData.locations;
+      }
+
       const tourData = {
         supplierId,
         title: formData.title.trim(),
         country: formData.country.trim(),
         city: formData.city.trim(),
         category: formData.category.trim(),
-        locations: JSON.stringify(formData.locations),
+        locations: JSON.stringify(locationsToSave),
+        multiCityLocations: formData.isMultiDayTour ? JSON.stringify(formData.multiCityLocations) : null,
+        isMultiDayTour: formData.isMultiDayTour || false,
         duration: formData.duration.trim(),
         // Use first tier price (price for 1 person) as pricePerPerson for display - shows as "Starting from"
         pricePerPerson: formData.groupPricingTiers && formData.groupPricingTiers.length > 0 && formData.groupPricingTiers[0]?.price
@@ -1271,80 +1303,274 @@ const TourCreationForm: React.FC<TourCreationFormProps> = ({
                 </p>
               </div>
 
-              <div>
-                <label className="block text-[14px] font-bold text-[#001A33] mb-3">
-                  Select Places to See * (Click to select up to 10 places)
-                </label>
-                {formData.city && CITY_LOCATIONS[formData.city] ? (
-                  <>
-                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
-                      {CITY_LOCATIONS[formData.city].slice(0, 10).map((location) => {
-                        const isSelected = formData.locations.includes(location);
-                        return (
-                          <div
-                            key={location}
-                            onClick={() => handleLocationToggle(location)}
-                            className={`relative p-4 bg-white rounded-xl border-2 cursor-pointer transition-all hover:shadow-md ${
-                              isSelected
-                                ? 'border-[#10B981] bg-[#10B981]/5'
-                                : 'border-gray-200 hover:border-[#10B981]/50'
-                            }`}
-                          >
-                            {isSelected && (
-                              <div className="absolute top-2 right-2 w-6 h-6 bg-[#10B981] rounded-full flex items-center justify-center">
-                                <CheckCircle2 size={16} className="text-white" />
-                              </div>
-                            )}
-                            <div className="flex flex-col items-center text-center">
-                              <MapPin 
-                                size={24} 
-                                className={`mb-2 ${isSelected ? 'text-[#10B981]' : 'text-gray-400'}`} 
-                              />
-                              <span className={`text-[13px] font-bold ${isSelected ? 'text-[#10B981]' : 'text-[#001A33]'}`}>
-                                {location}
-                              </span>
-                            </div>
-                          </div>
-                        );
-                      })}
-                    </div>
-                    {formData.locations.length > 0 && (
-                      <div className="mt-4 p-4 bg-[#10B981]/10 rounded-xl border border-[#10B981]/20">
-                        <p className="text-[14px] font-bold text-[#10B981] mb-2">
-                          ✓ {formData.locations.length} place{formData.locations.length > 1 ? 's' : ''} selected
-                        </p>
-                        <div className="flex flex-wrap gap-2">
-                          {formData.locations.map((loc) => (
-                            <span
-                              key={loc}
-                              className="px-3 py-1 bg-[#10B981] text-white text-[12px] font-bold rounded-full"
-                            >
-                              {loc}
-                            </span>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                    {formData.locations.length === 0 && (
-                      <p className="text-[12px] text-gray-500 font-semibold mt-3 text-center">
-                        Click on places above to add them to your tour
-                      </p>
-                    )}
-                  </>
-                ) : (
-                  <div className="p-8 bg-gray-50 rounded-2xl text-center">
-                    <p className="text-[14px] text-gray-500 font-semibold">
-                      Location list for {formData.city} will be available soon.
-                    </p>
-                    <p className="text-[12px] text-gray-400 font-semibold mt-2">
-                      You can still create the tour, but location selection is not available for this city yet.
+              {/* Multi-Day Tour Checkbox */}
+              <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
+                <label className="flex items-center gap-3 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={formData.isMultiDayTour}
+                    onChange={(e) => {
+                      handleInputChange('isMultiDayTour', e.target.checked);
+                      if (!e.target.checked) {
+                        // Clear multi-city data when unchecked
+                        handleInputChange('multiCityLocations', {});
+                      }
+                    }}
+                    className="w-5 h-5 text-[#10B981] rounded border-gray-300 focus:ring-[#10B981]"
+                  />
+                  <div>
+                    <span className="text-[14px] font-bold text-[#001A33]">Multi-Day Tour</span>
+                    <p className="text-[12px] text-gray-600 font-semibold mt-1">
+                      Check this if your tour visits multiple cities/locations across different days
                     </p>
                   </div>
-                )}
+                </label>
               </div>
+
+              {/* Multi-Day Tour: Multiple Cities Selection */}
+              {formData.isMultiDayTour ? (
+                <div>
+                  <label className="block text-[14px] font-bold text-[#001A33] mb-3">
+                    Select Cities & Locations * (Choose multiple cities and their locations)
+                  </label>
+                  <div className="space-y-4">
+                    {/* City Selector */}
+                    <div>
+                      <label className="block text-[13px] font-semibold text-[#001A33] mb-2">
+                        Add City
+                      </label>
+                      <select
+                        value=""
+                        onChange={(e) => {
+                          const selectedCity = e.target.value;
+                          if (selectedCity && !formData.multiCityLocations[selectedCity]) {
+                            setFormData(prev => ({
+                              ...prev,
+                              multiCityLocations: {
+                                ...prev.multiCityLocations,
+                                [selectedCity]: []
+                              }
+                            }));
+                            e.target.value = '';
+                          }
+                        }}
+                        className="w-full bg-gray-50 border-none rounded-xl py-3 px-4 font-semibold text-[#001A33] text-[14px] focus:ring-2 focus:ring-[#10B981] outline-none"
+                      >
+                        <option value="">Select a city to add...</option>
+                        {formData.country && COUNTRY_CITIES[formData.country]?.filter(city => !formData.multiCityLocations[city]).map(city => (
+                          <option key={city} value={city}>{city}</option>
+                        ))}
+                      </select>
+                    </div>
+
+                    {/* Selected Cities and Their Locations */}
+                    {Object.keys(formData.multiCityLocations).length > 0 && (
+                      <div className="space-y-4">
+                        {Object.keys(formData.multiCityLocations).map((city) => (
+                          <div key={city} className="bg-gray-50 rounded-xl p-4 border border-gray-200">
+                            <div className="flex items-center justify-between mb-3">
+                              <h4 className="font-black text-[#001A33] text-[16px]">{city}</h4>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setFormData(prev => {
+                                    const newMultiCity = { ...prev.multiCityLocations };
+                                    delete newMultiCity[city];
+                                    return { ...prev, multiCityLocations: newMultiCity };
+                                  });
+                                }}
+                                className="p-1 hover:bg-red-100 rounded-full text-red-600"
+                              >
+                                <X size={16} />
+                              </button>
+                            </div>
+                            {CITY_LOCATIONS[city] ? (
+                              <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+                                {CITY_LOCATIONS[city].slice(0, 10).map((location) => {
+                                  const isSelected = formData.multiCityLocations[city]?.includes(location);
+                                  return (
+                                    <button
+                                      key={location}
+                                      type="button"
+                                      onClick={() => {
+                                        setFormData(prev => {
+                                          const cityLocs = prev.multiCityLocations[city] || [];
+                                          const newLocs = isSelected
+                                            ? cityLocs.filter(l => l !== location)
+                                            : [...cityLocs, location];
+                                          return {
+                                            ...prev,
+                                            multiCityLocations: {
+                                              ...prev.multiCityLocations,
+                                              [city]: newLocs
+                                            }
+                                          };
+                                        });
+                                      }}
+                                      className={`p-2 rounded-lg border-2 text-[12px] font-semibold transition-all ${
+                                        isSelected
+                                          ? 'border-[#10B981] bg-[#10B981]/10 text-[#10B981]'
+                                          : 'border-gray-200 hover:border-[#10B981]/50 text-[#001A33]'
+                                      }`}
+                                    >
+                                      {location}
+                                    </button>
+                                  );
+                                })}
+                              </div>
+                            ) : (
+                              <p className="text-[12px] text-gray-500 font-semibold">Location list for {city} coming soon</p>
+                            )}
+                            {formData.multiCityLocations[city]?.length > 0 && (
+                              <p className="text-[12px] text-[#10B981] font-bold mt-2">
+                                ✓ {formData.multiCityLocations[city].length} location{formData.multiCityLocations[city].length > 1 ? 's' : ''} selected
+                              </p>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ) : (
+                /* Regular Single City Location Selection */
+                <div>
+                  <label className="block text-[14px] font-bold text-[#001A33] mb-3">
+                    Select Places to See * (Click to select up to 10 places)
+                  </label>
+                  {formData.city && CITY_LOCATIONS[formData.city] ? (
+                    <>
+                      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
+                        {CITY_LOCATIONS[formData.city].slice(0, 10).map((location) => {
+                          const isSelected = formData.locations.includes(location);
+                          return (
+                            <div
+                              key={location}
+                              onClick={() => handleLocationToggle(location)}
+                              className={`relative p-4 bg-white rounded-xl border-2 cursor-pointer transition-all hover:shadow-md ${
+                                isSelected
+                                  ? 'border-[#10B981] bg-[#10B981]/5'
+                                  : 'border-gray-200 hover:border-[#10B981]/50'
+                              }`}
+                            >
+                              {isSelected && (
+                                <div className="absolute top-2 right-2 w-6 h-6 bg-[#10B981] rounded-full flex items-center justify-center">
+                                  <CheckCircle2 size={16} className="text-white" />
+                                </div>
+                              )}
+                              <div className="flex flex-col items-center text-center">
+                                <MapPin 
+                                  size={24} 
+                                  className={`mb-2 ${isSelected ? 'text-[#10B981]' : 'text-gray-400'}`} 
+                                />
+                                <span className={`text-[13px] font-bold ${isSelected ? 'text-[#10B981]' : 'text-[#001A33]'}`}>
+                                  {location}
+                                </span>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                      {formData.locations.length > 0 && (
+                        <div className="mt-4 p-4 bg-[#10B981]/10 rounded-xl border border-[#10B981]/20">
+                          <p className="text-[14px] font-bold text-[#10B981] mb-2">
+                            ✓ {formData.locations.length} place{formData.locations.length > 1 ? 's' : ''} selected
+                          </p>
+                          <div className="flex flex-wrap gap-2">
+                            {formData.locations.map((loc) => (
+                              <span
+                                key={loc}
+                                className="px-3 py-1 bg-[#10B981] text-white text-[12px] font-bold rounded-full"
+                              >
+                                {loc}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                      {formData.locations.length === 0 && (
+                        <p className="text-[12px] text-gray-500 font-semibold mt-3 text-center">
+                          Click on places above to add them to your tour
+                        </p>
+                      )}
+                    </>
+                  ) : (
+                    <div className="p-8 bg-gray-50 rounded-2xl text-center">
+                      <p className="text-[14px] text-gray-500 font-semibold">
+                        Location list for {formData.city} will be available soon.
+                      </p>
+                      <p className="text-[12px] text-gray-400 font-semibold mt-2">
+                        You can still create the tour, but location selection is not available for this city yet.
+                      </p>
+                    </div>
+                  )}
+                </div>
+              )}
 
               {/* Entry Ticket Options for Selected Locations */}
               {formData.locations.length > 0 && (
+                <div className="mt-6">
+                  <label className="block text-[14px] font-bold text-[#001A33] mb-3">
+                    Entry Ticket Options for Each Location *
+                  </label>
+                  <p className="text-[12px] text-gray-500 font-semibold mb-4">
+                    Specify how entry to each location is handled
+                  </p>
+                  <div className="space-y-4">
+                    {formData.locations.map((location) => (
+                      <div key={location} className="bg-gray-50 rounded-xl p-4 border border-gray-200 relative">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setFormData(prev => {
+                              const newLocations = prev.locations.filter(l => l !== location);
+                              const newEntryTickets = { ...prev.locationEntryTickets };
+                              delete newEntryTickets[location];
+                              return {
+                                ...prev,
+                                locations: newLocations,
+                                locationEntryTickets: newEntryTickets
+                              };
+                            });
+                          }}
+                          className="absolute top-3 right-3 p-1 hover:bg-red-100 rounded-full transition-colors text-gray-400 hover:text-red-600"
+                          aria-label={`Remove ${location}`}
+                        >
+                          <X size={16} />
+                        </button>
+                        <label className="block text-[13px] font-bold text-[#001A33] mb-2 pr-8">
+                          {location}
+                        </label>
+                        <select
+                          value={formData.locationEntryTickets[location] || 'paid_included'}
+                          onChange={(e) => {
+                            setFormData(prev => ({
+                              ...prev,
+                              locationEntryTickets: {
+                                ...prev.locationEntryTickets,
+                                [location]: e.target.value as EntryTicketOption
+                              }
+                            }));
+                          }}
+                          className="w-full bg-white border border-gray-300 rounded-xl py-3 px-4 font-semibold text-[#001A33] text-[13px] focus:ring-2 focus:ring-[#10B981] outline-none"
+                        >
+                          {ENTRY_TICKET_OPTIONS.map(option => (
+                            <option key={option.value} value={option.value}>
+                              {option.label}
+                            </option>
+                          ))}
+                        </select>
+                        <p className="text-[11px] text-gray-500 mt-1">
+                          {ENTRY_TICKET_OPTIONS.find(opt => opt.value === (formData.locationEntryTickets[location] || 'paid_included'))?.description}
+                        </p>
+                      </div>
+                    )                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* Entry Ticket Options for Selected Locations - Only for single city tours */}
+              {!formData.isMultiDayTour && formData.locations.length > 0 && (
                 <div className="mt-6">
                   <label className="block text-[14px] font-bold text-[#001A33] mb-3">
                     Entry Ticket Options for Each Location *
@@ -1734,8 +1960,161 @@ const TourCreationForm: React.FC<TourCreationFormProps> = ({
           </div>
         )}
 
-        {/* Step 5: Tour Options */}
+        {/* Step 5: Description & Details */}
         {step === 5 && (
+          <div className="bg-white rounded-2xl p-8 border border-gray-200">
+            <h2 className="text-xl font-black text-[#001A33] mb-6">Description & Details</h2>
+            
+            <div className="space-y-6">
+              {/* Highlights Section */}
+              <div>
+                <div className="flex items-center gap-2 mb-2">
+                  <label className="block text-[14px] font-bold text-[#001A33]">
+                    Highlights *
+                  </label>
+                  <span className="text-blue-500 cursor-help" title="Write 3-5 sentences explaining what makes your activity special">ⓘ</span>
+                </div>
+                <p className="text-[12px] text-gray-600 font-semibold mb-3">
+                  Write 3-5 sentences explaining what makes your activity special and stand out from the competition. Customers will use these to compare between different activities.
+                </p>
+                
+                {/* Requirement Banner */}
+                {formData.highlights.filter(h => h.trim()).length < 3 && (
+                  <div className="bg-blue-50 border border-blue-200 rounded-xl p-3 mb-4 flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <span className="text-blue-600">ⓘ</span>
+                      <span className="text-[12px] font-bold text-blue-800">3 Highlights are required.</span>
+                    </div>
+                  </div>
+                )}
+
+                {/* Highlight Input Fields */}
+                {formData.highlights.map((highlight, index) => (
+                  <div key={index} className="mb-3">
+                    <div className="relative">
+                      <input
+                        type="text"
+                        value={highlight}
+                        onChange={(e) => {
+                          const newHighlights = [...formData.highlights];
+                          newHighlights[index] = e.target.value;
+                          handleInputChange('highlights', newHighlights);
+                        }}
+                        spellCheck={true}
+                        autoComplete="off"
+                        autoCorrect="on"
+                        autoCapitalize="words"
+                        placeholder="Introduce your highlight here (e.g., Skip the long lines with priority access)"
+                        maxLength={80}
+                        className="w-full bg-gray-50 border-none rounded-2xl py-4 px-4 font-semibold text-[#001A33] text-[14px] focus:ring-2 focus:ring-[#10B981] outline-none"
+                      />
+                      <div className="absolute right-4 top-1/2 -translate-y-1/2 text-[12px] text-gray-500 font-semibold">
+                        {highlight.length} / 80
+                      </div>
+                    </div>
+                  </div>
+                ))}
+
+                {/* Add Another Highlight Button */}
+                {formData.highlights.length < 5 && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const newHighlights = [...formData.highlights, ''];
+                      handleInputChange('highlights', newHighlights);
+                    }}
+                    className="flex items-center gap-2 text-[#10B981] text-[14px] font-bold hover:text-[#059669] transition-colors mt-2"
+                  >
+                    <span className="text-[18px]">+</span> Add another highlight
+                  </button>
+                )}
+              </div>
+
+              <div>
+                <label className="block text-[14px] font-bold text-[#001A33] mb-3">
+                  Short Description (Optional)
+                </label>
+                <textarea
+                  value={formData.shortDescription}
+                  onChange={(e) => handleInputChange('shortDescription', e.target.value)}
+                  placeholder="Give customers a taste of what they'll do in 2-3 sentences..."
+                  maxLength={200}
+                  rows={3}
+                  spellCheck={true}
+                  autoComplete="off"
+                  autoCorrect="on"
+                  autoCapitalize="sentences"
+                  className="w-full bg-gray-50 border-none rounded-2xl py-4 px-4 font-semibold text-[#001A33] text-[14px] focus:ring-2 focus:ring-[#10B981] outline-none resize-none"
+                />
+                <p className="text-[12px] text-gray-500 font-semibold mt-2">
+                  {formData.shortDescription.length} / 200 characters
+                </p>
+              </div>
+
+              <div>
+                <label className="block text-[14px] font-bold text-[#001A33] mb-3">
+                  Full Description * (500-1000 words recommended)
+                </label>
+                <textarea
+                  value={formData.fullDescription}
+                  onChange={(e) => handleInputChange('fullDescription', e.target.value)}
+                  placeholder="Provide all the details about what customers will see and experience..."
+                  rows={10}
+                  spellCheck={true}
+                  autoComplete="off"
+                  autoCorrect="on"
+                  autoCapitalize="sentences"
+                  className="w-full bg-gray-50 border-none rounded-2xl py-4 px-4 font-semibold text-[#001A33] text-[14px] focus:ring-2 focus:ring-[#10B981] outline-none resize-none"
+                />
+                <p className="text-[12px] text-gray-500 font-semibold mt-2">
+                  {formData.fullDescription.split(/\s+/).filter(Boolean).length} words
+                </p>
+              </div>
+
+              <div>
+                <label className="block text-[14px] font-bold text-[#001A33] mb-3">
+                  What's Included * (One item per line)
+                </label>
+                <textarea
+                  value={formData.included}
+                  onChange={(e) => handleInputChange('included', e.target.value)}
+                  placeholder="• Entry ticket&#10;• Professional guide&#10;• Transportation"
+                  rows={5}
+                  className="w-full bg-gray-50 border-none rounded-2xl py-4 px-4 font-semibold text-[#001A33] text-[14px] focus:ring-2 focus:ring-[#10B981] outline-none resize-none"
+                />
+              </div>
+
+              <div>
+                <label className="block text-[14px] font-bold text-[#001A33] mb-3">
+                  Excludes (Optional - One item per line)
+                </label>
+                <textarea
+                  value={formData.notIncluded}
+                  onChange={(e) => handleInputChange('notIncluded', e.target.value)}
+                  placeholder="• Meals&#10;• Personal expenses"
+                  rows={4}
+                  className="w-full bg-gray-50 border-none rounded-2xl py-4 px-4 font-semibold text-[#001A33] text-[14px] focus:ring-2 focus:ring-[#10B981] outline-none resize-none"
+                />
+              </div>
+
+              <div>
+                <label className="block text-[14px] font-bold text-[#001A33] mb-3">
+                  Meeting Point (Optional)
+                </label>
+                <input
+                  type="text"
+                  value={formData.meetingPoint}
+                  onChange={(e) => handleInputChange('meetingPoint', e.target.value)}
+                  placeholder="e.g., Main entrance of Taj Mahal"
+                  className="w-full bg-gray-50 border-none rounded-2xl py-4 px-4 font-bold text-[#001A33] text-[14px] focus:ring-2 focus:ring-[#10B981] outline-none"
+                />
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Step 7: Tour Options */}
+        {step === 7 && (
           <div className="bg-white rounded-2xl p-8 border border-gray-200">
             <h2 className="text-xl font-black text-[#001A33] mb-2">Add Pricing Options</h2>
             <p className="text-[14px] text-gray-600 font-semibold mb-4">
@@ -2246,161 +2625,8 @@ const TourCreationForm: React.FC<TourCreationFormProps> = ({
           </div>
         )}
 
-        {/* Step 6: Description */}
+        {/* Step 6: Photos & Languages */}
         {step === 6 && (
-          <div className="bg-white rounded-2xl p-8 border border-gray-200">
-            <h2 className="text-xl font-black text-[#001A33] mb-6">Description & Details</h2>
-            
-            <div className="space-y-6">
-              {/* Highlights Section */}
-              <div>
-                <div className="flex items-center gap-2 mb-2">
-                  <label className="block text-[14px] font-bold text-[#001A33]">
-                    Highlights *
-                  </label>
-                  <span className="text-blue-500 cursor-help" title="Write 3-5 sentences explaining what makes your activity special">ⓘ</span>
-                </div>
-                <p className="text-[12px] text-gray-600 font-semibold mb-3">
-                  Write 3-5 sentences explaining what makes your activity special and stand out from the competition. Customers will use these to compare between different activities.
-                </p>
-                
-                {/* Requirement Banner */}
-                {formData.highlights.filter(h => h.trim()).length < 3 && (
-                  <div className="bg-blue-50 border border-blue-200 rounded-xl p-3 mb-4 flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <span className="text-blue-600">ⓘ</span>
-                      <span className="text-[12px] font-bold text-blue-800">3 Highlights are required.</span>
-                    </div>
-                  </div>
-                )}
-
-                {/* Highlight Input Fields */}
-                {formData.highlights.map((highlight, index) => (
-                  <div key={index} className="mb-3">
-                    <div className="relative">
-                      <input
-                        type="text"
-                        value={highlight}
-                        onChange={(e) => {
-                          const newHighlights = [...formData.highlights];
-                          newHighlights[index] = e.target.value;
-                          handleInputChange('highlights', newHighlights);
-                        }}
-                        spellCheck={true}
-                        autoComplete="off"
-                        autoCorrect="on"
-                        autoCapitalize="words"
-                        placeholder="Introduce your highlight here (e.g., Skip the long lines with priority access)"
-                        maxLength={80}
-                        className="w-full bg-gray-50 border-none rounded-2xl py-4 px-4 font-semibold text-[#001A33] text-[14px] focus:ring-2 focus:ring-[#10B981] outline-none"
-                      />
-                      <div className="absolute right-4 top-1/2 -translate-y-1/2 text-[12px] text-gray-500 font-semibold">
-                        {highlight.length} / 80
-                      </div>
-                    </div>
-                  </div>
-                ))}
-
-                {/* Add Another Highlight Button */}
-                {formData.highlights.length < 5 && (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      const newHighlights = [...formData.highlights, ''];
-                      handleInputChange('highlights', newHighlights);
-                    }}
-                    className="flex items-center gap-2 text-[#10B981] text-[14px] font-bold hover:text-[#059669] transition-colors mt-2"
-                  >
-                    <span className="text-[18px]">+</span> Add another highlight
-                  </button>
-                )}
-              </div>
-
-              <div>
-                <label className="block text-[14px] font-bold text-[#001A33] mb-3">
-                  Short Description (Optional)
-                </label>
-                <textarea
-                  value={formData.shortDescription}
-                  onChange={(e) => handleInputChange('shortDescription', e.target.value)}
-                  placeholder="Give customers a taste of what they'll do in 2-3 sentences..."
-                  maxLength={200}
-                  rows={3}
-                  spellCheck={true}
-                  autoComplete="off"
-                  autoCorrect="on"
-                  autoCapitalize="sentences"
-                  className="w-full bg-gray-50 border-none rounded-2xl py-4 px-4 font-semibold text-[#001A33] text-[14px] focus:ring-2 focus:ring-[#10B981] outline-none resize-none"
-                />
-                <p className="text-[12px] text-gray-500 font-semibold mt-2">
-                  {formData.shortDescription.length} / 200 characters
-                </p>
-              </div>
-
-              <div>
-                <label className="block text-[14px] font-bold text-[#001A33] mb-3">
-                  Full Description * (500-1000 words recommended)
-                </label>
-                <textarea
-                  value={formData.fullDescription}
-                  onChange={(e) => handleInputChange('fullDescription', e.target.value)}
-                  placeholder="Provide all the details about what customers will see and experience..."
-                  rows={10}
-                  spellCheck={true}
-                  autoComplete="off"
-                  autoCorrect="on"
-                  autoCapitalize="sentences"
-                  className="w-full bg-gray-50 border-none rounded-2xl py-4 px-4 font-semibold text-[#001A33] text-[14px] focus:ring-2 focus:ring-[#10B981] outline-none resize-none"
-                />
-                <p className="text-[12px] text-gray-500 font-semibold mt-2">
-                  {formData.fullDescription.split(/\s+/).filter(Boolean).length} words
-                </p>
-              </div>
-
-              <div>
-                <label className="block text-[14px] font-bold text-[#001A33] mb-3">
-                  What's Included * (One item per line)
-                </label>
-                <textarea
-                  value={formData.included}
-                  onChange={(e) => handleInputChange('included', e.target.value)}
-                  placeholder="• Entry ticket&#10;• Professional guide&#10;• Transportation"
-                  rows={5}
-                  className="w-full bg-gray-50 border-none rounded-2xl py-4 px-4 font-semibold text-[#001A33] text-[14px] focus:ring-2 focus:ring-[#10B981] outline-none resize-none"
-                />
-              </div>
-
-              <div>
-                <label className="block text-[14px] font-bold text-[#001A33] mb-3">
-                  Excludes (Optional - One item per line)
-                </label>
-                <textarea
-                  value={formData.notIncluded}
-                  onChange={(e) => handleInputChange('notIncluded', e.target.value)}
-                  placeholder="• Meals&#10;• Personal expenses"
-                  rows={4}
-                  className="w-full bg-gray-50 border-none rounded-2xl py-4 px-4 font-semibold text-[#001A33] text-[14px] focus:ring-2 focus:ring-[#10B981] outline-none resize-none"
-                />
-              </div>
-
-              <div>
-                <label className="block text-[14px] font-bold text-[#001A33] mb-3">
-                  Meeting Point (Optional)
-                </label>
-                <input
-                  type="text"
-                  value={formData.meetingPoint}
-                  onChange={(e) => handleInputChange('meetingPoint', e.target.value)}
-                  placeholder="e.g., Main entrance of Taj Mahal"
-                  className="w-full bg-gray-50 border-none rounded-2xl py-4 px-4 font-bold text-[#001A33] text-[14px] focus:ring-2 focus:ring-[#10B981] outline-none"
-                />
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Step 7: Images & Languages */}
-        {step === 7 && (
           <div className="bg-white rounded-2xl p-8 border border-gray-200">
             <h2 className="text-xl font-black text-[#001A33] mb-6">Photos & Languages</h2>
             

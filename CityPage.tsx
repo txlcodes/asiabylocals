@@ -952,11 +952,16 @@ const CityPage: React.FC<CityPageProps> = ({ country, city }) => {
 
       {/* Header Navigation */}
       <header className="sticky top-0 z-50 bg-white border-b border-gray-100 shadow-sm">
-        <div className="w-full pt-2 pb-1 flex items-center justify-between px-3 sm:px-4 md:px-6">
-          <div className="flex items-center gap-3">
+        <div className="w-full h-16 sm:h-20 md:h-24 flex items-center justify-between px-3 sm:px-4 md:px-6">
+          <div className="flex items-center gap-3 h-full">
             {/* Logo - Clickable to Homepage */}
-            <a href="/" className="flex items-center mt-2 md:mt-3">
-              <img src="/logo.svg?v=4" alt="Asia By Locals" className="h-[60px] sm:h-[70px] md:h-[80px] lg:h-[96px] xl:h-[115px] w-auto object-contain" />
+            <a href="/" className="flex items-center h-full cursor-pointer">
+              <img 
+                src="/logo.png" 
+                alt="Asia By Locals" 
+                className="h-[100px] sm:h-[120px] md:h-[140px] lg:h-[160px] xl:h-[180px] w-auto object-contain" 
+                style={{ transform: 'translateY(13px)' }}
+              />
             </a>
           </div>
 
