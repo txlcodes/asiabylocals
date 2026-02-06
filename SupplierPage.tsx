@@ -244,7 +244,7 @@ const SupplierPage: React.FC<SupplierPageProps> = ({ onClose }) => {
           <img 
             src="/logo.svg?v=4" 
             alt="AsiaByLocals" 
-            className="h-16 w-auto"
+            className="h-24 w-auto"
           />
           <button
             onClick={() => setShowLogin(true)}

@@ -875,8 +875,8 @@ const App: React.FC = () => {
           </button>
         </div>
 
-        {/* City Chips Row - Scrollable */}
-        <div className="px-3 sm:px-4 pb-3 overflow-x-auto scroll-smooth scrollbar-hide" style={{ WebkitOverflowScrolling: 'touch' }}>
+        {/* City Chips Row - Scrollable - Hidden on mobile */}
+        <div className="hidden md:block px-3 sm:px-4 pb-3 overflow-x-auto scroll-smooth scrollbar-hide" style={{ WebkitOverflowScrolling: 'touch' }}>
           <div className="flex items-center gap-2 min-w-max">
             {CITIES.slice(0, 12).map((city) => {
               const url = getCityUrl(city.name, city.id);
