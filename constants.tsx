@@ -3,8 +3,25 @@ import { Country, AttractionCard, SignatureExperience } from './types';
 export const CITIES: Country[] = [
   // Live cities - shown first
   { id: 'agra', name: 'Agra', image: 'https://images.unsplash.com/photo-1564507592333-c60657eea523?auto=format&fit=crop&q=80&w=600', localAngle: 'Mughal Heritage', guidesCount: 112 },
-  { id: 'delhi', name: 'Delhi', image: 'https://images.unsplash.com/photo-1587474260584-136574528ed5?auto=format&fit=crop&q=80&w=600', localAngle: 'Historic Capital', guidesCount: 245 },
+  { id: 'delhi', name: 'Delhi', image: '/cities-images/delhi.jpg', localAngle: 'Historic Capital', guidesCount: 245 },
   { id: 'jaipur', name: 'Jaipur', image: '/jaipur-hero.jpg', localAngle: 'Pink City', guidesCount: 189 },
+<<<<<<< Updated upstream
+=======
+  { id: 'jodhpur', name: 'Jodhpur', image: '/cities-images/jodhpur.jpg', localAngle: 'Blue City', guidesCount: 145 },
+  { id: 'bikaner', name: 'Bikaner', image: '/cities-images/bikaner.jpg', localAngle: 'Desert Heritage', guidesCount: 98 },
+  { id: 'mathura', name: 'Mathura', image: '/cities-images/mathura.jpg', localAngle: 'Spiritual Capital', guidesCount: 134 },
+  { id: 'varanasi', name: 'Varanasi', image: '/cities-images/varanasi.jpg', localAngle: 'Sacred Ganges', guidesCount: 178 },
+  { id: 'khajuraho', name: 'Khajuraho', image: '/cities-images/khajurao.jpg', localAngle: 'Temple Art', guidesCount: 112 },
+  { id: 'gwalior', name: 'Gwalior', image: '/cities-images/gwalior.jpg', localAngle: 'Fort City', guidesCount: 123 },
+  { id: 'aurangabad', name: 'Aurangabad', image: '/cities-images/aurangabad.jpg', localAngle: 'Cave Temples', guidesCount: 156 },
+  { id: 'goa', name: 'Goa', image: '/cities-images/goa.jpg', localAngle: 'Beaches & Culture', guidesCount: 234 },
+  { id: 'mysore', name: 'Mysore', image: '/cities-images/mysore.jpg', localAngle: 'Royal Heritage', guidesCount: 167 },
+  { id: 'bengaluru', name: 'Bengaluru', image: '/cities-images/bangalore.jpg', localAngle: 'Garden City', guidesCount: 289 },
+  { id: 'udaipur', name: 'Udaipur', image: 'https://images.unsplash.com/photo-1624235113031-86640fb6acfb?auto=format&fit=crop&q=80&w=600', localAngle: 'City of Lakes', guidesCount: 156 },
+  { id: 'amritsar', name: 'Amritsar', image: '/cities-images/amritsar.jpg', localAngle: 'Golden Temple', guidesCount: 142 },
+  { id: 'rishikesh', name: 'Rishikesh', image: '/cities-images/rishikesh.jpg', localAngle: 'Yoga Capital', guidesCount: 134 },
+  { id: 'leh-ladakh', name: 'Leh Ladakh', image: 'https://images.unsplash.com/photo-1581793745862-99fde7fa73d2?auto=format&fit=crop&q=80&w=600', localAngle: 'Himalayan Desert', guidesCount: 98 },
+>>>>>>> Stashed changes
   // Other cities
   { id: 'tokyo', name: 'Tokyo', image: 'https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?auto=format&fit=crop&q=80&w=600', localAngle: 'Neon & Tradition', guidesCount: 342 },
   { id: 'kyoto', name: 'Kyoto', image: 'https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?auto=format&fit=crop&q=80&w=600', localAngle: 'Zen & Temples', guidesCount: 184 },
@@ -16,7 +33,7 @@ export const CITIES: Country[] = [
   { id: 'hongkong', name: 'Hong Kong', image: 'https://images.unsplash.com/photo-1536599018102-9f803c140fc1?auto=format&fit=crop&q=80&w=600', localAngle: 'Skyline & Dim Sum', guidesCount: 298 },
   { id: 'kuala-lumpur', name: 'Kuala Lumpur', image: '/kuala-lumpur-hero.jpg', localAngle: 'Twin Towers', guidesCount: 156 },
   { id: 'taipei', name: 'Taipei', image: '/taipei-hero.jpg', localAngle: 'Night Markets', guidesCount: 189 },
-  { id: 'mumbai', name: 'Mumbai', image: 'https://images.unsplash.com/photo-1529253355930-ddbe423a2ac7?auto=format&fit=crop&q=80&w=600', localAngle: 'Bollywood & Bazaars', guidesCount: 267 },
+
   { id: 'osaka', name: 'Osaka', image: '/osaka-hero.jpg', localAngle: 'Food Paradise', guidesCount: 198 },
   // Additional Asian cities
   { id: 'phuket', name: 'Phuket', image: '/phuket-hero.jpg', localAngle: 'Beaches & Nightlife', guidesCount: 312 },
@@ -138,6 +155,67 @@ export const CITY_LOCATIONS: Record<string, string[]> = {
     'Ganges River', 'Kashi Vishwanath Temple', 'Sarnath', 'Dashashwamedh Ghat',
     'Manikarnika Ghat', 'Assi Ghat', 'Banaras Hindu University'
   ],
+<<<<<<< Updated upstream
+=======
+  'Jodhpur': [
+    'Mehrangarh Fort', 'Jaswant Thada', 'Umaid Bhawan Palace', 'Clock Tower',
+    'Mandore Gardens', 'Rao Jodha Desert Rock Park', 'Ghanta Ghar', 'Balsamand Lake',
+    'Jodhpur Railway Station', 'Jodhpur Airport', 'Sardar Market', 'Toorji Ka Jhalra',
+    'Chamunda Mata Temple', 'Mahamandir Temple', 'Kaylana Lake', 'Machia Biological Park',
+    'Rao Jodha Desert Rock Park', 'Bishnoi Village'
+  ],
+  'Bikaner': [
+    'Junagarh Fort', 'Karni Mata Temple', 'Lalgarh Palace', 'National Research Centre on Camel',
+    'Gajner Palace', 'Laxmi Niwas Palace', 'Bikaner Camel Festival', 'Rampuria Havelis',
+    'Bikaner Railway Station', 'Bikaner Airport', 'Kote Gate', 'Bhandasar Jain Temple',
+    'Ganga Government Museum', 'Shri Laxminath Temple', 'Devi Kund Sagar', 'Camel Breeding Farm',
+    'Sadul Singh Museum', 'Gajner Wildlife Sanctuary'
+  ],
+  'Mathura': [
+    'Krishna Janmasthan Temple', 'Dwarkadhish Temple', 'Vrindavan', 'Govardhan Hill',
+    'Banke Bihari Temple', 'Prem Mandir', 'ISKCON Temple', 'Radha Kund',
+    'Mathura Railway Station', 'Mathura Junction', 'Vishram Ghat', 'Kusum Sarovar',
+    'Gita Mandir', 'Rangji Temple', 'Seva Kunj', 'Nidhivan',
+    'Mathura Museum', 'Barsana', 'Gokul'
+  ],
+
+  'Khajuraho': [
+    'Khajuraho Group of Monuments', 'Western Group of Temples', 'Eastern Group of Temples',
+    'Southern Group of Temples', 'Archaeological Museum', 'Panna National Park', 'Raneh Falls',
+    'Khajuraho Railway Station', 'Khajuraho Airport', 'Kandariya Mahadeva Temple', 'Lakshmana Temple',
+    'Vishvanatha Temple', 'Chitragupta Temple', 'Adinath Temple', 'Parsvanath Temple',
+    'Duladeo Temple', 'Chaturbhuj Temple', 'Beni Sagar Dam'
+  ],
+  'Gwalior': [
+    'Gwalior Fort', 'Jai Vilas Palace', 'Teli Ka Mandir', 'Sas Bahu Temples',
+    'Tansen Tomb', 'Gurudwara Data Bandi Chhod', 'Sun Temple', 'Scindia Museum',
+    'Gwalior Railway Station', 'Gwalior Airport', 'Man Mandir Palace', 'Gurjari Mahal',
+    'Gopachal Parvat', 'Tomb of Mohammad Ghaus', 'Gwalior Zoo', 'Phool Bagh',
+    'Suraj Kund', 'Gwalior Trade Fair Ground', 'Maharaj Bada'
+  ],
+  'Aurangabad': [
+    'Ajanta Caves', 'Ellora Caves', 'Bibi Ka Maqbara', 'Daulatabad Fort',
+    'Grishneshwar Temple', 'Panchakki', 'Aurangabad Caves', 'Shivaji Museum',
+    'Aurangabad Railway Station', 'Aurangabad Airport', 'Kailasa Temple', 'Buddhist Caves',
+    'Jain Caves', 'Himroo Factory', 'Salim Ali Lake', 'Gautala Wildlife Sanctuary',
+    'Pithalkora Caves', 'Lonar Crater Lake', 'Aurangabad Caves Complex'
+  ],
+
+  'Mysore': [
+    'Mysore Palace', 'Chamundi Hill', 'Brindavan Gardens', 'St. Philomena\'s Cathedral',
+    'Mysore Zoo', 'Jaganmohan Palace', 'Karanji Lake', 'Railway Museum',
+    'Mysore Railway Station', 'Mysore Airport', 'Chamundeshwari Temple', 'Lalitha Mahal Palace',
+    'Krishnaraja Sagar Dam', 'Somnathpur Temple', 'Ranganathittu Bird Sanctuary', 'Melody World Wax Museum',
+    'Sand Sculpture Museum', 'Devaraja Market', 'Mysore Silk Factory'
+  ],
+  'Bengaluru': [
+    'Lalbagh Botanical Garden', 'Cubbon Park', 'Bangalore Palace', 'Tipu Sultan\'s Summer Palace',
+    'ISKCON Temple', 'Vidhana Soudha', 'Nandi Hills', 'Bannerghatta National Park',
+    'Bangalore Railway Station', 'Bangalore Airport', 'Ulsoor Lake', 'Wonderla Amusement Park',
+    'Innovation Film City', 'Bull Temple', 'Vidhana Soudha', 'UB City Mall',
+    'Commercial Street', 'MG Road', 'Cubbon Park Metro Station', 'Bangalore Fort'
+  ],
+>>>>>>> Stashed changes
   'Udaipur': [
     'City Palace', 'Lake Pichola', 'Jag Mandir', 'Jagdish Temple',
     'Monsoon Palace', 'Fateh Sagar Lake', 'Saheliyon Ki Bari'
@@ -277,24 +355,24 @@ export const ENTRY_TICKET_OPTIONS: Array<{
   label: string;
   description: string;
 }> = [
-  {
-    value: 'paid_included',
-    label: 'Paid entry: ticket included',
-    description: 'The activity enters the location, and the ticket is included in the activity price.'
-  },
-  {
-    value: 'paid_not_included',
-    label: 'Paid entry: ticket not included',
-    description: 'The activity enters the location, but the ticket is not included in the activity price. Customers must pay the entrance fee during the activity.'
-  },
-  {
-    value: 'free_entry',
-    label: 'Free entry: no ticket required',
-    description: 'The location is free to enter. No ticket is required.'
-  },
-  {
-    value: 'exterior_only',
-    label: 'No entry: exterior visit only',
-    description: 'The activity does not enter the location, but it is part of the experience (e.g. the attraction\'s exterior is visited or detailed during a guided tour, etc).'
-  }
-];
+    {
+      value: 'paid_included',
+      label: 'Paid entry: ticket included',
+      description: 'The activity enters the location, and the ticket is included in the activity price.'
+    },
+    {
+      value: 'paid_not_included',
+      label: 'Paid entry: ticket not included',
+      description: 'The activity enters the location, but the ticket is not included in the activity price. Customers must pay the entrance fee during the activity.'
+    },
+    {
+      value: 'free_entry',
+      label: 'Free entry: no ticket required',
+      description: 'The location is free to enter. No ticket is required.'
+    },
+    {
+      value: 'exterior_only',
+      label: 'No entry: exterior visit only',
+      description: 'The activity does not enter the location, but it is part of the experience (e.g. the attraction\'s exterior is visited or detailed during a guided tour, etc).'
+    }
+  ];

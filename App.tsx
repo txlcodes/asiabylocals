@@ -1,14 +1,14 @@
 import React, { useState, useEffect, useMemo, Component } from 'react';
-import { 
-  Globe, 
-  Search, 
-  Heart, 
-  ShoppingCart, 
-  User, 
-  Star, 
-  MapPin, 
-  Clock, 
-  ChevronRight, 
+import {
+  Globe,
+  Search,
+  Heart,
+  ShoppingCart,
+  User,
+  Star,
+  MapPin,
+  Clock,
+  ChevronRight,
   ChevronLeft,
   Menu,
   Award,
@@ -169,14 +169,13 @@ const ExplorationFooter: React.FC = () => {
       {/* Dynamic Tab Navigation */}
       <div className="flex gap-8 border-b border-gray-100 mb-8 overflow-x-auto no-scrollbar">
         {tabs.map((tab) => (
-          <button 
+          <button
             key={tab.id}
             onClick={() => setActiveTab(tab.id)}
-            className={`pb-4 text-[14px] font-bold transition-all whitespace-nowrap border-b-2 outline-none ${
-              activeTab === tab.id 
-              ? 'text-[#0071EB] border-[#0071EB]' 
-              : 'text-gray-400 border-transparent hover:text-[#001A33]'
-            }`}
+            className={`pb-4 text-[14px] font-bold transition-all whitespace-nowrap border-b-2 outline-none ${activeTab === tab.id
+                ? 'text-[#0071EB] border-[#0071EB]'
+                : 'text-gray-400 border-transparent hover:text-[#001A33]'
+              }`}
           >
             {tab.label}
           </button>
@@ -204,7 +203,7 @@ const App: React.FC = () => {
   // Search state - Focus on Agra, Delhi, Jaipur
   const [searchQuery, setSearchQuery] = useState('');
   const [showSuggestions, setShowSuggestions] = useState(false);
-  
+
   // Wishlist, Cart, Profile state
   const [showWishlistModal, setShowWishlistModal] = useState(false);
   const [showCartModal, setShowCartModal] = useState(false);
@@ -212,13 +211,18 @@ const App: React.FC = () => {
   const [wishlist, setWishlist] = useState<any[]>([]);
   const [cart, setCart] = useState<any[]>([]);
   const [user, setUser] = useState<any>(null);
-  
+
   // Tourist authentication modals
   const [showTouristLogin, setShowTouristLogin] = useState(false);
   const [showTouristSignup, setShowTouristSignup] = useState(false);
   const [pendingWishlistTour, setPendingWishlistTour] = useState<any>(null);
+<<<<<<< Updated upstream
   
   // Focus cities: Agra, Delhi, Jaipur (India)
+=======
+
+  // Focus cities: Agra, Delhi, Jaipur, and other Indian cities
+>>>>>>> Stashed changes
   const focusCities = [
     { name: 'Agra', country: 'India', slug: 'agra' },
     { name: 'Delhi', country: 'India', slug: 'delhi' },
@@ -259,7 +263,7 @@ const App: React.FC = () => {
     const savedWishlist = localStorage.getItem('wishlist');
     const savedCart = localStorage.getItem('cart');
     const savedUser = localStorage.getItem('user');
-    
+
     if (savedWishlist) {
       try {
         setWishlist(JSON.parse(savedWishlist));
@@ -267,7 +271,7 @@ const App: React.FC = () => {
         console.error('Error loading wishlist:', e);
       }
     }
-    
+
     if (savedCart) {
       try {
         setCart(JSON.parse(savedCart));
@@ -275,7 +279,7 @@ const App: React.FC = () => {
         console.error('Error loading cart:', e);
       }
     }
-    
+
     if (savedUser) {
       try {
         const userData = JSON.parse(savedUser);
@@ -284,7 +288,7 @@ const App: React.FC = () => {
         console.error('Error loading user:', e);
       }
     }
-    
+
     // Set up initial placeholder function immediately
     (window as any).addToWishlist = (tour: any) => {
       console.log('addToWishlist called (placeholder - will be replaced)', { tour });
@@ -304,13 +308,13 @@ const App: React.FC = () => {
   useEffect(() => {
     const wishlistHandler = (tour: any) => {
       console.log('addToWishlist called', { tour, tourId: tour?.id, user, wishlistLength: wishlist.length });
-      
+
       if (!tour || !tour.id) {
         console.error('Invalid tour object:', tour);
         alert('Unable to add tour to wishlist. Please try again.');
         return;
       }
-      
+
       // Check if user is logged in
       if (!user || user.type !== 'tourist') {
         console.log('User not logged in, showing login modal');
@@ -319,7 +323,7 @@ const App: React.FC = () => {
         setShowTouristLogin(true);
         return;
       }
-      
+
       console.log('User logged in, adding to wishlist');
       // User is logged in, add to wishlist
       if (!wishlist.find((item: any) => item.id === tour.id)) {
@@ -329,7 +333,7 @@ const App: React.FC = () => {
         console.log('Tour already in wishlist');
       }
     };
-    
+
     (window as any).addToWishlist = wishlistHandler;
     (window as any).addToCart = (tour: any) => {
       if (!cart.find((item: any) => item.id === tour.id)) {
@@ -340,7 +344,7 @@ const App: React.FC = () => {
     (window as any).openCart = () => setShowCartModal(true);
     (window as any).user = user; // Expose user state
     (window as any).wishlist = wishlist; // Expose wishlist state for checking
-    
+
     return () => {
       delete (window as any).addToWishlist;
       delete (window as any).addToCart;
@@ -401,29 +405,35 @@ const App: React.FC = () => {
   const isSafetyGuidelinesPage = window.location.pathname === '/safety-guidelines';
   const isPrivacyPolicyPage = window.location.pathname === '/privacy-policy';
   const isTermsAndConditionsPage = window.location.pathname === '/terms-and-conditions';
+<<<<<<< Updated upstream
   
+=======
+  const isSupportPage = window.location.pathname === '/support';
+  const isAboutUsPage = window.location.pathname === '/about-us' || window.location.pathname === '/about';
+
+>>>>>>> Stashed changes
   // Check for city page: /india/agra, /thailand/bangkok, etc.
   const cityPageMatch = window.location.pathname.match(/^\/([^\/]+)\/([^\/]+)$/);
   const countrySlug = cityPageMatch ? cityPageMatch[1] : null;
   const citySlug = cityPageMatch ? cityPageMatch[2] : null;
-  
+
   // Check for tour page: /india/agra/tour-slug
   const tourPageMatch = window.location.pathname.match(/^\/([^\/]+)\/([^\/]+)\/(.+)$/);
   const tourCountrySlug = tourPageMatch ? tourPageMatch[1] : null;
   const tourCitySlug = tourPageMatch ? tourPageMatch[2] : null;
   const tourSlug = tourPageMatch ? tourPageMatch[3] : null;
-  
+
   // Legacy tour ID route: /tour/:id
   const tourDetailMatch = window.location.pathname.match(/^\/tour\/(.+)$/);
   const tourId = tourDetailMatch ? tourDetailMatch[1] : null;
-  
+
   // Convert slugs to proper case for display
   const slugToTitle = (slug: string) => {
-    return slug.split('-').map(word => 
+    return slug.split('-').map(word =>
       word.charAt(0).toUpperCase() + word.slice(1)
     ).join(' ');
   };
-  
+
   const [activeTab, setActiveTab] = useState('worldwide');
   const [citiesScrollPosition, setCitiesScrollPosition] = useState(0);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
@@ -468,12 +478,12 @@ const App: React.FC = () => {
       'hongkong': { country: 'hong-kong', city: 'hong-kong' },
       'taipei': { country: 'taiwan', city: 'taipei' }
     };
-    
+
     const mapping = cityMap[cityId.toLowerCase()];
     if (mapping) {
       return `/${mapping.country}/${mapping.city}`;
     }
-    
+
     // Fallback: use city name as slug
     const citySlug = cityName.toLowerCase().replace(/\s+/g, '-');
     return `/india/${citySlug}`; // Default to India for now
@@ -486,7 +496,7 @@ const App: React.FC = () => {
         const scrollLeft = scrollContainer.scrollLeft;
         const scrollWidth = scrollContainer.scrollWidth;
         const clientWidth = scrollContainer.clientWidth;
-        
+
         setCanScrollLeft(scrollLeft > 0);
         setCanScrollRight(scrollLeft < scrollWidth - clientWidth - 10);
       }
@@ -503,7 +513,7 @@ const App: React.FC = () => {
       };
     }
   }, []);
-  
+
   // Hero images for rotation - verified Asian city images
   const heroImagesBase = [
     { url: '/kyoto-hero.jpg', city: 'Kyoto' },
@@ -517,7 +527,7 @@ const App: React.FC = () => {
     { url: '/rafa-prada-hero.jpg', city: 'Asia' },
     { url: '/soroush-zargarbashi-hero.jpg', city: 'Asia' }
   ];
-  
+
   // Shuffle function (Fisher-Yates algorithm)
   const shuffleArray = <T,>(array: T[]): T[] => {
     const shuffled = [...array];
@@ -527,17 +537,17 @@ const App: React.FC = () => {
     }
     return shuffled;
   };
-  
+
   // Randomize hero images order (only once on mount)
   const heroImages = useMemo(() => shuffleArray(heroImagesBase), []);
-  
+
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  
+
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentImageIndex((prevIndex) => (prevIndex + 1) % heroImages.length);
     }, 5000); // Change every 5 seconds
-    
+
     return () => clearInterval(interval);
   }, [heroImages.length]);
 
@@ -573,39 +583,39 @@ const App: React.FC = () => {
 
   // Show tour detail page (SEO-friendly URL: /country/city/slug)
   if (tourPageMatch && tourSlug) {
-    console.log('App.tsx - Routing to TourDetailPage', { 
+    console.log('App.tsx - Routing to TourDetailPage', {
       pathname: window.location.pathname,
-      tourPageMatch: !!tourPageMatch, 
-      tourSlug, 
-      tourCountrySlug, 
-      tourCitySlug 
+      tourPageMatch: !!tourPageMatch,
+      tourSlug,
+      tourCountrySlug,
+      tourCitySlug
     });
-    
+
     return (
       <ErrorBoundary>
-        <TourDetailPage 
+        <TourDetailPage
           tourSlug={tourSlug}
           country={slugToTitle(tourCountrySlug || '')}
           city={slugToTitle(tourCitySlug || '')}
-          onClose={() => window.history.back()} 
+          onClose={() => window.history.back()}
         />
       </ErrorBoundary>
     );
   }
-  
+
   // Show tour detail page (legacy ID route: /tour/:id)
   if (tourId) {
     return <TourDetailPage tourId={tourId} onClose={() => window.history.back()} />;
   }
-  
+
   // Show city page (SEO-friendly URL: /country/city)
   if (cityPageMatch && countrySlug && citySlug) {
     try {
       return (
         <ErrorBoundary>
-          <CityPage 
-            country={slugToTitle(countrySlug)} 
-            city={slugToTitle(citySlug)} 
+          <CityPage
+            country={slugToTitle(countrySlug)}
+            city={slugToTitle(citySlug)}
           />
         </ErrorBoundary>
       );
@@ -646,20 +656,30 @@ const App: React.FC = () => {
         <div className="w-full pt-2 pb-1 flex items-center justify-between px-3 sm:px-4 md:px-6">
           <div className="flex items-center gap-3">
             {/* Logo */}
+<<<<<<< Updated upstream
             <div className="flex items-center cursor-pointer mt-2 md:mt-3">
               <img src="/logo.svg?v=4" alt="Asia By Locals" className="h-[60px] sm:h-[70px] md:h-[80px] lg:h-[96px] xl:h-[115px] w-auto object-contain" />
+=======
+            <div className="cursor-pointer">
+              <img
+                src="/logo.png"
+                alt="Asia By Locals"
+                className="h-[90px] sm:h-[85px] md:h-[95px] lg:h-[105px] xl:h-[115px] w-auto object-contain"
+                style={{ transform: 'translateY(3px)' }}
+              />
+>>>>>>> Stashed changes
             </div>
 
             {/* Nav Links */}
             <nav className="hidden lg:flex items-center gap-6 text-[14px] font-semibold text-[#001A33]">
-              <div 
+              <div
                 className="relative flex items-center gap-1 cursor-pointer hover:text-[#10B981]"
                 onMouseEnter={() => setShowPlacesDropdown(true)}
                 onMouseLeave={() => setShowPlacesDropdown(false)}
               >
                 Places to see <ChevronRight size={14} className="rotate-90" />
                 {showPlacesDropdown && (
-                  <div 
+                  <div
                     className="absolute top-full left-0 mt-2 bg-white rounded-lg shadow-2xl border border-gray-100 p-4 xl:p-6 w-[90vw] max-w-[800px] z-50"
                     onMouseEnter={() => setShowPlacesDropdown(true)}
                     onMouseLeave={() => setShowPlacesDropdown(false)}
@@ -695,8 +715,8 @@ const App: React.FC = () => {
                         { name: 'Agra Tours', location: 'City in India', image: 'https://images.unsplash.com/photo-1564507592333-c60657eea523?auto=format&fit=crop&q=80&w=150' }
                       ].map((place, idx) => (
                         <div key={idx} className="flex items-start gap-3 cursor-pointer hover:bg-gray-50 p-2 rounded-lg -m-2 transition-colors">
-                          <img 
-                            src={place.image} 
+                          <img
+                            src={place.image}
                             alt={place.name}
                             className="w-12 h-12 rounded-lg object-cover flex-shrink-0"
                           />
@@ -710,14 +730,14 @@ const App: React.FC = () => {
                   </div>
                 )}
               </div>
-              <div 
+              <div
                 className="relative flex items-center gap-1 cursor-pointer hover:text-[#10B981]"
                 onMouseEnter={() => setShowInspirationDropdown(true)}
                 onMouseLeave={() => setShowInspirationDropdown(false)}
               >
                 Trip inspiration <ChevronRight size={14} className="rotate-90" />
                 {showInspirationDropdown && (
-                  <div 
+                  <div
                     className="absolute top-full left-0 mt-1 bg-white rounded-lg shadow-2xl border border-gray-100 p-4 w-[90vw] max-w-[750px] z-50"
                     onMouseEnter={() => setShowInspirationDropdown(true)}
                     onMouseLeave={() => setShowInspirationDropdown(false)}
@@ -731,7 +751,7 @@ const App: React.FC = () => {
                         </div>
                         <p className="text-gray-500 text-xs mb-4">Explore all</p>
                       </div>
-                      
+
                       {/* Right Grid */}
                       <div className="flex-1 grid grid-cols-3 gap-3 max-h-[400px] overflow-y-auto no-scrollbar">
                         {[
@@ -762,8 +782,8 @@ const App: React.FC = () => {
                           { name: 'Kathmandu', image: 'https://images.unsplash.com/photo-1552465011-b4e21bf6e79a?auto=format&fit=crop&q=80&w=200' }
                         ].map((city, idx) => (
                           <div key={idx} className="flex flex-col items-center gap-1.5 cursor-pointer hover:opacity-80 transition-opacity">
-                            <img 
-                              src={city.image} 
+                            <img
+                              src={city.image}
                               alt={city.name}
                               className="w-12 h-12 rounded-full object-cover"
                             />
@@ -791,7 +811,7 @@ const App: React.FC = () => {
               Become a supplier
             </button>
             <div className="flex items-center gap-2 sm:gap-3 md:gap-4 lg:gap-5">
-              <button 
+              <button
                 onClick={() => setShowCartModal(true)}
                 className="flex flex-col items-center gap-0.5 sm:gap-1 hover:text-[#10B981] relative p-1.5 sm:p-2 min-w-[44px] min-h-[44px] justify-center"
               >
@@ -807,7 +827,7 @@ const App: React.FC = () => {
                 <Globe size={18} className="sm:w-5 sm:h-5" />
                 <span className="hidden lg:block text-[11px]">EN/USD</span>
               </button>
-              <button 
+              <button
                 onClick={() => setShowProfileModal(true)}
                 className="flex flex-col items-center gap-0.5 sm:gap-1 hover:text-[#10B981] p-1.5 sm:p-2 min-w-[44px] min-h-[44px] justify-center"
               >
@@ -828,34 +848,32 @@ const App: React.FC = () => {
               setShowMobilePlacesDropdown(!showMobilePlacesDropdown);
               setShowMobileInspirationDropdown(false);
             }}
-            className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-semibold transition-all ${
-              showMobilePlacesDropdown
+            className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-semibold transition-all ${showMobilePlacesDropdown
                 ? 'bg-[#10B981] text-white'
                 : 'bg-gray-100 text-[#001A33] hover:bg-gray-200'
-            }`}
+              }`}
           >
             <span>Places to see</span>
-            <ChevronRight 
-              size={14} 
-              className={`transition-transform ${showMobilePlacesDropdown ? 'rotate-90' : 'rotate-0'}`} 
+            <ChevronRight
+              size={14}
+              className={`transition-transform ${showMobilePlacesDropdown ? 'rotate-90' : 'rotate-0'}`}
             />
           </button>
-          
+
           <button
             onClick={() => {
               setShowMobileInspirationDropdown(!showMobileInspirationDropdown);
               setShowMobilePlacesDropdown(false);
             }}
-            className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-semibold transition-all ${
-              showMobileInspirationDropdown
+            className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-semibold transition-all ${showMobileInspirationDropdown
                 ? 'bg-[#10B981] text-white'
                 : 'bg-gray-100 text-[#001A33] hover:bg-gray-200'
-            }`}
+              }`}
           >
             <span>Trip inspiration</span>
-            <ChevronRight 
-              size={14} 
-              className={`transition-transform ${showMobileInspirationDropdown ? 'rotate-90' : 'rotate-0'}`} 
+            <ChevronRight
+              size={14}
+              className={`transition-transform ${showMobileInspirationDropdown ? 'rotate-90' : 'rotate-0'}`}
             />
           </button>
         </div>
@@ -884,7 +902,7 @@ const App: React.FC = () => {
         {/* Places to See Dropdown */}
         {showMobilePlacesDropdown && (
           <>
-            <div 
+            <div
               className="fixed inset-0 bg-black bg-opacity-50 z-50 top-[72px] sm:top-[82px] md:top-[92px]"
               onClick={() => setShowMobilePlacesDropdown(false)}
             />
@@ -959,7 +977,7 @@ const App: React.FC = () => {
                       'Delhi Tours': 'delhi',
                       'Agra Tours': 'agra'
                     };
-                    
+
                     const cityId = placeToCityId[place.name] || place.name.replace(' Tours', '').toLowerCase().replace(/\s+/g, '-');
                     const cityName = place.name.replace(' Tours', '');
                     const url = getCityUrl(cityName, cityId);
@@ -972,8 +990,8 @@ const App: React.FC = () => {
                         }}
                         className="flex items-start gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors text-left w-full min-h-[44px]"
                       >
-                        <img 
-                          src={place.image} 
+                        <img
+                          src={place.image}
                           alt={place.name}
                           className="w-12 h-12 rounded-lg object-cover flex-shrink-0"
                         />
@@ -993,7 +1011,7 @@ const App: React.FC = () => {
         {/* Trip Inspiration Dropdown */}
         {showMobileInspirationDropdown && (
           <>
-            <div 
+            <div
               className="fixed inset-0 bg-black bg-opacity-50 z-50 top-[72px] sm:top-[82px] md:top-[92px]"
               onClick={() => setShowMobileInspirationDropdown(false)}
             />
@@ -1071,7 +1089,7 @@ const App: React.FC = () => {
                       'Colombo': 'colombo',
                       'Kathmandu': 'kathmandu'
                     };
-                    
+
                     const cityId = cityNameToId[city.name] || city.name.toLowerCase().replace(/\s+/g, '-');
                     const url = getCityUrl(city.name, cityId);
                     return (
@@ -1083,8 +1101,8 @@ const App: React.FC = () => {
                         }}
                         className="flex flex-col items-center gap-1.5 p-2 rounded-lg hover:bg-gray-50 transition-colors min-h-[44px]"
                       >
-                        <img 
-                          src={city.image} 
+                        <img
+                          src={city.image}
                           alt={city.name}
                           className="w-12 h-12 rounded-full object-cover"
                         />
@@ -1102,28 +1120,41 @@ const App: React.FC = () => {
       {/* Hero Section */}
       <section className="relative h-[50vh] min-h-[400px] sm:h-[55vh] sm:min-h-[450px] md:h-[60vh] md:min-h-[500px] lg:h-[70vh] lg:min-h-[600px] xl:h-[750px] flex items-center justify-center overflow-hidden">
         {heroImages.map((hero, index) => (
-          <img 
+          <img
             key={index}
+<<<<<<< Updated upstream
             src={hero.url} 
             alt={`${hero.city} - Authentic local tours and cultural experiences in ${hero.city}, Asia`} 
             className={`absolute inset-0 w-full h-full object-cover brightness-[0.7] transition-opacity duration-1000 ${
               index === currentImageIndex ? 'opacity-100 z-0' : 'opacity-0 z-0'
             }`}
+=======
+            src={hero.url}
+            alt={`${hero.city} - Authentic local tours and cultural experiences in ${hero.city}, Asia`}
+            className={`absolute inset-0 w-full h-full object-cover object-center brightness-[0.7] transition-opacity duration-1000 ${index === currentImageIndex ? 'opacity-100 z-0' : 'opacity-0 z-0'
+              }`}
+            style={{
+              width: '100%',
+              height: '100%',
+              objectFit: 'cover',
+              objectPosition: 'center'
+            }}
+>>>>>>> Stashed changes
             loading={index === 0 ? 'eager' : 'lazy'}
           />
         ))}
         <div className="absolute inset-0 hero-overlay z-10"></div>
-        
+
         <div className="relative z-10 w-full max-w-[800px] px-1 md:px-6 text-center">
           <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-black text-white mb-6 sm:mb-8 md:mb-10 tracking-tight leading-tight">
             Discover Authentic Local Tours & Cultural Experiences Across Asia
           </h1>
-          
+
           <div className="bg-white p-1 md:p-2 rounded-full shadow-2xl flex flex-row flex-nowrap items-stretch gap-1 md:gap-2 relative w-full max-w-[600px] mx-auto">
             <div className="flex-1 flex items-center gap-1 md:gap-4 px-2 md:px-6 py-2 md:py-3 min-w-0 relative">
               <Search size={16} className="text-gray-400 shrink-0 md:w-5 md:h-5" />
-              <input 
-                type="text" 
+              <input
+                type="text"
                 value={searchQuery}
                 onChange={(e) => {
                   setSearchQuery(e.target.value);
@@ -1135,10 +1166,14 @@ const App: React.FC = () => {
                   }
                 }}
                 onFocus={() => setShowSuggestions(searchQuery.length > 0)}
+<<<<<<< Updated upstream
                 placeholder="Search Agra, Delhi, Jaipur..." 
+=======
+                placeholder="Search cities..."
+>>>>>>> Stashed changes
                 className="flex-1 outline-none border-none ring-0 focus:ring-0 focus:border-none bg-transparent text-[#001A33] font-bold text-sm sm:text-base md:text-lg placeholder:text-gray-400 placeholder:font-medium min-w-0"
               />
-              
+
               {/* Search Suggestions Dropdown */}
               {showSuggestions && filteredSuggestions.length > 0 && (
                 <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-xl shadow-2xl border border-gray-200 overflow-hidden z-50">
@@ -1158,7 +1193,7 @@ const App: React.FC = () => {
                 </div>
               )}
             </div>
-            <button 
+            <button
               onClick={() => handleSearch()}
               className="bg-[#10B981] hover:bg-[#059669] text-white font-black px-4 sm:px-6 md:px-8 lg:px-12 py-2.5 sm:py-3 md:py-4 rounded-full text-sm sm:text-base md:text-lg transition-all shadow-lg active:scale-95 shrink-0 whitespace-nowrap min-h-[44px] flex items-center justify-center"
             >
@@ -1179,31 +1214,31 @@ const App: React.FC = () => {
             {canScrollLeft && (
               <button
                 onClick={() => {
-                    const scrollContainer = document.getElementById('cities-scroll');
-                    if (scrollContainer) {
-                      const cardWidth = window.innerWidth < 640 ? 170 : window.innerWidth < 768 ? 200 : 200;
-                      const gap = window.innerWidth < 640 ? 16 : 20;
-                      const newPosition = Math.max(0, scrollContainer.scrollLeft - ((cardWidth + gap) * 3));
-                      scrollContainer.scrollTo({ left: newPosition, behavior: 'smooth' });
-                    }
+                  const scrollContainer = document.getElementById('cities-scroll');
+                  if (scrollContainer) {
+                    const cardWidth = window.innerWidth < 640 ? 170 : window.innerWidth < 768 ? 200 : 200;
+                    const gap = window.innerWidth < 640 ? 16 : 20;
+                    const newPosition = Math.max(0, scrollContainer.scrollLeft - ((cardWidth + gap) * 3));
+                    scrollContainer.scrollTo({ left: newPosition, behavior: 'smooth' });
+                  }
                 }}
                 className="hidden sm:flex absolute left-2 sm:left-4 top-[40%] -translate-y-1/2 z-10 bg-white rounded-full p-3 shadow-lg hover:bg-gray-50 transition-all border border-gray-200 items-center justify-center"
               >
                 <ChevronLeft className="text-[#0071EB]" size={24} />
               </button>
             )}
-            
+
             {/* Cards Container */}
             <div className="relative overflow-hidden px-0 sm:px-12 md:px-16 mx-auto">
-              <div 
-                id="cities-scroll" 
+              <div
+                id="cities-scroll"
                 className="flex gap-4 sm:gap-5 overflow-x-auto no-scrollbar pb-4 scroll-smooth snap-x snap-mandatory"
                 onScroll={(e) => {
                   const container = e.currentTarget;
                   const scrollLeft = container.scrollLeft;
                   const scrollWidth = container.scrollWidth;
                   const clientWidth = container.clientWidth;
-                  
+
                   setCanScrollLeft(scrollLeft > 10);
                   setCanScrollRight(scrollLeft < scrollWidth - clientWidth - 10);
                 }}
@@ -1211,8 +1246,8 @@ const App: React.FC = () => {
                 {CITIES.map((city) => {
                   const isLiveCity = ['agra', 'delhi', 'jaipur'].includes(city.id);
                   return (
-                    <div 
-                      key={city.id} 
+                    <div
+                      key={city.id}
                       className="flex-shrink-0 w-[170px] sm:w-[200px] md:w-[200px] cursor-pointer group snap-start"
                       onClick={() => {
                         const url = getCityUrl(city.name, city.id);
@@ -1221,17 +1256,13 @@ const App: React.FC = () => {
                     >
                       <div className="relative aspect-[4/5] rounded-2xl sm:rounded-3xl overflow-hidden mb-2 sm:mb-3 shadow-md hover:shadow-xl transition-all duration-300 bg-white border border-gray-100">
                         <div className="relative w-full h-full">
-                          <img 
-                            src={city.image} 
-                            alt={`${city.name} tours and cultural experiences - Book local guides in ${city.name}`} 
-                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
+                          <img
+                            src={city.image}
+                            alt={`${city.name} tours and cultural experiences - Book local guides in ${city.name}`}
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                           />
                           <div className="absolute inset-0 bg-gradient-to-t from-black/65 via-black/25 to-transparent"></div>
-                          {isLiveCity && (
-                            <div className="absolute top-2.5 sm:top-3 right-2.5 sm:right-3 bg-[#10B981] text-white text-[10px] font-black px-2 py-1 rounded-full uppercase tracking-wide shadow-md">
-                              Live
-                            </div>
-                          )}
+
                           <div className="absolute bottom-0 left-0 right-0 p-3 sm:p-4">
                             <h3 className="text-white font-black text-lg sm:text-xl md:text-lg mb-1 drop-shadow-xl leading-tight">{city.name}</h3>
                             <p className="text-white/95 text-xs sm:text-sm md:text-[11px] font-semibold drop-shadow-md leading-snug">{city.localAngle}</p>
@@ -1248,13 +1279,13 @@ const App: React.FC = () => {
             {canScrollRight && (
               <button
                 onClick={() => {
-                    const scrollContainer = document.getElementById('cities-scroll');
-                    if (scrollContainer) {
-                      const cardWidth = window.innerWidth < 640 ? 280 : window.innerWidth < 768 ? 300 : 200;
-                      const gap = window.innerWidth < 640 ? 16 : 20;
-                      const newPosition = scrollContainer.scrollLeft + ((cardWidth + gap) * 3);
-                      scrollContainer.scrollTo({ left: newPosition, behavior: 'smooth' });
-                    }
+                  const scrollContainer = document.getElementById('cities-scroll');
+                  if (scrollContainer) {
+                    const cardWidth = window.innerWidth < 640 ? 280 : window.innerWidth < 768 ? 300 : 200;
+                    const gap = window.innerWidth < 640 ? 16 : 20;
+                    const newPosition = scrollContainer.scrollLeft + ((cardWidth + gap) * 3);
+                    scrollContainer.scrollTo({ left: newPosition, behavior: 'smooth' });
+                  }
                 }}
                 className="hidden sm:flex absolute right-2 sm:right-4 top-[40%] -translate-y-1/2 z-10 bg-white rounded-full p-3 shadow-lg hover:bg-gray-50 transition-all border border-gray-200 items-center justify-center"
               >
@@ -1333,7 +1364,7 @@ const App: React.FC = () => {
                 Empowering local experts across Asia to share their heritage directly with curious travelers.
               </p>
             </div>
-            
+
             <div className="flex flex-col gap-6">
               <h5 className="font-black text-xs uppercase tracking-widest text-gray-500">Language</h5>
               <div className="bg-white/5 border border-white/10 p-3 rounded-lg flex justify-between items-center text-sm font-bold text-gray-300 cursor-pointer">
@@ -1362,7 +1393,17 @@ const App: React.FC = () => {
             <div>
               <h5 className="font-black text-xs uppercase tracking-widest text-gray-500 mb-8">Company</h5>
               <ul className="space-y-4 text-sm font-bold text-gray-400">
+<<<<<<< Updated upstream
                 <li 
+=======
+                <li
+                  onClick={() => window.location.href = '/about-us'}
+                  className="hover:text-white cursor-pointer"
+                >
+                  About Us
+                </li>
+                <li
+>>>>>>> Stashed changes
                   onClick={() => setShowSupplierPage(true)}
                   className="hover:text-white cursor-pointer"
                 >
@@ -1375,11 +1416,71 @@ const App: React.FC = () => {
           <div className="pt-10 border-t border-white/5">
             <div className="flex flex-col md:flex-row justify-between items-center gap-8 text-[11px] font-black uppercase tracking-widest text-gray-500 mb-4">
               <span>&copy; 2025 AsiaByLocals HQ • Authentic Experiences Only</span>
+<<<<<<< Updated upstream
               <div className="flex gap-4 items-center grayscale opacity-50">
                 <div className="bg-white/10 p-2 rounded">VISA</div>
                 <div className="bg-white/10 p-2 rounded">MASTERCARD</div>
                 <div className="bg-white/10 p-2 rounded">PAYPAL</div>
                 <div className="bg-white/10 p-2 rounded">STRIPE</div>
+=======
+              <div className="flex flex-wrap gap-3 items-center justify-center">
+                <div className="bg-white px-3 py-2 rounded flex items-center justify-center h-8 min-w-[60px]">
+                  <img
+                    src="https://upload.wikimedia.org/wikipedia/commons/5/5e/Visa_Inc._logo.svg"
+                    alt="Visa"
+                    className="h-5 w-auto object-contain"
+                    style={{ maxWidth: '50px' }}
+                  />
+                </div>
+                <div className="bg-white px-3 py-2 rounded flex items-center justify-center h-8 min-w-[60px]">
+                  <img
+                    src="https://upload.wikimedia.org/wikipedia/commons/0/04/Mastercard-logo.svg"
+                    alt="Mastercard"
+                    className="h-5 w-auto object-contain"
+                    style={{ maxWidth: '50px' }}
+                  />
+                </div>
+                <div className="bg-white px-3 py-2 rounded flex items-center justify-center h-8 min-w-[60px]">
+                  <img
+                    src="https://upload.wikimedia.org/wikipedia/commons/b/b5/PayPal.svg"
+                    alt="PayPal"
+                    className="h-5 w-auto object-contain"
+                    style={{ maxWidth: '50px' }}
+                  />
+                </div>
+                <div className="bg-white px-3 py-2 rounded flex items-center justify-center h-8 min-w-[60px]">
+                  <img
+                    src="https://upload.wikimedia.org/wikipedia/commons/f/fa/American_Express_logo.svg"
+                    alt="American Express"
+                    className="h-5 w-auto object-contain"
+                    style={{ maxWidth: '50px' }}
+                  />
+                </div>
+                <div className="bg-white px-3 py-2 rounded flex items-center justify-center h-8 min-w-[60px]">
+                  <img
+                    src="https://razorpay.com/assets/razorpay-logo.svg"
+                    alt="Razorpay"
+                    className="h-5 w-auto object-contain"
+                    style={{ maxWidth: '50px' }}
+                  />
+                </div>
+                <div className="bg-white px-3 py-2 rounded flex items-center justify-center h-8 min-w-[60px]">
+                  <img
+                    src="https://www.gstatic.com/images/branding/product/1x/google_pay_48dp.png"
+                    alt="Google Pay"
+                    className="h-6 w-auto object-contain"
+                    style={{ maxWidth: '50px' }}
+                  />
+                </div>
+                <div className="bg-white px-3 py-2 rounded flex items-center justify-center h-8 min-w-[60px]">
+                  <img
+                    src="https://www.apple.com/v/apple-pay/b/images/overview/apple_pay_logo_large_2x.png"
+                    alt="Apple Pay"
+                    className="h-6 w-auto object-contain"
+                    style={{ maxWidth: '50px' }}
+                  />
+                </div>
+>>>>>>> Stashed changes
               </div>
             </div>
             <div className="text-center text-gray-400 text-[12px] font-semibold">
@@ -1428,7 +1529,56 @@ const App: React.FC = () => {
                         <p className="text-sm text-gray-600 mb-2">{tour.city}, {tour.country}</p>
                         <div className="flex items-center justify-between">
                           <span className="font-black text-[#10B981]">
+<<<<<<< Updated upstream
                             {tour.currency === 'INR' ? '₹' : '$'}{tour.pricePerPerson?.toLocaleString() || '0'} per person
+=======
+                            {(() => {
+                              // Get price from first tier of groupPricingTiers (price for 1 person)
+                              let displayPrice = 0;
+
+                              // PRIORITY 1: Check tour.groupPricingTiers directly
+                              if (tour.groupPricingTiers) {
+                                try {
+                                  const tiers = typeof tour.groupPricingTiers === 'string'
+                                    ? JSON.parse(tour.groupPricingTiers)
+                                    : tour.groupPricingTiers;
+                                  if (Array.isArray(tiers) && tiers.length > 0 && tiers[0]?.price) {
+                                    displayPrice = parseFloat(tiers[0].price) || 0;
+                                  }
+                                } catch (e) {
+                                  console.error('Error parsing tour groupPricingTiers:', e);
+                                }
+                              }
+
+                              // PRIORITY 2: Check tour options for groupPricingTiers
+                              if (displayPrice === 0 && tour.options && Array.isArray(tour.options) && tour.options.length > 0) {
+                                for (const opt of tour.options) {
+                                  if (opt.groupPricingTiers) {
+                                    try {
+                                      const tiers = typeof opt.groupPricingTiers === 'string'
+                                        ? JSON.parse(opt.groupPricingTiers)
+                                        : opt.groupPricingTiers;
+                                      if (Array.isArray(tiers) && tiers.length > 0 && tiers[0]?.price) {
+                                        const firstTierPrice = parseFloat(tiers[0].price) || 0;
+                                        if (firstTierPrice > 0) {
+                                          displayPrice = displayPrice === 0 ? firstTierPrice : Math.min(displayPrice, firstTierPrice);
+                                        }
+                                      }
+                                    } catch (e) {
+                                      console.error('Error parsing option groupPricingTiers:', e);
+                                    }
+                                  }
+                                }
+                              }
+
+                              // FALLBACK: Use pricePerPerson only if no tiers found
+                              if (displayPrice === 0) {
+                                displayPrice = tour.pricePerPerson || 0;
+                              }
+
+                              return `Starting from ${tour.currency === 'INR' ? '₹' : '$'}${displayPrice.toLocaleString()}`;
+                            })()}
+>>>>>>> Stashed changes
                           </span>
                           <div className="flex gap-2">
                             <button
@@ -1494,7 +1644,56 @@ const App: React.FC = () => {
                         <p className="text-sm text-gray-600 mb-2">{tour.city}, {tour.country}</p>
                         <div className="flex items-center justify-between">
                           <span className="font-black text-[#10B981]">
+<<<<<<< Updated upstream
                             {tour.currency === 'INR' ? '₹' : '$'}{tour.pricePerPerson?.toLocaleString() || '0'} per person
+=======
+                            {(() => {
+                              // Get price from first tier of groupPricingTiers (price for 1 person)
+                              let displayPrice = 0;
+
+                              // PRIORITY 1: Check tour.groupPricingTiers directly
+                              if (tour.groupPricingTiers) {
+                                try {
+                                  const tiers = typeof tour.groupPricingTiers === 'string'
+                                    ? JSON.parse(tour.groupPricingTiers)
+                                    : tour.groupPricingTiers;
+                                  if (Array.isArray(tiers) && tiers.length > 0 && tiers[0]?.price) {
+                                    displayPrice = parseFloat(tiers[0].price) || 0;
+                                  }
+                                } catch (e) {
+                                  console.error('Error parsing tour groupPricingTiers:', e);
+                                }
+                              }
+
+                              // PRIORITY 2: Check tour options for groupPricingTiers
+                              if (displayPrice === 0 && tour.options && Array.isArray(tour.options) && tour.options.length > 0) {
+                                for (const opt of tour.options) {
+                                  if (opt.groupPricingTiers) {
+                                    try {
+                                      const tiers = typeof opt.groupPricingTiers === 'string'
+                                        ? JSON.parse(opt.groupPricingTiers)
+                                        : opt.groupPricingTiers;
+                                      if (Array.isArray(tiers) && tiers.length > 0 && tiers[0]?.price) {
+                                        const firstTierPrice = parseFloat(tiers[0].price) || 0;
+                                        if (firstTierPrice > 0) {
+                                          displayPrice = displayPrice === 0 ? firstTierPrice : Math.min(displayPrice, firstTierPrice);
+                                        }
+                                      }
+                                    } catch (e) {
+                                      console.error('Error parsing option groupPricingTiers:', e);
+                                    }
+                                  }
+                                }
+                              }
+
+                              // FALLBACK: Use pricePerPerson only if no tiers found
+                              if (displayPrice === 0) {
+                                displayPrice = tour.pricePerPerson || 0;
+                              }
+
+                              return `Starting from ${tour.currency === 'INR' ? '₹' : '$'}${displayPrice.toLocaleString()}`;
+                            })()}
+>>>>>>> Stashed changes
                           </span>
                           <div className="flex gap-2">
                             <button
