@@ -1258,6 +1258,7 @@ const SupplierDashboard: React.FC<SupplierDashboardProps> = ({ supplier, onLogou
     }
   }, [supplier?.id, showTourForm]);
 
+
   // Periodically check for supplier status updates (every 10 seconds)
   useEffect(() => {
     if (!supplier?.id) return;
@@ -1541,6 +1542,7 @@ const SupplierDashboard: React.FC<SupplierDashboardProps> = ({ supplier, onLogou
       setIsLoading(false);
     }
   };
+
 
   const handleSaveProfile = async () => {
     if (!supplier?.id) return;

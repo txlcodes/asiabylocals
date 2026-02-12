@@ -713,47 +713,28 @@ const App: React.FC = () => {
                     onMouseLeave={() => setShowPlacesDropdown(false)}
                   >
                     <div className="grid grid-cols-3 gap-6">
-                      {[
-                        { name: 'Dubai Tours', location: 'City in United Arab Emirates', image: 'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?auto=format&fit=crop&q=80&w=150' },
-                        { name: 'Bali Tours', location: 'Region in Indonesia', image: 'https://images.unsplash.com/photo-1551632436-cbf8dd35adfa?auto=format&fit=crop&q=80&w=150' },
-                        { name: 'Abu Dhabi Tours', location: 'City in United Arab Emirates', image: 'https://images.unsplash.com/photo-1601597111158-2fceff292cdc?auto=format&fit=crop&q=80&w=150' },
-                        { name: 'Ko Lanta Tours', location: 'Region in Thailand', image: 'https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?auto=format&fit=crop&q=80&w=150' },
-                        { name: 'Singapore Tours', location: 'City in Singapore', image: 'https://images.unsplash.com/photo-1526495124232-a04e1849168c?auto=format&fit=crop&q=80&w=150' },
-                        { name: 'Ko Phangan Tours', location: 'Region in Thailand', image: 'https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?auto=format&fit=crop&q=80&w=150' },
-                        { name: 'Phuket Tours', location: 'Region in Thailand', image: 'https://images.unsplash.com/photo-1559827260-dc66d52bef19?auto=format&fit=crop&q=80&w=150' },
-                        { name: 'Chiang Mai Tours', location: 'City in Thailand', image: 'https://images.unsplash.com/photo-1552465011-b4e21bf6e79a?auto=format&fit=crop&q=80&w=150' },
-                        { name: 'Phi Phi Islands Tours', location: 'Region in Thailand', image: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?auto=format&fit=crop&q=80&w=150' },
-                        { name: 'Krabi Tours', location: 'City in Thailand', image: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&q=80&w=150' },
-                        { name: 'Okinawa Tours', location: 'Region in Japan', image: 'https://images.unsplash.com/photo-1578632767115-351597cf2477?auto=format&fit=crop&q=80&w=150' },
-                        { name: 'Ho Chi Minh City Tours', location: 'City in Vietnam', image: 'https://images.unsplash.com/photo-1583417319070-4a69db38a482?auto=format&fit=crop&q=80&w=150' },
-                        { name: 'Bangkok Tours', location: 'City in Thailand', image: 'https://images.unsplash.com/photo-1528127269322-539801943592?auto=format&fit=crop&q=80&w=150' },
-                        { name: 'Ko Samui Tours', location: 'Region in Thailand', image: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&q=80&w=150' },
-                        { name: 'Tokyo Tours', location: 'City in Japan', image: 'https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?auto=format&fit=crop&q=80&w=150' },
-                        { name: 'Langkawi Tours', location: 'Region in Malaysia', image: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?auto=format&fit=crop&q=80&w=150' },
-                        { name: 'Hanoi Tours', location: 'City in Vietnam', image: 'https://images.unsplash.com/photo-1559827260-dc66d52bef19?auto=format&fit=crop&q=80&w=150' },
-                        { name: 'Goa Tours', location: 'Region in India', image: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?auto=format&fit=crop&q=80&w=150' },
-                        { name: 'Kyoto Tours', location: 'City in Japan', image: 'https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?auto=format&fit=crop&q=80&w=150' },
-                        { name: 'Osaka Tours', location: 'City in Japan', image: 'https://images.unsplash.com/photo-1555993531-9d3ce0b71257?auto=format&fit=crop&q=80&w=150' },
-                        { name: 'Seoul Tours', location: 'City in South Korea', image: 'https://images.unsplash.com/photo-1517154421773-0529f29ea451?auto=format&fit=crop&q=80&w=150' },
-                        { name: 'Hong Kong Tours', location: 'City in Hong Kong', image: 'https://images.unsplash.com/photo-1536599018102-9f803c140fc1?auto=format&fit=crop&q=80&w=150' },
-                        { name: 'Kuala Lumpur Tours', location: 'City in Malaysia', image: 'https://images.unsplash.com/photo-1596422846543-75c6fcbefdfe?auto=format&fit=crop&q=80&w=150' },
-                        { name: 'Taipei Tours', location: 'City in Taiwan', image: 'https://images.unsplash.com/photo-1590736969955-71cc94901144?auto=format&fit=crop&q=80&w=150' },
-                        { name: 'Mumbai Tours', location: 'City in India', image: 'https://images.unsplash.com/photo-1529253355930-ddbe423a2ac7?auto=format&fit=crop&q=80&w=150' },
-                        { name: 'Delhi Tours', location: 'City in India', image: 'https://images.unsplash.com/photo-1587474260584-136574528ed5?auto=format&fit=crop&q=80&w=150' },
-                        { name: 'Agra Tours', location: 'City in India', image: 'https://images.unsplash.com/photo-1564507592333-c60657eea523?auto=format&fit=crop&q=80&w=150' }
-                      ].map((place, idx) => (
-                        <div key={idx} className="flex items-start gap-3 cursor-pointer hover:bg-gray-50 p-2 rounded-lg -m-2 transition-colors">
-                          <img 
-                            src={place.image} 
-                            alt={place.name}
-                            className="w-12 h-12 rounded-lg object-cover flex-shrink-0"
-                          />
-                          <div className="flex-1 min-w-0">
-                            <div className="font-bold text-[#001A33] text-sm mb-0.5">{place.name}</div>
-                            <div className="text-gray-500 text-xs">{place.location}</div>
+                      {CITIES.map((city) => {
+                        const url = getCityUrl(city.name, city.id);
+                        const citySlug = city.name.toLowerCase().replace(/\s+/g, '-');
+                        return (
+                          <div key={city.id} className="space-y-2">
+                            <div 
+                              className="flex items-start gap-3 cursor-pointer hover:bg-gray-50 p-2 rounded-lg -m-2 transition-colors"
+                              onClick={() => window.location.href = url}
+                            >
+                              <img 
+                                src={city.image} 
+                                alt={`${city.name} tours and cultural experiences - Book local guides in ${city.name}`}
+                                className="w-12 h-12 rounded-lg object-cover flex-shrink-0"
+                              />
+                              <div className="flex-1 min-w-0">
+                                <div className="font-bold text-[#001A33] text-sm mb-0.5">{city.name} Tours</div>
+                                <div className="text-gray-500 text-xs">City in India</div>
+                              </div>
+                            </div>
                           </div>
-                        </div>
-                      ))}
+                        );
+                      })}
                     </div>
                   </div>
                 )}
@@ -942,88 +923,29 @@ const App: React.FC = () => {
               </div>
               <div className="p-4">
                 <div className="grid grid-cols-1 gap-3">
-                  {[
-                    { name: 'Dubai Tours', location: 'City in United Arab Emirates', image: 'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?auto=format&fit=crop&q=80&w=150' },
-                    { name: 'Bali Tours', location: 'Region in Indonesia', image: 'https://images.unsplash.com/photo-1551632436-cbf8dd35adfa?auto=format&fit=crop&q=80&w=150' },
-                    { name: 'Abu Dhabi Tours', location: 'City in United Arab Emirates', image: 'https://images.unsplash.com/photo-1601597111158-2fceff292cdc?auto=format&fit=crop&q=80&w=150' },
-                    { name: 'Ko Lanta Tours', location: 'Region in Thailand', image: 'https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?auto=format&fit=crop&q=80&w=150' },
-                    { name: 'Singapore Tours', location: 'City in Singapore', image: 'https://images.unsplash.com/photo-1526495124232-a04e1849168c?auto=format&fit=crop&q=80&w=150' },
-                    { name: 'Ko Phangan Tours', location: 'Region in Thailand', image: 'https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?auto=format&fit=crop&q=80&w=150' },
-                    { name: 'Phuket Tours', location: 'Region in Thailand', image: 'https://images.unsplash.com/photo-1559827260-dc66d52bef19?auto=format&fit=crop&q=80&w=150' },
-                    { name: 'Chiang Mai Tours', location: 'City in Thailand', image: 'https://images.unsplash.com/photo-1552465011-b4e21bf6e79a?auto=format&fit=crop&q=80&w=150' },
-                    { name: 'Phi Phi Islands Tours', location: 'Region in Thailand', image: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?auto=format&fit=crop&q=80&w=150' },
-                    { name: 'Krabi Tours', location: 'City in Thailand', image: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&q=80&w=150' },
-                    { name: 'Okinawa Tours', location: 'Region in Japan', image: 'https://images.unsplash.com/photo-1578632767115-351597cf2477?auto=format&fit=crop&q=80&w=150' },
-                    { name: 'Ho Chi Minh City Tours', location: 'City in Vietnam', image: 'https://images.unsplash.com/photo-1583417319070-4a69db38a482?auto=format&fit=crop&q=80&w=150' },
-                    { name: 'Bangkok Tours', location: 'City in Thailand', image: 'https://images.unsplash.com/photo-1528127269322-539801943592?auto=format&fit=crop&q=80&w=150' },
-                    { name: 'Ko Samui Tours', location: 'Region in Thailand', image: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&q=80&w=150' },
-                    { name: 'Tokyo Tours', location: 'City in Japan', image: 'https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?auto=format&fit=crop&q=80&w=150' },
-                    { name: 'Langkawi Tours', location: 'Region in Malaysia', image: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?auto=format&fit=crop&q=80&w=150' },
-                    { name: 'Hanoi Tours', location: 'City in Vietnam', image: 'https://images.unsplash.com/photo-1559827260-dc66d52bef19?auto=format&fit=crop&q=80&w=150' },
-                    { name: 'Goa Tours', location: 'Region in India', image: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?auto=format&fit=crop&q=80&w=150' },
-                    { name: 'Kyoto Tours', location: 'City in Japan', image: 'https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?auto=format&fit=crop&q=80&w=150' },
-                    { name: 'Osaka Tours', location: 'City in Japan', image: 'https://images.unsplash.com/photo-1555993531-9d3ce0b71257?auto=format&fit=crop&q=80&w=150' },
-                    { name: 'Seoul Tours', location: 'City in South Korea', image: 'https://images.unsplash.com/photo-1517154421773-0529f29ea451?auto=format&fit=crop&q=80&w=150' },
-                    { name: 'Hong Kong Tours', location: 'City in Hong Kong', image: 'https://images.unsplash.com/photo-1536599018102-9f803c140fc1?auto=format&fit=crop&q=80&w=150' },
-                    { name: 'Kuala Lumpur Tours', location: 'City in Malaysia', image: 'https://images.unsplash.com/photo-1596422846543-75c6fcbefdfe?auto=format&fit=crop&q=80&w=150' },
-                    { name: 'Taipei Tours', location: 'City in Taiwan', image: 'https://images.unsplash.com/photo-1590736969955-71cc94901144?auto=format&fit=crop&q=80&w=150' },
-                    { name: 'Mumbai Tours', location: 'City in India', image: 'https://images.unsplash.com/photo-1529253355930-ddbe423a2ac7?auto=format&fit=crop&q=80&w=150' },
-                    { name: 'Delhi Tours', location: 'City in India', image: 'https://images.unsplash.com/photo-1587474260584-136574528ed5?auto=format&fit=crop&q=80&w=150' },
-                    { name: 'Agra Tours', location: 'City in India', image: 'https://images.unsplash.com/photo-1564507592333-c60657eea523?auto=format&fit=crop&q=80&w=150' }
-                  ].map((place, idx) => {
-                    // Map place names to city IDs for navigation
-                    const placeToCityId: Record<string, string> = {
-                      'Dubai Tours': 'dubai',
-                      'Bali Tours': 'bali',
-                      'Abu Dhabi Tours': 'dubai', // Using dubai as fallback
-                      'Ko Lanta Tours': 'bangkok', // Using bangkok as fallback
-                      'Singapore Tours': 'singapore',
-                      'Ko Phangan Tours': 'bangkok', // Using bangkok as fallback
-                      'Phuket Tours': 'phuket',
-                      'Chiang Mai Tours': 'chiang-mai',
-                      'Phi Phi Islands Tours': 'phuket', // Using phuket as fallback
-                      'Krabi Tours': 'bangkok', // Using bangkok as fallback
-                      'Okinawa Tours': 'tokyo', // Using tokyo as fallback
-                      'Ho Chi Minh City Tours': 'ho-chi-minh-city',
-                      'Bangkok Tours': 'bangkok',
-                      'Ko Samui Tours': 'bangkok', // Using bangkok as fallback
-                      'Tokyo Tours': 'tokyo',
-                      'Langkawi Tours': 'kuala-lumpur', // Using kuala-lumpur as fallback
-                      'Hanoi Tours': 'hanoi',
-                      'Goa Tours': 'mumbai', // Using mumbai as fallback
-                      'Kyoto Tours': 'kyoto',
-                      'Osaka Tours': 'osaka',
-                      'Seoul Tours': 'seoul',
-                      'Hong Kong Tours': 'hongkong',
-                      'Kuala Lumpur Tours': 'kuala-lumpur',
-                      'Taipei Tours': 'taipei',
-                      'Mumbai Tours': 'mumbai',
-                      'Delhi Tours': 'delhi',
-                      'Agra Tours': 'agra'
-                    };
-                    
-                    const cityId = placeToCityId[place.name] || place.name.replace(' Tours', '').toLowerCase().replace(/\s+/g, '-');
-                    const cityName = place.name.replace(' Tours', '');
-                    const url = getCityUrl(cityName, cityId);
+                  {CITIES.map((city) => {
+                    const url = getCityUrl(city.name, city.id);
+                    const citySlug = city.name.toLowerCase().replace(/\s+/g, '-');
                     return (
-                      <button
-                        key={idx}
-                        onClick={() => {
-                          setShowMobilePlacesDropdown(false);
-                          window.location.href = url;
-                        }}
-                        className="flex items-start gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors text-left w-full min-h-[44px]"
-                      >
-                        <img 
-                          src={place.image} 
-                          alt={place.name}
-                          className="w-12 h-12 rounded-lg object-cover flex-shrink-0"
-                        />
-                        <div className="flex-1 min-w-0">
-                          <div className="font-bold text-[#001A33] text-sm mb-0.5">{place.name}</div>
-                          <div className="text-gray-500 text-xs">{place.location}</div>
-                        </div>
-                      </button>
+                      <div key={city.id} className="space-y-2">
+                        <button
+                          onClick={() => {
+                            setShowMobilePlacesDropdown(false);
+                            window.location.href = url;
+                          }}
+                          className="flex items-start gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors text-left w-full min-h-[44px]"
+                        >
+                          <img 
+                            src={city.image} 
+                            alt={`${city.name} tours and cultural experiences - Book local guides in ${city.name}`}
+                            className="w-12 h-12 rounded-lg object-cover flex-shrink-0"
+                          />
+                          <div className="flex-1 min-w-0">
+                            <div className="font-bold text-[#001A33] text-sm mb-0.5">{city.name} Tours</div>
+                            <div className="text-gray-500 text-xs">City in India</div>
+                          </div>
+                        </button>
+                      </div>
                     );
                   })}
                 </div>
@@ -1183,13 +1105,14 @@ const App: React.FC = () => {
                   }
                 }}
                 onFocus={() => setShowSuggestions(searchQuery.length > 0)}
-                placeholder="Search cities..." 
+                placeholder="Search cities or tours..." 
                 className="flex-1 outline-none border-none ring-0 focus:ring-0 focus:border-none bg-transparent text-[#001A33] font-bold text-sm sm:text-base md:text-lg placeholder:text-gray-400 placeholder:font-medium min-w-0"
               />
               
               {/* Search Suggestions Dropdown */}
               {showSuggestions && filteredSuggestions.length > 0 && (
                 <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-xl shadow-2xl border border-gray-200 overflow-hidden z-50">
+                  {/* City Suggestions */}
                   {filteredSuggestions.map((city) => (
                     <button
                       key={city.slug}
@@ -1412,12 +1335,6 @@ const App: React.FC = () => {
                 >
                   About Us
                 </li>
-                <li 
-                  onClick={() => setShowSupplierPage(true)}
-                  className="hover:text-white cursor-pointer"
-                >
-                  Become a Supplier
-                </li>
               </ul>
             </div>
           </div>
@@ -1425,10 +1342,12 @@ const App: React.FC = () => {
           <div className="pt-10 border-t border-white/5">
             <div className="flex flex-col md:flex-row justify-between items-center gap-8 text-[11px] font-black uppercase tracking-widest text-gray-500 mb-4">
               <span>&copy; 2025 AsiaByLocals HQ • Authentic Experiences Only</span>
-              <div className="flex flex-wrap gap-3 items-center justify-center">
+              <div className="flex flex-col items-center gap-3">
+                <p className="text-white text-sm font-semibold">We accept</p>
+                <div className="flex flex-wrap gap-3 items-center justify-center">
                 <div className="bg-white px-3 py-2 rounded flex items-center justify-center h-8 min-w-[60px]">
                   <img 
-                    src="https://upload.wikimedia.org/wikipedia/commons/5/5e/Visa_Inc._logo.svg" 
+                    src="/visa-logo.svg" 
                     alt="Visa" 
                     className="h-5 w-auto object-contain"
                     style={{ maxWidth: '50px' }}
@@ -1436,7 +1355,7 @@ const App: React.FC = () => {
                 </div>
                 <div className="bg-white px-3 py-2 rounded flex items-center justify-center h-8 min-w-[60px]">
                   <img 
-                    src="https://upload.wikimedia.org/wikipedia/commons/0/04/Mastercard-logo.svg" 
+                    src="/mastercard-logo.svg" 
                     alt="Mastercard" 
                     className="h-5 w-auto object-contain"
                     style={{ maxWidth: '50px' }}
@@ -1444,7 +1363,7 @@ const App: React.FC = () => {
                 </div>
                 <div className="bg-white px-3 py-2 rounded flex items-center justify-center h-8 min-w-[60px]">
                   <img 
-                    src="https://upload.wikimedia.org/wikipedia/commons/b/b5/PayPal.svg" 
+                    src="/paypal-logo.svg" 
                     alt="PayPal" 
                     className="h-5 w-auto object-contain"
                     style={{ maxWidth: '50px' }}
@@ -1452,7 +1371,7 @@ const App: React.FC = () => {
                 </div>
                 <div className="bg-white px-3 py-2 rounded flex items-center justify-center h-8 min-w-[60px]">
                   <img 
-                    src="https://upload.wikimedia.org/wikipedia/commons/f/fa/American_Express_logo.svg" 
+                    src="/amex-logo.png" 
                     alt="American Express" 
                     className="h-5 w-auto object-contain"
                     style={{ maxWidth: '50px' }}
@@ -1460,7 +1379,7 @@ const App: React.FC = () => {
                 </div>
                 <div className="bg-white px-3 py-2 rounded flex items-center justify-center h-8 min-w-[60px]">
                   <img 
-                    src="https://razorpay.com/assets/razorpay-logo.svg" 
+                    src="/razorpay-logo.svg" 
                     alt="Razorpay" 
                     className="h-5 w-auto object-contain"
                     style={{ maxWidth: '50px' }}
@@ -1468,7 +1387,7 @@ const App: React.FC = () => {
                 </div>
                 <div className="bg-white px-3 py-2 rounded flex items-center justify-center h-8 min-w-[60px]">
                   <img 
-                    src="https://www.gstatic.com/images/branding/product/1x/google_pay_48dp.png" 
+                    src="/googlepay-logo.png" 
                     alt="Google Pay" 
                     className="h-6 w-auto object-contain"
                     style={{ maxWidth: '50px' }}
@@ -1476,12 +1395,13 @@ const App: React.FC = () => {
                 </div>
                 <div className="bg-white px-3 py-2 rounded flex items-center justify-center h-8 min-w-[60px]">
                   <img 
-                    src="https://www.apple.com/v/apple-pay/b/images/overview/apple_pay_logo_large_2x.png" 
+                    src="/applepay-logo.png" 
                     alt="Apple Pay" 
                     className="h-6 w-auto object-contain"
                     style={{ maxWidth: '50px' }}
                   />
                 </div>
+              </div>
               </div>
             </div>
             <div className="text-center text-gray-400 text-[12px] font-semibold">

@@ -966,12 +966,6 @@ const CityPage: React.FC<CityPageProps> = ({ country, city }) => {
           </div>
 
           <div className="flex items-center gap-2 sm:gap-3 md:gap-4 lg:gap-6 text-[13px] font-semibold text-[#001A33]">
-            <a 
-              href="/supplier"
-              className="text-[12px] sm:text-[13px] hover:text-[#10B981] whitespace-nowrap px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg hover:bg-gray-50 transition-colors"
-            >
-              Become a supplier
-            </a>
             <div className="flex items-center gap-2 sm:gap-3 md:gap-4 lg:gap-5">
               <button className="flex flex-col items-center gap-0.5 sm:gap-1 hover:text-[#10B981] p-1.5 sm:p-2 min-w-[44px] min-h-[44px] justify-center">
                 <ShoppingCart size={18} className="sm:w-5 sm:h-5" />
@@ -1055,7 +1049,7 @@ const CityPage: React.FC<CityPageProps> = ({ country, city }) => {
           ))}
         </div>
 
-        {/* H2 #1: Popular Tours & Experiences */}
+        {/* Popular Tours & Experiences */}
         {sortedTours.length > 0 && (
           <section className="mb-12">
             <h2 className="text-3xl font-black text-[#001A33] mb-6">

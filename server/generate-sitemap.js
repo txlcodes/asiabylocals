@@ -31,6 +31,7 @@ async function generateSitemap() {
       }
     });
 
+
     const today = new Date().toISOString().split('T')[0];
     
     let xml = `<?xml version="1.0" encoding="UTF-8"?>
@@ -105,6 +106,7 @@ async function generateSitemap() {
 
 `;
     });
+
 
     xml += `</urlset>`;
 
