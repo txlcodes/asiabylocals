@@ -5,8 +5,6 @@ export const CITIES: Country[] = [
   { id: 'agra', name: 'Agra', image: 'https://images.unsplash.com/photo-1564507592333-c60657eea523?auto=format&fit=crop&q=80&w=600', localAngle: 'Mughal Heritage', guidesCount: 112 },
   { id: 'delhi', name: 'Delhi', image: '/cities-images/delhi.jpg', localAngle: 'Historic Capital', guidesCount: 245 },
   { id: 'jaipur', name: 'Jaipur', image: '/jaipur-hero.jpg', localAngle: 'Pink City', guidesCount: 189 },
-<<<<<<< Updated upstream
-=======
   { id: 'jodhpur', name: 'Jodhpur', image: '/cities-images/jodhpur.jpg', localAngle: 'Blue City', guidesCount: 145 },
   { id: 'bikaner', name: 'Bikaner', image: '/cities-images/bikaner.jpg', localAngle: 'Desert Heritage', guidesCount: 98 },
   { id: 'mathura', name: 'Mathura', image: '/cities-images/mathura.jpg', localAngle: 'Spiritual Capital', guidesCount: 134 },
@@ -21,7 +19,6 @@ export const CITIES: Country[] = [
   { id: 'amritsar', name: 'Amritsar', image: '/cities-images/amritsar.jpg', localAngle: 'Golden Temple', guidesCount: 142 },
   { id: 'rishikesh', name: 'Rishikesh', image: '/cities-images/rishikesh.jpg', localAngle: 'Yoga Capital', guidesCount: 134 },
   { id: 'leh-ladakh', name: 'Leh Ladakh', image: 'https://images.unsplash.com/photo-1581793745862-99fde7fa73d2?auto=format&fit=crop&q=80&w=600', localAngle: 'Himalayan Desert', guidesCount: 98 },
->>>>>>> Stashed changes
   // Other cities
   { id: 'tokyo', name: 'Tokyo', image: 'https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?auto=format&fit=crop&q=80&w=600', localAngle: 'Neon & Tradition', guidesCount: 342 },
   { id: 'kyoto', name: 'Kyoto', image: 'https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?auto=format&fit=crop&q=80&w=600', localAngle: 'Zen & Temples', guidesCount: 184 },
@@ -155,8 +152,6 @@ export const CITY_LOCATIONS: Record<string, string[]> = {
     'Ganges River', 'Kashi Vishwanath Temple', 'Sarnath', 'Dashashwamedh Ghat',
     'Manikarnika Ghat', 'Assi Ghat', 'Banaras Hindu University'
   ],
-<<<<<<< Updated upstream
-=======
   'Jodhpur': [
     'Mehrangarh Fort', 'Jaswant Thada', 'Umaid Bhawan Palace', 'Clock Tower',
     'Mandore Gardens', 'Rao Jodha Desert Rock Park', 'Ghanta Ghar', 'Balsamand Lake',
@@ -215,10 +210,13 @@ export const CITY_LOCATIONS: Record<string, string[]> = {
     'Innovation Film City', 'Bull Temple', 'Vidhana Soudha', 'UB City Mall',
     'Commercial Street', 'MG Road', 'Cubbon Park Metro Station', 'Bangalore Fort'
   ],
->>>>>>> Stashed changes
   'Udaipur': [
     'City Palace', 'Lake Pichola', 'Jag Mandir', 'Jagdish Temple',
     'Monsoon Palace', 'Fateh Sagar Lake', 'Saheliyon Ki Bari'
+  ],
+  'Jaisalmer': [
+    'Jaisalmer Fort', 'Patwon Ki Haveli', 'Sam Sand Dunes', 'Gadisar Lake',
+    'Bada Bagh', 'Nathmal Ki Haveli', 'Salim Singh Ki Haveli', 'Desert Safari Camp'
   ],
   'Rishikesh': [
     'Laxman Jhula', 'Ram Jhula', 'Triveni Ghat', 'Neelkanth Mahadev Temple',

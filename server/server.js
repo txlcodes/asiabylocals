@@ -1030,6 +1030,156 @@ app.post('/api/tourists/login', async (req, res) => {
   }
 });
 
+// Email Subscription Endpoints
+
+// Subscribe to city itinerary email
+app.post('/api/email/subscribe', async (req, res) => {
+  try {
+    const { email: rawEmail, city, country, subscriptionType = 'itinerary' } = req.body;
+
+    // Normalize email
+    const email = rawEmail ? rawEmail.trim().toLowerCase() : null;
+
+    // Validate required fields
+    if (!email || !city || !country) {
+      return res.status(400).json({ 
+        error: 'Missing required fields',
+        message: 'Email, city, and country are required'
+      });
+    }
+
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({ 
+        error: 'Invalid email format',
+        message: 'Please provide a valid email address'
+      });
+    }
+
+    // Check for existing subscription
+    const existingSubscription = await prisma.emailSubscription.findUnique({
+      where: {
+        email_city_subscriptionType: {
+          email,
+          city,
+          subscriptionType
+        }
+      }
+    });
+
+    if (existingSubscription) {
+      if (existingSubscription.verified) {
+        return res.status(400).json({ 
+          error: 'Already subscribed',
+          message: 'You are already subscribed to this itinerary'
+        });
+      } else {
+        // Resend verification email if not verified
+        const verificationToken = randomBytes(32).toString('hex');
+        await prisma.emailSubscription.update({
+          where: { id: existingSubscription.id },
+          data: { verificationToken }
+        });
+        
+        // Import email function dynamically to avoid circular dependency
+        const { sendItineraryVerificationEmail } = await import('./utils/email.js');
+        await sendItineraryVerificationEmail(email, city, verificationToken);
+        
+        return res.json({
+          success: true,
+          message: 'Verification email sent. Please check your inbox.'
+        });
+      }
+    }
+
+    // Generate verification token
+    const verificationToken = randomBytes(32).toString('hex');
+
+    // Create subscription
+    await prisma.emailSubscription.create({
+      data: {
+        email,
+        city,
+        country,
+        subscriptionType,
+        verificationToken,
+        verified: false
+      }
+    });
+
+    // Send verification email
+    const { sendItineraryVerificationEmail } = await import('./utils/email.js');
+    await sendItineraryVerificationEmail(email, city, verificationToken);
+
+    res.json({
+      success: true,
+      message: 'Subscription created. Please check your email to verify.'
+    });
+  } catch (error) {
+    console.error('Email subscription error:', error);
+    res.status(500).json({ 
+      error: 'Internal server error',
+      message: 'Failed to create subscription. Please try again later.'
+    });
+  }
+});
+
+// Verify email subscription
+app.get('/api/email/verify/:token', async (req, res) => {
+  try {
+    const { token } = req.params;
+
+    if (!token) {
+      return res.status(400).json({ 
+        error: 'Verification token is required'
+      });
+    }
+
+    // Find subscription by token
+    const subscription = await prisma.emailSubscription.findFirst({
+      where: { verificationToken: token }
+    });
+
+    if (!subscription) {
+      return res.status(404).json({ 
+        error: 'Invalid token',
+        message: 'Verification token not found or expired'
+      });
+    }
+
+    if (subscription.verified) {
+      // Already verified - redirect to success page
+      const frontendUrl = process.env.FRONTEND_URL || process.env.VITE_FRONTEND_URL || 'http://localhost:3000';
+      return res.redirect(`${frontendUrl}/email-verified?city=${encodeURIComponent(subscription.city || '')}`);
+    }
+
+    // Mark as verified
+    await prisma.emailSubscription.update({
+      where: { id: subscription.id },
+      data: {
+        verified: true,
+        verifiedAt: new Date(),
+        verificationToken: null // Clear token after verification
+      }
+    });
+
+    // Send welcome email with itinerary
+    const { sendItineraryWelcomeEmail } = await import('./utils/email.js');
+    await sendItineraryWelcomeEmail(subscription.email, subscription.city || '');
+
+    // Redirect to success page
+    const frontendUrl = process.env.FRONTEND_URL || process.env.VITE_FRONTEND_URL || 'http://localhost:3000';
+    res.redirect(`${frontendUrl}/email-verified?city=${encodeURIComponent(subscription.city || '')}`);
+  } catch (error) {
+    console.error('Email verification error:', error);
+    res.status(500).json({ 
+      error: 'Internal server error',
+      message: 'Failed to verify subscription. Please try again later.'
+    });
+  }
+});
+
 // Verify email endpoint - MUST come before /api/suppliers/:id route
 app.get('/api/suppliers/verify-email', async (req, res) => {
   try {
@@ -1294,11 +1444,32 @@ app.get('/api/suppliers/verify-email', async (req, res) => {
 
 // Get supplier by ID
 app.get('/api/suppliers/:id', async (req, res) => {
+  console.log('═══════════════════════════════════════════════════════════');
+  console.log('📥 BACKEND - GET /api/suppliers/:id');
+  console.log('═══════════════════════════════════════════════════════════');
+  console.log('Request received:', {
+    method: req.method,
+    url: req.url,
+    params: req.params,
+    query: req.query,
+    origin: req.headers.origin,
+    'user-agent': req.headers['user-agent']
+  });
+  
   try {
     const { id } = req.params;
     const supplierId = parseInt(id);
+    
+    console.log('📥 Supplier ID from params:', {
+      raw: id,
+      parsed: supplierId,
+      isValid: !isNaN(supplierId)
+    });
 
     if (isNaN(supplierId)) {
+      console.error('❌ BACKEND ERROR: Invalid supplier ID');
+      console.error('   Raw ID:', id);
+      console.error('   Parsed ID:', supplierId);
       return res.status(400).json({ error: 'Invalid supplier ID' });
     }
 
@@ -1306,6 +1477,8 @@ app.get('/api/suppliers/:id', async (req, res) => {
     let supplier = null;
     let findAttempts = 0;
     const MAX_FIND_RETRIES = 3;
+    
+    console.log('🔍 Querying database for supplier...');
 
     while (findAttempts < MAX_FIND_RETRIES && !supplier) {
       try {
@@ -1323,13 +1496,38 @@ app.get('/api/suppliers/:id', async (req, res) => {
             city: true,
             tourLanguages: true,
             phone: true,
-            whatsapp: true
+            whatsapp: true,
+            emailVerified: true,
+            verificationDocumentUrl: true,
+            certificates: true,
+            paymentMethod: true,
+            paymentMethodDetails: true,
+            paymentCurrency: true,
+            paymentFrequency: true,
+            taxId: true,
+            taxIdType: true,
+            taxCountry: true,
+            taxVerified: true,
+            paymentDetailsVerified: true,
+            paymentDetailsVerifiedAt: true
           }
         });
+        console.log('✅ Database query successful');
+        console.log('   Supplier found:', !!supplier);
+        if (supplier) {
+          console.log('   Supplier data:', {
+            id: supplier.id,
+            email: supplier.email,
+            status: supplier.status,
+            fullName: supplier.fullName
+          });
+        }
         break; // Success, exit retry loop
       } catch (dbError) {
         findAttempts++;
-        console.error(`   Database error finding supplier (attempt ${findAttempts}/${MAX_FIND_RETRIES}):`, dbError.message);
+        console.error(`❌ Database error finding supplier (attempt ${findAttempts}/${MAX_FIND_RETRIES}):`, dbError.message);
+        console.error('   Error code:', dbError.code);
+        console.error('   Error name:', dbError.name);
 
         // If it's a connection error and we have retries left, wait and retry
         if (findAttempts < MAX_FIND_RETRIES && (
@@ -1350,12 +1548,24 @@ app.get('/api/suppliers/:id', async (req, res) => {
     }
 
     if (!supplier) {
+      console.error('❌ BACKEND ERROR: Supplier not found');
+      console.error('   Supplier ID:', supplierId);
+      console.error('   Attempts:', findAttempts);
+      console.log('═══════════════════════════════════════════════════════════');
       return res.status(404).json({ error: 'Supplier not found' });
     }
 
+    console.log('✅ Sending supplier data to frontend');
+    console.log('═══════════════════════════════════════════════════════════');
     res.json({ supplier });
   } catch (error) {
-    console.error('Get supplier error:', error);
+    console.error('═══════════════════════════════════════════════════════════');
+    console.error('❌ BACKEND ERROR: Get supplier failed');
+    console.error('═══════════════════════════════════════════════════════════');
+    console.error('Error:', error);
+    console.error('Error message:', error.message);
+    console.error('Error stack:', error.stack);
+    console.error('═══════════════════════════════════════════════════════════');
     res.status(500).json({ 
       error: 'Internal server error',
       details: process.env.NODE_ENV === 'development' ? error.message : undefined
@@ -1449,7 +1659,8 @@ app.get('/api/suppliers', async (req, res) => {
           phone: true,
           whatsapp: true,
           emailVerified: true,
-          verificationDocumentUrl: true
+          verificationDocumentUrl: true,
+          certificates: true
         },
         orderBy: {
           createdAt: 'desc'
@@ -1678,11 +1889,12 @@ app.patch('/api/suppliers/:id/update-document', async (req, res) => {
   try {
     const { id } = req.params;
     const supplierId = parseInt(id);
-    const { verificationDocumentUrl } = req.body;
+    const { verificationDocumentUrl, certificates } = req.body;
 
     console.log('📄 Document upload request received');
     console.log('   Supplier ID:', supplierId);
     console.log('   Document URL length:', verificationDocumentUrl ? verificationDocumentUrl.length : 0);
+    console.log('   Certificates:', certificates ? (typeof certificates === 'string' ? JSON.parse(certificates).length : certificates.length) : 0);
 
     if (isNaN(supplierId)) {
       return res.status(400).json({ 
@@ -1692,7 +1904,8 @@ app.patch('/api/suppliers/:id/update-document', async (req, res) => {
       });
     }
 
-    if (!verificationDocumentUrl) {
+    // Allow updating certificates without license if license already exists
+    if (!verificationDocumentUrl && !existingSupplier.verificationDocumentUrl) {
       return res.status(400).json({ 
         success: false,
         error: 'Document URL is required',
@@ -1713,24 +1926,115 @@ app.patch('/api/suppliers/:id/update-document', async (req, res) => {
       });
     }
 
+    // Process license document - upload to Cloudinary if available
+    let finalLicenseUrl = verificationDocumentUrl;
+    if (verificationDocumentUrl && process.env.CLOUDINARY_CLOUD_NAME && process.env.CLOUDINARY_API_KEY && process.env.CLOUDINARY_API_SECRET) {
+      try {
+        const isPDF = verificationDocumentUrl.startsWith('data:application/pdf');
+        const isImage = verificationDocumentUrl.startsWith('data:image/');
+        
+        if (isPDF || isImage) {
+          console.log('☁️  Uploading license document to Cloudinary...');
+          const cloudinary = (await import('./utils/cloudinary.js')).default;
+          
+          if (isPDF) {
+            const base64Data = verificationDocumentUrl.includes(',') ? verificationDocumentUrl.split(',')[1] : verificationDocumentUrl;
+            const result = await cloudinary.uploader.upload(
+              `data:application/pdf;base64,${base64Data}`,
+              {
+                folder: 'asiabylocals/suppliers/licenses',
+                resource_type: 'raw',
+                public_id: `license_${supplierId}_${Date.now()}`
+              }
+            );
+            finalLicenseUrl = result.secure_url;
+          } else if (isImage) {
+            const { uploadImage } = await import('./utils/cloudinary.js');
+            finalLicenseUrl = await uploadImage(verificationDocumentUrl, 'asiabylocals/suppliers/licenses', `license_${supplierId}_${Date.now()}`);
+          }
+          console.log('✅ License document uploaded to Cloudinary');
+        }
+      } catch (err) {
+        console.error('❌ Error uploading license document to Cloudinary:', err);
+        // Continue with original URL if Cloudinary upload fails
+      }
+    }
+
+    // Process certificates - upload to Cloudinary if available
+    let finalCertificates = null;
+    if (certificates) {
+      try {
+        const certUrls = typeof certificates === 'string' ? JSON.parse(certificates) : certificates;
+        if (Array.isArray(certUrls) && certUrls.length > 0 && process.env.CLOUDINARY_CLOUD_NAME && process.env.CLOUDINARY_API_KEY && process.env.CLOUDINARY_API_SECRET) {
+          console.log('☁️  Uploading certificates to Cloudinary...');
+          const cloudinary = (await import('./utils/cloudinary.js')).default;
+          
+          const uploadedCertUrls = await Promise.all(certUrls.map(async (certUrl, index) => {
+            try {
+              const isPDF = certUrl.startsWith('data:application/pdf');
+              const isImage = certUrl.startsWith('data:image/');
+              
+              if (isPDF) {
+                const base64Data = certUrl.includes(',') ? certUrl.split(',')[1] : certUrl;
+                const result = await cloudinary.uploader.upload(
+                  `data:application/pdf;base64,${base64Data}`,
+                  {
+                    folder: 'asiabylocals/suppliers/certificates',
+                    resource_type: 'raw',
+                    public_id: `cert_${supplierId}_${Date.now()}_${index}`
+                  }
+                );
+                return result.secure_url;
+              } else if (isImage) {
+                const { uploadImage } = await import('./utils/cloudinary.js');
+                return await uploadImage(certUrl, 'asiabylocals/suppliers/certificates', `cert_${supplierId}_${Date.now()}_${index}`);
+              }
+              return certUrl; // Fallback to original URL
+            } catch (err) {
+              console.error(`❌ Failed to upload certificate ${index + 1}:`, err);
+              return certUrl; // Fallback to original URL
+            }
+          }));
+          
+          finalCertificates = JSON.stringify(uploadedCertUrls);
+          console.log('✅ Certificates uploaded to Cloudinary:', uploadedCertUrls.length);
+        } else {
+          finalCertificates = typeof certificates === 'string' ? certificates : JSON.stringify(certificates);
+        }
+      } catch (err) {
+        console.error('❌ Error processing certificates:', err);
+        // Continue with original certificates if processing fails
+        finalCertificates = typeof certificates === 'string' ? certificates : JSON.stringify(certificates);
+      }
+    }
+
+    // Build update data - only update fields that are provided
+    const updateData = {};
+    if (finalLicenseUrl) {
+      updateData.verificationDocumentUrl = finalLicenseUrl;
+      // Reset status to pending when license is updated
+      updateData.status = 'pending';
+    }
+    if (finalCertificates !== null) {
+      updateData.certificates = finalCertificates;
+    }
+
     const supplier = await prisma.supplier.update({
       where: { id: supplierId },
-      data: {
-        verificationDocumentUrl,
-        // Keep status as 'pending' - admin needs to approve after reviewing license
-        status: 'pending'
-      },
+      data: updateData,
       select: {
         id: true,
         email: true,
         emailVerified: true,
         status: true,
-        verificationDocumentUrl: true
+        verificationDocumentUrl: true,
+        certificates: true
       }
     });
 
     console.log('✅ Document uploaded successfully for supplier:', supplier.id);
     console.log('   Status:', supplier.status, '(pending admin approval)');
+    console.log('   Certificates:', supplier.certificates ? (JSON.parse(supplier.certificates).length) : 0);
 
     res.json({
       success: true,
@@ -1751,11 +2055,443 @@ app.patch('/api/suppliers/:id/update-document', async (req, res) => {
   }
 });
 
+// ==================== PAYMENT DETAILS ENDPOINTS ====================
+
+// Get supplier payment details
+app.get('/api/suppliers/:id/payment-details', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const supplierId = parseInt(id);
+
+    if (isNaN(supplierId)) {
+      return res.status(400).json({ 
+        success: false,
+        error: 'Invalid supplier ID'
+      });
+    }
+
+    const supplier = await prisma.supplier.findUnique({
+      where: { id: supplierId },
+      select: {
+        id: true,
+        paymentMethod: true,
+        paymentMethodDetails: true,
+        paymentCurrency: true,
+        paymentFrequency: true,
+        taxId: true,
+        taxIdType: true,
+        taxCountry: true,
+        taxVerified: true,
+        paymentDetailsVerified: true,
+        paymentDetailsVerifiedAt: true
+      }
+    });
+
+    if (!supplier) {
+      return res.status(404).json({ 
+        success: false,
+        error: 'Supplier not found'
+      });
+    }
+
+    // Parse payment method details if exists
+    let paymentDetails = null;
+    if (supplier.paymentMethodDetails) {
+      try {
+        paymentDetails = typeof supplier.paymentMethodDetails === 'string' 
+          ? JSON.parse(supplier.paymentMethodDetails) 
+          : supplier.paymentMethodDetails;
+      } catch (e) {
+        console.error('Error parsing paymentMethodDetails:', e);
+      }
+    }
+
+    res.json({
+      success: true,
+      paymentDetails: {
+        paymentMethod: supplier.paymentMethod,
+        paymentMethodDetails: paymentDetails,
+        paymentCurrency: supplier.paymentCurrency,
+        paymentFrequency: supplier.paymentFrequency || 'monthly',
+        taxId: supplier.taxId,
+        taxIdType: supplier.taxIdType,
+        taxCountry: supplier.taxCountry,
+        taxVerified: supplier.taxVerified,
+        paymentDetailsVerified: supplier.paymentDetailsVerified,
+        paymentDetailsVerifiedAt: supplier.paymentDetailsVerifiedAt
+      }
+    });
+  } catch (error) {
+    console.error('Get payment details error:', error);
+    res.status(500).json({ 
+      success: false,
+      error: 'Internal server error',
+      message: 'Failed to fetch payment details'
+    });
+  }
+});
+
+// Update supplier payment details
+app.put('/api/suppliers/:id/payment-details', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const supplierId = parseInt(id);
+    const {
+      paymentMethod,
+      paymentMethodDetails,
+      paymentCurrency,
+      paymentFrequency,
+      taxId,
+      taxIdType,
+      taxCountry
+    } = req.body;
+
+    if (isNaN(supplierId)) {
+      return res.status(400).json({ 
+        success: false,
+        error: 'Invalid supplier ID'
+      });
+    }
+
+    // Check if supplier exists
+    const existingSupplier = await prisma.supplier.findUnique({
+      where: { id: supplierId }
+    });
+
+    if (!existingSupplier) {
+      return res.status(404).json({ 
+        success: false,
+        error: 'Supplier not found'
+      });
+    }
+
+    // Validate payment method
+    const validPaymentMethods = ['bank_transfer', 'paypal', 'credit_card', 'upi', 'wise'];
+    if (paymentMethod && !validPaymentMethods.includes(paymentMethod)) {
+      return res.status(400).json({ 
+        success: false,
+        error: 'Invalid payment method',
+        message: `Payment method must be one of: ${validPaymentMethods.join(', ')}`
+      });
+    }
+
+    // Validate and sanitize payment method details
+    let sanitizedPaymentDetails = null;
+    if (paymentMethodDetails) {
+      try {
+        const details = typeof paymentMethodDetails === 'string' 
+          ? JSON.parse(paymentMethodDetails) 
+          : paymentMethodDetails;
+
+        // Sanitize sensitive data - mask account numbers, card numbers
+        if (details.accountNumber && details.accountNumber.length > 4) {
+          const last4 = details.accountNumber.slice(-4);
+          details.accountNumber = `******${last4}`;
+        }
+        if (details.cardNumber && details.cardNumber.length > 4) {
+          const last4 = details.cardNumber.slice(-4);
+          details.cardNumber = `******${last4}`;
+        }
+
+        sanitizedPaymentDetails = JSON.stringify(details);
+      } catch (e) {
+        return res.status(400).json({ 
+          success: false,
+          error: 'Invalid payment method details format',
+          message: 'Payment method details must be valid JSON'
+        });
+      }
+    }
+
+    // Validate payment frequency
+    if (paymentFrequency && !['monthly', 'biweekly'].includes(paymentFrequency)) {
+      return res.status(400).json({ 
+        success: false,
+        error: 'Invalid payment frequency',
+        message: 'Payment frequency must be "monthly" or "biweekly"'
+      });
+    }
+
+    // Update supplier payment details
+    const updatedSupplier = await prisma.supplier.update({
+      where: { id: supplierId },
+      data: {
+        paymentMethod: paymentMethod || null,
+        paymentMethodDetails: sanitizedPaymentDetails,
+        paymentCurrency: paymentCurrency || null,
+        paymentFrequency: paymentFrequency || 'monthly',
+        taxId: taxId || null,
+        taxIdType: taxIdType || null,
+        taxCountry: taxCountry || null,
+        paymentDetailsVerified: false // Reset verification when details are updated
+      },
+      select: {
+        id: true,
+        paymentMethod: true,
+        paymentMethodDetails: true,
+        paymentCurrency: true,
+        paymentFrequency: true,
+        taxId: true,
+        taxIdType: true,
+        taxCountry: true,
+        paymentDetailsVerified: true
+      }
+    });
+
+    // Parse payment details for response
+    let paymentDetails = null;
+    if (updatedSupplier.paymentMethodDetails) {
+      try {
+        paymentDetails = JSON.parse(updatedSupplier.paymentMethodDetails);
+      } catch (e) {
+        console.error('Error parsing paymentMethodDetails:', e);
+      }
+    }
+
+    res.json({
+      success: true,
+      message: 'Payment details updated successfully',
+      paymentDetails: {
+        paymentMethod: updatedSupplier.paymentMethod,
+        paymentMethodDetails: paymentDetails,
+        paymentCurrency: updatedSupplier.paymentCurrency,
+        paymentFrequency: updatedSupplier.paymentFrequency,
+        taxId: updatedSupplier.taxId,
+        taxIdType: updatedSupplier.taxIdType,
+        taxCountry: updatedSupplier.taxCountry,
+        paymentDetailsVerified: updatedSupplier.paymentDetailsVerified
+      }
+    });
+  } catch (error) {
+    console.error('Update payment details error:', error);
+    res.status(500).json({ 
+      success: false,
+      error: 'Internal server error',
+      message: 'Failed to update payment details'
+    });
+  }
+});
+
+// Helper function to calculate TDS (Tax Deducted at Source)
+// Simplified: 5% TDS for Indian suppliers without verified GSTIN, 0% otherwise
+function calculateTDS(grossEarnings, taxCountry, taxVerified) {
+  if (taxCountry === 'India' && !taxVerified) {
+    return grossEarnings * 0.05; // 5% TDS
+  }
+  return 0;
+}
+
+// Get supplier earnings summary
+app.get('/api/suppliers/:id/earnings', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const supplierId = parseInt(id);
+
+    if (isNaN(supplierId)) {
+      return res.status(400).json({ 
+        success: false,
+        error: 'Invalid supplier ID'
+      });
+    }
+
+    // Get supplier tax details
+    const supplier = await prisma.supplier.findUnique({
+      where: { id: supplierId },
+      select: {
+        taxCountry: true,
+        taxVerified: true
+      }
+    });
+
+    // Get all bookings for this supplier
+    const bookings = await prisma.booking.findMany({
+      where: { supplierId },
+      select: {
+        id: true,
+        totalAmount: true,
+        currency: true,
+        status: true,
+        paymentStatus: true,
+        createdAt: true,
+        tour: {
+          select: {
+            title: true
+          }
+        }
+      },
+      orderBy: { createdAt: 'desc' }
+    });
+
+    // Calculate earnings (70% to supplier, 30% platform commission)
+    const commissionRate = 0.30;
+    const supplierRate = 0.70;
+
+    const completedBookings = bookings.filter(b => b.status === 'completed' && b.paymentStatus === 'paid');
+    const pendingBookings = bookings.filter(b => b.status === 'confirmed' && b.paymentStatus === 'paid');
+
+    const grossEarnings = completedBookings.reduce((sum, b) => sum + (b.totalAmount * supplierRate), 0);
+    const pendingEarnings = pendingBookings.reduce((sum, b) => sum + (b.totalAmount * supplierRate), 0);
+
+    // Calculate TDS (Tax Deducted at Source)
+    const tdsDeducted = calculateTDS(grossEarnings, supplier?.taxCountry || null, supplier?.taxVerified || false);
+    const netEarnings = grossEarnings - tdsDeducted;
+
+    // Calculate this month's earnings
+    const now = new Date();
+    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+    const thisMonthBookings = completedBookings.filter(b => {
+      const bookingDate = new Date(b.createdAt);
+      return bookingDate >= startOfMonth;
+    });
+    const thisMonthGrossEarnings = thisMonthBookings.reduce((sum, b) => sum + (b.totalAmount * supplierRate), 0);
+    const thisMonthTDS = calculateTDS(thisMonthGrossEarnings, supplier?.taxCountry || null, supplier?.taxVerified || false);
+    const thisMonthEarnings = thisMonthGrossEarnings - thisMonthTDS;
+
+    // Calculate next payout date (5th of next month)
+    const nextPayoutDate = new Date(now.getFullYear(), now.getMonth() + 1, 5);
+    // If 5th is weekend, move to next business day
+    while (nextPayoutDate.getDay() === 0 || nextPayoutDate.getDay() === 6) {
+      nextPayoutDate.setDate(nextPayoutDate.getDate() + 1);
+    }
+
+    res.json({
+      success: true,
+      earnings: {
+        grossEarnings: grossEarnings,
+        tdsDeducted: tdsDeducted,
+        netEarnings: netEarnings,
+        totalEarnings: netEarnings, // For backward compatibility
+        thisMonthGrossEarnings: thisMonthGrossEarnings,
+        thisMonthTDS: thisMonthTDS,
+        thisMonthEarnings: thisMonthEarnings,
+        pendingEarnings: pendingEarnings,
+        nextPayoutDate: nextPayoutDate.toISOString(),
+        paymentFrequency: 'monthly',
+        commissionRate: commissionRate,
+        supplierRate: supplierRate,
+        totalBookings: bookings.length,
+        completedBookings: completedBookings.length,
+        pendingBookings: pendingBookings.length
+      },
+      bookings: bookings.map(b => ({
+        id: b.id,
+        tourTitle: b.tour.title,
+        amount: b.totalAmount,
+        supplierAmount: b.totalAmount * supplierRate,
+        currency: b.currency,
+        status: b.status,
+        paymentStatus: b.paymentStatus,
+        createdAt: b.createdAt
+      }))
+    });
+  } catch (error) {
+    console.error('Get earnings error:', error);
+    res.status(500).json({ 
+      success: false,
+      error: 'Internal server error',
+      message: 'Failed to fetch earnings'
+    });
+  }
+});
+
 // ==================== TOUR ENDPOINTS ====================
 
 // Helper function to safely format tour response - ensures reviews is always null
 // This prevents "reviews is not defined" errors and ensures consistency
 function formatTourResponse(tour, parsedData = {}) {
+  // Parse groupPricingTiers from Tour model (PRIMARY SOURCE)
+  let tourGroupPricingTiers = null;
+  
+  // #region agent log
+  const logPath = '/Users/talhanawaz/Desktop/asiabylocals-latest/.cursor/debug.log';
+  try {
+    const logEntry = JSON.stringify({
+      location: 'server.js:1808',
+      message: 'formatTourResponse - checking tour.groupPricingTiers from database',
+      data: {
+        tourId: tour?.id,
+        hasGroupPricingTiers: !!tour?.groupPricingTiers,
+        groupPricingTiersType: typeof tour?.groupPricingTiers,
+        groupPricingTiersValue: tour?.groupPricingTiers ? (typeof tour.groupPricingTiers === 'string' ? tour.groupPricingTiers.substring(0, 100) : JSON.stringify(tour.groupPricingTiers).substring(0, 100)) : null,
+        tourKeys: tour ? Object.keys(tour).filter(k => k.toLowerCase().includes('pricing') || k.toLowerCase().includes('group')) : null
+      },
+      timestamp: Date.now(),
+      sessionId: 'debug-session',
+      runId: 'run1',
+      hypothesisId: 'C'
+    }) + '\n';
+    fs.appendFileSync(logPath, logEntry);
+  } catch (e) {}
+  // #endregion
+  
+  if (tour.groupPricingTiers) {
+    try {
+      tourGroupPricingTiers = typeof tour.groupPricingTiers === 'string' 
+        ? JSON.parse(tour.groupPricingTiers) 
+        : tour.groupPricingTiers;
+      console.log(`✅ formatTourResponse - Tour ${tour.id} has groupPricingTiers:`, {
+        type: Array.isArray(tourGroupPricingTiers) ? 'array' : typeof tourGroupPricingTiers,
+        length: Array.isArray(tourGroupPricingTiers) ? tourGroupPricingTiers.length : 'N/A'
+      });
+      // #region agent log
+      try {
+        const logEntry = JSON.stringify({
+          location: 'server.js:1820',
+          message: 'formatTourResponse - successfully parsed tour.groupPricingTiers',
+          data: {
+            tourId: tour.id,
+            tiersCount: tourGroupPricingTiers?.length,
+            firstTier: tourGroupPricingTiers?.[0]
+          },
+          timestamp: Date.now(),
+          sessionId: 'debug-session',
+          runId: 'run1',
+          hypothesisId: 'C'
+        }) + '\n';
+        fs.appendFileSync(logPath, logEntry);
+      } catch (e) {}
+      // #endregion
+    } catch (e) {
+      console.error(`❌ Failed to parse tour.groupPricingTiers for tour ${tour.id}:`, e.message);
+      // #region agent log
+      try {
+        const logEntry = JSON.stringify({
+          location: 'server.js:1825',
+          message: 'formatTourResponse - failed to parse tour.groupPricingTiers',
+          data: {
+            tourId: tour.id,
+            error: e.message
+          },
+          timestamp: Date.now(),
+          sessionId: 'debug-session',
+          runId: 'run1',
+          hypothesisId: 'C'
+        }) + '\n';
+        fs.appendFileSync(logPath, logEntry);
+      } catch (e) {}
+      // #endregion
+    }
+  } else {
+    console.warn(`⚠️ Tour ${tour.id} has NO groupPricingTiers on Tour model`);
+    // #region agent log
+    try {
+      const logEntry = JSON.stringify({
+        location: 'server.js:1830',
+        message: 'formatTourResponse - tour.groupPricingTiers NOT found in database',
+        data: {
+          tourId: tour.id,
+          reason: 'groupPricingTiers field is null/undefined in database'
+        },
+        timestamp: Date.now(),
+        sessionId: 'debug-session',
+        runId: 'run1',
+        hypothesisId: 'C'
+      }) + '\n';
+      fs.appendFileSync(logPath, logEntry);
+    } catch (e) {}
+    // #endregion
+  }
+  
   return {
     ...tour,
     id: String(tour.id),
@@ -1764,21 +2500,43 @@ function formatTourResponse(tour, parsedData = {}) {
     languages: parsedData.languages || JSON.parse(tour.languages || '[]'),
     highlights: parsedData.highlights || (tour.highlights ? JSON.parse(tour.highlights || '[]') : []),
     reviews: null, // Always null - reviews are not generated
+    groupPricingTiers: tourGroupPricingTiers, // PRIMARY SOURCE - from Tour model
     options: tour.options && Array.isArray(tour.options) ? tour.options.map(opt => {
       // Explicitly exclude pricingType if it somehow exists
       const { pricingType, pricing_type, ...cleanOpt } = opt;
       
       // Parse groupPricingTiers if it exists (stored as JSON string in DB)
       let groupPricingTiers = null;
+      console.log(`🔍 formatTourResponse - Option ${opt.id} (${opt.optionTitle}):`, {
+        hasGroupPricingTiers: !!opt.groupPricingTiers,
+        groupPricingTiersType: typeof opt.groupPricingTiers,
+        groupPricingTiersRaw: opt.groupPricingTiers 
+          ? (typeof opt.groupPricingTiers === 'string' 
+            ? opt.groupPricingTiers.substring(0, 200) 
+            : JSON.stringify(opt.groupPricingTiers).substring(0, 200))
+          : 'null',
+        allKeys: Object.keys(opt)
+      });
+      
       if (opt.groupPricingTiers) {
         try {
           groupPricingTiers = typeof opt.groupPricingTiers === 'string' 
             ? JSON.parse(opt.groupPricingTiers) 
             : opt.groupPricingTiers;
+          console.log(`✅ Parsed groupPricingTiers for option ${opt.id}:`, {
+            type: Array.isArray(groupPricingTiers) ? 'array' : typeof groupPricingTiers,
+            length: Array.isArray(groupPricingTiers) ? groupPricingTiers.length : 'N/A',
+            preview: Array.isArray(groupPricingTiers) && groupPricingTiers.length > 0 
+              ? groupPricingTiers[0] 
+              : groupPricingTiers
+          });
         } catch (e) {
-          console.warn(`   ⚠️  Failed to parse groupPricingTiers for option ${opt.id}:`, e.message);
+          console.error(`❌ Failed to parse groupPricingTiers for option ${opt.id}:`, e.message);
+          console.error('   Raw value:', opt.groupPricingTiers);
           groupPricingTiers = null;
         }
+      } else {
+        console.warn(`⚠️ Option ${opt.id} has NO groupPricingTiers in database`);
       }
       
       return {
@@ -2236,6 +2994,7 @@ app.post('/api/tours', async (req, res) => {
     const cleanedBody = removeAllIds(req.body);
     
     // CRITICAL: Also remove pricingType from request body recursively (prevents P2022 errors)
+    // BUT PRESERVE groupPricingTiers - it's a valid field!
     const removePricingType = (obj) => {
       if (obj === null || obj === undefined) return obj;
       if (Array.isArray(obj)) {
@@ -2244,8 +3003,15 @@ app.post('/api/tours', async (req, res) => {
       if (typeof obj === 'object') {
         const cleaned = {};
         for (const [key, value] of Object.entries(obj)) {
-          if (key.toLowerCase() === 'pricingtype' || key.toLowerCase() === 'pricing_type') {
+          const keyLower = key.toLowerCase();
+          // Skip pricingType fields BUT preserve groupPricingTiers
+          if (keyLower === 'pricingtype' || keyLower === 'pricing_type') {
             continue; // Skip pricingType fields
+          }
+          // CRITICAL: Preserve groupPricingTiers - it's a valid field!
+          if (keyLower === 'grouppricingtiers') {
+            cleaned[key] = value; // Keep as-is, don't recurse
+            continue;
           }
           cleaned[key] = removePricingType(value);
         }
@@ -2279,6 +3045,9 @@ app.post('/api/tours', async (req, res) => {
       // pricingType removed - we infer from groupPrice/maxGroupSize
       maxGroupSize,
       groupPrice,
+      groupPricingTiers, // Extract groupPricingTiers for main tour - CRITICAL FIELD!
+      unavailableDates, // Legacy - Extract unavailableDates
+      unavailableDaysOfWeek, // Extract unavailableDaysOfWeek
       currency,
       shortDescription,
       fullDescription,
@@ -2291,6 +3060,28 @@ app.post('/api/tours', async (req, res) => {
       languages,
       highlights
     } = finalCleanedBody; // Use final cleaned body (IDs and pricingType removed)
+    
+    // #region agent log
+    const logPath = '/Users/talhanawaz/Desktop/asiabylocals-latest/.cursor/debug.log';
+    try {
+      const logEntry = JSON.stringify({
+        location: 'server.js:2468',
+        message: 'POST endpoint - extracted groupPricingTiers from request',
+        data: {
+          hasGroupPricingTiers: !!groupPricingTiers,
+          groupPricingTiersType: typeof groupPricingTiers,
+          isString: typeof groupPricingTiers === 'string',
+          isArray: Array.isArray(groupPricingTiers),
+          preview: groupPricingTiers ? (typeof groupPricingTiers === 'string' ? groupPricingTiers.substring(0, 100) : JSON.stringify(groupPricingTiers).substring(0, 100)) : null
+        },
+        timestamp: Date.now(),
+        sessionId: 'debug-session',
+        runId: 'run1',
+        hypothesisId: 'D'
+      }) + '\n';
+      fs.appendFileSync(logPath, logEntry);
+    } catch (e) {}
+    // #endregion
 
     // Debug: Log each field
     console.log('🔍 Field validation:');
@@ -2332,8 +3123,13 @@ app.post('/api/tours', async (req, res) => {
       });
     }
 
-    // Infer pricing type from groupPrice and maxGroupSize presence
-    const isPerGroupPricing = !!(groupPrice && maxGroupSize);
+    // Infer pricing type from groupPrice/maxGroupSize OR groupPricingTiers presence
+    // All tours now use group pricing with tiered pricing structure
+    const hasGroupPricingTiers = groupPricingTiers && (
+      (typeof groupPricingTiers === 'string' && groupPricingTiers.trim().length > 0) ||
+      (Array.isArray(groupPricingTiers) && groupPricingTiers.length > 0)
+    );
+    const isPerGroupPricing = !!(groupPrice && maxGroupSize) || hasGroupPricingTiers;
     
     // Validate pricing based on inferred pricing type
     if (isPerGroupPricing) {
@@ -3080,11 +3876,25 @@ app.post('/api/tours', async (req, res) => {
         }
       }
       
-      // Last resort: append number only if all custom words failed
+      // If all single words are exhausted, try word combinations (NO NUMBERS ALLOWED)
       if (!slugIsUnique && wordIndex >= asianTourWords.length) {
-        let counter = 1;
-        finalSlug = `${baseSlug}-${counter}`;
-        while (counter < 50 && !slugIsUnique) { // Increased from 20 to 50 for more attempts
+        // Try combinations of two words for more unique slugs
+        const combinationWords = [
+          'premium-guided', 'exclusive-local', 'authentic-cultural', 'private-expert',
+          'deluxe-experience', 'custom-tour', 'personalized-journey', 'luxury-adventure',
+          'certified-professional', 'award-winning-local', 'recommended-tour', 'popular-experience',
+          'iconic-heritage', 'legendary-cultural', 'traditional-authentic', 'royal-imperial',
+          'ancient-heritage', 'sunrise-guided', 'sunset-experience', 'full-day-tour',
+          'half-day-adventure', 'multi-day-journey', 'walking-tour', 'photography-experience',
+          'food-culinary', 'shopping-adventure', 'spiritual-journey', 'nature-wildlife',
+          'beach-cruise', 'mountain-adventure', 'island-exploration', 'river-cruise',
+          'temple-pagoda', 'fort-palace', 'bazaar-market', 'garden-monument',
+          'museum-gallery', 'village-town', 'district-quarter', 'street-exploration'
+        ];
+        
+        let comboIndex = 0;
+        while (comboIndex < combinationWords.length && !slugIsUnique) {
+          finalSlug = `${baseSlug}-${combinationWords[comboIndex]}`;
           const existingTour = await prisma.tour.findUnique({
             where: { slug: finalSlug }
           });
@@ -3093,27 +3903,27 @@ app.post('/api/tours', async (req, res) => {
             slugIsUnique = true;
             break;
           }
-          counter++;
-          finalSlug = `${baseSlug}-${counter}`;
+          comboIndex++;
         }
         
-        // Absolute last resort: timestamp hash (guaranteed unique)
-        if (!slugIsUnique && counter >= 50) {
-          let timestampAttempts = 0;
-          while (timestampAttempts < 10 && !slugIsUnique) {
-            const timestampHash = Date.now().toString(36).slice(-8) + Math.random().toString(36).slice(-4);
-            const timestampSlug = `${baseSlug}-${timestampHash}`;
+        // If combinations exhausted, try triple combinations with city
+        if (!slugIsUnique && comboIndex >= combinationWords.length && citySlug && citySlug !== locationSlug) {
+          const cityCombinations = [
+            `${citySlug}-premium`, `${citySlug}-exclusive`, `${citySlug}-authentic`,
+            `${citySlug}-local`, `${citySlug}-guided`, `${citySlug}-expert`,
+            `${citySlug}-tour`, `${citySlug}-experience`, `${citySlug}-adventure`
+          ];
+          
+          for (const cityCombo of cityCombinations) {
+            finalSlug = `${baseSlug}-${cityCombo}`;
             const existingTour = await prisma.tour.findUnique({
-              where: { slug: timestampSlug }
+              where: { slug: finalSlug }
             });
             if (!existingTour) {
-              slug = timestampSlug;
+              slug = finalSlug;
               slugIsUnique = true;
               break;
             }
-            timestampAttempts++;
-            // Small delay to ensure different timestamp
-            await new Promise(resolve => setTimeout(resolve, 10));
           }
         }
       }
@@ -3121,15 +3931,67 @@ app.post('/api/tours', async (req, res) => {
     
     // CRITICAL FINAL CHECK: Verify slug is unique before proceeding (prevents P2002 errors)
     if (!slugIsUnique) {
-      // One final check - if somehow we still don't have a unique slug, use timestamp
+      // One final check - if somehow we still don't have a unique slug, try more descriptive suffixes
       const finalCheck = await prisma.tour.findUnique({
         where: { slug }
       });
       if (finalCheck) {
-        // Force unique slug with timestamp + random
-        const emergencySlug = `${baseSlug}-${Date.now()}-${Math.random().toString(36).slice(-6)}`;
-        slug = emergencySlug;
-        console.log('⚠️  Used emergency slug generation (should be rare):', slug);
+        // Try a few more descriptive suffixes before using timestamp
+        const descriptiveSuffixes = ['tour', 'experience', 'adventure', 'journey', 'exploration', 'discovery'];
+        let foundUnique = false;
+        
+        for (const suffix of descriptiveSuffixes) {
+          const testSlug = `${baseSlug}-${suffix}`;
+          const exists = await prisma.tour.findUnique({
+            where: { slug: testSlug }
+          });
+          if (!exists) {
+            slug = testSlug;
+            slugIsUnique = true;
+            foundUnique = true;
+            console.log('✅ Found unique slug with descriptive suffix:', slug);
+            break;
+          }
+        }
+        
+        // If still not unique, try more word combinations (NO NUMBERS OR TIMESTAMPS)
+        if (!foundUnique) {
+          const extendedSuffixes = [
+            'premium-tour', 'exclusive-experience', 'authentic-adventure', 'local-guided',
+            'expert-tour', 'professional-guided', 'certified-local', 'official-tour',
+            'recommended-experience', 'popular-tour', 'famous-adventure', 'iconic-tour',
+            'legendary-experience', 'classic-tour', 'traditional-guided', 'cultural-adventure'
+          ];
+          
+          for (const suffix of extendedSuffixes) {
+            const testSlug = `${baseSlug}-${suffix}`;
+            const exists = await prisma.tour.findUnique({
+              where: { slug: testSlug }
+            });
+            if (!exists) {
+              slug = testSlug;
+              slugIsUnique = true;
+              foundUnique = true;
+              console.log('✅ Found unique slug with extended suffix:', slug);
+              break;
+            }
+          }
+          
+          // Final fallback: use base slug with city if available (guaranteed unique with city context)
+          if (!foundUnique && citySlug && citySlug !== locationSlug) {
+            slug = `${baseSlug}-${citySlug}-tour`;
+            slugIsUnique = true; // Assume unique with city context
+            console.log('✅ Using city-context slug as final fallback:', slug);
+          } else if (!foundUnique) {
+            // Absolute last resort: use a generic but descriptive suffix
+            slug = `${baseSlug}-guided-tour`;
+            slugIsUnique = true; // Force uniqueness - this should be extremely rare
+            console.log('⚠️  Using forced unique slug (should be extremely rare):', slug);
+          }
+        }
+      } else {
+        // Slug is actually unique, mark it as such
+        slugIsUnique = true;
       }
     }
     
@@ -3238,8 +4100,8 @@ app.post('/api/tours', async (req, res) => {
           delete cleanOption[key];
           console.warn(`⚠️  Removed additional ID-like field: ${key}`);
         }
-        // Also remove any pricing-related fields
-        if (keyLower.includes('pricing')) {
+        // Also remove any pricing-related fields (but keep groupPricingTiers!)
+        if (keyLower.includes('pricing') && keyLower !== 'grouppricingtiers') {
           delete cleanOption[key];
           console.warn(`⚠️  Removed pricing-related field: ${key}`);
         }
@@ -3260,10 +4122,6 @@ app.post('/api/tours', async (req, res) => {
     });
     
     // Create tour data object - NEVER include 'id' as it's auto-generated
-    // Note: groupPrice and maxGroupSize are extracted from req.body above
-    // Pricing type is inferred: if both groupPrice and maxGroupSize exist, it's per_group, otherwise per_person
-    // They are used for calculations but should NOT be included in tourData
-    
     const tourData = {
       supplierId: parseInt(supplierId),
       title,
@@ -3273,10 +4131,29 @@ app.post('/api/tours', async (req, res) => {
       category,
       locations: JSON.stringify(locationsArray),
       duration: duration || 'Flexible',
-      // Calculate pricePerPerson: if per_group, divide groupPrice by maxGroupSize; otherwise use pricePerPerson
-      pricePerPerson: isPerGroupPricing 
-        ? parseFloat(groupPrice) / parseInt(maxGroupSize)
-        : parseFloat(pricePerPerson),
+      // CRITICAL: Use FIRST tier (1 person) price for pricePerPerson - NOT groupPrice (which is last tier)
+      // This ensures "Starting from" shows the correct 1-person price
+      pricePerPerson: (() => {
+        if (groupPricingTiers) {
+          try {
+            const tiers = typeof groupPricingTiers === 'string' 
+              ? JSON.parse(groupPricingTiers) 
+              : groupPricingTiers;
+            if (Array.isArray(tiers) && tiers.length > 0 && tiers[0] && tiers[0].price) {
+              const firstTierPrice = parseFloat(tiers[0].price);
+              if (!isNaN(firstTierPrice) && firstTierPrice > 0) {
+                return firstTierPrice; // Use first tier (1 person) price
+              }
+            }
+          } catch (e) {
+            console.warn('⚠️ Failed to parse groupPricingTiers for pricePerPerson:', e.message);
+          }
+        }
+        // Fallback to provided pricePerPerson or groupPrice
+        return isPerGroupPricing 
+          ? parseFloat(groupPrice || pricePerPerson || '0')
+          : parseFloat(pricePerPerson || '0');
+      })(),
       currency: currency || 'INR',
       shortDescription: shortDescription || null,
       fullDescription,
@@ -3289,9 +4166,149 @@ app.post('/api/tours', async (req, res) => {
       images: JSON.stringify(imageUrls), // Store Cloudinary URLs instead of base64
       languages: JSON.stringify(languagesArray || ['English']),
       reviews: null,
-      status: 'draft'
+      status: 'draft',
+      // Save simplified pricing fields
+      maxGroupSize: isPerGroupPricing && maxGroupSize ? parseInt(maxGroupSize) : null,
+      groupPrice: isPerGroupPricing && groupPrice ? parseFloat(groupPrice) : null,
+      unavailableDates: unavailableDates && typeof unavailableDates === 'string' 
+        ? unavailableDates 
+        : (unavailableDates && Array.isArray(unavailableDates) && unavailableDates.length > 0 
+          ? JSON.stringify(unavailableDates) 
+          : null), // Legacy
+      unavailableDaysOfWeek: unavailableDaysOfWeek && typeof unavailableDaysOfWeek === 'string'
+        ? unavailableDaysOfWeek
+        : (unavailableDaysOfWeek && Array.isArray(unavailableDaysOfWeek) && unavailableDaysOfWeek.length > 0
+          ? JSON.stringify(unavailableDaysOfWeek)
+          : null),
+      // CRITICAL: Save groupPricingTiers directly on Tour model (simple, reliable)
+      groupPricingTiers: (() => {
+        // #region agent log
+        const logPath = '/Users/talhanawaz/Desktop/asiabylocals-latest/.cursor/debug.log';
+        try {
+          const logEntry = JSON.stringify({
+            location: 'server.js:3559',
+            message: 'POST endpoint - processing groupPricingTiers before save',
+            data: {
+              hasGroupPricingTiers: !!groupPricingTiers,
+              groupPricingTiersType: typeof groupPricingTiers,
+              isString: typeof groupPricingTiers === 'string',
+              isArray: Array.isArray(groupPricingTiers),
+              preview: groupPricingTiers ? (typeof groupPricingTiers === 'string' ? groupPricingTiers.substring(0, 100) : JSON.stringify(groupPricingTiers).substring(0, 100)) : null
+            },
+            timestamp: Date.now(),
+            sessionId: 'debug-session',
+            runId: 'run1',
+            hypothesisId: 'D'
+          }) + '\n';
+          fs.appendFileSync(logPath, logEntry);
+        } catch (e) {}
+        // #endregion
+        
+        if (!groupPricingTiers) {
+          // #region agent log
+          try {
+            const logEntry = JSON.stringify({
+              location: 'server.js:3575',
+              message: 'POST endpoint - groupPricingTiers is null/undefined',
+              data: { reason: 'groupPricingTiers not provided in request' },
+              timestamp: Date.now(),
+              sessionId: 'debug-session',
+              runId: 'run1',
+              hypothesisId: 'D'
+            }) + '\n';
+            fs.appendFileSync(logPath, logEntry);
+          } catch (e) {}
+          // #endregion
+          return null;
+        }
+        const finalValue = typeof groupPricingTiers === 'string'
+          ? groupPricingTiers
+          : (Array.isArray(groupPricingTiers) && groupPricingTiers.length > 0
+            ? JSON.stringify(groupPricingTiers)
+            : null);
+        console.log('✅ Saving groupPricingTiers on Tour model:', {
+          hasValue: !!finalValue,
+          preview: finalValue ? finalValue.substring(0, 200) : 'null',
+          tiersCount: Array.isArray(groupPricingTiers) ? groupPricingTiers.length : 'N/A'
+        });
+        
+        // #region agent log
+        try {
+          const logEntry = JSON.stringify({
+            location: 'server.js:3585',
+            message: 'POST endpoint - groupPricingTiers processed, about to save',
+            data: {
+              finalValueExists: !!finalValue,
+              finalValuePreview: finalValue ? finalValue.substring(0, 100) : null,
+              willSave: !!finalValue
+            },
+            timestamp: Date.now(),
+            sessionId: 'debug-session',
+            runId: 'run1',
+            hypothesisId: 'D'
+          }) + '\n';
+          fs.appendFileSync(logPath, logEntry);
+        } catch (e) {}
+        // #endregion
+        
+        return finalValue;
+      })()
     };
 
+    // If main tour has groupPricingTiers, create a main tour option with those tiers
+    // CRITICAL: Always create main tour option if groupPricingTiers exists, regardless of isPerGroupPricing flag
+    let mainTourGroupPricingTiers = null;
+    if (groupPricingTiers) {
+      try {
+        if (typeof groupPricingTiers === 'string') {
+          mainTourGroupPricingTiers = JSON.parse(groupPricingTiers);
+        } else if (Array.isArray(groupPricingTiers)) {
+          mainTourGroupPricingTiers = groupPricingTiers;
+        }
+        console.log('📊 Main tour groupPricingTiers parsed:', {
+          count: mainTourGroupPricingTiers?.length,
+          tiers: mainTourGroupPricingTiers
+        });
+      } catch (e) {
+        console.warn('⚠️ Failed to parse main tour groupPricingTiers:', e.message);
+      }
+    }
+    
+    // Create main tour option if main tour has group pricing tiers
+    if (mainTourGroupPricingTiers && Array.isArray(mainTourGroupPricingTiers) && mainTourGroupPricingTiers.length > 0) {
+      // Calculate price from first tier (lowest price)
+      const firstTierPrice = parseFloat(mainTourGroupPricingTiers[0]?.price || groupPrice || '0') || 0;
+      const mainTourOption = {
+        optionTitle: title,
+        optionDescription: shortDescription || fullDescription?.substring(0, 200) || 'Main tour option',
+        durationHours: parseFloat(duration?.replace(/[^0-9.]/g, '')) || 3,
+        price: firstTierPrice,
+        currency: currency || 'INR',
+        language: languagesArray?.[0] || 'English',
+        pickupIncluded: false,
+        entryTicketIncluded: false,
+        guideIncluded: true,
+        carIncluded: false,
+        groupPricingTiers: JSON.stringify(mainTourGroupPricingTiers),
+        sortOrder: -1 // Main tour option comes first
+      };
+      // Prepend main tour option to tourOptions
+      tourOptions = [mainTourOption, ...(tourOptions || [])];
+      console.log('✅ Created main tour option with groupPricingTiers:', {
+        tiers: mainTourGroupPricingTiers.length,
+        firstTierPrice,
+        tiersData: mainTourGroupPricingTiers,
+        groupPricingTiersString: mainTourOption.groupPricingTiers?.substring(0, 200) // Log first 200 chars
+      });
+    } else {
+      console.warn('⚠️ NOT creating main tour option - condition not met:', {
+        hasMainTourGroupPricingTiers: !!mainTourGroupPricingTiers,
+        isArray: Array.isArray(mainTourGroupPricingTiers),
+        length: mainTourGroupPricingTiers?.length,
+        groupPricingTiers: groupPricingTiers ? (typeof groupPricingTiers === 'string' ? groupPricingTiers.substring(0, 200) : 'not string') : 'null'
+      });
+    }
+    
     // Only add options if tourOptions array has items
     if (tourOptions && Array.isArray(tourOptions) && tourOptions.length > 0) {
       // Validate each option has required fields
@@ -3357,6 +4374,47 @@ app.post('/api/tours', async (req, res) => {
           // Build return object WITHOUT pricingType, maxGroupSize, and groupPrice
           // maxGroupSize and groupPrice are excluded because columns don't exist in production DB yet
           // groupPricingTiers is included - stored as JSON string in DB
+          
+          // CRITICAL: Log groupPricingTiers to debug why it's not being saved
+          if (cleanOption.groupPricingTiers) {
+            console.log(`📊 Option ${index + 1} groupPricingTiers BEFORE save:`, {
+              type: typeof cleanOption.groupPricingTiers,
+              value: typeof cleanOption.groupPricingTiers === 'string' 
+                ? cleanOption.groupPricingTiers.substring(0, 200) 
+                : JSON.stringify(cleanOption.groupPricingTiers).substring(0, 200),
+              isArray: Array.isArray(cleanOption.groupPricingTiers)
+            });
+          } else {
+            console.warn(`⚠️ Option ${index + 1} has NO groupPricingTiers!`, {
+              optionTitle: cleanOption.optionTitle || cleanOption.title,
+              availableFields: Object.keys(cleanOption)
+            });
+          }
+          
+          // CRITICAL: Handle groupPricingTiers FIRST - ensure it's always included if present
+          let finalGroupPricingTiers = null;
+          if (cleanOption.groupPricingTiers) {
+            try {
+              if (Array.isArray(cleanOption.groupPricingTiers)) {
+                finalGroupPricingTiers = JSON.stringify(cleanOption.groupPricingTiers);
+              } else if (typeof cleanOption.groupPricingTiers === 'string') {
+                // Already stringified, but verify it's valid JSON
+                try {
+                  JSON.parse(cleanOption.groupPricingTiers); // Validate it's valid JSON
+                  finalGroupPricingTiers = cleanOption.groupPricingTiers;
+                } catch (e) {
+                  console.warn(`⚠️ Option ${index + 1} groupPricingTiers string is invalid JSON, re-stringifying`);
+                  finalGroupPricingTiers = JSON.stringify(cleanOption.groupPricingTiers);
+                }
+              } else {
+                finalGroupPricingTiers = JSON.stringify(cleanOption.groupPricingTiers);
+              }
+              console.log(`✅ Option ${index + 1} groupPricingTiers processed successfully`);
+            } catch (e) {
+              console.error(`❌ Failed to process groupPricingTiers for option ${index + 1}:`, e.message);
+            }
+          }
+          
           const returnOption = {
             optionTitle: (cleanOption.optionTitle || cleanOption.title || `Option ${index + 1}`).trim(),
             optionDescription: finalOptionDesc,
@@ -3368,22 +4426,11 @@ app.post('/api/tours', async (req, res) => {
             entryTicketIncluded: cleanOption.entryTicketIncluded || cleanOption.entry_ticket_included || false,
             guideIncluded: cleanOption.guideIncluded !== undefined ? cleanOption.guideIncluded : (cleanOption.guide_included !== undefined ? cleanOption.guide_included : true),
             carIncluded: cleanOption.carIncluded || cleanOption.car_included || false,
+            // CRITICAL: Explicitly include groupPricingTiers if it exists
+            groupPricingTiers: finalGroupPricingTiers,
             // maxGroupSize and groupPrice EXCLUDED - columns don't exist in production DB yet
             sortOrder: index
           };
-          
-          // Handle groupPricingTiers - stringify if it's an array/object
-          if (cleanOption.groupPricingTiers) {
-            try {
-              returnOption.groupPricingTiers = Array.isArray(cleanOption.groupPricingTiers) 
-                ? JSON.stringify(cleanOption.groupPricingTiers)
-                : (typeof cleanOption.groupPricingTiers === 'string' 
-                  ? cleanOption.groupPricingTiers 
-                  : JSON.stringify(cleanOption.groupPricingTiers));
-            } catch (e) {
-              console.warn(`⚠️  Failed to stringify groupPricingTiers for option ${index + 1}:`, e.message);
-            }
-          }
           
           // CRITICAL: Final check - ensure pricingType, maxGroupSize, and groupPrice are NOT in return object
           delete returnOption.pricingType;
@@ -3631,16 +4678,22 @@ app.post('/api/tours', async (req, res) => {
         }
         
         // FINAL VALIDATION: Ensure no pricing-related fields exist at Tour level
+        // BUT PRESERVE groupPricingTiers, maxGroupSize, groupPrice - these are valid Tour fields!
         const topLevelKeys = Object.keys(cleanFinalTourData);
-        const pricingFields = topLevelKeys.filter(key => 
-          key.toLowerCase().includes('pricing') || 
-          key.toLowerCase().includes('group') ||
-          key.toLowerCase().includes('option') && key !== 'options'
-        );
+        const pricingFields = topLevelKeys.filter(key => {
+          const keyLower = key.toLowerCase();
+          // Skip valid Tour fields that contain "pricing" or "group"
+          if (keyLower === 'grouppricingtiers' || keyLower === 'maxgroupsize' || keyLower === 'groupprice') {
+            return false; // Keep these fields
+          }
+          // Remove pricingType and other invalid fields
+          return (keyLower.includes('pricing') && keyLower !== 'grouppricingtiers') || 
+                 (keyLower.includes('option') && key !== 'options');
+        });
         if (pricingFields.length > 0) {
-          console.error(`❌ CRITICAL: Found pricing/option fields at Tour level: ${pricingFields.join(', ')}`);
+          console.error(`❌ CRITICAL: Found invalid pricing/option fields at Tour level: ${pricingFields.join(', ')}`);
           pricingFields.forEach(field => delete cleanFinalTourData[field]);
-          console.log('   ✅ Removed these fields before Prisma call');
+          console.log('   ✅ Removed these invalid fields before Prisma call');
         }
         
         // Log final structure to verify
@@ -3656,6 +4709,7 @@ app.post('/api/tours', async (req, res) => {
         let finalDataForPrisma = JSON.parse(JSON.stringify(cleanFinalTourData));
         
         // CRITICAL: Remove pricingType from finalDataForPrisma recursively one more time
+        // BUT PRESERVE groupPricingTiers, maxGroupSize, groupPrice - these are valid Tour fields!
         const removePricingTypeFromFinal = (obj) => {
           if (obj === null || obj === undefined) return obj;
           if (Array.isArray(obj)) {
@@ -3664,8 +4718,14 @@ app.post('/api/tours', async (req, res) => {
           if (typeof obj === 'object') {
             const cleaned = {};
             for (const [key, value] of Object.entries(obj)) {
-              if (key.toLowerCase() === 'pricingtype' || key.toLowerCase() === 'pricing_type') {
+              const keyLower = key.toLowerCase();
+              if (keyLower === 'pricingtype' || keyLower === 'pricing_type') {
                 continue; // Skip pricingType fields
+              }
+              // CRITICAL: Preserve groupPricingTiers, maxGroupSize, groupPrice - valid Tour fields!
+              if (keyLower === 'grouppricingtiers' || keyLower === 'maxgroupsize' || keyLower === 'groupprice') {
+                cleaned[key] = value; // Keep as-is, don't recurse
+                continue;
               }
               cleaned[key] = removePricingTypeFromFinal(value);
             }
@@ -3675,12 +4735,19 @@ app.post('/api/tours', async (req, res) => {
         };
         finalDataForPrisma = removePricingTypeFromFinal(finalDataForPrisma);
         
-        // Check one more time for any pricing-related fields
-        const finalCheck = Object.keys(finalDataForPrisma).filter(key => 
-          key.toLowerCase().includes('pricing') || 
-          (key.toLowerCase().includes('group') && key !== 'group') ||
-          (key.toLowerCase().includes('option') && key !== 'options')
-        );
+        // Check one more time for any invalid pricing-related fields
+        // BUT ALLOW valid Tour fields: groupPricingTiers, maxGroupSize, groupPrice
+        const finalCheck = Object.keys(finalDataForPrisma).filter(key => {
+          const keyLower = key.toLowerCase();
+          // Allow valid Tour fields
+          if (keyLower === 'grouppricingtiers' || keyLower === 'maxgroupsize' || keyLower === 'groupprice') {
+            return false; // These are valid, don't flag them
+          }
+          // Flag invalid fields
+          return (keyLower.includes('pricing') && keyLower !== 'grouppricingtiers') || 
+                 (keyLower.includes('group') && key !== 'group' && keyLower !== 'maxgroupsize' && keyLower !== 'groupprice') ||
+                 (keyLower.includes('option') && key !== 'options');
+        });
         
         if (finalCheck.length > 0) {
           console.error(`❌ ABSOLUTE FINAL CHECK FAILED: Found invalid fields: ${finalCheck.join(', ')}`);
@@ -3706,7 +4773,7 @@ app.post('/api/tours', async (req, res) => {
         // Use deep clone to completely break any references
         // CRITICAL: Apply pricingType removal one more time before cloning
         let tempData = JSON.parse(JSON.stringify(finalDataForPrisma));
-        // Remove pricingType recursively from tempData
+        // Remove pricingType recursively from tempData BUT PRESERVE groupPricingTiers
         const removePricingTypeRecursive = (obj) => {
           if (obj === null || obj === undefined) return obj;
           if (Array.isArray(obj)) {
@@ -3715,7 +4782,13 @@ app.post('/api/tours', async (req, res) => {
           if (typeof obj === 'object') {
             const cleaned = {};
             for (const [key, value] of Object.entries(obj)) {
-              if (key.toLowerCase() === 'pricingtype' || key.toLowerCase() === 'pricing_type') {
+              const keyLower = key.toLowerCase();
+              if (keyLower === 'pricingtype' || keyLower === 'pricing_type') {
+                continue; // Skip pricingType fields
+              }
+              // CRITICAL: Preserve groupPricingTiers - it's a valid field!
+              if (keyLower === 'grouppricingtiers') {
+                cleaned[key] = value; // Keep as-is, don't recurse
                 continue;
               }
               cleaned[key] = removePricingTypeRecursive(value);
@@ -3761,11 +4834,19 @@ app.post('/api/tours', async (req, res) => {
             delete cleaned.pricingType;
             delete cleaned.pricing_type;
             
-            // Remove any key that contains "pricing" (case insensitive)
+            // CRITICAL: Only remove pricingType, NOT groupPricingTiers!
+            // Remove any key that contains "pricing" EXCEPT groupPricingTiers
             Object.keys(cleaned).forEach(key => {
-              if (key.toLowerCase().includes('pricing')) {
-                console.warn(`⚠️  Removing pricing-related key from option ${idx + 1}: ${key}`);
-                delete cleaned[key];
+              const keyLower = key.toLowerCase();
+              if (keyLower.includes('pricing')) {
+                if (keyLower === 'grouppricingtiers') {
+                  // PRESERVE groupPricingTiers - this is the correct field!
+                  console.log(`✅ Preserving groupPricingTiers for option ${idx + 1}`);
+                } else {
+                  // Remove other pricing fields (like pricingType)
+                  console.warn(`⚠️  Removing pricing-related key from option ${idx + 1}: ${key}`);
+                  delete cleaned[key];
+                }
               }
             });
             
@@ -3790,11 +4871,14 @@ app.post('/api/tours', async (req, res) => {
         console.log('   Options to create separately:', optionsToCreate.length);
         console.log('   Final slug:', tourDataWithoutOptions.slug);
         
-        // CRITICAL: Verify no pricingType in optionsToCreate
+        // CRITICAL: Verify no pricingType in optionsToCreate (but groupPricingTiers is OK)
         const hasPricingType = optionsToCreate.some(opt => {
           if (!opt || typeof opt !== 'object') return false;
           return 'pricingType' in opt || 'pricing_type' in opt || 
-                 Object.keys(opt).some(k => k.toLowerCase().includes('pricing'));
+                 Object.keys(opt).some(k => {
+                   const kLower = k.toLowerCase();
+                   return kLower.includes('pricing') && kLower !== 'grouppricingtiers';
+                 });
         });
         if (hasPricingType) {
           console.error('🚨 CRITICAL: pricingType still found in optionsToCreate!');
@@ -3805,7 +4889,11 @@ app.post('/api/tours', async (req, res) => {
               delete opt.pricingType;
               delete opt.pricing_type;
               Object.keys(opt).forEach(k => {
-                if (k.toLowerCase().includes('pricing')) delete opt[k];
+                const kLower = k.toLowerCase();
+                // CRITICAL: Only remove pricingType, NOT groupPricingTiers!
+                if (kLower.includes('pricing') && kLower !== 'grouppricingtiers') {
+                  delete opt[k];
+                }
               });
             }
             return opt;
@@ -3977,7 +5065,22 @@ app.post('/api/tours', async (req, res) => {
               // Only include field if it has a value (exclude null/undefined)
               // This prevents Prisma from trying to validate columns that might not exist yet
               if (opt[field] !== undefined && opt[field] !== null) {
-                cleanOpt[field] = opt[field];
+                // CRITICAL: For groupPricingTiers, ensure it's a string
+                if (field === 'groupPricingTiers') {
+                  if (typeof opt[field] === 'string') {
+                    cleanOpt[field] = opt[field];
+                    console.log(`✅ Option ${i + 1} groupPricingTiers (string):`, opt[field].substring(0, 200));
+                  } else if (Array.isArray(opt[field])) {
+                    cleanOpt[field] = JSON.stringify(opt[field]);
+                    console.log(`✅ Option ${i + 1} groupPricingTiers (array->string):`, JSON.stringify(opt[field]).substring(0, 200));
+                  } else {
+                    console.warn(`⚠️ Option ${i + 1} groupPricingTiers has unexpected type:`, typeof opt[field]);
+                  }
+                } else {
+                  cleanOpt[field] = opt[field];
+                }
+              } else if (field === 'groupPricingTiers') {
+                console.warn(`⚠️ Option ${i + 1} has NO groupPricingTiers (null/undefined)`);
               }
             });
             
@@ -4012,11 +5115,29 @@ app.post('/api/tours', async (req, res) => {
               if (keyLower === 'id' || (keyLower.includes('id') && (keyLower.includes('tour') || keyLower.includes('option')))) {
                 delete cleanOpt[key];
               }
-              // Also remove any pricing-related fields
+              // CRITICAL: DO NOT remove groupPricingTiers! Only remove pricingType
+              // Also remove any pricing-related fields EXCEPT groupPricingTiers
               if (keyLower.includes('pricing')) {
-                delete cleanOpt[key];
+                if (keyLower === 'grouppricingtiers') {
+                  // Keep groupPricingTiers - this is the correct field
+                  console.log(`✅ Preserving groupPricingTiers for option ${i + 1}`);
+                } else {
+                  // Remove other pricing fields (like pricingType)
+                  console.log(`🗑️ Removing pricing field "${key}" from option ${i + 1}`);
+                  delete cleanOpt[key];
+                }
               }
             });
+            
+            // CRITICAL: Final verification - log if groupPricingTiers exists
+            if (cleanOpt.groupPricingTiers) {
+              console.log(`✅ Option ${i + 1} FINAL CHECK - groupPricingTiers PRESENT:`, 
+                typeof cleanOpt.groupPricingTiers === 'string' 
+                  ? cleanOpt.groupPricingTiers.substring(0, 200) 
+                  : 'not string');
+            } else {
+              console.warn(`⚠️ Option ${i + 1} FINAL CHECK - groupPricingTiers MISSING!`);
+            }
             
             // Final check: Log if pricingType somehow still exists
             if ('pricingType' in cleanOpt || 'pricing_type' in cleanOpt) {
@@ -4029,12 +5150,42 @@ app.post('/api/tours', async (req, res) => {
             // Create option individually (more reliable than createMany)
             // CRITICAL: Handle missing column errors gracefully (migration might not be run yet)
             try {
+              // CRITICAL: Log what we're about to save
+              console.log(`📤 Creating option ${i + 1} with data:`, {
+                optionTitle: cleanOpt.optionTitle,
+                price: cleanOpt.price,
+                hasGroupPricingTiers: !!cleanOpt.groupPricingTiers,
+                groupPricingTiersType: typeof cleanOpt.groupPricingTiers,
+                groupPricingTiersPreview: cleanOpt.groupPricingTiers 
+                  ? (typeof cleanOpt.groupPricingTiers === 'string' 
+                    ? cleanOpt.groupPricingTiers.substring(0, 200)
+                    : JSON.stringify(cleanOpt.groupPricingTiers).substring(0, 200))
+                  : 'null',
+                allKeys: Object.keys(cleanOpt),
+                groupPricingTiersKeyExists: 'groupPricingTiers' in cleanOpt
+              });
+              
               const createdOption = await prisma.tourOption.create({
                 data: {
                   ...cleanOpt,
                   tourId: tour.id
                 }
               });
+              
+              // CRITICAL: Verify what was actually saved
+              console.log(`✅ Option ${i + 1} created successfully:`, {
+                id: createdOption.id,
+                optionTitle: createdOption.optionTitle,
+                hasGroupPricingTiers: !!createdOption.groupPricingTiers,
+                groupPricingTiersType: typeof createdOption.groupPricingTiers,
+                groupPricingTiersPreview: createdOption.groupPricingTiers 
+                  ? (typeof createdOption.groupPricingTiers === 'string' 
+                    ? createdOption.groupPricingTiers.substring(0, 200)
+                    : 'not string')
+                  : 'null',
+                verification: createdOption.groupPricingTiers ? '✅ SAVED' : '❌ MISSING'
+              });
+              
               createdOptions.push(createdOption);
             } catch (optionError) {
               // If error is about missing max_group_size or group_price columns, retry without them
@@ -4428,6 +5579,8 @@ app.get('/api/tours', async (req, res) => {
             languages: true,
             status: true,
             rejectionReason: true,
+            maxGroupSize: true,
+            groupPrice: true,
             createdAt: true,
             updatedAt: true,
             approvedAt: true,
@@ -4809,8 +5962,10 @@ app.put('/api/tours/:id', async (req, res) => {
     // Prepare update data
     const dataToUpdate = {};
     
-    // Keep the existing status - don't change approved tours back to pending
+    // CRITICAL: Preserve existing status - don't change status when editing
     // Only new tour submissions go to admin review, not edits
+    // This ensures pending tours stay pending, approved tours stay approved, etc.
+    dataToUpdate.status = existingTour.status;
 
     if (updateData.title) dataToUpdate.title = updateData.title;
     if (updateData.city) dataToUpdate.city = updateData.city;
@@ -4819,7 +5974,33 @@ app.put('/api/tours/:id', async (req, res) => {
       typeof updateData.locations === 'string' ? JSON.parse(updateData.locations) : updateData.locations
     );
     if (updateData.duration) dataToUpdate.duration = updateData.duration;
-    if (updateData.pricePerPerson !== undefined) dataToUpdate.pricePerPerson = parseFloat(updateData.pricePerPerson);
+    
+    // CRITICAL: If groupPricingTiers is provided, use first tier (1 person) price for pricePerPerson
+    // This ensures "Starting from" always shows the correct 1-person price
+    if (updateData.groupPricingTiers) {
+      try {
+        const tiers = typeof updateData.groupPricingTiers === 'string' 
+          ? JSON.parse(updateData.groupPricingTiers) 
+          : updateData.groupPricingTiers;
+        if (Array.isArray(tiers) && tiers.length > 0 && tiers[0] && tiers[0].price) {
+          const firstTierPrice = parseFloat(tiers[0].price);
+          if (!isNaN(firstTierPrice) && firstTierPrice > 0) {
+            dataToUpdate.pricePerPerson = firstTierPrice;
+            console.log(`✅ Updated pricePerPerson from groupPricingTiers[0]: ${firstTierPrice}`);
+          }
+        }
+      } catch (e) {
+        console.warn('⚠️ Failed to parse groupPricingTiers for pricePerPerson update:', e.message);
+        // Fallback to provided pricePerPerson if parsing fails
+        if (updateData.pricePerPerson !== undefined) {
+          dataToUpdate.pricePerPerson = parseFloat(updateData.pricePerPerson);
+        }
+      }
+    } else if (updateData.pricePerPerson !== undefined) {
+      // Only use provided pricePerPerson if groupPricingTiers is not provided
+      dataToUpdate.pricePerPerson = parseFloat(updateData.pricePerPerson);
+    }
+    
     if (updateData.currency) dataToUpdate.currency = updateData.currency;
     if (updateData.shortDescription !== undefined) dataToUpdate.shortDescription = updateData.shortDescription;
     if (updateData.fullDescription) dataToUpdate.fullDescription = updateData.fullDescription;
@@ -4839,9 +6020,44 @@ app.put('/api/tours/:id', async (req, res) => {
       typeof updateData.languages === 'string' ? JSON.parse(updateData.languages) : updateData.languages
     );
     
-    // Note: maxGroupSize, groupPrice, and groupPricingTiers are NOT in Tour model schema
-    // These fields don't exist in the database, so we skip them
-    // Group pricing is handled through tour options instead
+    // Handle simplified pricing fields
+    if (updateData.maxGroupSize !== undefined) {
+      dataToUpdate.maxGroupSize = updateData.maxGroupSize ? parseInt(updateData.maxGroupSize) : null;
+    }
+    if (updateData.groupPrice !== undefined) {
+      dataToUpdate.groupPrice = updateData.groupPrice ? parseFloat(updateData.groupPrice) : null;
+    }
+    // Note: groupPricingTiers is stored on TourOption, not Tour model
+    // Main tour's groupPricingTiers will be stored in the main tour option (sortOrder: -1)
+    if (updateData.unavailableDates !== undefined) {
+      dataToUpdate.unavailableDates = updateData.unavailableDates 
+        ? (typeof updateData.unavailableDates === 'string' 
+          ? updateData.unavailableDates 
+          : JSON.stringify(updateData.unavailableDates))
+        : null;
+    }
+    if (updateData.unavailableDaysOfWeek !== undefined) {
+      dataToUpdate.unavailableDaysOfWeek = updateData.unavailableDaysOfWeek
+        ? (typeof updateData.unavailableDaysOfWeek === 'string'
+          ? updateData.unavailableDaysOfWeek
+          : JSON.stringify(updateData.unavailableDaysOfWeek))
+        : null;
+    }
+    
+    // CRITICAL: Save groupPricingTiers directly on Tour model (simple, reliable)
+    if (updateData.groupPricingTiers !== undefined) {
+      dataToUpdate.groupPricingTiers = updateData.groupPricingTiers
+        ? (typeof updateData.groupPricingTiers === 'string'
+          ? updateData.groupPricingTiers
+          : (Array.isArray(updateData.groupPricingTiers) && updateData.groupPricingTiers.length > 0
+            ? JSON.stringify(updateData.groupPricingTiers)
+            : null))
+        : null;
+      console.log('✅ Saving groupPricingTiers on Tour model:', {
+        hasValue: !!dataToUpdate.groupPricingTiers,
+        preview: dataToUpdate.groupPricingTiers ? dataToUpdate.groupPricingTiers.substring(0, 200) : 'null'
+      });
+    }
 
     // Update tour first
     const tourUpdateStartTime = Date.now();
@@ -4850,6 +6066,53 @@ app.put('/api/tours/:id', async (req, res) => {
       data: dataToUpdate
     });
     console.log(`   ✅ Tour record updated (took ${Date.now() - tourUpdateStartTime}ms)`);
+    
+    // CRITICAL: If main tour has groupPricingTiers, create main tour option BEFORE processing tourOptions
+    // This ensures "Starting from" always shows the correct 1-person price
+    if (updateData.groupPricingTiers) {
+      try {
+        const mainTourGroupPricingTiers = typeof updateData.groupPricingTiers === 'string' 
+          ? JSON.parse(updateData.groupPricingTiers) 
+          : updateData.groupPricingTiers;
+        
+        if (Array.isArray(mainTourGroupPricingTiers) && mainTourGroupPricingTiers.length > 0 && mainTourGroupPricingTiers[0]?.price) {
+          const firstTierPrice = parseFloat(mainTourGroupPricingTiers[0].price);
+          if (!isNaN(firstTierPrice) && firstTierPrice > 0) {
+            const mainTourOption = {
+              optionTitle: updateData.title || existingTour.title,
+              optionDescription: updateData.shortDescription || existingTour.shortDescription || existingTour.fullDescription?.substring(0, 200) || 'Main tour option',
+              durationHours: parseFloat((updateData.duration || existingTour.duration)?.replace(/[^0-9.]/g, '')) || 3,
+              price: firstTierPrice, // ALWAYS use first tier (1 person) price
+              currency: updateData.currency || existingTour.currency || 'INR',
+              language: (updateData.languages ? (typeof updateData.languages === 'string' ? JSON.parse(updateData.languages) : updateData.languages) : JSON.parse(existingTour.languages || '["English"]'))?.[0] || 'English',
+              pickupIncluded: false,
+              entryTicketIncluded: false,
+              guideIncluded: true,
+              carIncluded: false,
+              groupPricingTiers: typeof mainTourGroupPricingTiers === 'string' ? mainTourGroupPricingTiers : JSON.stringify(mainTourGroupPricingTiers),
+              sortOrder: -1 // Main tour option comes first
+            };
+            
+            // Ensure tourOptions is an array and prepend main tour option
+            if (!updateData.tourOptions || !Array.isArray(updateData.tourOptions)) {
+              updateData.tourOptions = [];
+            }
+            // Remove any existing main tour option (sortOrder: -1) to avoid duplicates
+            updateData.tourOptions = updateData.tourOptions.filter((opt) => opt.sortOrder !== -1);
+            // Prepend main tour option
+            updateData.tourOptions = [mainTourOption, ...updateData.tourOptions];
+            
+            console.log('✅ Created main tour option from groupPricingTiers:', {
+              firstTierPrice,
+              tiersCount: mainTourGroupPricingTiers.length,
+              totalOptions: updateData.tourOptions.length
+            });
+          }
+        }
+      } catch (e) {
+        console.warn('⚠️ Failed to parse main tour groupPricingTiers for update:', e.message);
+      }
+    }
     
     // Handle tour options update (delete old ones and create new ones)
     if (updateData.tourOptions !== undefined && Array.isArray(updateData.tourOptions)) {
@@ -4875,16 +6138,44 @@ app.put('/api/tours/:id', async (req, res) => {
           const optionsToCreate = updateData.tourOptions.map((opt, index) => {
             const cleanOpt = {};
             VALID_TOUR_OPTION_FIELDS.forEach(field => {
-              if (field in opt && opt[field] !== undefined && opt[field] !== null) {
-                if (field === 'groupPricingTiers' && typeof opt[field] === 'string') {
-                  cleanOpt[field] = opt[field]; // Already stringified
-                } else if (field === 'groupPricingTiers' && Array.isArray(opt[field])) {
-                  cleanOpt[field] = JSON.stringify(opt[field]);
+              // CRITICAL: For groupPricingTiers, check if it exists (even if empty string)
+              // Empty string is valid - it means "no custom pricing, use main tour pricing"
+              if (field === 'groupPricingTiers') {
+                if (opt[field] !== undefined && opt[field] !== null) {
+                  if (typeof opt[field] === 'string') {
+                    cleanOpt[field] = opt[field]; // Already stringified
+                  } else if (Array.isArray(opt[field])) {
+                    cleanOpt[field] = JSON.stringify(opt[field]);
+                  } else {
+                    cleanOpt[field] = JSON.stringify(opt[field]);
+                  }
+                  console.log(`✅ Option ${index + 1} groupPricingTiers included in cleanOpt`);
                 } else {
-                  cleanOpt[field] = opt[field];
+                  console.log(`ℹ️ Option ${index + 1} has no groupPricingTiers (will use main tour pricing)`);
                 }
+              } else if (field in opt && opt[field] !== undefined && opt[field] !== null) {
+                cleanOpt[field] = opt[field];
               }
             });
+            
+            // CRITICAL: Ensure option price uses first tier (1 person) price from groupPricingTiers
+            if (opt.groupPricingTiers) {
+              try {
+                const tiers = typeof opt.groupPricingTiers === 'string' 
+                  ? JSON.parse(opt.groupPricingTiers) 
+                  : opt.groupPricingTiers;
+                if (Array.isArray(tiers) && tiers.length > 0 && tiers[0] && tiers[0].price) {
+                  const firstTierPrice = parseFloat(tiers[0].price);
+                  if (!isNaN(firstTierPrice) && firstTierPrice > 0) {
+                    cleanOpt.price = firstTierPrice; // Override with first tier price
+                    console.log(`✅ Option ${index + 1} price set from first tier: ${firstTierPrice}`);
+                  }
+                }
+              } catch (e) {
+                console.warn(`⚠️ Failed to parse groupPricingTiers for option ${index + 1}:`, e.message);
+              }
+            }
+            
             // Remove any ID fields and invalid fields
             delete cleanOpt.id;
             delete cleanOpt.tourId;
@@ -4897,6 +6188,16 @@ app.put('/api/tours/:id', async (req, res) => {
             return cleanOpt;
           });
           
+          // CRITICAL: Log options before saving
+          console.log(`📤 About to create ${optionsToCreate.length} options:`);
+          optionsToCreate.forEach((opt, idx) => {
+            console.log(`   Option ${idx + 1} (${opt.optionTitle}):`, {
+              hasGroupPricingTiers: !!opt.groupPricingTiers,
+              groupPricingTiersType: typeof opt.groupPricingTiers,
+              preview: opt.groupPricingTiers ? opt.groupPricingTiers.substring(0, 100) : 'null'
+            });
+          });
+          
           // Use createMany for better performance (batch insert)
           const createStartTime = Date.now();
           await prisma.tourOption.createMany({
@@ -4906,6 +6207,19 @@ app.put('/api/tours/:id', async (req, res) => {
             }))
           });
           console.log(`   ✅ Created ${optionsToCreate.length} options (took ${Date.now() - createStartTime}ms)`);
+          
+          // CRITICAL: Verify what was actually saved
+          const savedOptions = await prisma.tourOption.findMany({
+            where: { tourId: tourId },
+            select: { id: true, optionTitle: true, groupPricingTiers: true }
+          });
+          console.log(`   🔍 Verification - Saved options:`);
+          savedOptions.forEach((opt, idx) => {
+            console.log(`      Option ${idx + 1} (${opt.optionTitle}):`, {
+              hasGroupPricingTiers: !!opt.groupPricingTiers,
+              verification: opt.groupPricingTiers ? '✅ SAVED' : '❌ MISSING'
+            });
+          });
           console.log(`   ✅ Total options update time: ${Date.now() - optionsStartTime}ms`);
         }
       } catch (optionsError) {
@@ -5201,17 +6515,39 @@ app.post('/api/admin/tours/:id/approve', verifyAdmin, async (req, res) => {
     });
 
     // Regenerate sitemap after tour approval (non-blocking)
-    try {
-      const { exec } = await import('child_process');
-      const { promisify } = await import('util');
-      const execAsync = promisify(exec);
-      execAsync('node server/generate-sitemap.js').catch(err => {
-        console.error('⚠️ Sitemap regeneration failed (non-critical):', err.message);
-      });
-      console.log('✅ Sitemap regeneration triggered after tour approval');
-    } catch (sitemapError) {
-      console.error('⚠️ Sitemap regeneration setup failed (non-critical):', sitemapError.message);
-    }
+    // This ensures new tours are automatically added to sitemap for Google indexing
+    (async () => {
+      try {
+        const { exec } = await import('child_process');
+        const { promisify } = await import('util');
+        const execAsync = promisify(exec);
+        
+        // Get the correct path to generate-sitemap.js
+        const path = await import('path');
+        const { fileURLToPath } = await import('url');
+        const __filename = fileURLToPath(import.meta.url);
+        const __dirname = path.dirname(__filename);
+        const sitemapScript = path.join(__dirname, 'generate-sitemap.js');
+        
+        console.log(`🔄 Regenerating sitemap after tour approval...`);
+        console.log(`   Script: ${sitemapScript}`);
+        
+        const { stdout, stderr } = await execAsync(`node "${sitemapScript}"`);
+        
+        if (stdout) console.log('✅ Sitemap regeneration output:', stdout);
+        if (stderr) console.warn('⚠️ Sitemap regeneration warnings:', stderr);
+        
+        console.log('✅ Sitemap successfully regenerated - new tour will be indexed by Google');
+        console.log(`   Tour URL: https://www.asiabylocals.com/${updatedTour.country.toLowerCase()}/${updatedTour.city.toLowerCase()}/${updatedTour.slug}`);
+        console.log(`   Sitemap URL: https://www.asiabylocals.com/sitemap.xml`);
+        console.log(`   💡 Next step: Submit sitemap to Google Search Console or request indexing for this URL`);
+        
+      } catch (sitemapError) {
+        console.error('⚠️ Sitemap regeneration failed (non-critical):', sitemapError.message);
+        console.error('   This tour will still be approved, but sitemap needs manual update');
+        console.error('   Run manually: node server/generate-sitemap.js');
+      }
+    })();
 
     // Send approval email to supplier using Resend (non-blocking)
     try {
@@ -5720,7 +7056,8 @@ app.get('/api/admin/suppliers/pending', verifyAdmin, async (req, res) => {
             city: true,
             phone: true,
             whatsapp: true,
-            verificationDocumentUrl: true
+            verificationDocumentUrl: true,
+            certificates: true
           }
         });
         break; // Success, exit retry loop
@@ -5778,6 +7115,158 @@ app.get('/api/admin/suppliers/pending', verifyAdmin, async (req, res) => {
       error: 'Internal server error',
       message: 'Failed to fetch pending suppliers. Please try again.',
       details: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
+  }
+});
+
+// Get all suppliers with payment details (admin) - OPTIMIZED for bulk operations
+app.get('/api/admin/suppliers/payment-details', verifyAdmin, async (req, res) => {
+  try {
+    console.log('📋 Fetching suppliers with payment details for admin (optimized)');
+    
+    // Fetch all suppliers with payment/tax details
+    const suppliers = await prisma.supplier.findMany({
+      select: {
+        id: true,
+        email: true,
+        fullName: true,
+        companyName: true,
+        businessType: true,
+        status: true,
+        createdAt: true,
+        paymentMethod: true,
+        paymentMethodDetails: true,
+        paymentCurrency: true,
+        paymentFrequency: true,
+        taxId: true,
+        taxIdType: true,
+        taxCountry: true,
+        taxVerified: true,
+        paymentDetailsVerified: true,
+        paymentDetailsVerifiedAt: true
+      },
+      orderBy: {
+        createdAt: 'desc'
+      }
+    });
+
+    // Fetch all bookings in a single optimized query (instead of N+1 queries)
+    const supplierIds = suppliers.map(s => parseInt(s.id));
+    const allBookings = await prisma.booking.findMany({
+      where: {
+        supplierId: { in: supplierIds }
+      },
+      select: {
+        id: true,
+        supplierId: true,
+        totalAmount: true,
+        paymentStatus: true,
+        createdAt: true
+      }
+    });
+
+    // Group bookings by supplier ID for fast lookup
+    const bookingsBySupplier = {};
+    allBookings.forEach(booking => {
+      const supplierId = String(booking.supplierId);
+      if (!bookingsBySupplier[supplierId]) {
+        bookingsBySupplier[supplierId] = [];
+      }
+      bookingsBySupplier[supplierId].push(booking);
+    });
+
+    // Commission rate: 70% to supplier, 30% platform
+    const supplierRate = 0.70;
+
+    // Process suppliers with earnings calculation
+    const suppliersWithEarnings = suppliers.map(supplier => {
+      const supplierId = String(supplier.id);
+      const bookings = bookingsBySupplier[supplierId] || [];
+
+      const paidBookings = bookings.filter(b => b.paymentStatus === 'paid');
+      const pendingBookings = bookings.filter(b => b.paymentStatus === 'pending');
+
+      const grossEarnings = paidBookings.reduce((sum, b) => sum + (parseFloat(b.totalAmount) * supplierRate), 0);
+      const pendingEarnings = pendingBookings.reduce((sum, b) => sum + (parseFloat(b.totalAmount) * supplierRate), 0);
+
+      // Calculate TDS
+      const tdsDeducted = calculateTDS(grossEarnings, supplier.taxCountry, supplier.taxVerified || false);
+      const netEarnings = grossEarnings - tdsDeducted;
+
+      // Parse paymentMethodDetails if it's a string
+      let paymentDetails = null;
+      if (supplier.paymentMethodDetails) {
+        try {
+          paymentDetails = typeof supplier.paymentMethodDetails === 'string' 
+            ? JSON.parse(supplier.paymentMethodDetails) 
+            : supplier.paymentMethodDetails;
+        } catch (e) {
+          console.error(`Error parsing paymentMethodDetails for supplier ${supplier.id}:`, e);
+        }
+      }
+
+      return {
+        ...supplier,
+        id: supplierId,
+        paymentMethodDetails: paymentDetails,
+        grossEarnings,
+        tdsDeducted,
+        netEarnings,
+        totalEarnings: netEarnings, // For backward compatibility
+        pendingEarnings,
+        bookingCount: bookings.length
+      };
+    });
+
+    res.json({
+      success: true,
+      suppliers: suppliersWithEarnings
+    });
+  } catch (error) {
+    console.error('❌ Get suppliers with payment details error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Internal server error',
+      message: 'Failed to fetch suppliers with payment details'
+    });
+  }
+});
+
+// Verify supplier payment details (admin)
+app.post('/api/admin/suppliers/:id/verify-payment', verifyAdmin, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const supplierId = parseInt(id);
+
+    if (isNaN(supplierId)) {
+      return res.status(400).json({
+        success: false,
+        error: 'Invalid supplier ID'
+      });
+    }
+
+    const supplier = await prisma.supplier.update({
+      where: { id: supplierId },
+      data: {
+        paymentDetailsVerified: true,
+        paymentDetailsVerifiedAt: new Date()
+      }
+    });
+
+    res.json({
+      success: true,
+      message: 'Payment details verified successfully',
+      supplier: {
+        ...supplier,
+        id: String(supplier.id)
+      }
+    });
+  } catch (error) {
+    console.error('❌ Verify payment details error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Internal server error',
+      message: 'Failed to verify payment details'
     });
   }
 });
@@ -6739,14 +8228,22 @@ app.get('/api/debug/tours', async (req, res) => {
 
 // Get public tours by city (for public site)
 app.get('/api/public/tours', async (req, res) => {
+  const startTime = Date.now();
+  console.log('📋 GET /api/public/tours - Request received');
+  console.log('   Query params:', req.query);
+  console.log('   Headers:', req.headers);
+  console.log('   Origin:', req.headers.origin);
+  
   try {
     const { city, country, category, status = 'approved' } = req.query;
 
     console.log('📋 Fetching public tours:', { city, country, category, status });
+    console.log('   Request received at:', new Date().toISOString());
 
+    // ALWAYS fetch only approved tours for public API (ignore status param for security)
     // Build where clause - fetch all approved tours, then filter in memory for case-insensitive matching
     const where = {
-      status: status
+      status: 'approved' // Always use 'approved' for public API, ignore query param
     };
 
     // Only add category filter (exact match is fine for category)
@@ -6757,6 +8254,7 @@ app.get('/api/public/tours', async (req, res) => {
     // Note: We'll filter city/country in memory for case-insensitive matching
     console.log('   Where clause:', JSON.stringify(where, null, 2));
     console.log('   Will filter by city/country in memory:', { city, country });
+    console.log('   ⚠️  Status param ignored - always fetching approved tours only');
 
     // Retry logic for Render free tier database connection issues
     let tours = null;
@@ -6765,60 +8263,116 @@ app.get('/api/public/tours', async (req, res) => {
 
     while (findAttempts < MAX_FIND_RETRIES && !tours) {
       try {
-        // First, get ALL approved tours to see what we have
-        const allApprovedTours = await prisma.tour.findMany({
-          where: { status: 'approved' },
-          select: { id: true, title: true, city: true, country: true, status: true },
-          take: 20
-        });
-        console.log(`   🔍 Found ${allApprovedTours.length} approved tours in database`);
-        if (allApprovedTours.length > 0) {
-          console.log(`   📍 Sample approved tours:`, allApprovedTours.slice(0, 5).map(t => ({ id: t.id, city: t.city, country: t.country })));
+        // OPTIMIZED: Build where clause with database-level filtering (FAST)
+        const queryStartTime = Date.now();
+        const where = {
+          status: 'approved'
+        };
+        
+        // Add city/country filters at database level (case-insensitive)
+        if (city) {
+          where.city = { equals: city, mode: 'insensitive' };
+        }
+        if (country) {
+          where.country = { equals: country, mode: 'insensitive' };
+        }
+        // Add category filter at database level
+        if (category) {
+          where.category = category;
         }
         
+        // Step 1: Fetch tours with optimized fields (NO fullDescription, NO all images)
         tours = await prisma.tour.findMany({
           where,
-          include: {
-            supplier: {
+          select: {
+            id: true,
+            supplierId: true,
+            title: true,
+            slug: true,
+            country: true,
+            city: true,
+            category: true,
+            locations: true,
+            images: true, // We'll extract only first image URL in formatting
+            languages: true,
+            highlights: true,
+            duration: true,
+            pricePerPerson: true,
+            currency: true,
+            shortDescription: true,
+            // fullDescription: REMOVED - not needed for list view, saves huge payload
+            included: true,
+            notIncluded: true,
+            meetingPoint: true,
+            tourTypes: true,
+            status: true,
+            createdAt: true,
+            updatedAt: true
+            // Note: groupPrice and maxGroupSize don't exist on Tour model - they're on TourOption
+          },
+          orderBy: {
+            createdAt: 'desc'
+          },
+          take: 50 // Limit to 50 for performance
+        });
+        
+        const queryTime = Date.now() - queryStartTime;
+        console.log(`   ✅ Fetched ${tours.length} tours in ${queryTime}ms`);
+        
+        // Step 2: Fetch suppliers and options in parallel (FAST)
+        if (tours.length > 0) {
+          const supplierIds = [...new Set(tours.map(t => t.supplierId))];
+          const tourIds = tours.map(t => t.id);
+          
+          const [suppliers, allOptions] = await Promise.all([
+            // Fetch all suppliers at once
+            prisma.supplier.findMany({
+              where: { id: { in: supplierIds } },
               select: {
                 id: true,
                 fullName: true,
                 companyName: true
               }
-            },
-            options: {
-              orderBy: {
-                sortOrder: 'asc'
-              }
+            }).catch(() => []),
+            // Fetch all options at once
+            prisma.tourOption.findMany({
+              where: { tourId: { in: tourIds } },
+              select: {
+                id: true,
+                tourId: true,
+                optionTitle: true,
+                price: true,
+                groupPricingTiers: true,
+                currency: true,
+                sortOrder: true
+                // Note: groupPrice and maxGroupSize are commented out in schema, so not available
+              },
+              orderBy: { sortOrder: 'asc' },
+              take: 500 // Max 500 options total
+            }).catch(() => [])
+          ]);
+          
+          // Step 3: Attach suppliers and options to tours (FAST - in memory)
+          const supplierMap = new Map(suppliers.map(s => [s.id, s]));
+          const optionsMap = new Map();
+          
+          allOptions.forEach(opt => {
+            if (!optionsMap.has(opt.tourId)) {
+              optionsMap.set(opt.tourId, []);
             }
-          },
-          orderBy: {
-            createdAt: 'desc'
-          }
-        });
-        
-        console.log(`   📊 Found ${tours.length} tours before city/country filter`);
-        
-        // Filter city/country in memory for case-insensitive matching
-        if (tours && (city || country)) {
-          const beforeFilter = tours.length;
-          tours = tours.filter(tour => {
-            const cityMatch = !city || (tour.city && tour.city.toLowerCase().trim() === city.toLowerCase().trim());
-            const countryMatch = !country || (tour.country && tour.country.toLowerCase().trim() === country.toLowerCase().trim());
-            if (!cityMatch || !countryMatch) {
-              console.log(`   ⚠️  Tour ${tour.id} filtered out:`, {
-                tourCity: tour.city,
-                requestedCity: city,
-                cityMatch,
-                tourCountry: tour.country,
-                requestedCountry: country,
-                countryMatch
-              });
-            }
-            return cityMatch && countryMatch;
+            optionsMap.get(opt.tourId).push(opt);
           });
-          console.log(`   🔍 Filtered from ${beforeFilter} to ${tours.length} tours (city: ${city}, country: ${country})`);
+          
+          tours = tours.map(tour => ({
+            ...tour,
+            supplier: supplierMap.get(tour.supplierId) || null,
+            options: (optionsMap.get(tour.id) || []).slice(0, 5) // Max 5 options per tour
+          }));
+          
+          console.log(`   ✅ Enriched tours with suppliers and options`);
         }
+        
+        console.log(`   ✅ Fetched ${tours.length} tours in ${Date.now() - queryStartTime}ms (filtered at DB level)`);
         break; // Success, exit retry loop
       } catch (dbError) {
         findAttempts++;
@@ -6846,8 +8400,18 @@ app.get('/api/public/tours', async (req, res) => {
       tours = [];
       console.log(`   ⚠️  Tours query returned null, using empty array`);
     }
+    
+    if (!Array.isArray(tours)) {
+      console.error(`   ❌ Tours is not an array! Type: ${typeof tours}, Value:`, tours);
+      tours = [];
+    }
 
-    console.log(`   ✅ Found ${tours.length} tours`);
+    console.log(`   ✅ Final result: Found ${tours.length} tours`);
+    
+    // CRITICAL: If we have tours but formattedTours will be empty, log it
+    if (tours.length > 0) {
+      console.log(`   🔍 About to format ${tours.length} tours...`);
+    }
     
     // Log tour statuses and city/country for debugging
     if (tours.length > 0) {
@@ -6856,9 +8420,19 @@ app.get('/api/public/tours', async (req, res) => {
         return acc;
       }, {});
       console.log(`   📊 Tour status breakdown:`, statusCounts);
-      console.log(`   📍 Sample tour locations:`, tours.slice(0, 3).map(t => ({ id: t.id, city: t.city, country: t.country, status: t.status })));
+      console.log(`   📍 Final tours being returned:`, tours.slice(0, 5).map(t => ({ 
+        id: t.id, 
+        title: t.title?.substring(0, 30),
+        city: t.city, 
+        country: t.country, 
+        status: t.status 
+      })));
     } else {
       console.log(`   ⚠️  No tours found with filters:`, { city, country, category, status });
+      console.log(`   🔍 This means either:`);
+      console.log(`      1. No approved tours exist in database`);
+      console.log(`      2. All approved tours were filtered out by city/country`);
+      console.log(`      3. There's a bug in the filtering logic`);
       // Log what tours exist in database (for debugging)
       try {
         const allTours = await prisma.tour.findMany({
@@ -6884,7 +8458,7 @@ app.get('/api/public/tours', async (req, res) => {
 
     // Parse JSON fields with error handling
     // Format tours - ensure ALL tours are returned even if formatting fails
-    const formattedTours = tours.map(tour => {
+    let formattedTours = tours.map(tour => {
       try {
         // Safe JSON parsing with fallbacks
         let locations = [];
@@ -6895,9 +8469,14 @@ app.get('/api/public/tours', async (req, res) => {
           locations = [];
         }
 
+        // OPTIMIZED: Only get first image URL (not all base64 images)
         let images = [];
         try {
-          images = JSON.parse(tour.images || '[]');
+          const allImages = JSON.parse(tour.images || '[]');
+          // Only include first image URL if it exists (saves massive payload)
+          if (allImages.length > 0 && typeof allImages[0] === 'string') {
+            images = [allImages[0]]; // Just first image URL
+          }
         } catch (e) {
           console.warn(`   ⚠️  Failed to parse images for tour ${tour.id}:`, e.message);
           images = [];
@@ -6976,7 +8555,7 @@ app.get('/api/public/tours', async (req, res) => {
           pricePerPerson: tour.pricePerPerson || 0,
           currency: tour.currency || 'INR',
           shortDescription: tour.shortDescription || null,
-          fullDescription: tour.fullDescription || '',
+          // fullDescription: REMOVED - not needed for list view, saves huge payload
           included: tour.included || '',
           notIncluded: tour.notIncluded || null,
           meetingPoint: tour.meetingPoint || null,
@@ -7025,22 +8604,50 @@ app.get('/api/public/tours', async (req, res) => {
           options: []
         };
       }
-    }).filter(tour => tour !== null && tour !== undefined); // Remove any null/undefined tours
+    });
+    
+    // Filter out null/undefined tours but log if we're losing tours
+    const beforeFilter = formattedTours.length;
+    formattedTours = formattedTours.filter(tour => tour !== null && tour !== undefined);
+    if (beforeFilter !== formattedTours.length) {
+      console.warn(`   ⚠️  Filtered out ${beforeFilter - formattedTours.length} null/undefined tours`);
+    }
 
     console.log(`   ✅ Formatted ${formattedTours.length} tours successfully`);
+    
+    // CRITICAL CHECK: If we had tours but formattedTours is empty, something went wrong
+    if (tours.length > 0 && formattedTours.length === 0) {
+      console.error(`   ❌ CRITICAL: Had ${tours.length} tours but formattedTours is empty!`);
+      console.error(`   This means all tours failed formatting. Check errors above.`);
+    }
 
     // Log options statistics
     const toursWithOptions = formattedTours.filter(t => t.options && t.options.length > 0).length;
     const toursWithoutOptions = formattedTours.length - toursWithOptions;
     console.log(`   📊 Tours with options: ${toursWithOptions}, without options: ${toursWithoutOptions}`);
     console.log(`   📤 Returning ${formattedTours.length} tours to frontend`);
+    
+    // Final safety check
+    if (!Array.isArray(formattedTours)) {
+      console.error(`   ❌ formattedTours is not an array! Type: ${typeof formattedTours}`);
+      formattedTours = [];
+    }
+    console.log(`   ✅ Response will include:`, {
+      success: true,
+      toursCount: formattedTours?.length || 0,
+      hasTours: (formattedTours?.length || 0) > 0
+    });
 
     // Ensure we always return an array, even if empty
-    res.json({
+    const response = {
       success: true,
       tours: formattedTours || [],
       count: formattedTours?.length || 0
-    });
+    };
+    
+    const responseTime = Date.now() - startTime;
+    console.log(`   📤 Sending response with ${response.tours.length} tours (took ${responseTime}ms)`);
+    res.json(response);
   } catch (error) {
     console.error('❌ Get public tours error:', error);
     console.error('   Error message:', error.message);
@@ -7182,6 +8789,48 @@ app.get('/api/public/tours/by-slug/:slug', async (req, res) => {
         id: String(tour.supplier.id)
       };
     }
+
+    // CRITICAL: Log pricing data being sent to frontend
+    console.log('═══════════════════════════════════════════════════════════');
+    console.log('📤 API RESPONSE - PRICING DATA (by-slug)');
+    console.log('═══════════════════════════════════════════════════════════');
+    console.log('Tour ID:', formattedTour.id);
+    console.log('Tour Title:', formattedTour.title);
+    console.log('pricePerPerson:', formattedTour.pricePerPerson);
+    console.log('Options count:', formattedTour.options?.length || 0);
+    
+    // Check if main tour has groupPricingTiers directly (from database)
+    if (tour.groupPricingTiers) {
+      console.log('📊 Main tour has groupPricingTiers directly:', {
+        type: typeof tour.groupPricingTiers,
+        preview: typeof tour.groupPricingTiers === 'string' 
+          ? tour.groupPricingTiers.substring(0, 200)
+          : JSON.stringify(tour.groupPricingTiers).substring(0, 200)
+      });
+    } else {
+      console.warn('⚠️ Main tour does NOT have groupPricingTiers directly');
+    }
+    
+    if (formattedTour.options && Array.isArray(formattedTour.options)) {
+      formattedTour.options.forEach((opt, idx) => {
+        console.log(`Option ${idx + 1}:`, {
+          id: opt.id,
+          title: opt.optionTitle,
+          sortOrder: opt.sortOrder,
+          price: opt.price,
+          hasGroupPricingTiers: !!opt.groupPricingTiers,
+          groupPricingTiersType: typeof opt.groupPricingTiers,
+          groupPricingTiersValue: opt.groupPricingTiers,
+          groupPricingTiersPreview: opt.groupPricingTiers 
+            ? (typeof opt.groupPricingTiers === 'string' 
+              ? opt.groupPricingTiers.substring(0, 200) 
+              : JSON.stringify(opt.groupPricingTiers).substring(0, 200))
+            : 'null',
+          allKeys: Object.keys(opt)
+        });
+      });
+    }
+    console.log('═══════════════════════════════════════════════════════════');
 
     res.json({
       success: true,

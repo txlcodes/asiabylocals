@@ -24,12 +24,30 @@ model Supplier {
   phone                    String? // Guide's phone number
   whatsapp                 String? // Guide's WhatsApp number
   verificationDocumentUrl  String?   @map("verification_document_url")
+  certificates             String?   @map("certificates") // JSON array of certificate URLs (4-5 certificates)
   emailVerified            Boolean   @default(false) @map("email_verified")
   emailVerificationToken   String?   @map("email_verification_token")
   emailVerificationExpires DateTime? @map("email_verification_expires")
   status                   String    @default("pending")
   createdAt                DateTime  @default(now()) @map("created_at")
   updatedAt                DateTime  @updatedAt @map("updated_at")
+  
+  // Payment Details
+  paymentMethod            String?   @map("payment_method") // "bank_transfer", "paypal", "credit_card", "upi"
+  paymentMethodDetails     String?   @map("payment_method_details") // JSON string with method-specific details
+  paymentCurrency          String?   @map("payment_currency") // Currency for payouts (INR, USD, etc.)
+  paymentFrequency         String    @default("monthly") @map("payment_frequency") // "monthly", "biweekly"
+  
+  // Tax Details (Optional)
+  taxId                    String?   @map("tax_id") // GSTIN, PAN, VAT number, etc.
+  taxIdType                String?   @map("tax_id_type") // "GSTIN", "PAN", "VAT", "EIN", etc.
+  taxCountry               String?   @map("tax_country") // Country of tax registration
+  taxVerified              Boolean   @default(false) @map("tax_verified")
+  
+  // Payment Status
+  paymentDetailsVerified   Boolean   @default(false) @map("payment_details_verified")
+  paymentDetailsVerifiedAt DateTime? @map("payment_details_verified_at")
+  
   tours                    Tour[]
   bookings                 Booking[]
 
@@ -64,6 +82,11 @@ model Tour {
   reviews          String? // JSON array of fake reviews
   status           String       @default("draft")
   rejectionReason  String?      @map("rejection_reason")
+  maxGroupSize          Int?         @map("max_group_size") // Maximum number of people guide can handle
+  groupPrice            Float?       @map("group_price") // Single price for max group size
+  groupPricingTiers     String?      @map("group_pricing_tiers") // JSON array of {minPeople, maxPeople, price} objects for tiered group pricing
+  unavailableDates     String?      @map("unavailable_dates") // Legacy - JSON array of dates guide is not available (ISO date strings)
+  unavailableDaysOfWeek String?     @map("unavailable_days_of_week") // JSON array of days of week guide is not available (0=Sunday, 1=Monday, ..., 6=Saturday)
   createdAt        DateTime     @default(now()) @map("created_at")
   updatedAt        DateTime     @updatedAt @map("updated_at")
   approvedAt       DateTime?    @map("approved_at")
@@ -167,4 +190,22 @@ model Tourist {
 
   @@index([email])
   @@map("tourists")
+}
+
+model EmailSubscription {
+  id               Int       @id @default(autoincrement())
+  email            String
+  city             String?   // City name (e.g., "Agra", "Delhi", "Jaipur")
+  country          String?   // Country name (e.g., "India")
+  subscriptionType String    @default("itinerary") // "itinerary" or "newsletter"
+  verified         Boolean   @default(false)
+  verificationToken String?  @map("verification_token")
+  verifiedAt       DateTime? @map("verified_at")
+  createdAt        DateTime  @default(now()) @map("created_at")
+  updatedAt        DateTime  @updatedAt @map("updated_at")
+
+  @@unique([email, city, subscriptionType])
+  @@index([email])
+  @@index([city])
+  @@map("email_subscriptions")
 }

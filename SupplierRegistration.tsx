@@ -85,6 +85,8 @@ const SupplierRegistration: React.FC<SupplierRegistrationProps> = ({ language = 
   const [supplierId, setSupplierId] = useState<string | null>(null);
   const [verificationDocument, setVerificationDocument] = useState<File | null>(null);
   const [documentPreview, setDocumentPreview] = useState<string | null>(null);
+  const [certificates, setCertificates] = useState<File[]>([]);
+  const [certificatePreviews, setCertificatePreviews] = useState<string[]>([]);
   const pollingIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
   // Updated flow: License upload (step 4) BEFORE account creation (step 5)
@@ -122,7 +124,8 @@ const SupplierRegistration: React.FC<SupplierRegistrationProps> = ({ language = 
         nextStep();
       }
     } else if (step === ((selectedBusinessType === 'company' || selectedBusinessType === 'individual' || selectedBusinessType === 'other') ? 4 : 3)) {
-      // License upload step - validate document is uploaded before proceeding
+      // License upload step - validate license document is uploaded before proceeding
+      // Certificates are optional (can add 0-5)
       if (verificationDocument) {
         nextStep();
       } else {
@@ -150,32 +153,44 @@ const SupplierRegistration: React.FC<SupplierRegistrationProps> = ({ language = 
     } else if (step < maxSteps) {
       nextStep();
     } else {
-      // Final step - submit license document only (registration already done)
+      // Final step - submit license document and certificates (registration already done)
       setIsSubmitting(true);
       
-      // Upload license document and update supplier
+      // Upload license document and certificates
       if (verificationDocument && supplierId) {
-        console.log('📄 Uploading document:', verificationDocument.name, 'Size:', verificationDocument.size);
+        console.log('📄 Uploading license document:', verificationDocument.name, 'Size:', verificationDocument.size);
+        console.log('📄 Uploading certificates:', certificates.length);
         
-        const reader = new FileReader();
-        reader.onloadend = async () => {
+        // Read license document
+        const licenseReader = new FileReader();
+        licenseReader.onloadend = async () => {
           try {
-            const documentUrl = reader.result as string;
+            const licenseUrl = licenseReader.result as string;
             
-            // Check if base64 data is too large (warn if > 5MB)
-            if (documentUrl.length > 5 * 1024 * 1024) {
-              console.warn('⚠️ Document is large:', documentUrl.length, 'bytes');
-            }
+            // Read all certificates
+            const certificatePromises = certificates.map((cert) => {
+              return new Promise<string>((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onloadend = () => resolve(reader.result as string);
+                reader.onerror = reject;
+                reader.readAsDataURL(cert);
+              });
+            });
             
-            console.log('📤 Sending document to server...');
+            const certificateUrls = await Promise.all(certificatePromises);
             
-            // Update supplier with license document
+            console.log('📤 Sending documents to server...');
+            
+            // Update supplier with license document and certificates
             const response = await fetch(`${API_URL}/api/suppliers/${supplierId}/update-document`, {
               method: 'PATCH',
               headers: {
                 'Content-Type': 'application/json',
               },
-              body: JSON.stringify({ verificationDocumentUrl: documentUrl }),
+              body: JSON.stringify({ 
+                verificationDocumentUrl: licenseUrl,
+                certificates: certificateUrls.length > 0 ? JSON.stringify(certificateUrls) : null
+              }),
             });
             
             const data = await response.json();
@@ -184,26 +199,26 @@ const SupplierRegistration: React.FC<SupplierRegistrationProps> = ({ language = 
             setIsSubmitting(false);
             
             if (data.success) {
-              console.log('✅ Document uploaded successfully!');
+              console.log('✅ Documents uploaded successfully!');
               setIsSuccess(true);
             } else {
               console.error('❌ Upload failed:', data);
-              alert(data.error || data.message || 'Failed to upload document. Please try again.');
+              alert(data.error || data.message || 'Failed to upload documents. Please try again.');
             }
           } catch (error) {
             console.error('❌ Document upload error:', error);
             setIsSubmitting(false);
-            alert('Failed to upload document. Please check your connection and try again.');
+            alert('Failed to upload documents. Check your connection and try again.');
           }
         };
         
-        reader.onerror = () => {
+        licenseReader.onerror = () => {
           console.error('❌ FileReader error');
           setIsSubmitting(false);
           alert('Failed to read document. Please try again.');
         };
         
-        reader.readAsDataURL(verificationDocument);
+        licenseReader.readAsDataURL(verificationDocument);
       } else {
         // No document, just mark as complete
         console.log('⚠️ No document provided, marking as complete');
@@ -1059,6 +1074,97 @@ const SupplierRegistration: React.FC<SupplierRegistrationProps> = ({ language = 
                     <img src={documentPreview} alt="Document preview" className="max-w-full h-auto rounded-lg border-2 border-gray-200" />
                   </div>
                 )}
+
+                {/* Certificates Upload Section */}
+                <div className="mt-8 pt-6 border-t border-gray-200">
+                  <div className="mb-4">
+                    <h4 className="text-lg font-black text-[#001A33] mb-1">Additional Certificates (Optional)</h4>
+                    <p className="text-[12px] text-gray-500 font-semibold">
+                      You can upload up to 5 additional certificates (training certificates, awards, etc.) to strengthen your profile.
+                    </p>
+                  </div>
+                  
+                  <div className="space-y-3">
+                    {certificates.map((cert, index) => (
+                      <div key={index} className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl border border-gray-200">
+                        <CheckCircle2 className="text-[#10B981] flex-shrink-0" size={20} />
+                        <span className="flex-1 text-[13px] font-bold text-[#001A33] truncate">{cert.name}</span>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const newCerts = certificates.filter((_, i) => i !== index);
+                            const newPreviews = certificatePreviews.filter((_, i) => i !== index);
+                            setCertificates(newCerts);
+                            setCertificatePreviews(newPreviews);
+                          }}
+                          className="text-red-500 hover:text-red-700 text-[12px] font-bold"
+                        >
+                          Remove
+                        </button>
+                      </div>
+                    ))}
+                    
+                    {certificates.length < 5 && (
+                      <div>
+                        <input
+                          type="file"
+                          accept=".pdf,.jpg,.jpeg,.png"
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (file) {
+                              // Check file size (10MB max)
+                              if (file.size > 10 * 1024 * 1024) {
+                                alert('File size must be less than 10MB');
+                                return;
+                              }
+                              // Check file type
+                              const validTypes = ['application/pdf', 'image/jpeg', 'image/jpg', 'image/png'];
+                              if (!validTypes.includes(file.type)) {
+                                alert('Please upload a PDF, JPG, or PNG file');
+                                return;
+                              }
+                              // Check if already at max
+                              if (certificates.length >= 5) {
+                                alert('Maximum 5 certificates allowed');
+                                return;
+                              }
+                              setCertificates([...certificates, file]);
+                              // Create preview for images
+                              if (file.type.startsWith('image/')) {
+                                const reader = new FileReader();
+                                reader.onload = (e) => {
+                                  setCertificatePreviews([...certificatePreviews, e.target?.result as string]);
+                                };
+                                reader.readAsDataURL(file);
+                              } else {
+                                setCertificatePreviews([...certificatePreviews, '']);
+                              }
+                              // Reset input
+                              e.target.value = '';
+                            }
+                          }}
+                          className="hidden"
+                          id={`certificate-upload-${certificates.length}`}
+                        />
+                        <label
+                          htmlFor={`certificate-upload-${certificates.length}`}
+                          className="flex items-center justify-center gap-2 w-full py-3 border-2 border-dashed border-gray-300 rounded-xl cursor-pointer bg-gray-50 hover:bg-gray-100 transition-colors"
+                        >
+                          <Upload className="text-gray-400" size={20} />
+                          <span className="text-[13px] font-bold text-[#001A33]">
+                            Add Certificate ({certificates.length}/5)
+                          </span>
+                        </label>
+                      </div>
+                    )}
+                    
+                    {certificates.length >= 5 && (
+                      <p className="text-[12px] text-gray-500 font-semibold text-center">
+                        Maximum 5 certificates reached
+                      </p>
+                    )}
+                  </div>
+                </div>
               </div>
             )}
 

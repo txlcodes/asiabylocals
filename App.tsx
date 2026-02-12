@@ -28,6 +28,8 @@ import AdminDashboard from './AdminDashboard';
 import SafetyGuidelines from './SafetyGuidelines';
 import PrivacyPolicy from './PrivacyPolicy';
 import TermsAndConditions from './TermsAndConditions';
+import SupportPage from './SupportPage';
+import AboutUs from './AboutUs';
 import TouristLogin from './TouristLogin';
 import TouristSignup from './TouristSignup';
 
@@ -216,17 +218,25 @@ const App: React.FC = () => {
   const [showTouristLogin, setShowTouristLogin] = useState(false);
   const [showTouristSignup, setShowTouristSignup] = useState(false);
   const [pendingWishlistTour, setPendingWishlistTour] = useState<any>(null);
-<<<<<<< Updated upstream
-  
-  // Focus cities: Agra, Delhi, Jaipur (India)
-=======
 
   // Focus cities: Agra, Delhi, Jaipur, and other Indian cities
->>>>>>> Stashed changes
   const focusCities = [
     { name: 'Agra', country: 'India', slug: 'agra' },
     { name: 'Delhi', country: 'India', slug: 'delhi' },
-    { name: 'Jaipur', country: 'India', slug: 'jaipur' }
+    { name: 'Jaipur', country: 'India', slug: 'jaipur' },
+    { name: 'Jodhpur', country: 'India', slug: 'jodhpur' },
+    { name: 'Bikaner', country: 'India', slug: 'bikaner' },
+    { name: 'Mathura', country: 'India', slug: 'mathura' },
+    { name: 'Varanasi', country: 'India', slug: 'varanasi' },
+    { name: 'Khajuraho', country: 'India', slug: 'khajuraho' },
+    { name: 'Gwalior', country: 'India', slug: 'gwalior' },
+    { name: 'Mumbai', country: 'India', slug: 'mumbai' },
+    { name: 'Aurangabad', country: 'India', slug: 'aurangabad' },
+    { name: 'Goa', country: 'India', slug: 'goa' },
+    { name: 'Mysore', country: 'India', slug: 'mysore' },
+    { name: 'Bengaluru', country: 'India', slug: 'bengaluru' },
+    { name: 'Udaipur', country: 'India', slug: 'udaipur' },
+    { name: 'Jaisalmer', country: 'India', slug: 'jaisalmer' }
   ];
 
   // Filter suggestions based on search query
@@ -405,13 +415,9 @@ const App: React.FC = () => {
   const isSafetyGuidelinesPage = window.location.pathname === '/safety-guidelines';
   const isPrivacyPolicyPage = window.location.pathname === '/privacy-policy';
   const isTermsAndConditionsPage = window.location.pathname === '/terms-and-conditions';
-<<<<<<< Updated upstream
-  
-=======
   const isSupportPage = window.location.pathname === '/support';
   const isAboutUsPage = window.location.pathname === '/about-us' || window.location.pathname === '/about';
 
->>>>>>> Stashed changes
   // Check for city page: /india/agra, /thailand/bangkok, etc.
   const cityPageMatch = window.location.pathname.match(/^\/([^\/]+)\/([^\/]+)$/);
   const countrySlug = cityPageMatch ? cityPageMatch[1] : null;
@@ -450,7 +456,17 @@ const App: React.FC = () => {
       'agra': { country: 'india', city: 'agra' },
       'delhi': { country: 'india', city: 'delhi' },
       'jaipur': { country: 'india', city: 'jaipur' },
+      'jodhpur': { country: 'india', city: 'jodhpur' },
+      'bikaner': { country: 'india', city: 'bikaner' },
+      'mathura': { country: 'india', city: 'mathura' },
+      'varanasi': { country: 'india', city: 'varanasi' },
+      'khajuraho': { country: 'india', city: 'khajuraho' },
+      'gwalior': { country: 'india', city: 'gwalior' },
       'mumbai': { country: 'india', city: 'mumbai' },
+      'aurangabad': { country: 'india', city: 'aurangabad' },
+      'goa': { country: 'india', city: 'goa' },
+      'mysore': { country: 'india', city: 'mysore' },
+      'bengaluru': { country: 'india', city: 'bengaluru' },
       'tokyo': { country: 'japan', city: 'tokyo' },
       'kyoto': { country: 'japan', city: 'kyoto' },
       'osaka': { country: 'japan', city: 'osaka' },
@@ -581,6 +597,16 @@ const App: React.FC = () => {
     return <TermsAndConditions />;
   }
 
+  // Show Support page
+  if (isSupportPage) {
+    return <SupportPage />;
+  }
+
+  // Show About Us page
+  if (isAboutUsPage) {
+    return <AboutUs />;
+  }
+
   // Show tour detail page (SEO-friendly URL: /country/city/slug)
   if (tourPageMatch && tourSlug) {
     console.log('App.tsx - Routing to TourDetailPage', {
@@ -605,7 +631,13 @@ const App: React.FC = () => {
 
   // Show tour detail page (legacy ID route: /tour/:id)
   if (tourId) {
-    return <TourDetailPage tourId={tourId} onClose={() => window.history.back()} />;
+    return <TourDetailPage tourId={tourId} onClose={() => {
+      if (window.history.length > 1) {
+        window.history.back();
+      } else {
+        window.location.href = '/';
+      }
+    }} />;
   }
 
   // Show city page (SEO-friendly URL: /country/city)
@@ -653,13 +685,9 @@ const App: React.FC = () => {
     <div className="flex flex-col min-h-screen">
       {/* Header Navigation */}
       <header className="sticky top-0 z-50 bg-white border-b border-gray-100 shadow-sm">
-        <div className="w-full pt-2 pb-1 flex items-center justify-between px-3 sm:px-4 md:px-6">
-          <div className="flex items-center gap-3">
+        <div className="w-full h-16 sm:h-20 md:h-24 flex items-center justify-between px-3 sm:px-4 md:px-6">
+          <div className="flex items-center gap-3 h-full">
             {/* Logo */}
-<<<<<<< Updated upstream
-            <div className="flex items-center cursor-pointer mt-2 md:mt-3">
-              <img src="/logo.svg?v=4" alt="Asia By Locals" className="h-[60px] sm:h-[70px] md:h-[80px] lg:h-[96px] xl:h-[115px] w-auto object-contain" />
-=======
             <div className="cursor-pointer">
               <img
                 src="/logo.png"
@@ -667,7 +695,6 @@ const App: React.FC = () => {
                 className="h-[90px] sm:h-[85px] md:h-[95px] lg:h-[105px] xl:h-[115px] w-auto object-contain"
                 style={{ transform: 'translateY(3px)' }}
               />
->>>>>>> Stashed changes
             </div>
 
             {/* Nav Links */}
@@ -804,12 +831,6 @@ const App: React.FC = () => {
           </div>
 
           <div className="flex items-center gap-2 sm:gap-3 md:gap-4 lg:gap-6 text-[13px] font-semibold text-[#001A33]">
-            <button 
-              onClick={() => setShowSupplierPage(true)}
-              className="text-[12px] sm:text-[13px] hover:text-[#10B981] whitespace-nowrap px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg hover:bg-gray-50 transition-colors"
-            >
-              Become a supplier
-            </button>
             <div className="flex items-center gap-2 sm:gap-3 md:gap-4 lg:gap-5">
               <button
                 onClick={() => setShowCartModal(true)}
@@ -878,8 +899,8 @@ const App: React.FC = () => {
           </button>
         </div>
 
-        {/* City Chips Row - Scrollable */}
-        <div className="px-3 sm:px-4 pb-3 overflow-x-auto scroll-smooth scrollbar-hide" style={{ WebkitOverflowScrolling: 'touch' }}>
+        {/* City Chips Row - Scrollable - Hidden on mobile */}
+        <div className="hidden md:block px-3 sm:px-4 pb-3 overflow-x-auto scroll-smooth scrollbar-hide" style={{ WebkitOverflowScrolling: 'touch' }}>
           <div className="flex items-center gap-2 min-w-max">
             {CITIES.slice(0, 12).map((city) => {
               const url = getCityUrl(city.name, city.id);
@@ -1118,17 +1139,10 @@ const App: React.FC = () => {
       </div>
 
       {/* Hero Section */}
-      <section className="relative h-[50vh] min-h-[400px] sm:h-[55vh] sm:min-h-[450px] md:h-[60vh] md:min-h-[500px] lg:h-[70vh] lg:min-h-[600px] xl:h-[750px] flex items-center justify-center overflow-hidden">
+      <section className="relative h-screen flex items-center justify-center overflow-hidden">
         {heroImages.map((hero, index) => (
           <img
             key={index}
-<<<<<<< Updated upstream
-            src={hero.url} 
-            alt={`${hero.city} - Authentic local tours and cultural experiences in ${hero.city}, Asia`} 
-            className={`absolute inset-0 w-full h-full object-cover brightness-[0.7] transition-opacity duration-1000 ${
-              index === currentImageIndex ? 'opacity-100 z-0' : 'opacity-0 z-0'
-            }`}
-=======
             src={hero.url}
             alt={`${hero.city} - Authentic local tours and cultural experiences in ${hero.city}, Asia`}
             className={`absolute inset-0 w-full h-full object-cover object-center brightness-[0.7] transition-opacity duration-1000 ${index === currentImageIndex ? 'opacity-100 z-0' : 'opacity-0 z-0'
@@ -1139,7 +1153,6 @@ const App: React.FC = () => {
               objectFit: 'cover',
               objectPosition: 'center'
             }}
->>>>>>> Stashed changes
             loading={index === 0 ? 'eager' : 'lazy'}
           />
         ))}
@@ -1166,11 +1179,7 @@ const App: React.FC = () => {
                   }
                 }}
                 onFocus={() => setShowSuggestions(searchQuery.length > 0)}
-<<<<<<< Updated upstream
-                placeholder="Search Agra, Delhi, Jaipur..." 
-=======
                 placeholder="Search cities..."
->>>>>>> Stashed changes
                 className="flex-1 outline-none border-none ring-0 focus:ring-0 focus:border-none bg-transparent text-[#001A33] font-bold text-sm sm:text-base md:text-lg placeholder:text-gray-400 placeholder:font-medium min-w-0"
               />
 
@@ -1205,7 +1214,7 @@ const App: React.FC = () => {
 
       <main className="flex-1">
         {/* Row 1: Things to do wherever you're going */}
-        <section className="max-w-[1200px] mx-auto px-4 sm:px-6 pt-8 sm:pt-12 md:pt-16 pb-8 sm:pb-12 md:pb-16">
+        <section className="max-w-[1200px] mx-auto px-4 sm:px-6 pt-4 sm:pt-6 md:pt-8 pb-8 sm:pb-12 md:pb-16">
           <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-[28px] font-black text-[#001A33] mb-6 sm:mb-8">
             Things to do wherever you're going
           </h2>
@@ -1379,11 +1388,7 @@ const App: React.FC = () => {
             <div>
               <h5 className="font-black text-xs uppercase tracking-widest text-gray-500 mb-8">Support</h5>
               <ul className="space-y-4 text-sm font-bold text-gray-400">
-                <li className="mb-4">
-                  <div className="text-white mb-2">24/7 WhatsApp Support:</div>
-                  <a href="https://wa.me/918449538716" target="_blank" rel="noopener noreferrer" className="text-[#10B981] hover:text-white block mb-1">+91 84495 38716</a>
-                  <a href="https://wa.me/919897873562" target="_blank" rel="noopener noreferrer" className="text-[#10B981] hover:text-white block">+91 98978 73562</a>
-                </li>
+                <li onClick={() => window.location.href = '/support'} className="hover:text-white cursor-pointer">Support</li>
                 <li onClick={() => window.location.href = '/safety-guidelines'} className="hover:text-white cursor-pointer">Safety Guidelines</li>
                 <li onClick={() => window.location.href = '/privacy-policy'} className="hover:text-white cursor-pointer">Privacy Policy</li>
                 <li onClick={() => window.location.href = '/terms-and-conditions'} className="hover:text-white cursor-pointer">Terms & Conditions</li>
@@ -1393,9 +1398,6 @@ const App: React.FC = () => {
             <div>
               <h5 className="font-black text-xs uppercase tracking-widest text-gray-500 mb-8">Company</h5>
               <ul className="space-y-4 text-sm font-bold text-gray-400">
-<<<<<<< Updated upstream
-                <li 
-=======
                 <li
                   onClick={() => window.location.href = '/about-us'}
                   className="hover:text-white cursor-pointer"
@@ -1403,7 +1405,6 @@ const App: React.FC = () => {
                   About Us
                 </li>
                 <li
->>>>>>> Stashed changes
                   onClick={() => setShowSupplierPage(true)}
                   className="hover:text-white cursor-pointer"
                 >
@@ -1416,13 +1417,6 @@ const App: React.FC = () => {
           <div className="pt-10 border-t border-white/5">
             <div className="flex flex-col md:flex-row justify-between items-center gap-8 text-[11px] font-black uppercase tracking-widest text-gray-500 mb-4">
               <span>&copy; 2025 AsiaByLocals HQ • Authentic Experiences Only</span>
-<<<<<<< Updated upstream
-              <div className="flex gap-4 items-center grayscale opacity-50">
-                <div className="bg-white/10 p-2 rounded">VISA</div>
-                <div className="bg-white/10 p-2 rounded">MASTERCARD</div>
-                <div className="bg-white/10 p-2 rounded">PAYPAL</div>
-                <div className="bg-white/10 p-2 rounded">STRIPE</div>
-=======
               <div className="flex flex-wrap gap-3 items-center justify-center">
                 <div className="bg-white px-3 py-2 rounded flex items-center justify-center h-8 min-w-[60px]">
                   <img
@@ -1480,7 +1474,6 @@ const App: React.FC = () => {
                     style={{ maxWidth: '50px' }}
                   />
                 </div>
->>>>>>> Stashed changes
               </div>
             </div>
             <div className="text-center text-gray-400 text-[12px] font-semibold">
@@ -1529,9 +1522,6 @@ const App: React.FC = () => {
                         <p className="text-sm text-gray-600 mb-2">{tour.city}, {tour.country}</p>
                         <div className="flex items-center justify-between">
                           <span className="font-black text-[#10B981]">
-<<<<<<< Updated upstream
-                            {tour.currency === 'INR' ? '₹' : '$'}{tour.pricePerPerson?.toLocaleString() || '0'} per person
-=======
                             {(() => {
                               // Get price from first tier of groupPricingTiers (price for 1 person)
                               let displayPrice = 0;
@@ -1578,7 +1568,6 @@ const App: React.FC = () => {
 
                               return `Starting from ${tour.currency === 'INR' ? '₹' : '$'}${displayPrice.toLocaleString()}`;
                             })()}
->>>>>>> Stashed changes
                           </span>
                           <div className="flex gap-2">
                             <button
@@ -1644,9 +1633,6 @@ const App: React.FC = () => {
                         <p className="text-sm text-gray-600 mb-2">{tour.city}, {tour.country}</p>
                         <div className="flex items-center justify-between">
                           <span className="font-black text-[#10B981]">
-<<<<<<< Updated upstream
-                            {tour.currency === 'INR' ? '₹' : '$'}{tour.pricePerPerson?.toLocaleString() || '0'} per person
-=======
                             {(() => {
                               // Get price from first tier of groupPricingTiers (price for 1 person)
                               let displayPrice = 0;
@@ -1693,7 +1679,6 @@ const App: React.FC = () => {
 
                               return `Starting from ${tour.currency === 'INR' ? '₹' : '$'}${displayPrice.toLocaleString()}`;
                             })()}
->>>>>>> Stashed changes
                           </span>
                           <div className="flex gap-2">
                             <button

@@ -113,14 +113,9 @@ const SupplierLogin: React.FC<SupplierLoginProps> = ({ onClose, onLoginSuccess, 
   return (
     <div className="min-h-screen bg-white flex flex-col">
       {/* Login Header */}
-      <header className="bg-[#001A33] text-white py-6 px-8 sticky top-0 z-50">
-        <div className="max-w-4xl mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <img 
-              src="/logo.jpeg" 
-              alt="AsiaByLocals" 
-              className="h-10 w-10 object-contain"
-            />
+      <header className="bg-[#001A33] text-white py-3 px-8 sticky top-0 z-50">
+        <div className="max-w-4xl mx-auto flex items-center justify-between h-16">
+          <div className="flex items-center h-full">
             <span className="font-black tracking-tight text-lg">Partner Login</span>
           </div>
           <button 

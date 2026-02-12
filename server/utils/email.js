@@ -1749,5 +1749,428 @@ The AsiaByLocals Team`
   }
 };
 
+/**
+ * Send itinerary verification email
+ * @param {string} email - Recipient email address
+ * @param {string} city - City name
+ * @param {string} verificationToken - Email verification token
+ * @returns {Promise<Object>}
+ */
+export const sendItineraryVerificationEmail = async (email, city, verificationToken) => {
+  // Check if email is configured
+  if (!resendApiKey && !sendGridApiKey && (!emailUser || !emailPassword)) {
+    const errorMsg = 'Email not configured. Please set RESEND_API_KEY (easiest), SENDGRID_API_KEY, or EMAIL_USER + EMAIL_APP_PASSWORD in Render environment variables.';
+    console.error('❌', errorMsg);
+    throw new Error(errorMsg);
+  }
+
+  // Validate email parameter
+  if (!email || typeof email !== 'string' || !email.includes('@')) {
+    console.error('❌ Invalid email address provided:', email);
+    throw new Error('Invalid email address');
+  }
+
+  console.log(`📧 Attempting to send itinerary verification email to: ${email}`);
+  console.log(`   City: ${city}`);
+
+  const fromEmail = (resendApiKey || sendGridApiKey) ? 'info@asiabylocals.com' : (emailUser || 'asiabylocals@gmail.com');
+  const serviceName = resendApiKey ? 'Resend' : (sendGridApiKey ? 'SendGrid' : 'Gmail SMTP');
+  
+  // URL encode the token to prevent issues with email clients modifying the URL
+  const encodedToken = encodeURIComponent(verificationToken);
+  const verificationUrl = `${process.env.FRONTEND_URL || process.env.VITE_FRONTEND_URL || 'http://localhost:3000'}/api/email/verify/${encodedToken}`;
+
+  // City-specific content
+  const cityContent = {
+    'Agra': {
+      highlights: 'Taj Mahal sunrise visit, Agra Fort exploration, local markets, authentic Mughlai cuisine',
+      icon: '🏛️'
+    },
+    'Delhi': {
+      highlights: 'Red Fort tour, Old Delhi heritage walk, street food experience, Qutub Minar visit',
+      icon: '🏰'
+    },
+    'Jaipur': {
+      highlights: 'City Palace tour, Hawa Mahal visit, Amber Fort exploration, traditional Rajasthani markets',
+      icon: '🕌'
+    }
+  };
+
+  const cityInfo = cityContent[city] || {
+    highlights: 'iconic landmarks, local experiences, authentic cuisine',
+    icon: '✈️'
+  };
+
+  const mailOptions = {
+    from: `"AsiaByLocals" <${fromEmail}>`,
+    to: email,
+    subject: `Your ${city} Itinerary is Waiting - Verify Your Email`,
+    html: `
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <meta charset="utf-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>Verify Your Email</title>
+        </head>
+        <body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #f5f5f5;">
+          <table role="presentation" style="width: 100%; border-collapse: collapse; background-color: #f5f5f5;">
+            <tr>
+              <td align="center" style="padding: 40px 20px;">
+                <table role="presentation" style="width: 100%; max-width: 600px; background-color: #ffffff; border-collapse: collapse; border-radius: 8px; overflow: hidden;">
+                  <!-- Header -->
+                  <tr>
+                    <td style="padding: 40px 40px 30px 40px; text-align: center; background-color: #10B981;">
+                      <div style="font-size: 48px; margin-bottom: 20px;">${cityInfo.icon}</div>
+                      <h1 style="margin: 0; font-size: 28px; font-weight: 800; color: #ffffff; letter-spacing: -0.5px; line-height: 1.2;">
+                        Your ${city} Itinerary is Waiting!
+                      </h1>
+                    </td>
+                  </tr>
+                  
+                  <!-- Body Content -->
+                  <tr>
+                    <td style="padding: 40px;">
+                      <p style="margin: 0 0 20px 0; font-size: 16px; line-height: 1.6; color: #001A33;">
+                        Thank you for signing up! We're excited to share a curated 48-hour itinerary featuring the most iconic experiences in ${city}.
+                      </p>
+                      
+                      <p style="margin: 0 0 30px 0; font-size: 16px; line-height: 1.6; color: #001A33;">
+                        Your itinerary will include:
+                      </p>
+                      
+                      <ul style="margin: 0 0 30px 0; padding-left: 20px; font-size: 16px; line-height: 1.8; color: #001A33;">
+                        <li style="margin-bottom: 10px;">${cityInfo.highlights}</li>
+                        <li style="margin-bottom: 10px;">Best times to visit each attraction</li>
+                        <li style="margin-bottom: 10px;">Local dining recommendations</li>
+                        <li style="margin-bottom: 10px;">Hidden gems and insider tips</li>
+                      </ul>
+                      
+                      <div style="text-align: center; margin: 40px 0;">
+                        <a href="${verificationUrl}" style="display: inline-block; padding: 16px 32px; background-color: #10B981; color: #ffffff; text-decoration: none; border-radius: 8px; font-weight: 700; font-size: 16px;">
+                          Verify Your Email
+                        </a>
+                      </div>
+                      
+                      <p style="margin: 30px 0 0 0; font-size: 14px; line-height: 1.6; color: #666;">
+                        If the button doesn't work, copy and paste this link into your browser:<br>
+                        <a href="${verificationUrl}" style="color: #10B981; word-break: break-all;">${verificationUrl}</a>
+                      </p>
+                    </td>
+                  </tr>
+                  
+                  <!-- Footer -->
+                  <tr>
+                    <td style="background-color: #001A33; padding: 30px; text-align: center;">
+                      <p style="margin: 0 0 10px 0; font-size: 14px; color: #ffffff; opacity: 0.8;">
+                        © ${new Date().getFullYear()} AsiaByLocals. All rights reserved.
+                      </p>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+          </table>
+        </body>
+      </html>
+    `,
+    text: `Your ${city} Itinerary is Waiting!
+
+Thank you for signing up! We're excited to share a curated 48-hour itinerary featuring the most iconic experiences in ${city}.
+
+Your itinerary will include:
+- ${cityInfo.highlights}
+- Best times to visit each attraction
+- Local dining recommendations
+- Hidden gems and insider tips
+
+Verify your email to receive your itinerary:
+${verificationUrl}
+
+© ${new Date().getFullYear()} AsiaByLocals. All rights reserved.`
+  };
+
+  try {
+    if (resendClient) {
+      console.log(`📧 Sending itinerary verification email via Resend SDK`);
+      const result = await resendClient.emails.send({
+        from: `AsiaByLocals <${fromEmail}>`,
+        to: email,
+        subject: `Your ${city} Itinerary is Waiting - Verify Your Email`,
+        html: mailOptions.html,
+        text: mailOptions.text
+      });
+      
+      if (result.error) {
+        console.error(`❌ Resend API Error:`, result.error);
+        throw new Error(`Resend API Error: ${JSON.stringify(result.error)}`);
+      }
+      
+      console.log(`✅ Itinerary verification email sent successfully`);
+      return { success: true, messageId: result.data?.id };
+    }
+    
+    const info = await transporter.sendMail(mailOptions);
+    console.log(`✅ Itinerary verification email sent successfully`);
+    return { success: true, messageId: info.messageId };
+  } catch (error) {
+    console.error(`❌ Error sending itinerary verification email:`, error);
+    throw error;
+  }
+};
+
+/**
+ * Send itinerary welcome email with actual itinerary content
+ * @param {string} email - Recipient email address
+ * @param {string} city - City name
+ * @returns {Promise<Object>}
+ */
+export const sendItineraryWelcomeEmail = async (email, city) => {
+  // Check if email is configured
+  if (!resendApiKey && !sendGridApiKey && (!emailUser || !emailPassword)) {
+    const errorMsg = 'Email not configured. Please set RESEND_API_KEY (easiest), SENDGRID_API_KEY, or EMAIL_USER + EMAIL_APP_PASSWORD in Render environment variables.';
+    console.error('❌', errorMsg);
+    throw new Error(errorMsg);
+  }
+
+  // Validate email parameter
+  if (!email || typeof email !== 'string' || !email.includes('@')) {
+    console.error('❌ Invalid email address provided:', email);
+    throw new Error('Invalid email address');
+  }
+
+  console.log(`📧 Attempting to send itinerary welcome email to: ${email}`);
+  console.log(`   City: ${city}`);
+
+  const fromEmail = (resendApiKey || sendGridApiKey) ? 'info@asiabylocals.com' : (emailUser || 'asiabylocals@gmail.com');
+  
+  // City-specific itinerary content
+  const cityItineraries = {
+    'Agra': {
+      day1: {
+        morning: 'Taj Mahal Sunrise Visit (6:00 AM - 9:00 AM)\n- Arrive early to avoid crowds\n- Best lighting for photography\n- Guided tour of the monument',
+        afternoon: 'Agra Fort Exploration (10:00 AM - 1:00 PM)\n- Mughal architecture and history\n- Diwan-i-Aam and Diwan-i-Khas\n- Views of Taj Mahal from the fort',
+        evening: 'Local Markets & Lunch (1:00 PM - 4:00 PM)\n- Kinari Bazaar for handicrafts\n- Authentic Mughlai cuisine\n- Petha (local sweet) tasting'
+      },
+      day2: {
+        morning: 'Baby Taj (Itmad-ud-Daulah) Visit (9:00 AM - 11:00 AM)\n- Beautiful marble mausoleum\n- Less crowded alternative\n- Intricate carvings',
+        afternoon: 'Fatehpur Sikri Day Trip (12:00 PM - 5:00 PM)\n- UNESCO World Heritage Site\n- Buland Darwaza\n- Jama Masjid',
+        evening: 'Mehtab Bagh Sunset (5:30 PM - 7:00 PM)\n- Best view of Taj Mahal\n- Perfect sunset photography\n- Peaceful garden setting'
+      }
+    },
+    'Delhi': {
+      day1: {
+        morning: 'Red Fort & Jama Masjid (8:00 AM - 12:00 PM)\n- Mughal architecture\n- Historical significance\n- Old Delhi exploration',
+        afternoon: 'Old Delhi Heritage Walk (12:00 PM - 4:00 PM)\n- Chandni Chowk markets\n- Street food tour\n- Traditional shops',
+        evening: 'India Gate & Connaught Place (5:00 PM - 8:00 PM)\n- Evening stroll\n- Modern Delhi experience\n- Dinner at local restaurant'
+      },
+      day2: {
+        morning: 'Qutub Minar Complex (9:00 AM - 12:00 PM)\n- UNESCO World Heritage Site\n- Ancient architecture\n- Historical significance',
+        afternoon: 'Humayun\'s Tomb Visit (1:00 PM - 4:00 PM)\n- Mughal garden tomb\n- Beautiful architecture\n- Peaceful surroundings',
+        evening: 'Lotus Temple & Local Markets (5:00 PM - 8:00 PM)\n- Modern architecture\n- Local shopping\n- Cultural experience'
+      }
+    },
+    'Jaipur': {
+      day1: {
+        morning: 'City Palace & Jantar Mantar (9:00 AM - 1:00 PM)\n- Royal architecture\n- Astronomical instruments\n- Museum visit',
+        afternoon: 'Hawa Mahal & Local Markets (2:00 PM - 5:00 PM)\n- Palace of Winds\n- Bapu Bazaar shopping\n- Traditional crafts',
+        evening: 'Chokhi Dhani Cultural Village (6:00 PM - 10:00 PM)\n- Rajasthani culture\n- Traditional dinner\n- Folk performances'
+      },
+      day2: {
+        morning: 'Amber Fort Visit (8:00 AM - 12:00 PM)\n- Elephant ride or walk up\n- Palace complex\n- Stunning views',
+        afternoon: 'Jal Mahal & Nahargarh Fort (1:00 PM - 5:00 PM)\n- Water palace\n- Fort exploration\n- Panoramic city views',
+        evening: 'Albert Hall Museum & Local Dining (6:00 PM - 9:00 PM)\n- Museum visit\n- Traditional Rajasthani cuisine\n- Local restaurant experience'
+      }
+    }
+  };
+
+  const itinerary = cityItineraries[city] || {
+    day1: { morning: 'Explore iconic landmarks', afternoon: 'Local experiences', evening: 'Cultural activities' },
+    day2: { morning: 'Hidden gems', afternoon: 'Authentic dining', evening: 'Local markets' }
+  };
+
+  const mailOptions = {
+    from: `"AsiaByLocals" <${fromEmail}>`,
+    to: email,
+    subject: `Your ${city} 48-Hour Itinerary is Here!`,
+    html: `
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <meta charset="utf-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>Your ${city} Itinerary</title>
+        </head>
+        <body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #f5f5f5;">
+          <table role="presentation" style="width: 100%; border-collapse: collapse; background-color: #f5f5f5;">
+            <tr>
+              <td align="center" style="padding: 40px 20px;">
+                <table role="presentation" style="width: 100%; max-width: 600px; background-color: #ffffff; border-collapse: collapse; border-radius: 8px; overflow: hidden;">
+                  <!-- Header -->
+                  <tr>
+                    <td style="padding: 40px 40px 30px 40px; text-align: center; background-color: #10B981;">
+                      <h1 style="margin: 0; font-size: 28px; font-weight: 800; color: #ffffff; letter-spacing: -0.5px; line-height: 1.2;">
+                        Your ${city} Itinerary
+                      </h1>
+                      <p style="margin: 15px 0 0 0; font-size: 18px; color: #ffffff; opacity: 0.95;">
+                        48 Hours of Iconic Experiences
+                      </p>
+                    </td>
+                  </tr>
+                  
+                  <!-- Body Content -->
+                  <tr>
+                    <td style="padding: 40px;">
+                      <p style="margin: 0 0 30px 0; font-size: 16px; line-height: 1.6; color: #001A33;">
+                        Welcome! Here's your curated 48-hour itinerary for ${city}, featuring the most iconic experiences and hidden gems.
+                      </p>
+                      
+                      <!-- Day 1 -->
+                      <div style="background-color: #F0F9FF; border-radius: 8px; padding: 24px; margin-bottom: 24px; border-left: 4px solid #10B981;">
+                        <h2 style="margin: 0 0 20px 0; font-size: 22px; font-weight: 700; color: #001A33;">Day 1</h2>
+                        
+                        <div style="margin-bottom: 20px;">
+                          <h3 style="margin: 0 0 10px 0; font-size: 16px; font-weight: 600; color: #001A33;">🌅 Morning</h3>
+                          <p style="margin: 0; font-size: 14px; line-height: 1.8; color: #001A33; white-space: pre-line;">${itinerary.day1.morning}</p>
+                        </div>
+                        
+                        <div style="margin-bottom: 20px;">
+                          <h3 style="margin: 0 0 10px 0; font-size: 16px; font-weight: 600; color: #001A33;">☀️ Afternoon</h3>
+                          <p style="margin: 0; font-size: 14px; line-height: 1.8; color: #001A33; white-space: pre-line;">${itinerary.day1.afternoon}</p>
+                        </div>
+                        
+                        <div>
+                          <h3 style="margin: 0 0 10px 0; font-size: 16px; font-weight: 600; color: #001A33;">🌆 Evening</h3>
+                          <p style="margin: 0; font-size: 14px; line-height: 1.8; color: #001A33; white-space: pre-line;">${itinerary.day1.evening}</p>
+                        </div>
+                      </div>
+                      
+                      <!-- Day 2 -->
+                      <div style="background-color: #F0F9FF; border-radius: 8px; padding: 24px; margin-bottom: 30px; border-left: 4px solid #10B981;">
+                        <h2 style="margin: 0 0 20px 0; font-size: 22px; font-weight: 700; color: #001A33;">Day 2</h2>
+                        
+                        <div style="margin-bottom: 20px;">
+                          <h3 style="margin: 0 0 10px 0; font-size: 16px; font-weight: 600; color: #001A33;">🌅 Morning</h3>
+                          <p style="margin: 0; font-size: 14px; line-height: 1.8; color: #001A33; white-space: pre-line;">${itinerary.day2.morning}</p>
+                        </div>
+                        
+                        <div style="margin-bottom: 20px;">
+                          <h3 style="margin: 0 0 10px 0; font-size: 16px; font-weight: 600; color: #001A33;">☀️ Afternoon</h3>
+                          <p style="margin: 0; font-size: 14px; line-height: 1.8; color: #001A33; white-space: pre-line;">${itinerary.day2.afternoon}</p>
+                        </div>
+                        
+                        <div>
+                          <h3 style="margin: 0 0 10px 0; font-size: 16px; font-weight: 600; color: #001A33;">🌆 Evening</h3>
+                          <p style="margin: 0; font-size: 14px; line-height: 1.8; color: #001A33; white-space: pre-line;">${itinerary.day2.evening}</p>
+                        </div>
+                      </div>
+                      
+                      <div style="background-color: #FEF3C7; border-radius: 8px; padding: 20px; margin: 30px 0; border-left: 4px solid #F59E0B;">
+                        <p style="margin: 0 0 10px 0; font-size: 16px; font-weight: 600; color: #001A33;">
+                          💡 Pro Tips
+                        </p>
+                        <ul style="margin: 0; padding-left: 20px; font-size: 14px; line-height: 1.8; color: #001A33;">
+                          <li>Book tours in advance for popular attractions</li>
+                          <li>Start early to avoid crowds</li>
+                          <li>Carry cash for local markets</li>
+                          <li>Stay hydrated and wear comfortable shoes</li>
+                        </ul>
+                      </div>
+                      
+                      <div style="text-align: center; margin: 40px 0;">
+                        <a href="${process.env.FRONTEND_URL || 'https://www.asiabylocals.com'}/${city.toLowerCase()}" style="display: inline-block; padding: 16px 32px; background-color: #10B981; color: #ffffff; text-decoration: none; border-radius: 8px; font-weight: 700; font-size: 16px;">
+                          Book Tours in ${city}
+                        </a>
+                      </div>
+                      
+                      <p style="margin: 30px 0 0 0; font-size: 16px; line-height: 1.6; color: #001A33;">
+                        Happy travels!<br>
+                        <strong>The AsiaByLocals Team</strong>
+                      </p>
+                    </td>
+                  </tr>
+                  
+                  <!-- Footer -->
+                  <tr>
+                    <td style="background-color: #001A33; padding: 30px; text-align: center;">
+                      <p style="margin: 0 0 10px 0; font-size: 14px; color: #ffffff; opacity: 0.8;">
+                        © ${new Date().getFullYear()} AsiaByLocals. All rights reserved.
+                      </p>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+          </table>
+        </body>
+      </html>
+    `,
+    text: `Your ${city} 48-Hour Itinerary
+
+Welcome! Here's your curated 48-hour itinerary for ${city}.
+
+DAY 1
+Morning:
+${itinerary.day1.morning}
+
+Afternoon:
+${itinerary.day1.afternoon}
+
+Evening:
+${itinerary.day1.evening}
+
+DAY 2
+Morning:
+${itinerary.day2.morning}
+
+Afternoon:
+${itinerary.day2.afternoon}
+
+Evening:
+${itinerary.day2.evening}
+
+Pro Tips:
+- Book tours in advance for popular attractions
+- Start early to avoid crowds
+- Carry cash for local markets
+- Stay hydrated and wear comfortable shoes
+
+Book tours: ${process.env.FRONTEND_URL || 'https://www.asiabylocals.com'}/${city.toLowerCase()}
+
+Happy travels!
+The AsiaByLocals Team
+
+© ${new Date().getFullYear()} AsiaByLocals. All rights reserved.`
+  };
+
+  try {
+    if (resendClient) {
+      console.log(`📧 Sending itinerary welcome email via Resend SDK`);
+      const result = await resendClient.emails.send({
+        from: `AsiaByLocals <${fromEmail}>`,
+        to: email,
+        subject: `Your ${city} 48-Hour Itinerary is Here!`,
+        html: mailOptions.html,
+        text: mailOptions.text
+      });
+      
+      if (result.error) {
+        console.error(`❌ Resend API Error:`, result.error);
+        throw new Error(`Resend API Error: ${JSON.stringify(result.error)}`);
+      }
+      
+      console.log(`✅ Itinerary welcome email sent successfully`);
+      return { success: true, messageId: result.data?.id };
+    }
+    
+    const info = await transporter.sendMail(mailOptions);
+    console.log(`✅ Itinerary welcome email sent successfully`);
+    return { success: true, messageId: info.messageId };
+  } catch (error) {
+    console.error(`❌ Error sending itinerary welcome email:`, error);
+    throw error;
+  }
+};
+
 export default transporter;
 

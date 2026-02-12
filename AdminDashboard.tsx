@@ -1,13 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { CheckCircle2, XCircle, Clock, Eye, MapPin, Star, Calendar, Phone, MessageCircle, Mail, Info, User, Building2, X, LogOut, Trash2 } from 'lucide-react';
+import { CheckCircle2, XCircle, Clock, Eye, MapPin, Star, Calendar, Phone, MessageCircle, Mail, Info, User, Building2, X, LogOut, Trash2, DollarSign, CreditCard, Building, Wallet, Search, Filter, ShieldCheck, ChevronDown, ChevronUp } from 'lucide-react';
 import AdminLogin from './AdminLogin';
 
 const AdminDashboard: React.FC = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [activeTab, setActiveTab] = useState<'tours' | 'suppliers' | 'bookings'>('suppliers');
+  const [activeTab, setActiveTab] = useState<'tours' | 'suppliers' | 'bookings' | 'payments'>('suppliers');
   const [pendingTours, setPendingTours] = useState<any[]>([]);
   const [pendingSuppliers, setPendingSuppliers] = useState<any[]>([]);
+  const [approvedSuppliers, setApprovedSuppliers] = useState<any[]>([]);
   const [tourFilter, setTourFilter] = useState<'pending' | 'approved' | 'all'>('pending');
+  const [supplierFilter, setSupplierFilter] = useState<'pending' | 'approved' | 'all'>('pending');
   const [bookings, setBookings] = useState<any[]>([]);
   const [loading, setLoading] = useState(false); // Start as false, will be set to true when fetching
   const [loadingBookings, setLoadingBookings] = useState(false);
@@ -17,6 +19,17 @@ const AdminDashboard: React.FC = () => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [showLicenseModal, setShowLicenseModal] = useState(false);
   const [licenseUrl, setLicenseUrl] = useState<string | null>(null);
+  
+  // Payment Details State
+  const [suppliersWithPayments, setSuppliersWithPayments] = useState<any[]>([]);
+  const [loadingPayments, setLoadingPayments] = useState(false);
+  const [paymentSearchQuery, setPaymentSearchQuery] = useState('');
+  const [paymentFilter, setPaymentFilter] = useState<'all' | 'verified' | 'unverified' | 'no_details'>('all');
+  const [paymentMethodFilter, setPaymentMethodFilter] = useState<string>('all');
+  const [selectedPaymentSupplier, setSelectedPaymentSupplier] = useState<any>(null);
+  const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set());
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(50);
 
   // Check authentication on mount
   useEffect(() => {
@@ -64,16 +77,10 @@ const AdminDashboard: React.FC = () => {
       }
       console.log('Admin Dashboard - Fetching tours from:', url);
       
-      // Add timeout to prevent hanging
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
-      
+      // Simple fetch without AbortController to avoid cancellation issues
       const response = await fetch(url, {
-        headers: getAuthHeaders(),
-        signal: controller.signal
+        headers: getAuthHeaders()
       });
-      
-      clearTimeout(timeoutId);
       console.log('Admin Dashboard - Response status:', response.status);
       
       if (!response.ok) {
@@ -177,16 +184,10 @@ const AdminDashboard: React.FC = () => {
       const url = `${API_URL}/api/admin/suppliers/pending`;
       console.log('Admin Dashboard - Fetching suppliers from:', url);
       
-      // Add timeout to prevent hanging
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
-      
+      // Simple fetch without AbortController to avoid cancellation issues
       const response = await fetch(url, {
-        headers: getAuthHeaders(),
-        signal: controller.signal
+        headers: getAuthHeaders()
       });
-      
-      clearTimeout(timeoutId);
       console.log('Admin Dashboard - Response status:', response.status);
       
       if (!response.ok) {
@@ -238,20 +239,182 @@ const AdminDashboard: React.FC = () => {
     }
   };
 
+  const fetchApprovedSuppliers = async () => {
+    setLoading(true);
+    try {
+      const API_URL = import.meta.env.VITE_API_URL || (typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3001');
+      const url = `${API_URL}/api/suppliers?status=approved`;
+      console.log('Admin Dashboard - Fetching approved suppliers from:', url);
+      
+      const response = await fetch(url, {
+        headers: getAuthHeaders()
+      });
+      console.log('Admin Dashboard - Response status:', response.status);
+      
+      if (!response.ok) {
+        if (response.status === 401 || response.status === 403) {
+          localStorage.removeItem('admin');
+          setIsAuthenticated(false);
+          throw new Error('Authentication failed. Please log in again.');
+        }
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      console.log('Admin Dashboard - Approved Suppliers Response:', data);
+      
+      if (data.suppliers && Array.isArray(data.suppliers)) {
+        console.log('Admin Dashboard - Setting approved suppliers:', data.suppliers.length);
+        setApprovedSuppliers(data.suppliers);
+      } else {
+        console.error('Admin Dashboard - Invalid response format:', data);
+        setApprovedSuppliers([]);
+      }
+    } catch (error: any) {
+      console.error('❌ Error fetching approved suppliers:', error);
+      let errorMessage = 'Failed to load approved suppliers.';
+      if (error.name === 'AbortError') {
+        errorMessage = 'Request timed out. Please check your connection and try again.';
+      } else if (error.message?.includes('401') || error.message?.includes('403')) {
+        errorMessage = 'Authentication failed. Please log in again.';
+        localStorage.removeItem('admin');
+        setIsAuthenticated(false);
+      } else if (error.message?.includes('fetch')) {
+        errorMessage = 'Cannot connect to server. Please check your connection and try again.';
+      }
+      alert(errorMessage);
+      setApprovedSuppliers([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchAllSuppliers = async () => {
+    setLoading(true);
+    try {
+      const API_URL = import.meta.env.VITE_API_URL || (typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3001');
+      const url = `${API_URL}/api/suppliers`;
+      console.log('Admin Dashboard - Fetching all suppliers from:', url);
+      
+      const response = await fetch(url, {
+        headers: getAuthHeaders()
+      });
+      
+      if (!response.ok) {
+        if (response.status === 401 || response.status === 403) {
+          localStorage.removeItem('admin');
+          setIsAuthenticated(false);
+          throw new Error('Authentication failed. Please log in again.');
+        }
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      
+      if (data.suppliers && Array.isArray(data.suppliers)) {
+        setPendingSuppliers(data.suppliers.filter((s: any) => s.status === 'pending'));
+        setApprovedSuppliers(data.suppliers.filter((s: any) => s.status === 'approved'));
+      } else {
+        setPendingSuppliers([]);
+        setApprovedSuppliers([]);
+      }
+    } catch (error: any) {
+      console.error('❌ Error fetching all suppliers:', error);
+      alert('Failed to load suppliers.');
+      setPendingSuppliers([]);
+      setApprovedSuppliers([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Fetch suppliers with payment details
+  const fetchSuppliersWithPayments = async () => {
+    setLoadingPayments(true);
+    try {
+      const API_URL = import.meta.env.VITE_API_URL || (typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3001');
+      const response = await fetch(`${API_URL}/api/admin/suppliers/payment-details`, {
+        headers: getAuthHeaders()
+      });
+      
+      if (!response.ok) {
+        if (response.status === 401 || response.status === 403) {
+          localStorage.removeItem('admin');
+          setIsAuthenticated(false);
+          throw new Error('Authentication failed');
+        }
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      if (data.success) {
+        setSuppliersWithPayments(data.suppliers || []);
+      } else {
+        setSuppliersWithPayments([]);
+      }
+    } catch (error: any) {
+      console.error('Error fetching suppliers with payment details:', error);
+      setSuppliersWithPayments([]);
+    } finally {
+      setLoadingPayments(false);
+    }
+  };
+
+  // Verify payment details (admin action)
+  const handleVerifyPaymentDetails = async (supplierId: string) => {
+    if (!confirm('Are you sure you want to verify this supplier\'s payment details?')) {
+      return;
+    }
+    
+    setIsProcessing(true);
+    try {
+      const API_URL = import.meta.env.VITE_API_URL || (typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3001');
+      const response = await fetch(`${API_URL}/api/admin/suppliers/${supplierId}/verify-payment`, {
+        method: 'POST',
+        headers: getAuthHeaders()
+      });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      if (data.success) {
+        alert('Payment details verified successfully!');
+        fetchSuppliersWithPayments();
+      } else {
+        alert(data.message || 'Failed to verify payment details');
+      }
+    } catch (error: any) {
+      console.error('Error verifying payment details:', error);
+      alert('Failed to verify payment details. Please try again.');
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
   // Fetch data when authenticated and tab changes
   useEffect(() => {
     if (isAuthenticated) {
-      console.log('🔄 Admin Dashboard - useEffect triggered:', { activeTab, tourFilter, isAuthenticated });
+      console.log('🔄 Admin Dashboard - useEffect triggered:', { activeTab, tourFilter, supplierFilter, isAuthenticated });
       if (activeTab === 'tours') {
         console.log('📋 Fetching tours with filter:', tourFilter);
         fetchPendingTours();
       } else if (activeTab === 'suppliers') {
-        fetchPendingSuppliers();
+        if (supplierFilter === 'pending') {
+          fetchPendingSuppliers();
+        } else if (supplierFilter === 'approved') {
+          fetchApprovedSuppliers();
+        } else {
+          fetchAllSuppliers();
+        }
       } else if (activeTab === 'bookings') {
         fetchBookings();
+      } else if (activeTab === 'payments') {
+        fetchSuppliersWithPayments();
       }
     }
-  }, [activeTab, isAuthenticated, tourFilter]);
+  }, [activeTab, isAuthenticated, tourFilter, supplierFilter]);
 
   // Show login if not authenticated
   if (!isAuthenticated) {
@@ -321,7 +484,14 @@ const AdminDashboard: React.FC = () => {
       
       if (data.success) {
         alert('Supplier approved successfully! They can now create tours.');
-        fetchPendingSuppliers();
+        // Refresh both lists
+        if (supplierFilter === 'pending') {
+          fetchPendingSuppliers();
+        } else if (supplierFilter === 'approved') {
+          fetchApprovedSuppliers();
+        } else {
+          fetchAllSuppliers();
+        }
         setSelectedSupplier(null);
       } else {
         alert(data.message || data.error || 'Failed to approve supplier');
@@ -365,7 +535,14 @@ const AdminDashboard: React.FC = () => {
       
       if (data.success) {
         alert('Supplier rejected successfully.');
-        fetchPendingSuppliers();
+        // Refresh the appropriate list based on current filter
+        if (supplierFilter === 'pending') {
+          fetchPendingSuppliers();
+        } else if (supplierFilter === 'approved') {
+          fetchApprovedSuppliers();
+        } else {
+          fetchAllSuppliers();
+        }
         setSelectedSupplier(null);
         setRejectionReason('');
       } else {
@@ -548,6 +725,20 @@ const AdminDashboard: React.FC = () => {
             >
               Bookings ({bookings.filter(b => b.paymentStatus === 'paid').length})
             </button>
+            <button
+              onClick={() => {
+                setActiveTab('payments');
+                setSelectedTour(null);
+                setSelectedSupplier(null);
+              }}
+              className={`px-6 py-3 font-black text-[14px] border-b-2 transition-colors ${
+                activeTab === 'payments'
+                  ? 'border-[#10B981] text-[#10B981]'
+                  : 'border-transparent text-gray-500 hover:text-[#001A33]'
+              }`}
+            >
+              Payment Details ({suppliersWithPayments.filter(s => s.paymentDetailsVerified).length}/{suppliersWithPayments.length})
+            </button>
           </div>
         </div>
       </header>
@@ -555,248 +746,385 @@ const AdminDashboard: React.FC = () => {
       <div className="max-w-7xl mx-auto px-6 py-8">
         {activeTab === 'suppliers' ? (
           // Suppliers Tab
-          pendingSuppliers.length === 0 ? (
-            <div className="bg-white rounded-2xl p-12 text-center border border-gray-200">
-              <CheckCircle2 className="mx-auto text-gray-300 mb-4" size={64} />
-              <h2 className="text-2xl font-black text-[#001A33] mb-2">All caught up!</h2>
-              <p className="text-[14px] text-gray-500 font-semibold">
-                No suppliers pending review at the moment.
-              </p>
+          <div className="space-y-6">
+            {/* Supplier Filter Tabs */}
+            <div className="flex gap-4 bg-white rounded-2xl p-2 border border-gray-200">
+              <button
+                onClick={() => {
+                  setSupplierFilter('pending');
+                  setSelectedSupplier(null);
+                }}
+                className={`flex-1 px-4 py-3 font-black text-[14px] rounded-xl transition-colors ${
+                  supplierFilter === 'pending'
+                    ? 'bg-[#10B981] text-white'
+                    : 'bg-transparent text-gray-500 hover:text-[#001A33]'
+                }`}
+              >
+                Pending ({pendingSuppliers.length})
+              </button>
+              <button
+                onClick={() => {
+                  setSupplierFilter('approved');
+                  setSelectedSupplier(null);
+                }}
+                className={`flex-1 px-4 py-3 font-black text-[14px] rounded-xl transition-colors ${
+                  supplierFilter === 'approved'
+                    ? 'bg-[#10B981] text-white'
+                    : 'bg-transparent text-gray-500 hover:text-[#001A33]'
+                }`}
+              >
+                Approved ({approvedSuppliers.length})
+              </button>
+              <button
+                onClick={() => {
+                  setSupplierFilter('all');
+                  setSelectedSupplier(null);
+                }}
+                className={`flex-1 px-4 py-3 font-black text-[14px] rounded-xl transition-colors ${
+                  supplierFilter === 'all'
+                    ? 'bg-[#10B981] text-white'
+                    : 'bg-transparent text-gray-500 hover:text-[#001A33]'
+                }`}
+              >
+                All ({pendingSuppliers.length + approvedSuppliers.length})
+              </button>
             </div>
-          ) : (
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              {/* Suppliers List */}
-              <div className="lg:col-span-2 space-y-4">
-                <h2 className="text-xl font-black text-[#001A33] mb-4">
-                  Pending Suppliers ({pendingSuppliers.length})
-                </h2>
-                {pendingSuppliers.map((supplier) => (
-                  <div
-                    key={supplier.id}
-                    className={`bg-white rounded-2xl p-6 border-2 cursor-pointer transition-all ${
-                      selectedSupplier?.id === supplier.id
-                        ? 'border-[#10B981] shadow-lg ring-2 ring-[#10B981]/20'
-                        : 'border-gray-200 hover:border-[#10B981]/30'
-                    }`}
-                    onClick={() => setSelectedSupplier(supplier)}
-                  >
-                    <div className="flex items-start gap-4">
-                      <div className="w-16 h-16 bg-[#10B981]/10 rounded-xl flex items-center justify-center">
-                        {supplier.businessType === 'company' ? (
-                          <Building2 className="text-[#10B981]" size={24} />
-                        ) : (
-                          <User className="text-[#10B981]" size={24} />
-                        )}
-                      </div>
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-1">
-                          <h3 className="text-lg font-black text-[#001A33]">
-                            {supplier.fullName}
-                            {supplier.companyName && ` - ${supplier.companyName}`}
-                          </h3>
-                          <span className="text-[10px] font-mono text-gray-400 bg-gray-100 px-2 py-0.5 rounded">
-                            ID: {supplier.id}
-                          </span>
-                        </div>
-                        <div className="flex items-center gap-4 text-[12px] text-gray-500 font-semibold mb-2">
-                          <div className="flex items-center gap-1">
-                            <Mail size={14} />
-                            <span>{supplier.email}</span>
-                          </div>
-                          <div className="flex items-center gap-1">
-                            <Calendar size={14} />
-                            <span>{new Date(supplier.createdAt).toLocaleDateString()}</span>
-                          </div>
-                        </div>
-                        <div className="flex items-center gap-2 mb-2">
-                          <span className="px-3 py-1 bg-blue-500/10 text-blue-700 text-[11px] font-black rounded-full border border-blue-500/20">
-                            {supplier.businessType}
-                          </span>
-                          {supplier.emailVerified ? (
-                            <span className="px-3 py-1 bg-[#10B981]/10 text-[#10B981] text-[11px] font-black rounded-full border border-[#10B981]/20">
-                              Email Verified
-                            </span>
-                          ) : (
-                            <span className="px-3 py-1 bg-yellow-500/10 text-yellow-700 text-[11px] font-black rounded-full border border-yellow-500/20">
-                              Email Not Verified
-                            </span>
-                          )}
-                        </div>
-                        {supplier.city && supplier.mainHub && (
-                          <div className="text-[12px] text-gray-500 font-semibold">
-                            <MapPin size={12} className="inline mr-1" />
-                            {supplier.city}, {supplier.mainHub}
-                          </div>
-                        )}
-                      </div>
-                      <div className="flex items-center gap-2 bg-yellow-50 px-3 py-2 rounded-full">
-                        <Clock className="text-yellow-600" size={18} />
-                        <span className="text-[12px] font-black text-yellow-700">Pending</span>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
 
-              {/* Supplier Details & Actions */}
-              <div className="lg:col-span-1">
-                {selectedSupplier ? (
-                  <div className="bg-white rounded-2xl p-6 border border-gray-200 sticky top-24">
-                    <h3 className="text-xl font-black text-[#001A33] mb-4">Supplier Details</h3>
-                    
-                    <div className="space-y-3 mb-6">
-                      <div>
-                        <div className="text-[11px] font-bold text-gray-500 uppercase mb-1">Supplier ID</div>
-                        <div className="text-[14px] font-mono font-bold text-[#001A33] bg-gray-100 px-3 py-1.5 rounded-lg inline-block">
-                          {selectedSupplier.id}
-                        </div>
-                      </div>
-                      <div>
-                        <div className="text-[11px] font-bold text-gray-500 uppercase mb-1">Name</div>
-                        <div className="text-[16px] font-black text-[#001A33]">{selectedSupplier.fullName}</div>
-                      </div>
-                      {selectedSupplier.companyName && (
-                        <div>
-                          <div className="text-[11px] font-bold text-gray-500 uppercase mb-1">Company Name</div>
-                          <div className="text-[14px] font-bold text-[#001A33]">{selectedSupplier.companyName}</div>
-                        </div>
-                      )}
-                      <div>
-                        <div className="text-[11px] font-bold text-gray-500 uppercase mb-1">Email</div>
-                        <div className="text-[14px] font-semibold text-[#001A33]">{selectedSupplier.email}</div>
-                        <div className="text-[12px] text-gray-500 font-semibold mt-1">
-                          Verified: {selectedSupplier.emailVerified ? '✅ Yes' : '❌ No'}
-                        </div>
-                      </div>
-                      {selectedSupplier.phone && (
-                        <div>
-                          <div className="text-[11px] font-bold text-gray-500 uppercase mb-1">Phone</div>
-                          <div className="text-[14px] font-semibold text-[#001A33] flex items-center gap-2">
-                            <Phone size={14} />
-                            {selectedSupplier.phone}
-                          </div>
-                        </div>
-                      )}
-                      {selectedSupplier.whatsapp && (
-                        <div>
-                          <div className="text-[11px] font-bold text-gray-500 uppercase mb-1">WhatsApp</div>
-                          <div className="text-[14px] font-semibold text-[#001A33] flex items-center gap-2">
-                            <MessageCircle size={14} />
-                            {selectedSupplier.whatsapp}
-                          </div>
-                        </div>
-                      )}
-                      {!selectedSupplier.phone && !selectedSupplier.whatsapp && (
-                        <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-3">
-                          <div className="text-[12px] text-yellow-700 font-semibold flex items-center gap-2">
-                            <Info size={14} />
-                            No phone/WhatsApp provided
-                          </div>
-                        </div>
-                      )}
-                      {selectedSupplier.city && (
-                        <div>
-                          <div className="text-[11px] font-bold text-gray-500 uppercase mb-1">Location</div>
-                          <div className="text-[14px] font-semibold text-[#001A33]">
-                            {selectedSupplier.city}, {selectedSupplier.mainHub || 'N/A'}
-                          </div>
-                        </div>
-                      )}
-                      {selectedSupplier.tourLanguages && (
-                        <div>
-                          <div className="text-[11px] font-bold text-gray-500 uppercase mb-1">Tour Languages</div>
-                          <div className="text-[14px] font-semibold text-[#001A33]">{selectedSupplier.tourLanguages}</div>
-                        </div>
-                      )}
-                      {selectedSupplier.businessType && (
-                        <div>
-                          <div className="text-[11px] font-bold text-gray-500 uppercase mb-1">Business Type</div>
-                          <div className="text-[14px] font-semibold text-[#001A33] capitalize">{selectedSupplier.businessType}</div>
-                        </div>
-                      )}
-                      {selectedSupplier.verificationDocumentUrl ? (
-                        <div>
-                          <div className="text-[11px] font-bold text-gray-500 uppercase mb-1">Guiding License</div>
-                          <button
-                            onClick={() => {
-                              setLicenseUrl(selectedSupplier.verificationDocumentUrl);
-                              setShowLicenseModal(true);
-                            }}
-                            className="text-[#0071EB] text-[14px] font-semibold hover:underline flex items-center gap-2 cursor-pointer"
-                          >
-                            <Eye size={14} />
-                            View License Document
-                          </button>
-                        </div>
-                      ) : (
-                        <div className="bg-red-50 border border-red-200 rounded-xl p-3">
-                          <div className="text-[12px] text-red-700 font-semibold flex items-center gap-2">
-                            <Info size={14} />
-                            No license document uploaded
-                          </div>
-                        </div>
-                      )}
-                      <div>
-                        <div className="text-[11px] font-bold text-gray-500 uppercase mb-1">Registration Date</div>
-                        <div className="text-[14px] font-semibold text-[#001A33]">
-                          {new Date(selectedSupplier.createdAt).toLocaleDateString('en-US', {
-                            year: 'numeric',
-                            month: 'long',
-                            day: 'numeric'
-                          })}
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Actions */}
-                    <div className="space-y-4">
-                      <button
-                        onClick={() => handleApproveSupplier(selectedSupplier.id)}
-                        disabled={isProcessing || !selectedSupplier.verificationDocumentUrl}
-                        className="w-full bg-[#10B981] hover:bg-[#059669] text-white font-black py-5 rounded-full text-[16px] disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2 shadow-lg"
-                      >
-                        <CheckCircle2 size={20} />
-                        Approve Supplier
-                      </button>
-                      {!selectedSupplier.verificationDocumentUrl && (
-                        <p className="text-[12px] text-red-600 font-semibold text-center">
-                          Cannot approve: No license document uploaded
-                        </p>
-                      )}
-
-                      <div className="border-t border-gray-200 pt-4">
-                        <label className="block text-[14px] font-bold text-[#001A33] mb-2">
-                          Rejection Reason (if rejecting)
-                        </label>
-                        <textarea
-                          value={rejectionReason}
-                          onChange={(e) => setRejectionReason(e.target.value)}
-                          placeholder="Enter reason for rejection..."
-                          className="w-full bg-gray-50 border-2 border-gray-200 rounded-xl p-3 text-[14px] font-semibold text-[#001A33] focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none resize-none mb-3"
-                          rows={3}
-                        />
-                        <button
-                          onClick={() => handleRejectSupplier(selectedSupplier.id)}
-                          disabled={isProcessing || !rejectionReason.trim()}
-                          className="w-full bg-red-500 hover:bg-red-600 text-white font-black py-5 rounded-full text-[16px] disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2 shadow-lg"
-                        >
-                          <XCircle size={20} />
-                          Reject Supplier
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="bg-white rounded-2xl p-6 border border-gray-200 text-center">
-                    <Eye className="mx-auto text-gray-300 mb-4" size={48} />
+            {/* Suppliers List */}
+            {(() => {
+              const suppliersToShow = supplierFilter === 'pending' 
+                ? pendingSuppliers 
+                : supplierFilter === 'approved' 
+                ? approvedSuppliers 
+                : [...pendingSuppliers, ...approvedSuppliers];
+              
+              if (suppliersToShow.length === 0) {
+                return (
+                  <div className="bg-white rounded-2xl p-12 text-center border border-gray-200">
+                    <CheckCircle2 className="mx-auto text-gray-300 mb-4" size={64} />
+                    <h2 className="text-2xl font-black text-[#001A33] mb-2">
+                      {supplierFilter === 'pending' ? 'All caught up!' : supplierFilter === 'approved' ? 'No approved suppliers' : 'No suppliers found'}
+                    </h2>
                     <p className="text-[14px] text-gray-500 font-semibold">
-                      Select a supplier to review
+                      {supplierFilter === 'pending' 
+                        ? 'No suppliers pending review at the moment.'
+                        : supplierFilter === 'approved'
+                        ? 'No suppliers have been approved yet.'
+                        : 'No suppliers found in the system.'}
                     </p>
                   </div>
-                )}
-              </div>
-            </div>
-          )
+                );
+              }
+
+              return (
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                  {/* Suppliers List */}
+                  <div className="lg:col-span-2 space-y-4">
+                    <h2 className="text-xl font-black text-[#001A33] mb-4">
+                      {supplierFilter === 'pending' 
+                        ? `Pending Suppliers (${pendingSuppliers.length})`
+                        : supplierFilter === 'approved'
+                        ? `Approved Suppliers (${approvedSuppliers.length})`
+                        : `All Suppliers (${suppliersToShow.length})`}
+                    </h2>
+                    {suppliersToShow.map((supplier) => (
+                      <div
+                        key={supplier.id}
+                        className={`bg-white rounded-2xl p-6 border-2 cursor-pointer transition-all ${
+                          selectedSupplier?.id === supplier.id
+                            ? 'border-[#10B981] shadow-lg ring-2 ring-[#10B981]/20'
+                            : 'border-gray-200 hover:border-[#10B981]/30'
+                        }`}
+                        onClick={() => setSelectedSupplier(supplier)}
+                      >
+                        <div className="flex items-start gap-4">
+                          <div className="w-16 h-16 bg-[#10B981]/10 rounded-xl flex items-center justify-center">
+                            {supplier.businessType === 'company' ? (
+                              <Building2 className="text-[#10B981]" size={24} />
+                            ) : (
+                              <User className="text-[#10B981]" size={24} />
+                            )}
+                          </div>
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2 mb-1">
+                              <h3 className="text-lg font-black text-[#001A33]">
+                                {supplier.fullName}
+                                {supplier.companyName && ` - ${supplier.companyName}`}
+                              </h3>
+                              <span className="text-[10px] font-mono text-gray-400 bg-gray-100 px-2 py-0.5 rounded">
+                                ID: {supplier.id}
+                              </span>
+                            </div>
+                            <div className="flex items-center gap-4 text-[12px] text-gray-500 font-semibold mb-2">
+                              <div className="flex items-center gap-1">
+                                <Mail size={14} />
+                                <span>{supplier.email}</span>
+                              </div>
+                              <div className="flex items-center gap-1">
+                                <Calendar size={14} />
+                                <span>{new Date(supplier.createdAt).toLocaleDateString()}</span>
+                              </div>
+                            </div>
+                            <div className="flex items-center gap-2 mb-2">
+                              <span className="px-3 py-1 bg-blue-500/10 text-blue-700 text-[11px] font-black rounded-full border border-blue-500/20">
+                                {supplier.businessType}
+                              </span>
+                              {supplier.emailVerified ? (
+                                <span className="px-3 py-1 bg-[#10B981]/10 text-[#10B981] text-[11px] font-black rounded-full border border-[#10B981]/20">
+                                  Email Verified
+                                </span>
+                              ) : (
+                                <span className="px-3 py-1 bg-yellow-500/10 text-yellow-700 text-[11px] font-black rounded-full border border-yellow-500/20">
+                                  Email Not Verified
+                                </span>
+                              )}
+                            </div>
+                            {supplier.city && supplier.mainHub && (
+                              <div className="text-[12px] text-gray-500 font-semibold">
+                                <MapPin size={12} className="inline mr-1" />
+                                {supplier.city}, {supplier.mainHub}
+                              </div>
+                            )}
+                          </div>
+                          <div className={`flex items-center gap-2 px-3 py-2 rounded-full ${
+                            supplier.status === 'approved' 
+                              ? 'bg-[#10B981]/10' 
+                              : 'bg-yellow-50'
+                          }`}>
+                            {supplier.status === 'approved' ? (
+                              <>
+                                <CheckCircle2 className="text-[#10B981]" size={18} />
+                                <span className="text-[12px] font-black text-[#10B981]">Approved</span>
+                              </>
+                            ) : (
+                              <>
+                                <Clock className="text-yellow-600" size={18} />
+                                <span className="text-[12px] font-black text-yellow-700">Pending</span>
+                              </>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Supplier Details & Actions */}
+                  <div className="lg:col-span-1">
+                    {selectedSupplier ? (
+                      <div className="bg-white rounded-2xl p-6 border border-gray-200 sticky top-24">
+                        <h3 className="text-xl font-black text-[#001A33] mb-4">Supplier Details</h3>
+                        
+                        <div className="space-y-3 mb-6">
+                          <div>
+                            <div className="text-[11px] font-bold text-gray-500 uppercase mb-1">Supplier ID</div>
+                            <div className="text-[14px] font-mono font-bold text-[#001A33] bg-gray-100 px-3 py-1.5 rounded-lg inline-block">
+                              {selectedSupplier.id}
+                            </div>
+                          </div>
+                          <div>
+                            <div className="text-[11px] font-bold text-gray-500 uppercase mb-1">Name</div>
+                            <div className="text-[16px] font-black text-[#001A33]">{selectedSupplier.fullName}</div>
+                          </div>
+                          {selectedSupplier.companyName && (
+                            <div>
+                              <div className="text-[11px] font-bold text-gray-500 uppercase mb-1">Company Name</div>
+                              <div className="text-[14px] font-bold text-[#001A33]">{selectedSupplier.companyName}</div>
+                            </div>
+                          )}
+                          <div>
+                            <div className="text-[11px] font-bold text-gray-500 uppercase mb-1">Email</div>
+                            <div className="text-[14px] font-semibold text-[#001A33]">{selectedSupplier.email}</div>
+                            <div className="text-[12px] text-gray-500 font-semibold mt-1">
+                              Verified: {selectedSupplier.emailVerified ? '✅ Yes' : '❌ No'}
+                            </div>
+                          </div>
+                          {selectedSupplier.phone && (
+                            <div>
+                              <div className="text-[11px] font-bold text-gray-500 uppercase mb-1">Phone</div>
+                              <div className="text-[14px] font-semibold text-[#001A33] flex items-center gap-2">
+                                <Phone size={14} />
+                                {selectedSupplier.phone}
+                              </div>
+                            </div>
+                          )}
+                          {selectedSupplier.whatsapp && (
+                            <div>
+                              <div className="text-[11px] font-bold text-gray-500 uppercase mb-1">WhatsApp</div>
+                              <div className="text-[14px] font-semibold text-[#001A33] flex items-center gap-2">
+                                <MessageCircle size={14} />
+                                {selectedSupplier.whatsapp}
+                              </div>
+                            </div>
+                          )}
+                          {!selectedSupplier.phone && !selectedSupplier.whatsapp && (
+                            <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-3">
+                              <div className="text-[12px] text-yellow-700 font-semibold flex items-center gap-2">
+                                <Info size={14} />
+                                No phone/WhatsApp provided
+                              </div>
+                            </div>
+                          )}
+                          {selectedSupplier.city && (
+                            <div>
+                              <div className="text-[11px] font-bold text-gray-500 uppercase mb-1">Location</div>
+                              <div className="text-[14px] font-semibold text-[#001A33]">
+                                {selectedSupplier.city}, {selectedSupplier.mainHub || 'N/A'}
+                              </div>
+                            </div>
+                          )}
+                          {selectedSupplier.tourLanguages && (
+                            <div>
+                              <div className="text-[11px] font-bold text-gray-500 uppercase mb-1">Tour Languages</div>
+                              <div className="text-[14px] font-semibold text-[#001A33]">{selectedSupplier.tourLanguages}</div>
+                            </div>
+                          )}
+                          {selectedSupplier.businessType && (
+                            <div>
+                              <div className="text-[11px] font-bold text-gray-500 uppercase mb-1">Business Type</div>
+                              <div className="text-[14px] font-semibold text-[#001A33] capitalize">{selectedSupplier.businessType}</div>
+                            </div>
+                          )}
+                          {selectedSupplier.verificationDocumentUrl ? (
+                            <div>
+                              <div className="text-[11px] font-bold text-gray-500 uppercase mb-1">Guiding License</div>
+                              <button
+                                onClick={() => {
+                                  setLicenseUrl(selectedSupplier.verificationDocumentUrl);
+                                  setShowLicenseModal(true);
+                                }}
+                                className="text-[#0071EB] text-[14px] font-semibold hover:underline flex items-center gap-2 cursor-pointer"
+                              >
+                                <Eye size={14} />
+                                View License Document
+                              </button>
+                            </div>
+                          ) : (
+                            <div className="bg-red-50 border border-red-200 rounded-xl p-3">
+                              <div className="text-[12px] text-red-700 font-semibold flex items-center gap-2">
+                                <Info size={14} />
+                                No license document uploaded
+                              </div>
+                            </div>
+                          )}
+                          {/* Certificates */}
+                          <div>
+                            <div className="text-[11px] font-bold text-gray-500 uppercase mb-2">Additional Certificates</div>
+                            {selectedSupplier.certificates ? (
+                              (() => {
+                                try {
+                                  const certs = typeof selectedSupplier.certificates === 'string' 
+                                    ? JSON.parse(selectedSupplier.certificates) 
+                                    : selectedSupplier.certificates;
+                                  if (Array.isArray(certs) && certs.length > 0) {
+                                    return (
+                                      <div className="space-y-2">
+                                        {certs.map((cert: string, index: number) => (
+                                          <button
+                                            key={index}
+                                            onClick={() => {
+                                              setLicenseUrl(cert);
+                                              setShowLicenseModal(true);
+                                            }}
+                                            className="w-full text-left text-[#0071EB] text-[13px] font-semibold hover:underline flex items-center gap-2 cursor-pointer p-2 hover:bg-blue-50 rounded-lg transition-colors"
+                                          >
+                                            <Eye size={14} />
+                                            Certificate {index + 1}
+                                          </button>
+                                        ))}
+                                      </div>
+                                    );
+                                  }
+                                } catch (e) {
+                                  console.error('Error parsing certificates:', e);
+                                }
+                                return (
+                                  <div className="text-[12px] text-gray-500 font-semibold">
+                                    No certificates uploaded
+                                  </div>
+                                );
+                              })()
+                            ) : (
+                              <div className="text-[12px] text-gray-500 font-semibold">
+                                No certificates uploaded
+                              </div>
+                            )}
+                          </div>
+                          <div>
+                            <div className="text-[11px] font-bold text-gray-500 uppercase mb-1">Registration Date</div>
+                            <div className="text-[14px] font-semibold text-[#001A33]">
+                              {new Date(selectedSupplier.createdAt).toLocaleDateString('en-US', {
+                                year: 'numeric',
+                                month: 'long',
+                                day: 'numeric'
+                              })}
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Actions - Only show for pending suppliers */}
+                        {selectedSupplier.status === 'pending' && (
+                          <div className="space-y-4">
+                            <button
+                              onClick={() => handleApproveSupplier(selectedSupplier.id)}
+                              disabled={isProcessing || !selectedSupplier.verificationDocumentUrl}
+                              className="w-full bg-[#10B981] hover:bg-[#059669] text-white font-black py-5 rounded-full text-[16px] disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2 shadow-lg"
+                            >
+                              <CheckCircle2 size={20} />
+                              Approve Supplier
+                            </button>
+                            {!selectedSupplier.verificationDocumentUrl && (
+                              <p className="text-[12px] text-red-600 font-semibold text-center">
+                                Cannot approve: No license document uploaded
+                              </p>
+                            )}
+
+                            <div className="border-t border-gray-200 pt-4">
+                              <label className="block text-[14px] font-bold text-[#001A33] mb-2">
+                                Rejection Reason (if rejecting)
+                              </label>
+                              <textarea
+                                value={rejectionReason}
+                                onChange={(e) => setRejectionReason(e.target.value)}
+                                placeholder="Enter reason for rejection..."
+                                className="w-full bg-gray-50 border-2 border-gray-200 rounded-xl p-3 text-[14px] font-semibold text-[#001A33] focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none resize-none mb-3"
+                                rows={3}
+                              />
+                              <button
+                                onClick={() => handleRejectSupplier(selectedSupplier.id)}
+                                disabled={isProcessing || !rejectionReason.trim()}
+                                className="w-full bg-red-500 hover:bg-red-600 text-white font-black py-5 rounded-full text-[16px] disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2 shadow-lg"
+                              >
+                                <XCircle size={20} />
+                                Reject Supplier
+                              </button>
+                            </div>
+                          </div>
+                        )}
+                        {selectedSupplier.status === 'approved' && (
+                          <div className="bg-[#10B981]/10 border border-[#10B981]/20 rounded-xl p-4">
+                            <div className="flex items-center gap-2 text-[#10B981] font-black text-[14px]">
+                              <CheckCircle2 size={18} />
+                              Supplier Approved
+                            </div>
+                            <p className="text-[12px] text-gray-600 font-semibold mt-2">
+                              This supplier has been approved and can create tours.
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                    ) : (
+                      <div className="bg-white rounded-2xl p-6 border border-gray-200 text-center">
+                        <Eye className="mx-auto text-gray-300 mb-4" size={48} />
+                        <p className="text-[14px] text-gray-500 font-semibold">
+                          Select a supplier to review
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              );
+            })()}
+          </div>
         ) : activeTab === 'tours' ? (
           // Tours Tab
           pendingTours.length === 0 && !loading ? (
@@ -895,7 +1223,47 @@ const AdminDashboard: React.FC = () => {
                           {tour.category}
                         </span>
                         <span className="px-3 py-1 bg-[#001A33] text-white text-[11px] font-black rounded-full">
-                          {tour.currency} {tour.pricePerPerson}/person
+                          {(() => {
+                            // Get price from first tier of groupPricingTiers (price for 1 person)
+                            let displayPrice = tour.pricePerPerson || 0;
+                            
+                            // PRIORITY 1: Check tour.groupPricingTiers directly
+                            if (tour.groupPricingTiers) {
+                              try {
+                                const tiers = typeof tour.groupPricingTiers === 'string' 
+                                  ? JSON.parse(tour.groupPricingTiers) 
+                                  : tour.groupPricingTiers;
+                                if (Array.isArray(tiers) && tiers.length > 0 && tiers[0]?.price) {
+                                  displayPrice = parseFloat(tiers[0].price) || 0;
+                                }
+                              } catch (e) {
+                                console.error('Error parsing tour groupPricingTiers:', e);
+                              }
+                            }
+                            
+                            // PRIORITY 2: Check tour options for groupPricingTiers
+                            if (displayPrice === 0 && tour.options && Array.isArray(tour.options) && tour.options.length > 0) {
+                              for (const opt of tour.options) {
+                                if (opt.groupPricingTiers) {
+                                  try {
+                                    const tiers = typeof opt.groupPricingTiers === 'string' 
+                                      ? JSON.parse(opt.groupPricingTiers) 
+                                      : opt.groupPricingTiers;
+                                    if (Array.isArray(tiers) && tiers.length > 0 && tiers[0]?.price) {
+                                      const firstTierPrice = parseFloat(tiers[0].price) || 0;
+                                      if (firstTierPrice > 0) {
+                                        displayPrice = displayPrice === 0 ? firstTierPrice : Math.min(displayPrice, firstTierPrice);
+                                      }
+                                    }
+                                  } catch (e) {
+                                    console.error('Error parsing option groupPricingTiers:', e);
+                                  }
+                                }
+                              }
+                            }
+                            
+                            return `${tour.currency} ${displayPrice.toLocaleString()}`;
+                          })()}
                         </span>
                       </div>
                       <div className="text-[12px] text-gray-500 font-semibold">
@@ -994,7 +1362,47 @@ const AdminDashboard: React.FC = () => {
                     <div>
                       <div className="text-[11px] font-bold text-gray-500 uppercase mb-1">Price</div>
                       <div className="text-[14px] font-bold text-[#001A33]">
-                        {selectedTour.currency} {selectedTour.pricePerPerson} per person
+                        {(() => {
+                          // Get price from first tier of groupPricingTiers (price for 1 person)
+                          let displayPrice = selectedTour.pricePerPerson || 0;
+                          
+                          // PRIORITY 1: Check tour.groupPricingTiers directly
+                          if (selectedTour.groupPricingTiers) {
+                            try {
+                              const tiers = typeof selectedTour.groupPricingTiers === 'string' 
+                                ? JSON.parse(selectedTour.groupPricingTiers) 
+                                : selectedTour.groupPricingTiers;
+                              if (Array.isArray(tiers) && tiers.length > 0 && tiers[0]?.price) {
+                                displayPrice = parseFloat(tiers[0].price) || 0;
+                              }
+                            } catch (e) {
+                              console.error('Error parsing tour groupPricingTiers:', e);
+                            }
+                          }
+                          
+                          // PRIORITY 2: Check tour options for groupPricingTiers
+                          if (displayPrice === 0 && selectedTour.options && Array.isArray(selectedTour.options) && selectedTour.options.length > 0) {
+                            for (const opt of selectedTour.options) {
+                              if (opt.groupPricingTiers) {
+                                try {
+                                  const tiers = typeof opt.groupPricingTiers === 'string' 
+                                    ? JSON.parse(opt.groupPricingTiers) 
+                                    : opt.groupPricingTiers;
+                                  if (Array.isArray(tiers) && tiers.length > 0 && tiers[0]?.price) {
+                                    const firstTierPrice = parseFloat(tiers[0].price) || 0;
+                                    if (firstTierPrice > 0) {
+                                      displayPrice = displayPrice === 0 ? firstTierPrice : Math.min(displayPrice, firstTierPrice);
+                                    }
+                                  }
+                                } catch (e) {
+                                  console.error('Error parsing option groupPricingTiers:', e);
+                                }
+                              }
+                            }
+                          }
+                          
+                          return `Starting from ${selectedTour.currency} ${displayPrice.toLocaleString()}`;
+                        })()}
                       </div>
                     </div>
                     <div>
@@ -1160,6 +1568,501 @@ const AdminDashboard: React.FC = () => {
             </div>
           </div>
           )
+        ) : activeTab === 'payments' ? (
+          // Payment Details Tab
+          <div className="space-y-6">
+            {/* Header with Search and Filters */}
+            <div className="bg-white rounded-2xl p-6 border border-gray-200">
+              <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
+                <div>
+                  <h2 className="text-2xl font-black text-[#001A33] mb-2">Supplier Payment Details</h2>
+                  <p className="text-[14px] text-gray-500 font-semibold">
+                    Manage payment details for all suppliers. Verify payment information before processing payouts.
+                  </p>
+                </div>
+                <div className="flex items-center gap-4 text-[14px]">
+                  <div className="px-4 py-2 bg-[#10B981]/10 rounded-lg">
+                    <span className="text-gray-600 font-semibold">Verified: </span>
+                    <span className="font-black text-[#10B981]">{suppliersWithPayments.filter(s => s.paymentDetailsVerified).length}</span>
+                  </div>
+                  <div className="px-4 py-2 bg-yellow-50 rounded-lg">
+                    <span className="text-gray-600 font-semibold">Pending: </span>
+                    <span className="font-black text-yellow-700">{suppliersWithPayments.filter(s => !s.paymentDetailsVerified && s.paymentMethod).length}</span>
+                  </div>
+                  <div className="px-4 py-2 bg-gray-100 rounded-lg">
+                    <span className="text-gray-600 font-semibold">No Details: </span>
+                    <span className="font-black text-gray-700">{suppliersWithPayments.filter(s => !s.paymentMethod).length}</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Search and Filters */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
+                  <input
+                    type="text"
+                    placeholder="Search by name, email, or ID..."
+                    value={paymentSearchQuery}
+                    onChange={(e) => {
+                    setPaymentSearchQuery(e.target.value);
+                    setCurrentPage(1); // Reset to first page on search
+                  }}
+                    className="w-full pl-10 pr-4 py-2.5 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-[#10B981] focus:border-[#10B981] outline-none text-[14px] font-semibold"
+                  />
+                </div>
+                <select
+                  value={paymentFilter}
+                  onChange={(e) => {
+                    setPaymentFilter(e.target.value as any);
+                    setCurrentPage(1); // Reset to first page on filter change
+                  }}
+                  className="px-4 py-2.5 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-[#10B981] focus:border-[#10B981] outline-none text-[14px] font-bold text-[#001A33]"
+                >
+                  <option value="all">All Suppliers</option>
+                  <option value="verified">Verified Only</option>
+                  <option value="unverified">Pending Verification</option>
+                  <option value="no_details">No Payment Details</option>
+                </select>
+                <select
+                  value={paymentMethodFilter}
+                  onChange={(e) => {
+                    setPaymentMethodFilter(e.target.value);
+                    setCurrentPage(1); // Reset to first page on filter change
+                  }}
+                  className="px-4 py-2.5 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-[#10B981] focus:border-[#10B981] outline-none text-[14px] font-bold text-[#001A33]"
+                >
+                  <option value="all">All Payment Methods</option>
+                  <option value="bank_transfer">Bank Transfer</option>
+                  <option value="paypal">PayPal</option>
+                  <option value="credit_card">Credit/Debit Card</option>
+                  <option value="upi">UPI</option>
+                  <option value="wise">Wise</option>
+                </select>
+              </div>
+            </div>
+
+            {/* Payment Details Table */}
+            {loadingPayments ? (
+              <div className="bg-white rounded-2xl p-12 text-center border border-gray-200">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#10B981] mx-auto"></div>
+                <p className="text-[14px] text-gray-500 font-semibold mt-4">Loading payment details...</p>
+              </div>
+            ) : (
+              <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden">
+                <div className="overflow-x-auto">
+                  <table className="w-full">
+                    <thead className="bg-gray-50 border-b border-gray-200">
+                      <tr>
+                        <th className="px-6 py-4 text-left text-[12px] font-black text-gray-600 uppercase tracking-wider">Supplier</th>
+                        <th className="px-6 py-4 text-left text-[12px] font-black text-gray-600 uppercase tracking-wider">Payment Method</th>
+                        <th className="px-6 py-4 text-left text-[12px] font-black text-gray-600 uppercase tracking-wider">Currency</th>
+                        <th className="px-6 py-4 text-left text-[12px] font-black text-gray-600 uppercase tracking-wider">Status</th>
+                        <th className="px-6 py-4 text-left text-[12px] font-black text-gray-600 uppercase tracking-wider">Earnings</th>
+                        <th className="px-6 py-4 text-left text-[12px] font-black text-gray-600 uppercase tracking-wider">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-200">
+                      {(() => {
+                        // Filter suppliers
+                        let filtered = suppliersWithPayments.filter(supplier => {
+                          // Search filter
+                          if (paymentSearchQuery) {
+                            const query = paymentSearchQuery.toLowerCase();
+                            const matchesSearch = 
+                              supplier.fullName?.toLowerCase().includes(query) ||
+                              supplier.email?.toLowerCase().includes(query) ||
+                              supplier.id?.toString().includes(query) ||
+                              supplier.companyName?.toLowerCase().includes(query);
+                            if (!matchesSearch) return false;
+                          }
+
+                          // Status filter
+                          if (paymentFilter === 'verified' && !supplier.paymentDetailsVerified) return false;
+                          if (paymentFilter === 'unverified' && (!supplier.paymentMethod || supplier.paymentDetailsVerified)) return false;
+                          if (paymentFilter === 'no_details' && supplier.paymentMethod) return false;
+
+                          // Payment method filter
+                          if (paymentMethodFilter !== 'all' && supplier.paymentMethod !== paymentMethodFilter) return false;
+
+                          return true;
+                        });
+
+                        if (filtered.length === 0) {
+                          return (
+                            <tr>
+                              <td colSpan={6} className="px-6 py-12 text-center">
+                                <DollarSign className="mx-auto text-gray-300 mb-4" size={48} />
+                                <h3 className="text-lg font-black text-[#001A33] mb-2">No suppliers found</h3>
+                                <p className="text-[14px] text-gray-500 font-semibold">
+                                  {paymentSearchQuery || paymentFilter !== 'all' || paymentMethodFilter !== 'all'
+                                    ? 'Try adjusting your filters'
+                                    : 'No suppliers have payment details yet'}
+                                </p>
+                              </td>
+                            </tr>
+                          );
+                        }
+
+                        // Pagination
+                        const totalPages = Math.ceil(filtered.length / itemsPerPage);
+                        const startIndex = (currentPage - 1) * itemsPerPage;
+                        const endIndex = startIndex + itemsPerPage;
+                        const paginatedSuppliers = filtered.slice(startIndex, endIndex);
+
+                        return (
+                          <>
+                            {paginatedSuppliers.map((supplier) => {
+                          const paymentMethodLabels: Record<string, string> = {
+                            'bank_transfer': 'Bank Transfer',
+                            'paypal': 'PayPal',
+                            'credit_card': 'Credit/Debit Card',
+                            'upi': 'UPI (India)',
+                            'wise': 'Wise (formerly TransferWise)'
+                          };
+
+                          const getPaymentMethodIcon = (method: string) => {
+                            switch (method) {
+                              case 'bank_transfer':
+                                return <Building size={18} className="text-blue-600" />;
+                              case 'paypal':
+                                return <Wallet size={18} className="text-blue-500" />;
+                              case 'credit_card':
+                                return <CreditCard size={18} className="text-purple-600" />;
+                              case 'upi':
+                                return <Wallet size={18} className="text-green-600" />;
+                              case 'wise':
+                                return <Wallet size={18} className="text-teal-600" />;
+                              default:
+                                return <DollarSign size={18} className="text-gray-400" />;
+                            }
+                          };
+
+                          const paymentDetails = supplier.paymentMethodDetails ? 
+                            (typeof supplier.paymentMethodDetails === 'string' 
+                              ? JSON.parse(supplier.paymentMethodDetails) 
+                              : supplier.paymentMethodDetails) 
+                            : {};
+
+                          const isExpanded = expandedRows.has(supplier.id);
+
+                          return (
+                            <React.Fragment key={supplier.id}>
+                              <tr className={`hover:bg-gray-50 transition-colors ${isExpanded ? 'bg-gray-50' : ''}`}>
+                                <td className="px-6 py-4">
+                                  <div className="flex items-center gap-3">
+                                    <div className="w-10 h-10 bg-[#10B981]/10 rounded-lg flex items-center justify-center">
+                                      {supplier.businessType === 'company' ? (
+                                        <Building2 size={18} className="text-[#10B981]" />
+                                      ) : (
+                                        <User size={18} className="text-[#10B981]" />
+                                      )}
+                                    </div>
+                                    <div>
+                                      <div className="text-[14px] font-black text-[#001A33]">
+                                        {supplier.fullName}
+                                        {supplier.companyName && ` - ${supplier.companyName}`}
+                                      </div>
+                                      <div className="text-[12px] text-gray-500 font-semibold">{supplier.email}</div>
+                                      <div className="text-[10px] font-mono text-gray-400">ID: {supplier.id}</div>
+                                    </div>
+                                  </div>
+                                </td>
+                                <td className="px-6 py-4">
+                                  {supplier.paymentMethod ? (
+                                    <div className="flex items-center gap-2">
+                                      {getPaymentMethodIcon(supplier.paymentMethod)}
+                                      <span className="text-[14px] font-bold text-[#001A33]">
+                                        {paymentMethodLabels[supplier.paymentMethod] || supplier.paymentMethod}
+                                      </span>
+                                    </div>
+                                  ) : (
+                                    <span className="text-[13px] text-gray-400 font-semibold">Not set</span>
+                                  )}
+                                </td>
+                                <td className="px-6 py-4">
+                                  <span className="text-[14px] font-bold text-[#001A33]">
+                                    {supplier.paymentCurrency || 'N/A'}
+                                  </span>
+                                </td>
+                                <td className="px-6 py-4">
+                                  {supplier.paymentDetailsVerified ? (
+                                    <span className="inline-flex items-center gap-1 px-3 py-1 bg-[#10B981]/10 text-[#10B981] rounded-full text-[12px] font-black">
+                                      <CheckCircle2 size={14} />
+                                      Verified
+                                    </span>
+                                  ) : supplier.paymentMethod ? (
+                                    <span className="inline-flex items-center gap-1 px-3 py-1 bg-yellow-50 text-yellow-700 rounded-full text-[12px] font-black">
+                                      <Clock size={14} />
+                                      Pending
+                                    </span>
+                                  ) : (
+                                    <span className="inline-flex items-center gap-1 px-3 py-1 bg-gray-100 text-gray-600 rounded-full text-[12px] font-black">
+                                      <XCircle size={14} />
+                                      Not Set
+                                    </span>
+                                  )}
+                                </td>
+                                <td className="px-6 py-4">
+                                  <div className="space-y-1">
+                                    <div className="text-[14px] font-black text-[#001A33]">
+                                      Net: {supplier.netEarnings !== undefined ? `${supplier.paymentCurrency || '₹'}${supplier.netEarnings.toLocaleString('en-IN', { minimumFractionDigits: 2 })}` : (supplier.totalEarnings ? `${supplier.paymentCurrency || '₹'}${supplier.totalEarnings.toLocaleString('en-IN', { minimumFractionDigits: 2 })}` : '₹0.00')}
+                                    </div>
+                                    {supplier.grossEarnings !== undefined && supplier.grossEarnings > 0 && (
+                                      <div className="text-[11px] text-gray-500 font-semibold">
+                                        Gross: {supplier.paymentCurrency || '₹'}{supplier.grossEarnings.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                                      </div>
+                                    )}
+                                    {supplier.tdsDeducted !== undefined && supplier.tdsDeducted > 0 && (
+                                      <div className="text-[11px] text-orange-600 font-semibold">
+                                        TDS: {supplier.paymentCurrency || '₹'}{supplier.tdsDeducted.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                                      </div>
+                                    )}
+                                    {supplier.pendingEarnings > 0 && (
+                                      <div className="text-[12px] text-yellow-600 font-semibold mt-1">
+                                        Pending: {supplier.paymentCurrency || '₹'}{supplier.pendingEarnings.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                                      </div>
+                                    )}
+                                  </div>
+                                </td>
+                                <td className="px-6 py-4">
+                                  <div className="flex items-center gap-2">
+                                    <button
+                                      onClick={() => {
+                                        const newExpanded = new Set(expandedRows);
+                                        if (isExpanded) {
+                                          newExpanded.delete(supplier.id);
+                                        } else {
+                                          newExpanded.add(supplier.id);
+                                        }
+                                        setExpandedRows(newExpanded);
+                                      }}
+                                      className="px-3 py-1.5 bg-gray-100 hover:bg-gray-200 text-[#001A33] rounded-lg text-[12px] font-bold transition-colors flex items-center gap-1"
+                                    >
+                                      {isExpanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+                                      {isExpanded ? 'Hide' : 'View'}
+                                    </button>
+                                    {supplier.paymentMethod && !supplier.paymentDetailsVerified && (
+                                      <button
+                                        onClick={() => handleVerifyPaymentDetails(supplier.id)}
+                                        disabled={isProcessing}
+                                        className="px-3 py-1.5 bg-[#10B981] hover:bg-[#059669] text-white rounded-lg text-[12px] font-bold transition-colors flex items-center gap-1 disabled:opacity-50"
+                                      >
+                                        <ShieldCheck size={14} />
+                                        Verify
+                                      </button>
+                                    )}
+                                  </div>
+                                </td>
+                              </tr>
+                              {isExpanded && (
+                                <tr>
+                                  <td colSpan={6} className="px-6 py-4 bg-gray-50">
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                      {/* Payment Details */}
+                                      <div className="space-y-4">
+                                        <h4 className="text-[16px] font-black text-[#001A33] border-b border-gray-200 pb-2">
+                                          Payment Details
+                                        </h4>
+                                        {supplier.paymentMethod === 'bank_transfer' && (
+                                          <div className="space-y-2 text-[13px]">
+                                            {paymentDetails.bankName && (
+                                              <div className="flex justify-between">
+                                                <span className="font-bold text-gray-600">Bank Name:</span>
+                                                <span className="text-[#001A33]">{paymentDetails.bankName}</span>
+                                              </div>
+                                            )}
+                                            {paymentDetails.accountNumber && (
+                                              <div className="flex justify-between">
+                                                <span className="font-bold text-gray-600">Account Number:</span>
+                                                <span className="text-[#001A33] font-mono">{paymentDetails.accountNumber}</span>
+                                              </div>
+                                            )}
+                                            {paymentDetails.ifscCode && (
+                                              <div className="flex justify-between">
+                                                <span className="font-bold text-gray-600">IFSC Code:</span>
+                                                <span className="text-[#001A33] font-mono">{paymentDetails.ifscCode}</span>
+                                              </div>
+                                            )}
+                                            {paymentDetails.swiftCode && (
+                                              <div className="flex justify-between">
+                                                <span className="font-bold text-gray-600">SWIFT/BIC:</span>
+                                                <span className="text-[#001A33] font-mono">{paymentDetails.swiftCode}</span>
+                                              </div>
+                                            )}
+                                            {paymentDetails.beneficiaryName && (
+                                              <div className="flex justify-between">
+                                                <span className="font-bold text-gray-600">Beneficiary:</span>
+                                                <span className="text-[#001A33]">{paymentDetails.beneficiaryName}</span>
+                                              </div>
+                                            )}
+                                          </div>
+                                        )}
+                                        {supplier.paymentMethod === 'paypal' && paymentDetails.paypalEmail && (
+                                          <div className="space-y-2 text-[13px]">
+                                            <div className="flex justify-between">
+                                              <span className="font-bold text-gray-600">PayPal Email:</span>
+                                              <span className="text-[#001A33]">{paymentDetails.paypalEmail}</span>
+                                            </div>
+                                            {paymentDetails.accountType && (
+                                              <div className="flex justify-between">
+                                                <span className="font-bold text-gray-600">Account Type:</span>
+                                                <span className="text-[#001A33]">{paymentDetails.accountType}</span>
+                                              </div>
+                                            )}
+                                          </div>
+                                        )}
+                                        {supplier.paymentMethod === 'credit_card' && paymentDetails.cardHolderName && (
+                                          <div className="space-y-2 text-[13px]">
+                                            <div className="flex justify-between">
+                                              <span className="font-bold text-gray-600">Card Holder:</span>
+                                              <span className="text-[#001A33]">{paymentDetails.cardHolderName}</span>
+                                            </div>
+                                            {paymentDetails.last4Digits && (
+                                              <div className="flex justify-between">
+                                                <span className="font-bold text-gray-600">Card Number:</span>
+                                                <span className="text-[#001A33] font-mono">****{paymentDetails.last4Digits}</span>
+                                              </div>
+                                            )}
+                                          </div>
+                                        )}
+                                        {supplier.paymentMethod === 'upi' && paymentDetails.upiId && (
+                                          <div className="space-y-2 text-[13px]">
+                                            <div className="flex justify-between">
+                                              <span className="font-bold text-gray-600">UPI ID:</span>
+                                              <span className="text-[#001A33]">{paymentDetails.upiId}</span>
+                                            </div>
+                                          </div>
+                                        )}
+                                        {supplier.paymentMethod === 'wise' && paymentDetails.wiseEmail && (
+                                          <div className="space-y-2 text-[13px]">
+                                            <div className="flex justify-between">
+                                              <span className="font-bold text-gray-600">Wise Email:</span>
+                                              <span className="text-[#001A33]">{paymentDetails.wiseEmail}</span>
+                                            </div>
+                                            {paymentDetails.accountHolderName && (
+                                              <div className="flex justify-between">
+                                                <span className="font-bold text-gray-600">Account Holder:</span>
+                                                <span className="text-[#001A33]">{paymentDetails.accountHolderName}</span>
+                                              </div>
+                                            )}
+                                          </div>
+                                        )}
+                                        {!supplier.paymentMethod && (
+                                          <p className="text-[13px] text-gray-500 font-semibold">No payment details added yet.</p>
+                                        )}
+                                      </div>
+
+                                      {/* Tax Details */}
+                                      <div className="space-y-4">
+                                        <h4 className="text-[16px] font-black text-[#001A33] border-b border-gray-200 pb-2">
+                                          Tax Details
+                                        </h4>
+                                        {supplier.taxId ? (
+                                          <div className="space-y-2 text-[13px]">
+                                            {supplier.taxIdType && (
+                                              <div className="flex justify-between">
+                                                <span className="font-bold text-gray-600">Tax ID Type:</span>
+                                                <span className="text-[#001A33]">{supplier.taxIdType}</span>
+                                              </div>
+                                            )}
+                                            <div className="flex justify-between">
+                                              <span className="font-bold text-gray-600">Tax ID:</span>
+                                              <span className="text-[#001A33] font-mono">{supplier.taxId}</span>
+                                            </div>
+                                            {supplier.taxCountry && (
+                                              <div className="flex justify-between">
+                                                <span className="font-bold text-gray-600">Country:</span>
+                                                <span className="text-[#001A33]">{supplier.taxCountry}</span>
+                                              </div>
+                                            )}
+                                            {supplier.taxVerified && (
+                                              <div className="flex justify-between">
+                                                <span className="font-bold text-gray-600">Status:</span>
+                                                <span className="text-[#10B981] font-bold">✓ Verified</span>
+                                              </div>
+                                            )}
+                                          </div>
+                                        ) : (
+                                          <p className="text-[13px] text-gray-500 font-semibold">No tax details provided.</p>
+                                        )}
+                                      </div>
+                                    </div>
+                                  </td>
+                                </tr>
+                              )}
+                            </React.Fragment>
+                          );
+                        })}
+                            {/* Pagination Controls */}
+                            {filtered.length > itemsPerPage && (
+                              <tr>
+                                <td colSpan={6} className="px-6 py-4 bg-gray-50 border-t border-gray-200">
+                                  <div className="flex items-center justify-between">
+                                    <div className="flex items-center gap-4">
+                                      <span className="text-[13px] font-semibold text-gray-600">
+                                        Showing {startIndex + 1} - {Math.min(endIndex, filtered.length)} of {filtered.length} suppliers
+                                      </span>
+                                      <select
+                                        value={itemsPerPage}
+                                        onChange={(e) => {
+                                          setItemsPerPage(Number(e.target.value));
+                                          setCurrentPage(1);
+                                        }}
+                                        className="px-3 py-1.5 border border-gray-300 rounded-lg text-[13px] font-bold text-[#001A33] focus:ring-2 focus:ring-[#10B981] outline-none"
+                                      >
+                                        <option value={25}>25 per page</option>
+                                        <option value={50}>50 per page</option>
+                                        <option value={100}>100 per page</option>
+                                        <option value={200}>200 per page</option>
+                                      </select>
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                      <button
+                                        onClick={() => setCurrentPage(1)}
+                                        disabled={currentPage === 1}
+                                        className="px-3 py-1.5 bg-white border border-gray-300 rounded-lg text-[13px] font-bold text-[#001A33] disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 transition-colors"
+                                      >
+                                        First
+                                      </button>
+                                      <button
+                                        onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                                        disabled={currentPage === 1}
+                                        className="px-3 py-1.5 bg-white border border-gray-300 rounded-lg text-[13px] font-bold text-[#001A33] disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 transition-colors"
+                                      >
+                                        Previous
+                                      </button>
+                                      <span className="px-4 py-1.5 text-[13px] font-bold text-[#001A33]">
+                                        Page {currentPage} of {totalPages}
+                                      </span>
+                                      <button
+                                        onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                                        disabled={currentPage === totalPages}
+                                        className="px-3 py-1.5 bg-white border border-gray-300 rounded-lg text-[13px] font-bold text-[#001A33] disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 transition-colors"
+                                      >
+                                        Next
+                                      </button>
+                                      <button
+                                        onClick={() => setCurrentPage(totalPages)}
+                                        disabled={currentPage === totalPages}
+                                        className="px-3 py-1.5 bg-white border border-gray-300 rounded-lg text-[13px] font-bold text-[#001A33] disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 transition-colors"
+                                      >
+                                        Last
+                                      </button>
+                                    </div>
+                                  </div>
+                                </td>
+                              </tr>
+                            )}
+                          </>
+                        );
+                      })()}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
+          </div>
         ) : activeTab === 'bookings' ? (
           // Bookings Tab
           <div className="space-y-6">
