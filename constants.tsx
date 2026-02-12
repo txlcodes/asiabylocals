@@ -15,7 +15,7 @@ export const CITIES: Country[] = [
   { id: 'goa', name: 'Goa', image: '/cities-images/goa.jpg', localAngle: 'Beaches & Culture', guidesCount: 234 },
   { id: 'mysore', name: 'Mysore', image: '/cities-images/mysore.jpg', localAngle: 'Royal Heritage', guidesCount: 167 },
   { id: 'bengaluru', name: 'Bengaluru', image: '/cities-images/bangalore.jpg', localAngle: 'Garden City', guidesCount: 289 },
-  { id: 'udaipur', name: 'Udaipur', image: 'https://images.unsplash.com/photo-1624235113031-86640fb6acfb?auto=format&fit=crop&q=80&w=600', localAngle: 'City of Lakes', guidesCount: 156 },
+  { id: 'udaipur', name: 'Udaipur', image: '/cities-images/udaipur.jpg', localAngle: 'City of Lakes', guidesCount: 156 },
   { id: 'amritsar', name: 'Amritsar', image: '/cities-images/amritsar.jpg', localAngle: 'Golden Temple', guidesCount: 142 },
   { id: 'rishikesh', name: 'Rishikesh', image: '/cities-images/rishikesh.jpg', localAngle: 'Yoga Capital', guidesCount: 134 },
   { id: 'leh-ladakh', name: 'Leh Ladakh', image: 'https://images.unsplash.com/photo-1581793745862-99fde7fa73d2?auto=format&fit=crop&q=80&w=600', localAngle: 'Himalayan Desert', guidesCount: 98 },

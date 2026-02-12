@@ -1335,6 +1335,12 @@ const App: React.FC = () => {
                 >
                   About Us
                 </li>
+                <li
+                  onClick={() => setShowSupplierPage(true)}
+                  className="hover:text-white cursor-pointer"
+                >
+                  Become a Supplier
+                </li>
               </ul>
             </div>
           </div>
