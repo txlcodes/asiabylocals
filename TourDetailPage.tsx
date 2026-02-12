@@ -20,6 +20,7 @@ import {
   MessageCircle,
   CheckCircle
 } from 'lucide-react';
+import CheckoutPage from './CheckoutPage';
 
 interface TourDetailPageProps {
   tourId?: string;
@@ -48,8 +49,10 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
   const [availabilityStatus, setAvailabilityStatus] = useState<'idle' | 'checking' | 'available' | 'unavailable'>('idle');
   const [showOptionSelectionModal, setShowOptionSelectionModal] = useState(false);
   const [showBookingModal, setShowBookingModal] = useState(false);
+  const [showCheckoutPage, setShowCheckoutPage] = useState(false);
   const [showGuideContactModal, setShowGuideContactModal] = useState(false);
   const [guideContactInfo, setGuideContactInfo] = useState<any>(null);
+  const [pendingBookingData, setPendingBookingData] = useState<any>(null);
   const [bookingData, setBookingData] = useState({
     customerName: '',
     customerEmail: '',
@@ -1038,6 +1041,33 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
       totalAmount = pricePerPerson;
     }
     
+    // Store booking data and show checkout page
+    setPendingBookingData({
+      tourId: tour.id,
+      tourOptionId: selectedOption?.id || null,
+      bookingDate: selectedDate,
+      numberOfGuests: currentParticipants,
+      specialRequests: bookingData.specialRequests,
+      totalAmount: totalAmount,
+      currency: currency
+    });
+    
+    setShowBookingModal(false);
+    setShowCheckoutPage(true);
+  };
+
+  const handleProceedToPayment = async (guestData: {
+    fullName: string;
+    email: string;
+    country: string;
+    countryCode: string;
+    phoneNumber: string;
+  }) => {
+    if (!pendingBookingData || !tour) {
+      alert('Booking data is missing. Please try again.');
+      return;
+    }
+
     // Create booking via API
     try {
       const API_URL = import.meta.env.VITE_API_URL || (typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3001');
@@ -1047,16 +1077,16 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          tourId: tour.id,
-          tourOptionId: selectedOption?.id || null,
-          bookingDate: selectedDate,
-          numberOfGuests: participants,
-          customerName: bookingData.customerName,
-          customerEmail: bookingData.customerEmail,
-          customerPhone: bookingData.customerPhone,
-          specialRequests: bookingData.specialRequests,
-          totalAmount: totalAmount,
-          currency: currency
+          tourId: pendingBookingData.tourId,
+          tourOptionId: pendingBookingData.tourOptionId,
+          bookingDate: pendingBookingData.bookingDate,
+          numberOfGuests: pendingBookingData.numberOfGuests,
+          customerName: guestData.fullName,
+          customerEmail: guestData.email,
+          customerPhone: `${guestData.countryCode}${guestData.phoneNumber}`,
+          specialRequests: pendingBookingData.specialRequests,
+          totalAmount: pendingBookingData.totalAmount,
+          currency: pendingBookingData.currency
         }),
       });
 
@@ -1072,12 +1102,12 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
           guideWhatsApp: supplierInfo?.whatsapp || supplierInfo?.phone || '',
           bookingId: bookingResult.booking.id,
           tourTitle: tour.title,
-          bookingDate: selectedDate,
-          numberOfGuests: participants,
-          totalAmount: totalAmount,
-          currency: currency
+          bookingDate: pendingBookingData.bookingDate,
+          numberOfGuests: pendingBookingData.numberOfGuests,
+          totalAmount: pendingBookingData.totalAmount,
+          currency: pendingBookingData.currency
         });
-        setShowBookingModal(false);
+        setShowCheckoutPage(false);
         setShowGuideContactModal(true);
         // Clear draft after successful booking
         if (tour?.id) {
@@ -1091,6 +1121,7 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
           customerPhone: '',
           specialRequests: ''
         });
+        setPendingBookingData(null);
         setAvailabilityStatus('idle');
       } else {
         alert(bookingResult.message || 'Failed to create booking');
@@ -2923,6 +2954,30 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
             </button>
           </div>
         </div>
+      )}
+
+      {/* Checkout Page */}
+      {showCheckoutPage && (
+        <CheckoutPage
+          onClose={() => {
+            setShowCheckoutPage(false);
+            setShowBookingModal(true);
+          }}
+          onProceedToPayment={handleProceedToPayment}
+          cancellationDate={pendingBookingData?.bookingDate 
+            ? (() => {
+                const date = new Date(pendingBookingData.bookingDate);
+                date.setHours(8, 0, 0, 0);
+                return date.toLocaleDateString('en-US', { 
+                  month: 'long', 
+                  day: 'numeric',
+                  hour: '2-digit',
+                  minute: '2-digit'
+                });
+              })()
+            : undefined
+          }
+        />
       )}
 
     </div>
