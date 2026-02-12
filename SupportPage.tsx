@@ -181,9 +181,15 @@ const SupportPage: React.FC = () => {
                   <Mail className="text-[#10B981]" size={24} />
                   <h3 className="text-lg font-black text-[#001A33]">Email Support</h3>
                 </div>
-                <p className="text-gray-600 font-semibold text-sm">
+                <p className="text-gray-600 font-semibold text-sm mb-3">
                   For non-urgent inquiries, you can also reach us via email. We'll respond within 24 hours.
                 </p>
+                <a 
+                  href="mailto:support@asiabylocals.com"
+                  className="text-[#10B981] font-black hover:underline"
+                >
+                  support@asiabylocals.com
+                </a>
               </div>
             </div>
           </section>

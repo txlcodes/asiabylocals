@@ -29,6 +29,7 @@ import SafetyGuidelines from './SafetyGuidelines';
 import PrivacyPolicy from './PrivacyPolicy';
 import TermsAndConditions from './TermsAndConditions';
 import SupportPage from './SupportPage';
+import AboutUs from './AboutUs';
 import TouristLogin from './TouristLogin';
 import TouristSignup from './TouristSignup';
 
@@ -219,11 +220,22 @@ const App: React.FC = () => {
   const [showTouristSignup, setShowTouristSignup] = useState(false);
   const [pendingWishlistTour, setPendingWishlistTour] = useState<any>(null);
   
-  // Focus cities: Agra, Delhi, Jaipur, Udaipur, Jaisalmer (India)
+  // Focus cities: Agra, Delhi, Jaipur, and other Indian cities
   const focusCities = [
     { name: 'Agra', country: 'India', slug: 'agra' },
     { name: 'Delhi', country: 'India', slug: 'delhi' },
     { name: 'Jaipur', country: 'India', slug: 'jaipur' },
+    { name: 'Jodhpur', country: 'India', slug: 'jodhpur' },
+    { name: 'Bikaner', country: 'India', slug: 'bikaner' },
+    { name: 'Mathura', country: 'India', slug: 'mathura' },
+    { name: 'Varanasi', country: 'India', slug: 'varanasi' },
+    { name: 'Khajuraho', country: 'India', slug: 'khajuraho' },
+    { name: 'Gwalior', country: 'India', slug: 'gwalior' },
+    { name: 'Mumbai', country: 'India', slug: 'mumbai' },
+    { name: 'Aurangabad', country: 'India', slug: 'aurangabad' },
+    { name: 'Goa', country: 'India', slug: 'goa' },
+    { name: 'Mysore', country: 'India', slug: 'mysore' },
+    { name: 'Bengaluru', country: 'India', slug: 'bengaluru' },
     { name: 'Udaipur', country: 'India', slug: 'udaipur' },
     { name: 'Jaisalmer', country: 'India', slug: 'jaisalmer' }
   ];
@@ -405,6 +417,7 @@ const App: React.FC = () => {
   const isPrivacyPolicyPage = window.location.pathname === '/privacy-policy';
   const isTermsAndConditionsPage = window.location.pathname === '/terms-and-conditions';
   const isSupportPage = window.location.pathname === '/support';
+  const isAboutUsPage = window.location.pathname === '/about-us' || window.location.pathname === '/about';
   
   // Check for city page: /india/agra, /thailand/bangkok, etc.
   const cityPageMatch = window.location.pathname.match(/^\/([^\/]+)\/([^\/]+)$/);
@@ -444,7 +457,17 @@ const App: React.FC = () => {
       'agra': { country: 'india', city: 'agra' },
       'delhi': { country: 'india', city: 'delhi' },
       'jaipur': { country: 'india', city: 'jaipur' },
+      'jodhpur': { country: 'india', city: 'jodhpur' },
+      'bikaner': { country: 'india', city: 'bikaner' },
+      'mathura': { country: 'india', city: 'mathura' },
+      'varanasi': { country: 'india', city: 'varanasi' },
+      'khajuraho': { country: 'india', city: 'khajuraho' },
+      'gwalior': { country: 'india', city: 'gwalior' },
       'mumbai': { country: 'india', city: 'mumbai' },
+      'aurangabad': { country: 'india', city: 'aurangabad' },
+      'goa': { country: 'india', city: 'goa' },
+      'mysore': { country: 'india', city: 'mysore' },
+      'bengaluru': { country: 'india', city: 'bengaluru' },
       'tokyo': { country: 'japan', city: 'tokyo' },
       'kyoto': { country: 'japan', city: 'kyoto' },
       'osaka': { country: 'japan', city: 'osaka' },
@@ -580,6 +603,11 @@ const App: React.FC = () => {
     return <SupportPage />;
   }
 
+  // Show About Us page
+  if (isAboutUsPage) {
+    return <AboutUs />;
+  }
+
   // Show tour detail page (SEO-friendly URL: /country/city/slug)
   if (tourPageMatch && tourSlug) {
     console.log('App.tsx - Routing to TourDetailPage', { 
@@ -665,8 +693,8 @@ const App: React.FC = () => {
               <img 
                 src="/logo.png" 
                 alt="Asia By Locals" 
-                className="h-[100px] sm:h-[120px] md:h-[140px] lg:h-[160px] xl:h-[180px] w-auto object-contain" 
-                style={{ transform: 'translateY(13px)' }}
+                className="h-[90px] sm:h-[85px] md:h-[95px] lg:h-[105px] xl:h-[115px] w-auto object-contain" 
+                style={{ transform: 'translateY(3px)' }}
               />
             </div>
 
@@ -804,12 +832,6 @@ const App: React.FC = () => {
           </div>
 
           <div className="flex items-center gap-2 sm:gap-3 md:gap-4 lg:gap-6 text-[13px] font-semibold text-[#001A33]">
-            <button 
-              onClick={() => setShowSupplierPage(true)}
-              className="text-[12px] sm:text-[13px] hover:text-[#10B981] whitespace-nowrap px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg hover:bg-gray-50 transition-colors"
-            >
-              Become a supplier
-            </button>
             <div className="flex items-center gap-2 sm:gap-3 md:gap-4 lg:gap-5">
               <button 
                 onClick={() => setShowCartModal(true)}
@@ -1161,7 +1183,7 @@ const App: React.FC = () => {
                   }
                 }}
                 onFocus={() => setShowSuggestions(searchQuery.length > 0)}
-                placeholder="Search Agra, Delhi, Jaipur..." 
+                placeholder="Search cities..." 
                 className="flex-1 outline-none border-none ring-0 focus:ring-0 focus:border-none bg-transparent text-[#001A33] font-bold text-sm sm:text-base md:text-lg placeholder:text-gray-400 placeholder:font-medium min-w-0"
               />
               
@@ -1385,6 +1407,12 @@ const App: React.FC = () => {
               <h5 className="font-black text-xs uppercase tracking-widest text-gray-500 mb-8">Company</h5>
               <ul className="space-y-4 text-sm font-bold text-gray-400">
                 <li 
+                  onClick={() => window.location.href = '/about-us'}
+                  className="hover:text-white cursor-pointer"
+                >
+                  About Us
+                </li>
+                <li 
                   onClick={() => setShowSupplierPage(true)}
                   className="hover:text-white cursor-pointer"
                 >
@@ -1397,11 +1425,63 @@ const App: React.FC = () => {
           <div className="pt-10 border-t border-white/5">
             <div className="flex flex-col md:flex-row justify-between items-center gap-8 text-[11px] font-black uppercase tracking-widest text-gray-500 mb-4">
               <span>&copy; 2025 AsiaByLocals HQ • Authentic Experiences Only</span>
-              <div className="flex gap-4 items-center grayscale opacity-50">
-                <div className="bg-white/10 p-2 rounded">VISA</div>
-                <div className="bg-white/10 p-2 rounded">MASTERCARD</div>
-                <div className="bg-white/10 p-2 rounded">PAYPAL</div>
-                <div className="bg-white/10 p-2 rounded">STRIPE</div>
+              <div className="flex flex-wrap gap-3 items-center justify-center">
+                <div className="bg-white px-3 py-2 rounded flex items-center justify-center h-8 min-w-[60px]">
+                  <img 
+                    src="https://upload.wikimedia.org/wikipedia/commons/5/5e/Visa_Inc._logo.svg" 
+                    alt="Visa" 
+                    className="h-5 w-auto object-contain"
+                    style={{ maxWidth: '50px' }}
+                  />
+                </div>
+                <div className="bg-white px-3 py-2 rounded flex items-center justify-center h-8 min-w-[60px]">
+                  <img 
+                    src="https://upload.wikimedia.org/wikipedia/commons/0/04/Mastercard-logo.svg" 
+                    alt="Mastercard" 
+                    className="h-5 w-auto object-contain"
+                    style={{ maxWidth: '50px' }}
+                  />
+                </div>
+                <div className="bg-white px-3 py-2 rounded flex items-center justify-center h-8 min-w-[60px]">
+                  <img 
+                    src="https://upload.wikimedia.org/wikipedia/commons/b/b5/PayPal.svg" 
+                    alt="PayPal" 
+                    className="h-5 w-auto object-contain"
+                    style={{ maxWidth: '50px' }}
+                  />
+                </div>
+                <div className="bg-white px-3 py-2 rounded flex items-center justify-center h-8 min-w-[60px]">
+                  <img 
+                    src="https://upload.wikimedia.org/wikipedia/commons/f/fa/American_Express_logo.svg" 
+                    alt="American Express" 
+                    className="h-5 w-auto object-contain"
+                    style={{ maxWidth: '50px' }}
+                  />
+                </div>
+                <div className="bg-white px-3 py-2 rounded flex items-center justify-center h-8 min-w-[60px]">
+                  <img 
+                    src="https://razorpay.com/assets/razorpay-logo.svg" 
+                    alt="Razorpay" 
+                    className="h-5 w-auto object-contain"
+                    style={{ maxWidth: '50px' }}
+                  />
+                </div>
+                <div className="bg-white px-3 py-2 rounded flex items-center justify-center h-8 min-w-[60px]">
+                  <img 
+                    src="https://www.gstatic.com/images/branding/product/1x/google_pay_48dp.png" 
+                    alt="Google Pay" 
+                    className="h-6 w-auto object-contain"
+                    style={{ maxWidth: '50px' }}
+                  />
+                </div>
+                <div className="bg-white px-3 py-2 rounded flex items-center justify-center h-8 min-w-[60px]">
+                  <img 
+                    src="https://www.apple.com/v/apple-pay/b/images/overview/apple_pay_logo_large_2x.png" 
+                    alt="Apple Pay" 
+                    className="h-6 w-auto object-contain"
+                    style={{ maxWidth: '50px' }}
+                  />
+                </div>
               </div>
             </div>
             <div className="text-center text-gray-400 text-[12px] font-semibold">

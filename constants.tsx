@@ -5,6 +5,16 @@ export const CITIES: Country[] = [
   { id: 'agra', name: 'Agra', image: 'https://images.unsplash.com/photo-1564507592333-c60657eea523?auto=format&fit=crop&q=80&w=600', localAngle: 'Mughal Heritage', guidesCount: 112 },
   { id: 'delhi', name: 'Delhi', image: 'https://images.unsplash.com/photo-1587474260584-136574528ed5?auto=format&fit=crop&q=80&w=600', localAngle: 'Historic Capital', guidesCount: 245 },
   { id: 'jaipur', name: 'Jaipur', image: '/jaipur-hero.jpg', localAngle: 'Pink City', guidesCount: 189 },
+  { id: 'jodhpur', name: 'Jodhpur', image: 'https://images.unsplash.com/photo-1564507592333-c60657eea523?auto=format&fit=crop&q=80&w=600', localAngle: 'Blue City', guidesCount: 145 },
+  { id: 'bikaner', name: 'Bikaner', image: 'https://images.unsplash.com/photo-1564507592333-c60657eea523?auto=format&fit=crop&q=80&w=600', localAngle: 'Desert Heritage', guidesCount: 98 },
+  { id: 'mathura', name: 'Mathura', image: 'https://images.unsplash.com/photo-1564507592333-c60657eea523?auto=format&fit=crop&q=80&w=600', localAngle: 'Spiritual Capital', guidesCount: 134 },
+  { id: 'varanasi', name: 'Varanasi', image: 'https://images.unsplash.com/photo-1564507592333-c60657eea523?auto=format&fit=crop&q=80&w=600', localAngle: 'Sacred Ganges', guidesCount: 178 },
+  { id: 'khajuraho', name: 'Khajuraho', image: 'https://images.unsplash.com/photo-1564507592333-c60657eea523?auto=format&fit=crop&q=80&w=600', localAngle: 'Temple Art', guidesCount: 112 },
+  { id: 'gwalior', name: 'Gwalior', image: 'https://images.unsplash.com/photo-1564507592333-c60657eea523?auto=format&fit=crop&q=80&w=600', localAngle: 'Fort City', guidesCount: 123 },
+  { id: 'aurangabad', name: 'Aurangabad', image: 'https://images.unsplash.com/photo-1564507592333-c60657eea523?auto=format&fit=crop&q=80&w=600', localAngle: 'Cave Temples', guidesCount: 156 },
+  { id: 'goa', name: 'Goa', image: 'https://images.unsplash.com/photo-1564507592333-c60657eea523?auto=format&fit=crop&q=80&w=600', localAngle: 'Beaches & Culture', guidesCount: 234 },
+  { id: 'mysore', name: 'Mysore', image: 'https://images.unsplash.com/photo-1564507592333-c60657eea523?auto=format&fit=crop&q=80&w=600', localAngle: 'Royal Heritage', guidesCount: 167 },
+  { id: 'bengaluru', name: 'Bengaluru', image: 'https://images.unsplash.com/photo-1564507592333-c60657eea523?auto=format&fit=crop&q=80&w=600', localAngle: 'Garden City', guidesCount: 289 },
   // Other cities
   { id: 'tokyo', name: 'Tokyo', image: 'https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?auto=format&fit=crop&q=80&w=600', localAngle: 'Neon & Tradition', guidesCount: 342 },
   { id: 'kyoto', name: 'Kyoto', image: 'https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?auto=format&fit=crop&q=80&w=600', localAngle: 'Zen & Temples', guidesCount: 184 },
@@ -137,6 +147,76 @@ export const CITY_LOCATIONS: Record<string, string[]> = {
   'Varanasi': [
     'Ganges River', 'Kashi Vishwanath Temple', 'Sarnath', 'Dashashwamedh Ghat',
     'Manikarnika Ghat', 'Assi Ghat', 'Banaras Hindu University'
+  ],
+  'Jodhpur': [
+    'Mehrangarh Fort', 'Jaswant Thada', 'Umaid Bhawan Palace', 'Clock Tower',
+    'Mandore Gardens', 'Rao Jodha Desert Rock Park', 'Ghanta Ghar', 'Balsamand Lake',
+    'Jodhpur Railway Station', 'Jodhpur Airport', 'Sardar Market', 'Toorji Ka Jhalra',
+    'Chamunda Mata Temple', 'Mahamandir Temple', 'Kaylana Lake', 'Machia Biological Park',
+    'Rao Jodha Desert Rock Park', 'Bishnoi Village'
+  ],
+  'Bikaner': [
+    'Junagarh Fort', 'Karni Mata Temple', 'Lalgarh Palace', 'National Research Centre on Camel',
+    'Gajner Palace', 'Laxmi Niwas Palace', 'Bikaner Camel Festival', 'Rampuria Havelis',
+    'Bikaner Railway Station', 'Bikaner Airport', 'Kote Gate', 'Bhandasar Jain Temple',
+    'Ganga Government Museum', 'Shri Laxminath Temple', 'Devi Kund Sagar', 'Camel Breeding Farm',
+    'Sadul Singh Museum', 'Gajner Wildlife Sanctuary'
+  ],
+  'Mathura': [
+    'Krishna Janmasthan Temple', 'Dwarkadhish Temple', 'Vrindavan', 'Govardhan Hill',
+    'Banke Bihari Temple', 'Prem Mandir', 'ISKCON Temple', 'Radha Kund',
+    'Mathura Railway Station', 'Mathura Junction', 'Vishram Ghat', 'Kusum Sarovar',
+    'Gita Mandir', 'Rangji Temple', 'Seva Kunj', 'Nidhivan',
+    'Mathura Museum', 'Barsana', 'Gokul'
+  ],
+  'Varanasi': [
+    'Ganges River', 'Kashi Vishwanath Temple', 'Sarnath', 'Dashashwamedh Ghat',
+    'Manikarnika Ghat', 'Assi Ghat', 'Banaras Hindu University', 'Varanasi Railway Station',
+    'Varanasi Airport', 'Tulsi Manas Temple', 'Sankat Mochan Hanuman Temple', 'Durga Temple',
+    'Ramnagar Fort', 'Bharat Mata Temple', 'New Vishwanath Temple', 'Man Mandir Observatory',
+    'Alamgir Mosque', 'Chunar Fort', 'Vishalakshi Temple'
+  ],
+  'Khajuraho': [
+    'Khajuraho Group of Monuments', 'Western Group of Temples', 'Eastern Group of Temples',
+    'Southern Group of Temples', 'Archaeological Museum', 'Panna National Park', 'Raneh Falls',
+    'Khajuraho Railway Station', 'Khajuraho Airport', 'Kandariya Mahadeva Temple', 'Lakshmana Temple',
+    'Vishvanatha Temple', 'Chitragupta Temple', 'Adinath Temple', 'Parsvanath Temple',
+    'Duladeo Temple', 'Chaturbhuj Temple', 'Beni Sagar Dam'
+  ],
+  'Gwalior': [
+    'Gwalior Fort', 'Jai Vilas Palace', 'Teli Ka Mandir', 'Sas Bahu Temples',
+    'Tansen Tomb', 'Gurudwara Data Bandi Chhod', 'Sun Temple', 'Scindia Museum',
+    'Gwalior Railway Station', 'Gwalior Airport', 'Man Mandir Palace', 'Gurjari Mahal',
+    'Gopachal Parvat', 'Tomb of Mohammad Ghaus', 'Gwalior Zoo', 'Phool Bagh',
+    'Suraj Kund', 'Gwalior Trade Fair Ground', 'Maharaj Bada'
+  ],
+  'Aurangabad': [
+    'Ajanta Caves', 'Ellora Caves', 'Bibi Ka Maqbara', 'Daulatabad Fort',
+    'Grishneshwar Temple', 'Panchakki', 'Aurangabad Caves', 'Shivaji Museum',
+    'Aurangabad Railway Station', 'Aurangabad Airport', 'Kailasa Temple', 'Buddhist Caves',
+    'Jain Caves', 'Himroo Factory', 'Salim Ali Lake', 'Gautala Wildlife Sanctuary',
+    'Pithalkora Caves', 'Lonar Crater Lake', 'Aurangabad Caves Complex'
+  ],
+  'Goa': [
+    'Calangute Beach', 'Baga Beach', 'Anjuna Beach', 'Dudhsagar Falls',
+    'Basilica of Bom Jesus', 'Fort Aguada', 'Spice Plantations', 'Goa Airport',
+    'Goa Railway Station', 'Se Cathedral', 'Chapora Fort', 'Aguada Fort',
+    'Dona Paula', 'Reis Magos Fort', 'Mangeshi Temple', 'Shri Shantadurga Temple',
+    'Old Goa', 'Fontainhas', 'Candolim Beach', 'Vagator Beach'
+  ],
+  'Mysore': [
+    'Mysore Palace', 'Chamundi Hill', 'Brindavan Gardens', 'St. Philomena\'s Cathedral',
+    'Mysore Zoo', 'Jaganmohan Palace', 'Karanji Lake', 'Railway Museum',
+    'Mysore Railway Station', 'Mysore Airport', 'Chamundeshwari Temple', 'Lalitha Mahal Palace',
+    'Krishnaraja Sagar Dam', 'Somnathpur Temple', 'Ranganathittu Bird Sanctuary', 'Melody World Wax Museum',
+    'Sand Sculpture Museum', 'Devaraja Market', 'Mysore Silk Factory'
+  ],
+  'Bengaluru': [
+    'Lalbagh Botanical Garden', 'Cubbon Park', 'Bangalore Palace', 'Tipu Sultan\'s Summer Palace',
+    'ISKCON Temple', 'Vidhana Soudha', 'Nandi Hills', 'Bannerghatta National Park',
+    'Bangalore Railway Station', 'Bangalore Airport', 'Ulsoor Lake', 'Wonderla Amusement Park',
+    'Innovation Film City', 'Bull Temple', 'Vidhana Soudha', 'UB City Mall',
+    'Commercial Street', 'MG Road', 'Cubbon Park Metro Station', 'Bangalore Fort'
   ],
   'Udaipur': [
     'City Palace', 'Lake Pichola', 'Jag Mandir', 'Jagdish Temple',

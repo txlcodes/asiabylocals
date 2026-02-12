@@ -245,8 +245,8 @@ const SupplierPage: React.FC<SupplierPageProps> = ({ onClose }) => {
             <img 
               src="/logo.png" 
               alt="AsiaByLocals" 
-              className="h-[100px] sm:h-[120px] md:h-[140px] lg:h-[160px] xl:h-[180px] w-auto object-contain"
-              style={{ transform: 'translateY(13px)' }}
+              className="h-[90px] sm:h-[85px] md:h-[95px] lg:h-[105px] xl:h-[115px] w-auto object-contain"
+              style={{ transform: 'translateY(3px)' }}
             />
           </div>
           <button
