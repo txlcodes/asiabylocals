@@ -43,7 +43,7 @@ const AboutUs: React.FC = () => {
               <h2 className="text-2xl font-black">Our Mission</h2>
             </div>
             <p className="text-lg font-semibold text-gray-100 leading-relaxed">
-              To provide excellent local guides all over Asia.
+              To provide excellent experiences and local guides all over Asia.
             </p>
             <p className="text-base font-semibold text-gray-200 leading-relaxed mt-4">
               We curate bespoke travel experiences across Asia, designed for discerning travelers who value comfort, culture, and genuine human connection. Our purpose is to offer premium, private, and culturally immersive tours, hosted by the finest local guides and storytellers.
@@ -168,8 +168,8 @@ const AboutUs: React.FC = () => {
                 <p className="text-gray-700 font-black mb-2">Registered Office:</p>
                 <p className="text-gray-600 font-semibold">118 Rani Bagh Indirapuram<br />Agra 282001<br />Uttar Pradesh, India</p>
                 <p className="text-gray-600 font-semibold mt-3">
-                  Contact: +919897873562 +918938842594<br />
-                  Email: info@asiabylocals.com
+                  Contact: +919897873562, +918938842594<br />
+                  Email: info@asiabylocals.com, tajtourguide@gmail.com
                 </p>
               </div>
               <div className="text-center pt-4 border-t border-gray-300">

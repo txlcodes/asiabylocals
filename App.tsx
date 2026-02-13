@@ -1180,7 +1180,6 @@ const App: React.FC = () => {
                 }}
               >
                 {CITIES.map((city) => {
-                  const isLiveCity = ['agra', 'delhi', 'jaipur'].includes(city.id);
                   return (
                     <div 
                       key={city.id} 
@@ -1198,11 +1197,6 @@ const App: React.FC = () => {
                             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
                           />
                           <div className="absolute inset-0 bg-gradient-to-t from-black/65 via-black/25 to-transparent"></div>
-                          {isLiveCity && (
-                            <div className="absolute top-2.5 sm:top-3 right-2.5 sm:right-3 bg-[#10B981] text-white text-[10px] font-black px-2 py-1 rounded-full uppercase tracking-wide shadow-md">
-                              Live
-                            </div>
-                          )}
                           <div className="absolute bottom-0 left-0 right-0 p-3 sm:p-4">
                             <h3 className="text-white font-black text-lg sm:text-xl md:text-lg mb-1 drop-shadow-xl leading-tight">{city.name}</h3>
                             <p className="text-white/95 text-xs sm:text-sm md:text-[11px] font-semibold drop-shadow-md leading-snug">{city.localAngle}</p>
