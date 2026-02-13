@@ -74,7 +74,6 @@ export const ASIAN_CITIES_DATABASE: CityInfo[] = [
   { name: 'Rishikesh', country: 'India', region: 'South Asia', type: 'City' },
   { name: 'Darjeeling', country: 'India', region: 'South Asia', type: 'City' },
   { name: 'Jodhpur', country: 'India', region: 'South Asia', type: 'City' },
-  { name: 'Udaipur', country: 'India', region: 'South Asia', type: 'City' },
   { name: 'Amritsar', country: 'India', region: 'South Asia', type: 'City' },
   { name: 'Leh Ladakh', country: 'India', region: 'South Asia', type: 'Region' },
 

@@ -450,11 +450,11 @@ const ThingsToDoSection: React.FC<ThingsToDoSectionProps> = ({ city }) => {
   const thingsToDo = thingsToDoData[city] || [];
 
   return (
-    <section className="mb-16">
-      <h2 className="text-3xl font-black text-[#001A33] mb-8">
+    <section className="mb-12">
+      <h2 className="text-3xl font-black text-[#001A33] mb-6">
         Our Most Recommended Things to Do in {city}
       </h2>
-      <div className="space-y-6">
+      <div className="space-y-4">
         {thingsToDo.map((item, index) => {
           const isExpanded = expandedCards.has(index);
           return (
@@ -462,13 +462,13 @@ const ThingsToDoSection: React.FC<ThingsToDoSectionProps> = ({ city }) => {
               key={index}
               className="bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-sm hover:shadow-md transition-shadow"
             >
-              <div className="flex flex-col md:flex-row gap-0">
-                {/* Image Section - Smaller, less distracting */}
-                <div className="md:w-1/4 lg:w-1/5 shrink-0 self-start">
+              <div className="flex flex-col md:flex-row items-stretch gap-0">
+                {/* Image Section - Optimized 2-column layout */}
+                <div className="md:w-1/3 shrink-0 flex">
                   <img
                     src={item.image}
                     alt={`${item.title} in ${city}`}
-                    className="w-full h-40 md:h-40 object-cover"
+                    className="w-full h-full min-h-[200px] md:min-h-0 object-cover"
                     style={{ objectFit: 'cover', objectPosition: 'center' }}
                     onError={(e) => {
                       // Fallback to placeholder if image not found
@@ -483,16 +483,16 @@ const ThingsToDoSection: React.FC<ThingsToDoSectionProps> = ({ city }) => {
                   />
                 </div>
 
-                {/* Content Section - Expands/contracts independently */}
-                <div className="md:w-3/4 lg:w-4/5 p-6 flex flex-col">
-                  <h3 className="text-2xl font-black text-[#001A33] mb-3">
+                {/* Content Section - Optimized spacing and typography */}
+                <div className="md:w-2/3 p-5 flex flex-col">
+                  <h3 className="text-2xl font-black text-[#001A33] mb-2">
                     {item.title}
                   </h3>
 
-                  <div className="text-[16px] text-gray-700 font-semibold leading-relaxed mb-4">
+                  <div className="text-[16px] text-gray-700 font-semibold leading-[1.6] mb-3 flex-1">
                     {isExpanded ? (
                       <div>
-                        <p className="mb-3">{item.shortDescription}</p>
+                        <p className="mb-2">{item.shortDescription}</p>
                         <p className="text-gray-600">{item.fullDescription}</p>
                       </div>
                     ) : (

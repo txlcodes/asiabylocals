@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { 
+import {
   Mail,
   Lock,
   X,
@@ -28,7 +28,7 @@ const SupplierLogin: React.FC<SupplierLoginProps> = ({ onClose, onLoginSuccess, 
     const urlParams = new URLSearchParams(window.location.search);
     const verified = urlParams.get('verified');
     const verifiedEmail = sessionStorage.getItem('verifiedEmail');
-    
+
     if (verified === 'true' || verifiedEmail) {
       setShowVerificationSuccess(true);
       if (verifiedEmail) {
@@ -42,7 +42,7 @@ const SupplierLogin: React.FC<SupplierLoginProps> = ({ onClose, onLoginSuccess, 
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!email || !password) {
       alert('Please enter both email and password');
       return;
@@ -55,11 +55,11 @@ const SupplierLogin: React.FC<SupplierLoginProps> = ({ onClose, onLoginSuccess, 
       // Use relative URL for unified deployment, or fallback to env var for separate deployment
       const API_URL = import.meta.env.VITE_API_URL || (typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3001');
       const loginUrl = `${API_URL}/api/suppliers/login`;
-      
+
       console.log('🔐 Supplier login attempt:');
       console.log('   API URL:', loginUrl);
       console.log('   Email:', email);
-      
+
       const response = await fetch(loginUrl, {
         method: 'POST',
         headers: {
@@ -67,7 +67,7 @@ const SupplierLogin: React.FC<SupplierLoginProps> = ({ onClose, onLoginSuccess, 
         },
         body: JSON.stringify({ email, password }),
       });
-      
+
       console.log('   Response status:', response.status);
       console.log('   Response OK:', response.ok);
 
@@ -99,7 +99,7 @@ const SupplierLogin: React.FC<SupplierLoginProps> = ({ onClose, onLoginSuccess, 
       console.error('❌ Login error:', error);
       console.error('   Error message:', error.message);
       console.error('   Error type:', error.name);
-      
+
       if (error.message?.includes('fetch') || error.message?.includes('Failed to fetch') || error.message?.includes('NetworkError')) {
         const apiUrl = import.meta.env.VITE_API_URL || (typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3001');
         setErrorMessage(`Cannot connect to server at ${apiUrl}. Please check your connection and try again.`);
@@ -115,10 +115,18 @@ const SupplierLogin: React.FC<SupplierLoginProps> = ({ onClose, onLoginSuccess, 
       {/* Login Header */}
       <header className="bg-[#001A33] text-white py-3 px-8 sticky top-0 z-50">
         <div className="max-w-4xl mx-auto flex items-center justify-between h-16">
-          <div className="flex items-center h-full">
+          <div
+            className="flex items-center gap-3 cursor-pointer"
+            onClick={() => window.location.href = '/'}
+          >
+            <img
+              src="/logo.png"
+              alt="Asia By Locals"
+              className="h-14 w-auto object-contain"
+            />
             <span className="font-black tracking-tight text-lg">Partner Login</span>
           </div>
-          <button 
+          <button
             onClick={onClose}
             className="p-2 hover:bg-white/10 rounded-full transition-colors"
           >
@@ -140,12 +148,12 @@ const SupplierLogin: React.FC<SupplierLoginProps> = ({ onClose, onLoginSuccess, 
                 ✅ Email verified successfully! Please log in to access your supplier dashboard.
               </div>
             )}
-            
+
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="relative">
                 <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
-                <input 
-                  type="email" 
+                <input
+                  type="email"
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
@@ -155,7 +163,7 @@ const SupplierLogin: React.FC<SupplierLoginProps> = ({ onClose, onLoginSuccess, 
               </div>
               <div className="relative">
                 <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
-                <input 
+                <input
                   type={showPassword ? "text" : "password"}
                   required
                   value={password}
@@ -172,13 +180,13 @@ const SupplierLogin: React.FC<SupplierLoginProps> = ({ onClose, onLoginSuccess, 
                   {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                 </button>
               </div>
-              
+
               {errorMessage && (
                 <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl text-sm font-semibold">
                   {errorMessage}
                 </div>
               )}
-              
+
               <div className="flex items-center justify-between text-[13px]">
                 <label className="flex items-center gap-2 cursor-pointer">
                   <input type="checkbox" className="rounded border-gray-300 text-[#0071EB] focus:ring-[#0071EB]" />
@@ -189,7 +197,7 @@ const SupplierLogin: React.FC<SupplierLoginProps> = ({ onClose, onLoginSuccess, 
                 </button>
               </div>
 
-              <button 
+              <button
                 type="submit"
                 disabled={isSubmitting}
                 className="w-full bg-[#0071EB] hover:bg-[#005bb8] text-white font-black py-5 rounded-full shadow-lg shadow-blue-200 transition-all active:scale-95 flex items-center justify-center gap-2 disabled:opacity-50 text-[14px]"
@@ -214,7 +222,7 @@ const SupplierLogin: React.FC<SupplierLoginProps> = ({ onClose, onLoginSuccess, 
               </div>
             </div>
 
-            <button 
+            <button
               onClick={() => {
                 if (onCreateAccount) {
                   onCreateAccount();

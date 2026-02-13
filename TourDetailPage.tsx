@@ -1,13 +1,13 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { 
-  Star, 
-  Share2, 
-  Calendar, 
-  Users, 
-  Globe, 
-  CheckCircle2, 
-  Clock, 
-  MapPin, 
+import {
+  Star,
+  Share2,
+  Calendar,
+  Users,
+  Globe,
+  CheckCircle2,
+  Clock,
+  MapPin,
   User,
   ChevronLeft,
   ChevronRight,
@@ -32,7 +32,7 @@ interface TourDetailPageProps {
 
 const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, country, city, onClose }) => {
   console.log('TourDetailPage - Component rendered', { tourId, tourSlug, country, city });
-  
+
   const [tour, setTour] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -59,6 +59,7 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
     customerPhone: '',
     specialRequests: ''
   });
+  const [expandedOptionDescriptions, setExpandedOptionDescriptions] = useState<Set<number>>(new Set());
   const bookingBoxRef = useRef<HTMLDivElement>(null);
 
   // Calculate price based on group pricing tiers and number of participants
@@ -73,24 +74,24 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
       hasGroupPricingTiers: !!tourData?.groupPricingTiers,
       groupPricingTiersType: typeof tourData?.groupPricingTiers
     });
-    
+
     if (!tourData) {
       console.error('❌ PRICING ERROR: tourData is null/undefined');
       return null;
     }
-    
+
     // CRITICAL: Check Tour.groupPricingTiers FIRST (PRIMARY SOURCE - most reliable)
     // This is now stored directly on Tour model, simple and reliable
     let groupPricingTiers = null;
-    
+
     // #region agent log
-    fetch('http://127.0.0.1:7242/ingest/c1426495-b81c-4a08-aaea-9440216322e2',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'TourDetailPage.tsx:82',message:'Checking tour.groupPricingTiers - tour object state',data:{tourExists:!!tour,tourId:tour?.id,tourTitle:tour?.title,hasGroupPricingTiers:!!tour?.groupPricingTiers,groupPricingTiersType:typeof tour?.groupPricingTiers,tourKeys:tour?Object.keys(tour).slice(0,20):null},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+    fetch('http://127.0.0.1:7242/ingest/c1426495-b81c-4a08-aaea-9440216322e2', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'TourDetailPage.tsx:82', message: 'Checking tour.groupPricingTiers - tour object state', data: { tourExists: !!tour, tourId: tour?.id, tourTitle: tour?.title, hasGroupPricingTiers: !!tour?.groupPricingTiers, groupPricingTiersType: typeof tour?.groupPricingTiers, tourKeys: tour ? Object.keys(tour).slice(0, 20) : null }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'A' }) }).catch(() => { });
     // #endregion
-    
+
     if (tour && tour.groupPricingTiers) {
       console.log('🔍 PRIMARY: Checking tour.groupPricingTiers (Tour model - PRIMARY SOURCE)...');
       // #region agent log
-      fetch('http://127.0.0.1:7242/ingest/c1426495-b81c-4a08-aaea-9440216322e2',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'TourDetailPage.tsx:85',message:'tour.groupPricingTiers exists - parsing',data:{type:typeof tour.groupPricingTiers,isString:typeof tour.groupPricingTiers==='string',isArray:Array.isArray(tour.groupPricingTiers),preview:typeof tour.groupPricingTiers==='string'?tour.groupPricingTiers.substring(0,100):JSON.stringify(tour.groupPricingTiers).substring(0,100)},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+      fetch('http://127.0.0.1:7242/ingest/c1426495-b81c-4a08-aaea-9440216322e2', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'TourDetailPage.tsx:85', message: 'tour.groupPricingTiers exists - parsing', data: { type: typeof tour.groupPricingTiers, isString: typeof tour.groupPricingTiers === 'string', isArray: Array.isArray(tour.groupPricingTiers), preview: typeof tour.groupPricingTiers === 'string' ? tour.groupPricingTiers.substring(0, 100) : JSON.stringify(tour.groupPricingTiers).substring(0, 100) }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'A' }) }).catch(() => { });
       // #endregion
       try {
         if (typeof tour.groupPricingTiers === 'string') {
@@ -101,33 +102,33 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
         if (groupPricingTiers && Array.isArray(groupPricingTiers) && groupPricingTiers.length > 0) {
           console.log('✅ PRIMARY: Found groupPricingTiers on Tour model:', groupPricingTiers);
           // #region agent log
-          fetch('http://127.0.0.1:7242/ingest/c1426495-b81c-4a08-aaea-9440216322e2',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'TourDetailPage.tsx:91',message:'Successfully parsed tour.groupPricingTiers',data:{tiersCount:groupPricingTiers.length,firstTier:groupPricingTiers[0]},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+          fetch('http://127.0.0.1:7242/ingest/c1426495-b81c-4a08-aaea-9440216322e2', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'TourDetailPage.tsx:91', message: 'Successfully parsed tour.groupPricingTiers', data: { tiersCount: groupPricingTiers.length, firstTier: groupPricingTiers[0] }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'A' }) }).catch(() => { });
           // #endregion
         }
       } catch (e) {
         console.error('❌ Failed to parse tour.groupPricingTiers:', e);
         // #region agent log
-        fetch('http://127.0.0.1:7242/ingest/c1426495-b81c-4a08-aaea-9440216322e2',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'TourDetailPage.tsx:94',message:'Failed to parse tour.groupPricingTiers',data:{error:e.message,errorStack:e.stack},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+        fetch('http://127.0.0.1:7242/ingest/c1426495-b81c-4a08-aaea-9440216322e2', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'TourDetailPage.tsx:94', message: 'Failed to parse tour.groupPricingTiers', data: { error: e.message, errorStack: e.stack }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'A' }) }).catch(() => { });
         // #endregion
       }
     } else {
       // #region agent log
-      fetch('http://127.0.0.1:7242/ingest/c1426495-b81c-4a08-aaea-9440216322e2',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'TourDetailPage.tsx:96',message:'tour.groupPricingTiers NOT found',data:{tourExists:!!tour,hasGroupPricingTiers:!!tour?.groupPricingTiers,reason:tour?'groupPricingTiers missing':'tour is null'},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+      fetch('http://127.0.0.1:7242/ingest/c1426495-b81c-4a08-aaea-9440216322e2', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'TourDetailPage.tsx:96', message: 'tour.groupPricingTiers NOT found', data: { tourExists: !!tour, hasGroupPricingTiers: !!tour?.groupPricingTiers, reason: tour ? 'groupPricingTiers missing' : 'tour is null' }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'A' }) }).catch(() => { });
       // #endregion
     }
-    
+
     // FALLBACK: Check tourData.groupPricingTiers (for options with custom pricing)
     if (!groupPricingTiers && tourData.groupPricingTiers) {
       console.log('🔍 FALLBACK: Checking tourData.groupPricingTiers (option custom pricing)...');
       let rawPricingData = tourData.groupPricingTiers;
-      
+
       console.log('📦 Supplier pricing response (raw):', {
         raw: rawPricingData,
         type: typeof rawPricingData,
         isString: typeof rawPricingData === 'string',
         isArray: Array.isArray(rawPricingData)
       });
-      
+
       try {
         // Handle both string and object formats
         if (typeof tourData.groupPricingTiers === 'string') {
@@ -147,23 +148,23 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
         groupPricingTiers = null;
       }
     }
-    
+
     // CRITICAL FALLBACK 2: Check main tour's options for groupPricingTiers
     // This handles both main tour and options (options fall back to main tour pricing)
     if (!groupPricingTiers && tour && tour.options && Array.isArray(tour.options) && tour.options.length > 0) {
       console.log('🔍 Checking main tour options for groupPricingTiers fallback...');
       console.log('   Total options available:', tour.options.length);
-      
+
       // Find main tour option (sortOrder -1 or first option)
       const mainTourOption = tour.options.find((opt: any) => opt.sortOrder === -1) || tour.options[0];
-      
+
       console.log('   Main tour option:', {
         id: mainTourOption?.id,
         title: mainTourOption?.optionTitle,
         sortOrder: mainTourOption?.sortOrder,
         hasGroupPricingTiers: !!mainTourOption?.groupPricingTiers
       });
-      
+
       if (mainTourOption && mainTourOption.groupPricingTiers) {
         try {
           console.log('   Found groupPricingTiers on main tour option, parsing...');
@@ -207,12 +208,12 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
         }
       }
     }
-    
+
     // CRITICAL: Log parsed pricing slabs
     if (groupPricingTiers && Array.isArray(groupPricingTiers) && groupPricingTiers.length > 0) {
       console.log('📊 Parsed pricing slabs:', groupPricingTiers);
       console.log('   Total slabs:', groupPricingTiers.length);
-      
+
       // CRITICAL: Always log the default price (1-1 person)
       const defaultSlab = groupPricingTiers.find((t: any) => t.minPeople === 1 && t.maxPeople === 1);
       if (defaultSlab) {
@@ -230,11 +231,11 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
         pricePerPerson: tourData.pricePerPerson || tour?.pricePerPerson,
         maxGroupSize: tourData.maxGroupSize || tour?.maxGroupSize
       });
-      
+
       // CRITICAL FALLBACK: Check main tour's groupPricingTiers before using multiplication
       // If tourData is an option without groupPricingTiers, use main tour's tiers
       console.log('🔍 FALLBACK: Checking main tour for groupPricingTiers...');
-      
+
       // FALLBACK 1: Check main tour option (sortOrder: -1) - this should have the main tour's tiers
       if (!groupPricingTiers && tour && tour.options && Array.isArray(tour.options) && tour.options.length > 0) {
         const mainTourOption = tour.options.find((opt: any) => opt.sortOrder === -1) || tour.options[0];
@@ -244,7 +245,7 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
           sortOrder: mainTourOption?.sortOrder,
           hasGroupPricingTiers: !!mainTourOption?.groupPricingTiers
         });
-        
+
         if (mainTourOption && mainTourOption.groupPricingTiers) {
           try {
             let mainTiers = null;
@@ -253,7 +254,7 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
             } else if (Array.isArray(mainTourOption.groupPricingTiers)) {
               mainTiers = mainTourOption.groupPricingTiers;
             }
-            
+
             if (Array.isArray(mainTiers) && mainTiers.length > 0) {
               console.log('✅ FALLBACK: Found main tour option groupPricingTiers, using for calculation');
               console.log('   Pricing slabs:', mainTiers);
@@ -265,7 +266,7 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
           }
         }
       }
-      
+
       // FALLBACK 2: If still no tiers, check tour.groupPricingTiers directly
       if (!groupPricingTiers && tour && tour.groupPricingTiers) {
         console.log('🔍 FALLBACK 2: Checking tour.groupPricingTiers directly...');
@@ -276,7 +277,7 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
           } else if (Array.isArray(tour.groupPricingTiers)) {
             mainTiers = tour.groupPricingTiers;
           }
-          
+
           if (Array.isArray(mainTiers) && mainTiers.length > 0) {
             console.log('✅ FALLBACK: Found tour.groupPricingTiers, using for calculation');
             console.log('   Pricing slabs:', mainTiers);
@@ -286,19 +287,19 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
           console.error('❌ Failed to parse tour.groupPricingTiers:', e);
         }
       }
-      
+
       // FALLBACK 3: If we STILL don't have groupPricingTiers, try TEMPORARY multiplication fallback
       if (!groupPricingTiers || !Array.isArray(groupPricingTiers) || groupPricingTiers.length === 0) {
         const fallbackPricePerPerson = tourData.pricePerPerson || tour?.pricePerPerson;
         const fallbackMaxGroupSize = tourData.maxGroupSize || tour?.maxGroupSize || 10;
-        
+
         if (fallbackPricePerPerson && fallbackPricePerPerson > 0) {
           console.warn('⚠️ WARNING: Using TEMPORARY multiplication fallback');
           console.warn('   This means groupPricingTiers is missing from database');
           console.warn('   pricePerPerson:', fallbackPricePerPerson);
           console.warn('   maxGroupSize:', fallbackMaxGroupSize);
           console.warn('⚠️ Tour should be edited and re-submitted to save proper groupPricingTiers');
-          
+
           // CRITICAL: For fallback, return pricePerPerson * numParticipants
           // This makes pricing dynamic even without proper tiers
           // NOTE: This is NOT ideal - proper tiered pricing should be saved in database
@@ -315,12 +316,12 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
         }
       }
     }
-    
+
     // If group pricing tiers exist, find the matching tier
     if (groupPricingTiers && Array.isArray(groupPricingTiers) && groupPricingTiers.length > 0) {
       console.log('🔍 Selected persons:', numParticipants);
       console.log('   Searching for matching slab...');
-      
+
       // Find the tier that matches the number of participants (exact match first)
       // For tiers like {minPeople: 4, maxPeople: 4}, we need exact match
       let matchingTier = null;
@@ -334,7 +335,7 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
           break; // Use first matching tier
         }
       }
-      
+
       if (matchingTier && matchingTier.price) {
         const price = parseFloat(matchingTier.price);
         if (isNaN(price) || price <= 0) {
@@ -342,7 +343,7 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
           console.error('   Pricing mismatch reason: price is NaN or <= 0');
           return null;
         }
-        
+
         console.log('✅ Matched slab:', {
           tier: `${matchingTier.minPeople}-${matchingTier.maxPeople} people`,
           price,
@@ -353,15 +354,15 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
         console.log('═══════════════════════════════════════════════════════════');
         return price;
       }
-      
+
       console.error('❌ PRICING ERROR: No matching tier found for', numParticipants, 'participants');
-      console.error('   Available tiers:', 
+      console.error('   Available tiers:',
         groupPricingTiers.map((t: any) => `${t.minPeople}-${t.maxPeople} (₹${t.price})`).join(', '));
       console.error('   Pricing mismatch reason: numParticipants outside all tier ranges');
       console.log('═══════════════════════════════════════════════════════════');
       return null;
     }
-    
+
     // DO NOT use groupPrice fallback - it's the LAST tier price (wrong for "starting from")
     // groupPrice is ₹8,200 (10 people), not ₹1,000 (1 person)
     // If we have groupPricingTiers, we should have found a match above
@@ -375,79 +376,6 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
   const isGroupPricing = (tourData: any): boolean => {
     // Always return true - all pricing is per group now
     return true;
-    if (!tourData) return false;
-    
-    const isOption = !!(tourData.optionTitle || tourData.tourId);
-    const itemName = isOption ? `Option "${tourData.optionTitle || 'Unknown'}"` : `Main Tour "${tourData.title || 'Unknown'}"`;
-    
-    // FIRST: Check tourTypes for "Group Tour" - this is the primary indicator (only for main tours, not options)
-    if (!isOption && tourData.tourTypes) {
-      try {
-        const tourTypes = typeof tourData.tourTypes === 'string' 
-          ? JSON.parse(tourData.tourTypes) 
-          : tourData.tourTypes;
-        if (Array.isArray(tourTypes) && tourTypes.some((t: string) => 
-          t && typeof t === 'string' && t.toLowerCase().includes('group')
-        )) {
-          console.log(`✅ ${itemName}: Group pricing detected via tourTypes`);
-          return true; // Has "Group Tour" in tourTypes = per_group
-        }
-      } catch (e) {
-        // Ignore parse errors
-      }
-    }
-    
-    // SECOND: Check for group pricing tiers (works for both main tour and options)
-    if (tourData.groupPricingTiers) {
-      try {
-        const tiers = typeof tourData.groupPricingTiers === 'string' 
-          ? JSON.parse(tourData.groupPricingTiers) 
-          : tourData.groupPricingTiers;
-        if (Array.isArray(tiers) && tiers.length > 0) {
-          console.log(`✅ ${itemName}: Group pricing detected via groupPricingTiers (${tiers.length} tiers)`);
-          return true; // Has group pricing tiers = per_group
-        }
-      } catch (e) {
-        console.error(`❌ ${itemName}: Error parsing groupPricingTiers:`, e);
-      }
-    }
-    
-    // THIRD: Check for legacy groupPrice + maxGroupSize (works for both main tour and options)
-    if (tourData.groupPrice && tourData.maxGroupSize) {
-      console.log(`✅ ${itemName}: Group pricing detected via legacy groupPrice + maxGroupSize`);
-      return true; // Has groupPrice + maxGroupSize = per_group
-    }
-    
-    // FOURTH: If this is main tour (not an option), check main tour option for group pricing
-    // This handles the case where main tour's group pricing tiers are stored in a special option (sortOrder: -1)
-    const isMainTour = tourData.id && !tourData.optionTitle && !tourData.tourId;
-    if (isMainTour && tour && tour.options && Array.isArray(tour.options) && tour.options.length > 0) {
-      const mainTourOption = tour.options.find((opt: any) => opt.sortOrder === -1);
-      if (mainTourOption) {
-        // Check main tour option's groupPricingTiers
-        if (mainTourOption.groupPricingTiers) {
-          try {
-            const tiers = typeof mainTourOption.groupPricingTiers === 'string' 
-              ? JSON.parse(mainTourOption.groupPricingTiers) 
-              : mainTourOption.groupPricingTiers;
-            if (Array.isArray(tiers) && tiers.length > 0) {
-              console.log(`✅ ${itemName}: Group pricing detected via main tour option's groupPricingTiers (${tiers.length} tiers)`);
-              return true; // Main tour option has group pricing tiers = per_group
-            }
-          } catch (e) {
-            console.error(`❌ ${itemName}: Error parsing main tour option's groupPricingTiers:`, e);
-          }
-        }
-        // Check main tour option's legacy groupPrice + maxGroupSize
-        if (mainTourOption.groupPrice && mainTourOption.maxGroupSize) {
-          console.log(`✅ ${itemName}: Group pricing detected via main tour option's legacy groupPrice + maxGroupSize`);
-          return true;
-        }
-      }
-    }
-    
-    console.log(`❌ ${itemName}: No group pricing detected - defaulting to per person`);
-    return false; // No group pricing = per_person
   };
 
   useEffect(() => {
@@ -514,18 +442,18 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
     if (tour) {
       const countrySlug = country?.toLowerCase() || '';
       const citySlug = city?.toLowerCase() || '';
-      const tourUrl = tour.slug && country && city 
+      const tourUrl = tour.slug && country && city
         ? `https://www.asiabylocals.com/${countrySlug}/${citySlug}/${tour.slug}`
         : `https://www.asiabylocals.com/tour/${tour.id}`;
-      
+
       const description = tour.shortDescription || tour.fullDescription?.substring(0, 155) || 'Discover authentic local tours and cultural experiences';
-      const imageUrl = (tour.images && Array.isArray(tour.images) && tour.images.length > 0) 
-        ? tour.images[0] 
+      const imageUrl = (tour.images && Array.isArray(tour.images) && tour.images.length > 0)
+        ? tour.images[0]
         : 'https://www.asiabylocals.com/logo.png';
-      
+
       // Set page title
       document.title = `${tour.title} | ${city || 'Tour'} | AsiaByLocals`;
-      
+
       // Set meta description
       let metaDescription = document.querySelector('meta[name="description"]');
       if (!metaDescription) {
@@ -534,7 +462,7 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
         document.head.appendChild(metaDescription);
       }
       metaDescription.setAttribute('content', description);
-      
+
       // Set canonical URL
       let canonical = document.querySelector('link[rel="canonical"]');
       if (!canonical) {
@@ -543,7 +471,7 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
         document.head.appendChild(canonical);
       }
       canonical.setAttribute('href', tourUrl);
-      
+
       // Open Graph tags
       const ogTags = [
         { property: 'og:type', content: 'website' },
@@ -554,7 +482,7 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
         { property: 'og:site_name', content: 'AsiaByLocals' },
         { property: 'og:locale', content: 'en_US' },
       ];
-      
+
       ogTags.forEach(tag => {
         let meta = document.querySelector(`meta[property="${tag.property}"]`);
         if (!meta) {
@@ -564,7 +492,7 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
         }
         meta.setAttribute('content', tag.content);
       });
-      
+
       // Twitter Card tags
       const twitterTags = [
         { name: 'twitter:card', content: 'summary_large_image' },
@@ -572,7 +500,7 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
         { name: 'twitter:description', content: description },
         { name: 'twitter:image', content: imageUrl },
       ];
-      
+
       twitterTags.forEach(tag => {
         let meta = document.querySelector(`meta[name="${tag.name}"]`);
         if (!meta) {
@@ -582,11 +510,11 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
         }
         meta.setAttribute('content', tag.content);
       });
-      
+
       // Structured Data (JSON-LD) - TouristTrip schema
       const existingSchema = document.querySelector('script[type="application/ld+json"][data-tour-schema]');
       if (existingSchema) existingSchema.remove();
-      
+
       const parseImages = () => {
         if (!tour.images) return [];
         try {
@@ -595,7 +523,7 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
           return Array.isArray(tour.images) ? tour.images : [];
         }
       };
-      
+
       const parseLocations = () => {
         if (!tour.locations) return [];
         try {
@@ -604,10 +532,10 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
           return Array.isArray(tour.locations) ? tour.locations : [];
         }
       };
-      
+
       const images = parseImages();
       const locations = parseLocations();
-      
+
       // Enhanced structured data with multiple schema types for better indexing
       const structuredData = {
         "@context": "https://schema.org",
@@ -651,7 +579,7 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
           "reviewCount": "50"
         }
       };
-      
+
       // Add BreadcrumbList schema for better navigation understanding
       const breadcrumbData = {
         "@context": "https://schema.org",
@@ -683,27 +611,27 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
           }
         ]
       };
-      
+
       // Remove undefined fields
       Object.keys(structuredData).forEach(key => {
         if (structuredData[key as keyof typeof structuredData] === undefined) {
           delete structuredData[key as keyof typeof structuredData];
         }
       });
-      
+
       // Remove existing schemas if any
       const existingTourSchemas = document.querySelectorAll('script[type="application/ld+json"][data-tour-schema]');
       existingTourSchemas.forEach(schema => schema.remove());
       const existingBreadcrumbSchemas = document.querySelectorAll('script[type="application/ld+json"][data-breadcrumb-schema]');
       existingBreadcrumbSchemas.forEach(schema => schema.remove());
-      
+
       // Add TouristTrip schema
       const tourScript = document.createElement('script');
       tourScript.type = 'application/ld+json';
       tourScript.setAttribute('data-tour-schema', 'true');
       tourScript.textContent = JSON.stringify(structuredData);
       document.head.appendChild(tourScript);
-      
+
       // Add BreadcrumbList schema
       const breadcrumbScript = document.createElement('script');
       breadcrumbScript.type = 'application/ld+json';
@@ -736,23 +664,23 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
       console.log('TourDetailPage - Making API request to:', url);
       const response = await fetch(url);
       console.log('TourDetailPage - Response status:', response.status);
-      
+
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-      
+
       const data = await response.json();
-      
+
       // #region agent log
-      fetch('http://127.0.0.1:7242/ingest/c1426495-b81c-4a08-aaea-9440216322e2',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'TourDetailPage.tsx:564',message:'API response received - checking tour.groupPricingTiers',data:{tourId:data.tour?.id,tourTitle:data.tour?.title,hasGroupPricingTiers:!!data.tour?.groupPricingTiers,groupPricingTiersType:typeof data.tour?.groupPricingTiers,groupPricingTiersValue:data.tour?.groupPricingTiers?typeof data.tour.groupPricingTiers==='string'?data.tour.groupPricingTiers.substring(0,100):JSON.stringify(data.tour.groupPricingTiers).substring(0,100):null,tourKeys:data.tour?Object.keys(data.tour).filter(k=>k.toLowerCase().includes('pricing')||k.toLowerCase().includes('group')):null,allTourKeys:data.tour?Object.keys(data.tour).slice(0,30):null},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
+      fetch('http://127.0.0.1:7242/ingest/c1426495-b81c-4a08-aaea-9440216322e2', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'TourDetailPage.tsx:564', message: 'API response received - checking tour.groupPricingTiers', data: { tourId: data.tour?.id, tourTitle: data.tour?.title, hasGroupPricingTiers: !!data.tour?.groupPricingTiers, groupPricingTiersType: typeof data.tour?.groupPricingTiers, groupPricingTiersValue: data.tour?.groupPricingTiers ? typeof data.tour.groupPricingTiers === 'string' ? data.tour.groupPricingTiers.substring(0, 100) : JSON.stringify(data.tour.groupPricingTiers).substring(0, 100) : null, tourKeys: data.tour ? Object.keys(data.tour).filter(k => k.toLowerCase().includes('pricing') || k.toLowerCase().includes('group')) : null, allTourKeys: data.tour ? Object.keys(data.tour).slice(0, 30) : null }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'B' }) }).catch(() => { });
       // #endregion
-      
+
       console.log('═══════════════════════════════════════════════════════════');
       console.log('📥 FRONTEND - API RESPONSE RECEIVED');
       console.log('═══════════════════════════════════════════════════════════');
       console.log('API Response:', data);
-      
-      
+
+
       if (data.success && data.tour) {
         console.log('✅ Tour data received:', data.tour.title);
         console.log('📊 Supplier pricing response (raw):', {
@@ -763,7 +691,7 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
         console.log('TourDetailPage - Options:', data.tour.options);
         console.log('TourDetailPage - Options type:', typeof data.tour.options, Array.isArray(data.tour.options));
         console.log('TourDetailPage - Options count:', data.tour.options?.length);
-        
+
         // CRITICAL: Log each option's groupPricingTiers in detail
         if (data.tour.options && Array.isArray(data.tour.options)) {
           console.log('═══════════════════════════════════════════════════════════');
@@ -778,9 +706,9 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
               hasGroupPricingTiers: !!opt.groupPricingTiers,
               groupPricingTiersType: typeof opt.groupPricingTiers,
               groupPricingTiersValue: opt.groupPricingTiers,
-              groupPricingTiersPreview: opt.groupPricingTiers 
-                ? (typeof opt.groupPricingTiers === 'string' 
-                  ? opt.groupPricingTiers.substring(0, 200) 
+              groupPricingTiersPreview: opt.groupPricingTiers
+                ? (typeof opt.groupPricingTiers === 'string'
+                  ? opt.groupPricingTiers.substring(0, 200)
                   : JSON.stringify(opt.groupPricingTiers).substring(0, 200))
                 : 'null',
               fullOptionKeys: Object.keys(opt)
@@ -805,13 +733,13 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
         console.log('TourDetailPage - Highlights:', data.tour.highlights);
         console.log('TourDetailPage - Highlights type:', typeof data.tour.highlights, Array.isArray(data.tour.highlights));
         console.log('TourDetailPage - Highlights count:', data.tour.highlights?.length);
-        
+
         // Ensure options is always an array
         if (data.tour.options && !Array.isArray(data.tour.options)) {
           console.warn('TourDetailPage - Options is not an array, converting...', data.tour.options);
           data.tour.options = [];
         }
-        
+
         // Ensure highlights is always an array
         if (data.tour.highlights && !Array.isArray(data.tour.highlights)) {
           console.warn('TourDetailPage - Highlights is not an array, converting...', data.tour.highlights);
@@ -822,11 +750,11 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
             data.tour.highlights = [];
           }
         }
-        
+
         // #region agent log
-        fetch('http://127.0.0.1:7242/ingest/c1426495-b81c-4a08-aaea-9440216322e2',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'TourDetailPage.tsx:624',message:'API response received - checking tour.groupPricingTiers',data:{tourId:data.tour?.id,tourTitle:data.tour?.title,hasGroupPricingTiers:!!data.tour?.groupPricingTiers,groupPricingTiersType:typeof data.tour?.groupPricingTiers,groupPricingTiersValue:data.tour?.groupPricingTiers?typeof data.tour.groupPricingTiers==='string'?data.tour.groupPricingTiers.substring(0,100):JSON.stringify(data.tour.groupPricingTiers).substring(0,100):null,tourKeys:data.tour?Object.keys(data.tour).filter(k=>k.toLowerCase().includes('pricing')||k.toLowerCase().includes('group')):null},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
+        fetch('http://127.0.0.1:7242/ingest/c1426495-b81c-4a08-aaea-9440216322e2', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'TourDetailPage.tsx:624', message: 'API response received - checking tour.groupPricingTiers', data: { tourId: data.tour?.id, tourTitle: data.tour?.title, hasGroupPricingTiers: !!data.tour?.groupPricingTiers, groupPricingTiersType: typeof data.tour?.groupPricingTiers, groupPricingTiersValue: data.tour?.groupPricingTiers ? typeof data.tour.groupPricingTiers === 'string' ? data.tour.groupPricingTiers.substring(0, 100) : JSON.stringify(data.tour.groupPricingTiers).substring(0, 100) : null, tourKeys: data.tour ? Object.keys(data.tour).filter(k => k.toLowerCase().includes('pricing') || k.toLowerCase().includes('group')) : null }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'B' }) }).catch(() => { });
         // #endregion
-        
+
         setTour(data.tour);
         setError(null);
         if (data.tour.languages && data.tour.languages.length > 0) {
@@ -836,36 +764,36 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
         // Parse groupPricingTiers properly
         let mainTourHasGroupPricing = false;
         let mainTourGroupPricingTiers = null;
-        
+
         if (data.tour.groupPricingTiers) {
           // #region agent log
-          fetch('http://127.0.0.1:7242/ingest/c1426495-b81c-4a08-aaea-9440216322e2',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'TourDetailPage.tsx:634',message:'Parsing groupPricingTiers from API response',data:{type:typeof data.tour.groupPricingTiers,isString:typeof data.tour.groupPricingTiers==='string',isArray:Array.isArray(data.tour.groupPricingTiers)},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
+          fetch('http://127.0.0.1:7242/ingest/c1426495-b81c-4a08-aaea-9440216322e2', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'TourDetailPage.tsx:634', message: 'Parsing groupPricingTiers from API response', data: { type: typeof data.tour.groupPricingTiers, isString: typeof data.tour.groupPricingTiers === 'string', isArray: Array.isArray(data.tour.groupPricingTiers) }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'B' }) }).catch(() => { });
           // #endregion
           try {
-            mainTourGroupPricingTiers = typeof data.tour.groupPricingTiers === 'string' 
-              ? JSON.parse(data.tour.groupPricingTiers) 
+            mainTourGroupPricingTiers = typeof data.tour.groupPricingTiers === 'string'
+              ? JSON.parse(data.tour.groupPricingTiers)
               : data.tour.groupPricingTiers;
             mainTourHasGroupPricing = Array.isArray(mainTourGroupPricingTiers) && mainTourGroupPricingTiers.length > 0;
             // #region agent log
-            fetch('http://127.0.0.1:7242/ingest/c1426495-b81c-4a08-aaea-9440216322e2',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'TourDetailPage.tsx:639',message:'Successfully parsed groupPricingTiers from API',data:{hasGroupPricing:mainTourHasGroupPricing,tiersCount:mainTourGroupPricingTiers?.length,firstTier:mainTourGroupPricingTiers?.[0]},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
+            fetch('http://127.0.0.1:7242/ingest/c1426495-b81c-4a08-aaea-9440216322e2', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'TourDetailPage.tsx:639', message: 'Successfully parsed groupPricingTiers from API', data: { hasGroupPricing: mainTourHasGroupPricing, tiersCount: mainTourGroupPricingTiers?.length, firstTier: mainTourGroupPricingTiers?.[0] }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'B' }) }).catch(() => { });
             // #endregion
           } catch (e) {
             console.error('Error parsing main tour groupPricingTiers:', e);
             // #region agent log
-            fetch('http://127.0.0.1:7242/ingest/c1426495-b81c-4a08-aaea-9440216322e2',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'TourDetailPage.tsx:641',message:'Failed to parse groupPricingTiers from API',data:{error:e.message},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
+            fetch('http://127.0.0.1:7242/ingest/c1426495-b81c-4a08-aaea-9440216322e2', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'TourDetailPage.tsx:641', message: 'Failed to parse groupPricingTiers from API', data: { error: e.message }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'B' }) }).catch(() => { });
             // #endregion
           }
         } else {
           // #region agent log
-          fetch('http://127.0.0.1:7242/ingest/c1426495-b81c-4a08-aaea-9440216322e2',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'TourDetailPage.tsx:643',message:'API response has NO groupPricingTiers',data:{tourId:data.tour?.id},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
+          fetch('http://127.0.0.1:7242/ingest/c1426495-b81c-4a08-aaea-9440216322e2', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'TourDetailPage.tsx:643', message: 'API response has NO groupPricingTiers', data: { tourId: data.tour?.id }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'B' }) }).catch(() => { });
           // #endregion
         }
-        
+
         // Also check for legacy groupPrice + maxGroupSize
         if (!mainTourHasGroupPricing && data.tour.groupPrice && data.tour.maxGroupSize) {
           mainTourHasGroupPricing = true;
         }
-        
+
         // If main tour has group pricing AND has options, create main tour as first option
         if (mainTourHasGroupPricing && data.tour.options && Array.isArray(data.tour.options) && data.tour.options.length > 0) {
           // Main tour has group pricing AND has options - create a "main tour" option
@@ -887,12 +815,12 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
             groupPricingTiers: mainTourGroupPricingTiers || data.tour.groupPricingTiers,
             sortOrder: -1 // Show main tour option first
           };
-          
+
           // Prepend main tour option to options array
           data.tour.options = [mainTourOption, ...data.tour.options];
           console.log('TourDetailPage - Added main tour as option (has group pricing):', mainTourOption);
         }
-        
+
         // DO NOT auto-select any option - let user choose
         console.log('TourDetailPage - No option auto-selected - user must choose');
       } else {
@@ -935,7 +863,7 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
     }
 
     setAvailabilityStatus('checking');
-    
+
     // Simulate API call - in real app, this would check actual availability
     setTimeout(() => {
       // For demo purposes, assume it's always available
@@ -953,16 +881,16 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
       // Scroll to booking box on mobile when option is selected
       if (window.innerWidth < 1024 && bookingBoxRef.current) {
         setTimeout(() => {
-          bookingBoxRef.current?.scrollIntoView({ 
-            behavior: 'smooth', 
-            block: 'start' 
+          bookingBoxRef.current?.scrollIntoView({
+            behavior: 'smooth',
+            block: 'start'
           });
         }, 100);
       }
     }
     setShowOptionSelectionModal(false);
     setAvailabilityStatus('checking');
-    
+
     // Simulate API call - in real app, this would check actual availability
     setTimeout(() => {
       setAvailabilityStatus('available');
@@ -1017,7 +945,7 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
 
   const handleBookingSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!tour || !selectedDate) {
       alert('Please select a date and ensure tour is loaded');
       return;
@@ -1028,10 +956,10 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
     let currency = selectedOption?.currency || tour.currency || 'INR';
     const currentParticipants = isCustomParticipants ? customParticipants : participants;
     const tourData = selectedOption || tour;
-    
+
     // Always use group pricing logic - calculate from tiers
     const groupPrice = calculateGroupPrice(tourData, currentParticipants);
-    
+
     if (groupPrice !== null && groupPrice > 0) {
       totalAmount = groupPrice;
     } else {
@@ -1040,7 +968,7 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
       const pricePerPerson = selectedOption?.price || tour.pricePerPerson || 0;
       totalAmount = pricePerPerson;
     }
-    
+
     // Store booking data and show checkout page
     setPendingBookingData({
       tourId: tour.id,
@@ -1051,7 +979,7 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
       totalAmount: totalAmount,
       currency: currency
     });
-    
+
     setShowBookingModal(false);
     setShowCheckoutPage(true);
   };
@@ -1091,7 +1019,7 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
       });
 
       const bookingResult = await bookingResponse.json();
-      
+
       if (bookingResult.success) {
         // Show guide contact information instead of payment
         const supplierInfo = bookingResult.supplier || tour.supplier;
@@ -1150,7 +1078,7 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
       });
 
       const paymentData = await paymentResponse.json();
-      
+
       if (!paymentData.success) {
         alert('Failed to initialize payment');
         return;
@@ -1167,7 +1095,7 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
           name: 'AsiaByLocals',
           description: `Booking for ${tour?.title}`,
           order_id: paymentData.order.id,
-          handler: async function(response: any) {
+          handler: async function (response: any) {
             // Verify payment on backend
             const API_URL = import.meta.env.VITE_API_URL || (typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3001');
             const verifyResponse = await fetch(`${API_URL}/api/payments/verify`, {
@@ -1184,7 +1112,7 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
             });
 
             const verifyData = await verifyResponse.json();
-            
+
             if (verifyData.success) {
               alert('Payment successful! Your booking is confirmed.');
               setShowBookingModal(false);
@@ -1208,7 +1136,7 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
             color: '#10B981'
           },
           modal: {
-            ondismiss: function() {
+            ondismiss: function () {
               console.log('Payment cancelled');
             }
           }
@@ -1273,7 +1201,7 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
   let otherImages: any[] = [];
   let remainingImages = 0;
   let allImages: string[] = []; // Store all images for modal navigation
-  
+
   try {
     if (tour && tour.images) {
       const images = Array.isArray(tour.images) ? tour.images : (typeof tour.images === 'string' ? JSON.parse(tour.images) : []);
@@ -1291,57 +1219,22 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
     allImages = [];
   }
 
-  console.log('TourDetailPage - About to render', { 
-    loading, 
-    tour: !!tour, 
-    tourSlug, 
-    tourTitle: tour?.title, 
-    hasImages: !!mainImage, 
+  console.log('TourDetailPage - About to render', {
+    loading,
+    tour: !!tour,
+    tourSlug,
+    tourTitle: tour?.title,
+    hasImages: !!mainImage,
     imageCount: tour?.images?.length,
     hasOptions: !!tour?.options,
     optionsCount: tour?.options?.length,
     optionsType: typeof tour?.options,
     isOptionsArray: Array.isArray(tour?.options)
   });
-  
+
   return (
     <div className="min-h-screen bg-white">
-      {/* Header */}
-      <header className="sticky top-0 z-50 bg-white border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            {onClose ? (
-              <button
-                onClick={onClose}
-                className="flex items-center gap-2 text-[#001A33] font-semibold hover:text-[#10B981] text-[14px] transition-colors"
-              >
-                <ChevronLeft size={18} />
-                Back
-              </button>
-            ) : (
-              <button
-                onClick={() => {
-                  if (window.history.length > 1) {
-                    window.history.back();
-                  } else {
-                    window.location.href = '/';
-                  }
-                }}
-                className="flex items-center gap-2 text-[#001A33] font-semibold hover:text-[#10B981] text-[14px] transition-colors"
-              >
-                <ChevronLeft size={18} />
-                Back
-              </button>
-            )}
-          </div>
-          <div className="flex items-center gap-4">
-            <button className="p-2 hover:bg-gray-100 rounded-full transition-colors">
-              <Share2 size={20} className="text-gray-600" />
-            </button>
-          </div>
-        </div>
-      </header>
-
+      {/* Header removed - now using App.tsx header with logo */}
       <div className="max-w-7xl mx-auto px-6 py-8">
         {/* Breadcrumb */}
         {country && city && (
@@ -1362,7 +1255,7 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
             <p className="text-[16px] text-gray-700 font-semibold mb-3">
               Explore more guided tours in <a href={`/${country.toLowerCase().replace(/\s+/g, '-')}/${city.toLowerCase().replace(/\s+/g, '-')}`} className="text-[#10B981] font-black hover:underline">{city}</a>
             </p>
-            <a 
+            <a
               href={`/${country.toLowerCase().replace(/\s+/g, '-')}/${city.toLowerCase().replace(/\s+/g, '-')}`}
               className="inline-flex items-center gap-2 text-[#10B981] font-black hover:text-[#059669] transition-colors"
             >
@@ -1414,7 +1307,7 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
             {/* Image Gallery - GetYourGuide Style: Main image left, 2 thumbnails right */}
             <div className="grid grid-cols-3 gap-2 h-[500px] overflow-hidden relative mb-12">
               {mainImage && (
-                <div 
+                <div
                   className="col-span-2 relative cursor-pointer group overflow-hidden rounded-2xl h-[500px]"
                   onClick={() => {
                     setSelectedImageIndex(0);
@@ -1433,9 +1326,8 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
                 {otherImages.slice(0, 2).map((image: string, index: number) => (
                   <div
                     key={index}
-                    className={`relative cursor-pointer group overflow-hidden rounded-2xl ${
-                      index === 0 ? 'h-[246px]' : 'h-[246px]'
-                    }`}
+                    className={`relative cursor-pointer group overflow-hidden rounded-2xl ${index === 0 ? 'h-[246px]' : 'h-[246px]'
+                      }`}
                     onClick={() => {
                       setSelectedImageIndex(index + 1);
                       setShowImageModal(true);
@@ -1444,9 +1336,8 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
                     <img
                       src={image}
                       alt={`${tour.title} ${index + 2}`}
-                      className={`w-full object-cover rounded-2xl ${
-                        index === 0 ? 'h-[246px]' : 'h-[246px]'
-                      }`}
+                      className={`w-full object-cover rounded-2xl ${index === 0 ? 'h-[246px]' : 'h-[246px]'
+                        }`}
                     />
                     {index === 1 && remainingImages > 0 && (
                       <div className="absolute inset-0 bg-black/60 rounded-2xl flex items-center justify-center pointer-events-none z-10">
@@ -1490,25 +1381,25 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
               // Parse groupPricingTiers properly in render logic
               let mainTourHasGroupPricing = false;
               let mainTourGroupPricingTiers = null;
-              
+
               if (tour.groupPricingTiers) {
                 try {
-                  mainTourGroupPricingTiers = typeof tour.groupPricingTiers === 'string' 
-                    ? JSON.parse(tour.groupPricingTiers) 
+                  mainTourGroupPricingTiers = typeof tour.groupPricingTiers === 'string'
+                    ? JSON.parse(tour.groupPricingTiers)
                     : tour.groupPricingTiers;
                   mainTourHasGroupPricing = Array.isArray(mainTourGroupPricingTiers) && mainTourGroupPricingTiers.length > 0;
                 } catch (e) {
                   console.error('Error parsing main tour groupPricingTiers:', e);
                 }
               }
-              
+
               // Also check for legacy groupPrice + maxGroupSize
               if (!mainTourHasGroupPricing && tour.groupPrice && tour.maxGroupSize) {
                 mainTourHasGroupPricing = true;
               }
-              
+
               const shouldShowMainTourAsOption = mainTourHasGroupPricing && tour.options && tour.options.length > 0;
-              
+
               // Create main tour option if needed
               let allOptions = tour.options || [];
               if (shouldShowMainTourAsOption && !allOptions.find((opt: any) => opt.id === 'main-tour')) {
@@ -1532,117 +1423,148 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
                 };
                 allOptions = [mainTourOption, ...allOptions];
               }
-              
+
               // Sort options by sortOrder
               allOptions = allOptions.sort((a: any, b: any) => (a.sortOrder || 0) - (b.sortOrder || 0));
-              
+
               if (allOptions.length > 0) {
                 return (
                   <div className="mb-8">
                     <h2 className="text-2xl font-black text-[#001A33] mb-6">Choose from {allOptions.length} available option{allOptions.length > 1 ? 's' : ''}</h2>
                     <div className="space-y-4">
                       {allOptions.map((option: any) => {
-                    const isSelected = selectedOption?.id === option.id;
-                    const currencySymbol = option.currency === 'USD' ? '$' : option.currency === 'EUR' ? '€' : '₹';
-                    
-                    return (
-                      <div
-                        key={option.id}
-                        className={`bg-white border-2 rounded-2xl p-6 transition-all ${
-                          isSelected
-                            ? 'border-[#10B981] shadow-lg'
-                            : 'border-gray-200 hover:border-[#10B981]/50 hover:shadow-md'
-                        }`}
-                      >
-                        <div className="flex flex-col md:flex-row items-start justify-between gap-4 md:gap-6">
-                          {/* Left: Option Details */}
-                          <div className="flex-1 w-full md:w-auto">
-                            <h3 className="font-black text-[#001A33] text-[18px] mb-2">{option.optionTitle}</h3>
-                            <p className="text-[14px] text-gray-600 font-semibold mb-4 leading-relaxed">
-                              {option.optionDescription}
-                              {option.optionDescription && option.optionDescription.length > 100 && (
-                                <span className="text-[#0071EB] cursor-pointer ml-1">Read more</span>
-                              )}
-                            </p>
-                            
-                            {/* Key Details Row */}
-                            <div className="flex flex-wrap items-center gap-4 md:gap-6 text-[13px] text-gray-600 font-semibold">
-                              <div className="flex items-center gap-2">
-                                <Clock size={16} className="text-gray-500" />
-                                <span>{option.durationHours} {option.durationHours === 1 ? 'hour' : 'hours'}</span>
-                              </div>
-                              <div className="flex items-center gap-2">
-                                <User size={16} className="text-gray-500" />
-                                <span>Guide: {option.language}</span>
-                              </div>
-                              {option.pickupIncluded && (
-                                <div className="flex items-center gap-2">
-                                  <Bus size={16} className="text-gray-500" />
-                                  <span>Pickup included</span>
-                                </div>
-                              )}
-                            </div>
-                          </div>
+                        const isSelected = selectedOption?.id === option.id;
+                        const currencySymbol = option.currency === 'USD' ? '$' : option.currency === 'EUR' ? '€' : '₹';
 
-                          {/* Right: Pricing & Select Button */}
-                          <div className="text-left md:text-right flex flex-col items-start md:items-end w-full md:w-auto md:min-w-[200px]">
-                            <div className="mb-3">
-                              <div className="font-black text-[#001A33] text-[20px] mb-1">
-                                {(() => {
-                                  const currentParticipants = isCustomParticipants ? customParticipants : participants;
-                                  // Always use group pricing logic - calculate from tiers
-                                  const groupPrice = calculateGroupPrice(option, currentParticipants);
-                                  
-                                  if (groupPrice !== null) {
-                                    return `${currencySymbol}${groupPrice.toLocaleString()}`;
-                                  }
-                                  
-                                  if (option.groupPrice) {
-                                    return `${currencySymbol}${option.groupPrice.toLocaleString()}`;
-                                  }
-                                  
-                                  // Fallback: use option.price as fixed price
-                                  return `${currencySymbol}${(option.price || 0).toLocaleString()}`;
-                                })()}
+                        return (
+                          <div
+                            key={option.id}
+                            className={`bg-white border-2 rounded-2xl p-6 transition-all ${isSelected
+                              ? 'border-[#10B981] shadow-lg'
+                              : 'border-gray-200 hover:border-[#10B981]/50 hover:shadow-md'
+                              }`}
+                          >
+                            <div className="flex flex-col md:flex-row items-start justify-between gap-4 md:gap-6">
+                              {/* Left: Option Details */}
+                              <div className="flex-1 w-full md:w-auto">
+                                <h3 className="font-black text-[#001A33] text-[18px] mb-2">{option.optionTitle}</h3>
+                                <p className="text-[14px] text-gray-600 font-semibold mb-4 leading-relaxed">
+                                  {option.optionDescription && option.optionDescription.length > 100 ? (
+                                    <>
+                                      {expandedOptionDescriptions.has(option.id) ? (
+                                        <>
+                                          {option.optionDescription}
+                                          <span 
+                                            className="text-[#0071EB] cursor-pointer ml-1 hover:underline"
+                                            onClick={(e) => {
+                                              e.stopPropagation();
+                                              const newExpanded = new Set(expandedOptionDescriptions);
+                                              newExpanded.delete(option.id);
+                                              setExpandedOptionDescriptions(newExpanded);
+                                            }}
+                                          >
+                                            Read less
+                                          </span>
+                                        </>
+                                      ) : (
+                                        <>
+                                          {option.optionDescription.substring(0, 100)}...
+                                          <span 
+                                            className="text-[#0071EB] cursor-pointer ml-1 hover:underline"
+                                            onClick={(e) => {
+                                              e.stopPropagation();
+                                              const newExpanded = new Set(expandedOptionDescriptions);
+                                              newExpanded.add(option.id);
+                                              setExpandedOptionDescriptions(newExpanded);
+                                            }}
+                                          >
+                                            Read more
+                                          </span>
+                                        </>
+                                      )}
+                                    </>
+                                  ) : (
+                                    option.optionDescription
+                                  )}
+                                </p>
+
+                                {/* Key Details Row */}
+                                <div className="flex flex-wrap items-center gap-4 md:gap-6 text-[13px] text-gray-600 font-semibold">
+                                  <div className="flex items-center gap-2">
+                                    <Clock size={16} className="text-gray-500" />
+                                    <span>{option.durationHours} {option.durationHours === 1 ? 'hour' : 'hours'}</span>
+                                  </div>
+                                  <div className="flex items-center gap-2">
+                                    <User size={16} className="text-gray-500" />
+                                    <span>Guide: {option.language}</span>
+                                  </div>
+                                  {option.pickupIncluded && (
+                                    <div className="flex items-center gap-2">
+                                      <Bus size={16} className="text-gray-500" />
+                                      <span>Pickup included</span>
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+
+                              {/* Right: Pricing & Select Button */}
+                              <div className="text-left md:text-right flex flex-col items-start md:items-end w-full md:w-auto md:min-w-[200px]">
+                                <div className="mb-3">
+                                  <div className="font-black text-[#001A33] text-[20px] mb-1">
+                                    {(() => {
+                                      const currentParticipants = isCustomParticipants ? customParticipants : participants;
+                                      // Always use group pricing logic - calculate from tiers
+                                      const groupPrice = calculateGroupPrice(option, currentParticipants);
+
+                                      if (groupPrice !== null) {
+                                        return `${currencySymbol}${groupPrice.toLocaleString()}`;
+                                      }
+
+                                      if (option.groupPrice) {
+                                        return `${currencySymbol}${option.groupPrice.toLocaleString()}`;
+                                      }
+
+                                      // Fallback: use option.price as fixed price
+                                      return `${currencySymbol}${(option.price || 0).toLocaleString()}`;
+                                    })()}
+                                  </div>
+                                </div>
+
+                                <button
+                                  onClick={() => {
+                                    // Toggle: if clicking the same option, deselect it
+                                    if (isSelected) {
+                                      setSelectedOption(null);
+                                    } else {
+                                      setSelectedOption(option);
+                                      // Scroll to booking box on mobile when option is selected
+                                      if (window.innerWidth < 1024 && bookingBoxRef.current) {
+                                        setTimeout(() => {
+                                          bookingBoxRef.current?.scrollIntoView({
+                                            behavior: 'smooth',
+                                            block: 'start'
+                                          });
+                                        }, 100);
+                                      }
+                                    }
+                                  }}
+                                  className={`w-full md:w-auto px-6 py-3 rounded-xl font-black text-[14px] transition-all mb-2 ${isSelected
+                                    ? 'bg-[#10B981] text-white'
+                                    : 'bg-[#0071EB] text-white hover:bg-[#0056b3]'
+                                    }`}
+                                >
+                                  {isSelected ? 'Selected (Click to deselect)' : 'Select'}
+                                </button>
+
+                                {/* Free Cancellation Badge */}
+                                <div className="flex items-center gap-1 text-[12px] text-gray-600 w-full md:w-auto">
+                                  <CheckCircle2 size={14} className="text-[#10B981]" />
+                                  <span className="font-semibold">Free cancellation</span>
+                                </div>
                               </div>
                             </div>
-                            
-                            <button
-                              onClick={() => {
-                                // Toggle: if clicking the same option, deselect it
-                                if (isSelected) {
-                                  setSelectedOption(null);
-                                } else {
-                                  setSelectedOption(option);
-                                  // Scroll to booking box on mobile when option is selected
-                                  if (window.innerWidth < 1024 && bookingBoxRef.current) {
-                                    setTimeout(() => {
-                                      bookingBoxRef.current?.scrollIntoView({ 
-                                        behavior: 'smooth', 
-                                        block: 'start' 
-                                      });
-                                    }, 100);
-                                  }
-                                }
-                              }}
-                              className={`w-full md:w-auto px-6 py-3 rounded-xl font-black text-[14px] transition-all mb-2 ${
-                                isSelected
-                                  ? 'bg-[#10B981] text-white'
-                                  : 'bg-[#0071EB] text-white hover:bg-[#0056b3]'
-                              }`}
-                            >
-                              {isSelected ? 'Selected (Click to deselect)' : 'Select'}
-                            </button>
-                            
-                            {/* Free Cancellation Badge */}
-                            <div className="flex items-center gap-1 text-[12px] text-gray-600 w-full md:w-auto">
-                              <CheckCircle2 size={14} className="text-[#10B981]" />
-                              <span className="font-semibold">Free cancellation</span>
-                            </div>
                           </div>
-                        </div>
-                      </div>
-                    );
+                        );
                       })}
                     </div>
                   </div>
@@ -1742,8 +1664,7 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
                   <div>
                     <div className="font-black text-[#001A33] text-[16px] mb-1">Reserve now & pay later</div>
                     <div className="text-[14px] text-gray-600 font-semibold">
-                      Keep your travel plans flexible — book your spot and pay nothing today.{' '}
-                      <a href="#" className="text-[#10B981] underline">Read more</a>
+                      Keep your travel plans flexible — book your spot and pay nothing today.
                     </div>
                   </div>
                 </div>
@@ -1842,11 +1763,11 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
                           console.log('═══════════════════════════════════════════════════════════');
                           console.log('🏷 "STARTING FROM" PRICE CALCULATION');
                           console.log('═══════════════════════════════════════════════════════════');
-                          
+
                           // Get the price for 1 person (first tier: 1-1 person)
                           let priceForOne = tour.pricePerPerson || 0;
                           console.log('📥 Initial priceForOne (from pricePerPerson):', priceForOne);
-                          
+
                           // Check main tour option (sortOrder: -1) for groupPricingTiers first
                           if (tour.options && Array.isArray(tour.options) && tour.options.length > 0) {
                             console.log('🔍 Checking main tour option for 1-1 person price...');
@@ -1856,11 +1777,11 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
                               title: mainTourOption?.optionTitle,
                               hasGroupPricingTiers: !!mainTourOption?.groupPricingTiers
                             });
-                            
+
                             if (mainTourOption && mainTourOption.groupPricingTiers) {
                               try {
-                                const tiers = typeof mainTourOption.groupPricingTiers === 'string' 
-                                  ? JSON.parse(mainTourOption.groupPricingTiers) 
+                                const tiers = typeof mainTourOption.groupPricingTiers === 'string'
+                                  ? JSON.parse(mainTourOption.groupPricingTiers)
                                   : mainTourOption.groupPricingTiers;
                                 console.log('   Parsed pricing slabs from main tour option:', tiers);
                                 if (Array.isArray(tiers) && tiers.length > 0 && tiers[0].price) {
@@ -1882,13 +1803,13 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
                               console.log('ℹ️ Main tour option has no groupPricingTiers');
                             }
                           }
-                          
+
                           // Check tour.groupPricingTiers directly
                           if (priceForOne === (tour.pricePerPerson || 0) && tour.groupPricingTiers) {
                             console.log('🔍 Checking tour.groupPricingTiers directly...');
                             try {
-                              const tiers = typeof tour.groupPricingTiers === 'string' 
-                                ? JSON.parse(tour.groupPricingTiers) 
+                              const tiers = typeof tour.groupPricingTiers === 'string'
+                                ? JSON.parse(tour.groupPricingTiers)
                                 : tour.groupPricingTiers;
                               console.log('   Parsed pricing slabs from tour:', tiers);
                               if (Array.isArray(tiers) && tiers.length > 0 && tiers[0].price) {
@@ -1905,7 +1826,7 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
                               console.error('❌ Error parsing tour groupPricingTiers:', e);
                             }
                           }
-                          
+
                           console.log('💰 FINAL "STARTING FROM" PRICE:', priceForOne);
                           console.log('═══════════════════════════════════════════════════════════');
                           return priceForOne.toLocaleString();
@@ -1920,16 +1841,16 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
                           console.log('═══════════════════════════════════════════════════════════');
                           console.log('📥 Selected persons:', currentParticipants);
                           console.log('   isCustomParticipants:', isCustomParticipants);
-                          
+
                           // Always use group pricing logic - calculate from tiers
                           const groupPrice = calculateGroupPrice(tour, currentParticipants);
-                          
+
                           if (groupPrice !== null && groupPrice > 0) {
                             console.log('✅ Using calculated group price:', groupPrice);
                             console.log('═══════════════════════════════════════════════════════════');
                             return groupPrice.toLocaleString();
                           }
-                          
+
                           // Check main tour option for group pricing
                           if (tour && tour.options && Array.isArray(tour.options) && tour.options.length > 0) {
                             console.log('🔍 Falling back to main tour option...');
@@ -1944,7 +1865,7 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
                             }
                             // DO NOT use groupPrice - it's the LAST tier price (wrong)
                           }
-                          
+
                           // Fallback: use pricePerPerson (should be first tier price)
                           console.warn('⚠️ Using fallback pricePerPerson:', tour.pricePerPerson);
                           console.log('═══════════════════════════════════════════════════════════');
@@ -1983,7 +1904,7 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
                             groupPricingTiersType: typeof selectedOption.groupPricingTiers
                           });
                           console.log('Current participants:', currentParticipants);
-                          
+
                           // ALWAYS use group pricing logic - calculate from tiers
                           // This will use option's tiers if available, otherwise fall back to main tour's tiers
                           const groupPrice = calculateGroupPrice(selectedOption, currentParticipants);
@@ -1992,7 +1913,7 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
                             console.log('═══════════════════════════════════════════════════════════');
                             return groupPrice.toLocaleString();
                           }
-                          
+
                           // DO NOT use groupPrice fallback - it's the LAST tier price (₹8,200 for 10 people)
                           // Final fallback: use main tour's pricing tiers
                           console.log('🔍 Selected option has no groupPricingTiers, falling back to main tour...');
@@ -2002,7 +1923,7 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
                             console.log('═══════════════════════════════════════════════════════════');
                             return mainTourPrice.toLocaleString();
                           }
-                          
+
                           // Last resort: use option.price (should be first tier price)
                           console.warn('⚠️ Using option.price fallback:', selectedOption.price);
                           console.log('═══════════════════════════════════════════════════════════');
@@ -2015,48 +1936,48 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
                     </div>
                   </div>
                 )}
-                
+
                 {/* Group Pricing Tiers Display */}
                 {(() => {
                   const tourData = selectedOption || tour;
                   let groupPricingTiers = null;
-                  
+
                   if (tourData.groupPricingTiers) {
                     try {
-                      groupPricingTiers = typeof tourData.groupPricingTiers === 'string' 
-                        ? JSON.parse(tourData.groupPricingTiers) 
+                      groupPricingTiers = typeof tourData.groupPricingTiers === 'string'
+                        ? JSON.parse(tourData.groupPricingTiers)
                         : tourData.groupPricingTiers;
                     } catch (e) {
                       console.error('Error parsing groupPricingTiers:', e);
                     }
                   }
-                  
+
                   // If no groupPricingTiers on tourData and this is main tour, check main tour option
                   if (!groupPricingTiers && !selectedOption && tour && tour.options && Array.isArray(tour.options) && tour.options.length > 0) {
                     const mainTourOption = tour.options.find((opt: any) => opt.sortOrder === -1) || tour.options[0];
                     if (mainTourOption && mainTourOption.groupPricingTiers) {
                       try {
-                        groupPricingTiers = typeof mainTourOption.groupPricingTiers === 'string' 
-                          ? JSON.parse(mainTourOption.groupPricingTiers) 
+                        groupPricingTiers = typeof mainTourOption.groupPricingTiers === 'string'
+                          ? JSON.parse(mainTourOption.groupPricingTiers)
                           : mainTourOption.groupPricingTiers;
                       } catch (e) {
                         console.error('Error parsing groupPricingTiers from main tour option:', e);
                       }
                     }
                   }
-                  
+
                   if (groupPricingTiers && Array.isArray(groupPricingTiers) && groupPricingTiers.length > 0) {
                     const currencySymbol = (tourData.currency || tour.currency || 'INR') === 'INR' ? '₹' : '$';
                     const currentParticipants = isCustomParticipants ? customParticipants : participants;
                     const currentPrice = calculateGroupPrice(tourData, currentParticipants);
-                    
+
                     // Don't show the pricing tiers table, but keep price calculation working
                     // Price will update dynamically when participants change
                     return null; // Hide the pricing tiers display
                   }
                   return null;
                 })()}
-                
+
                 {/* Tour Types - More Prominent Display */}
                 {tour.tourTypes && (() => {
                   try {
@@ -2174,8 +2095,7 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
                   <div className="min-w-0 flex-1">
                     <div className="font-black text-[#001A33] text-[14px] mb-1 break-words">Reserve now & pay later</div>
                     <div className="text-[12px] text-gray-600 font-semibold break-words">
-                      Keep your travel plans flexible — book your spot and pay nothing today.{' '}
-                      <a href="#" className="text-[#10B981] underline">Read more</a>
+                      Keep your travel plans flexible — book your spot and pay nothing today.
                     </div>
                   </div>
                 </div>
@@ -2207,7 +2127,7 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
               )}
 
               {/* Book Button - GetYourGuide Blue */}
-              <button 
+              <button
                 onClick={availabilityStatus === 'available' ? handleProceedToBooking : handleCheckAvailability}
                 disabled={!selectedDate || availabilityStatus === 'checking' || (tour.options && tour.options.length > 0 && !selectedOption)}
                 className="w-full bg-[#0071EB] hover:bg-[#0056b3] text-white font-black py-5 rounded-2xl text-[16px] transition-all shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
@@ -2294,11 +2214,11 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
 
       {/* Premium Calendar Modal */}
       {showCalendarModal && (
-        <div 
+        <div
           className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"
           onClick={() => setShowCalendarModal(false)}
         >
-          <div 
+          <div
             className="bg-white rounded-3xl shadow-2xl max-w-md w-full p-6"
             onClick={(e) => e.stopPropagation()}
           >
@@ -2360,17 +2280,17 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
                   const lastDay = new Date(year, month + 1, 0);
                   const daysInMonth = lastDay.getDate();
                   const startingDayOfWeek = firstDay.getDay();
-                  
+
                   const today = new Date();
                   today.setHours(0, 0, 0, 0);
-                  
+
                   const days = [];
-                  
+
                   // Empty cells for days before the first day of the month
                   for (let i = 0; i < startingDayOfWeek; i++) {
                     days.push(<div key={`empty-${i}`} className="h-10"></div>);
                   }
-                  
+
                   // Days of the month
                   for (let day = 1; day <= daysInMonth; day++) {
                     const date = new Date(year, month, day);
@@ -2379,7 +2299,7 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
                     const isPast = date < today;
                     const isSelected = selectedDate === dateString;
                     const isAvailable = !isPast; // You can add custom availability logic here
-                    
+
                     days.push(
                       <button
                         key={day}
@@ -2392,11 +2312,11 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
                         disabled={isPast || !isAvailable}
                         className={`
                           h-10 rounded-xl font-bold text-[14px] transition-all
-                          ${isSelected 
-                            ? 'bg-[#10B981] text-white shadow-lg scale-105' 
+                          ${isSelected
+                            ? 'bg-[#10B981] text-white shadow-lg scale-105'
                             : isPast || !isAvailable
-                            ? 'text-gray-300 cursor-not-allowed'
-                            : 'text-[#001A33] hover:bg-[#10B981]/10 hover:scale-105'
+                              ? 'text-gray-300 cursor-not-allowed'
+                              : 'text-[#001A33] hover:bg-[#10B981]/10 hover:scale-105'
                           }
                           ${isToday && !isSelected ? 'ring-2 ring-[#10B981] ring-offset-2' : ''}
                         `}
@@ -2405,7 +2325,7 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
                       </button>
                     );
                   }
-                  
+
                   return days;
                 })()}
               </div>
@@ -2422,7 +2342,7 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
                   const dayNum = date.getDate();
                   const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
                   const monthName = monthNames[date.getMonth()];
-                  
+
                   return (
                     <button
                       key={index}
@@ -2450,11 +2370,11 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
 
       {/* Option Selection Modal - GetYourGuide Style */}
       {showOptionSelectionModal && tour && tour.options && tour.options.length > 0 && (
-        <div 
+        <div
           className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 overflow-y-auto"
           onClick={() => setShowOptionSelectionModal(false)}
         >
-          <div 
+          <div
             className="bg-white rounded-3xl shadow-2xl max-w-4xl w-full p-8 my-8"
             onClick={(e) => e.stopPropagation()}
           >
@@ -2477,15 +2397,14 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
               {tour.options.map((option: any) => {
                 const isSelected = selectedOption?.id === option.id;
                 const currencySymbol = option.currency === 'USD' ? '$' : option.currency === 'EUR' ? '€' : '₹';
-                
+
                 return (
                   <div
                     key={option.id}
-                    className={`border-2 rounded-2xl p-6 transition-all ${
-                      isSelected
-                        ? 'border-[#10B981] bg-[#10B981]/5 shadow-lg'
-                        : 'border-gray-200 hover:border-[#10B981]/50 hover:shadow-md'
-                    }`}
+                    className={`border-2 rounded-2xl p-6 transition-all ${isSelected
+                      ? 'border-[#10B981] bg-[#10B981]/5 shadow-lg'
+                      : 'border-gray-200 hover:border-[#10B981]/50 hover:shadow-md'
+                      }`}
                   >
                     <div className="flex items-start justify-between gap-6">
                       {/* Left: Option Details */}
@@ -2494,7 +2413,7 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
                         <p className="text-[14px] text-gray-600 font-semibold mb-4 leading-relaxed">
                           {option.optionDescription}
                         </p>
-                        
+
                         {/* Key Details Row */}
                         <div className="flex items-center gap-6 text-[13px] text-gray-600 font-semibold mb-4">
                           <div className="flex items-center gap-2">
@@ -2544,28 +2463,27 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
                               const currentParticipants = isCustomParticipants ? customParticipants : participants;
                               // Always use group pricing logic - calculate from tiers
                               const groupPrice = calculateGroupPrice(option, currentParticipants);
-                              
+
                               if (groupPrice !== null) {
                                 return `${currencySymbol}${groupPrice.toLocaleString()}`;
                               }
-                              
+
                               if (option.groupPrice) {
                                 return `${currencySymbol}${option.groupPrice.toLocaleString()}`;
                               }
-                              
+
                               // Fallback: use option.price as fixed price
                               return `${currencySymbol}${(option.price || 0).toLocaleString()}`;
                             })()}
                           </div>
                         </div>
-                        
+
                         <button
                           onClick={() => handleOptionSelected(option)}
-                          className={`w-full px-6 py-3 rounded-xl font-black text-[14px] transition-all ${
-                            isSelected
-                              ? 'bg-[#10B981] text-white'
-                              : 'bg-[#0071EB] text-white hover:bg-[#0056b3]'
-                          }`}
+                          className={`w-full px-6 py-3 rounded-xl font-black text-[14px] transition-all ${isSelected
+                            ? 'bg-[#10B981] text-white'
+                            : 'bg-[#0071EB] text-white hover:bg-[#0056b3]'
+                            }`}
                         >
                           {isSelected ? 'Selected (Click to deselect)' : 'Select'}
                         </button>
@@ -2685,7 +2603,7 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
                         const currentParticipants = isCustomParticipants ? customParticipants : participants;
                         const tourData = selectedOption || tour;
                         const currencySymbol = (selectedOption?.currency || tour.currency || 'INR') === 'INR' ? '₹' : '$';
-                        
+
                         // Always use group pricing logic - calculate from tiers
                         const groupPrice = calculateGroupPrice(tourData, currentParticipants);
                         if (groupPrice !== null && groupPrice > 0) {
@@ -2780,26 +2698,26 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
                 <p className="text-[14px] text-gray-800 font-black text-center mb-2">Need help? Contact our support:</p>
                 <p className="text-[13px] text-[#10B981] font-black text-center mb-4">Available 24/7 on WhatsApp support</p>
                 <div className="flex items-center justify-center gap-4">
-                  <a 
-                    href="https://wa.me/918449538716" 
-                    target="_blank" 
-                    rel="noopener noreferrer" 
+                  <a
+                    href="https://wa.me/918449538716"
+                    target="_blank"
+                    rel="noopener noreferrer"
                     className="bg-[#10B981] hover:bg-[#059669] text-white rounded-full p-4 transition-all hover:scale-110 shadow-lg"
                     title="WhatsApp Support"
                   >
                     <svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor">
-                      <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
+                      <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z" />
                     </svg>
                   </a>
-                  <a 
-                    href="https://wa.me/919897873562" 
-                    target="_blank" 
-                    rel="noopener noreferrer" 
+                  <a
+                    href="https://wa.me/919897873562"
+                    target="_blank"
+                    rel="noopener noreferrer"
                     className="bg-[#10B981] hover:bg-[#059669] text-white rounded-full p-4 transition-all hover:scale-110 shadow-lg"
                     title="WhatsApp Support"
                   >
                     <svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor">
-                      <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
+                      <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z" />
                     </svg>
                   </a>
                 </div>
@@ -2865,48 +2783,14 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
                   <div className="text-[16px] font-black text-[#001A33]">{guideContactInfo.guideName}</div>
                 </div>
 
-                {(guideContactInfo.guideWhatsApp || guideContactInfo.guidePhone) ? (
-                  <>
-                    {(guideContactInfo.guideWhatsApp || guideContactInfo.guidePhone) && (
-                      <div>
-                        <div className="text-[12px] text-gray-500 font-bold uppercase mb-2">WhatsApp Number</div>
-                        <a
-                          href={`https://wa.me/${(guideContactInfo.guideWhatsApp || guideContactInfo.guidePhone || '').replace(/[^0-9]/g, '')}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="flex items-center gap-3 bg-[#10B981] text-white font-black py-4 px-6 rounded-xl hover:bg-[#059669] transition-all"
-                        >
-                          <MessageCircle size={20} />
-                          <span>{guideContactInfo.guideWhatsApp || guideContactInfo.guidePhone}</span>
-                          <ChevronRight size={18} className="ml-auto" />
-                        </a>
-                        <p className="text-[12px] text-gray-500 font-semibold mt-2">Click to open WhatsApp chat</p>
-                      </div>
-                    )}
-
-                    {guideContactInfo.guidePhone && guideContactInfo.guidePhone !== guideContactInfo.guideWhatsApp && (
-                      <div>
-                        <div className="text-[12px] text-gray-500 font-bold uppercase mb-2">Phone Number</div>
-                        <a
-                          href={`tel:${guideContactInfo.guidePhone}`}
-                          className="flex items-center gap-3 bg-white border-2 border-gray-200 text-[#001A33] font-black py-4 px-6 rounded-xl hover:border-[#10B981] transition-all"
-                        >
-                          <Phone size={20} />
-                          <span>{guideContactInfo.guidePhone}</span>
-                          <ChevronRight size={18} className="ml-auto" />
-                        </a>
-                        <p className="text-[12px] text-gray-500 font-semibold mt-2">Click to call</p>
-                      </div>
-                    )}
-                  </>
-                ) : (
+                {!guideContactInfo.guideEmail && (
                   <div className="bg-yellow-50 border-2 border-yellow-200 rounded-xl p-4">
                     <div className="flex items-start gap-3">
                       <Info className="text-yellow-600 shrink-0 mt-1" size={20} />
                       <div>
                         <p className="text-[14px] font-black text-[#001A33] mb-1">Contact Information Not Available</p>
                         <p className="text-[12px] text-gray-600 font-semibold">
-                          The guide hasn't added their phone or WhatsApp number to their profile yet. Please contact them via email.
+                          The guide's email contact is not available. Please contact AsiaByLocals support for assistance.
                         </p>
                       </div>
                     </div>
@@ -2937,7 +2821,7 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
                 <div>
                   <div className="font-black text-[#001A33] text-[14px] mb-1">Next Steps</div>
                   <div className="text-[12px] text-gray-700 font-semibold">
-                    Contact your guide via WhatsApp or phone to confirm the booking and arrange payment. The guide will provide you with meeting point details and finalize all arrangements.
+                    Contact your guide via email to confirm the booking. The guide will provide you with meeting point details and finalize all arrangements.
                   </div>
                 </div>
               </div>
@@ -2964,17 +2848,17 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
             setShowBookingModal(true);
           }}
           onProceedToPayment={handleProceedToPayment}
-          cancellationDate={pendingBookingData?.bookingDate 
+          cancellationDate={pendingBookingData?.bookingDate
             ? (() => {
-                const date = new Date(pendingBookingData.bookingDate);
-                date.setHours(8, 0, 0, 0);
-                return date.toLocaleDateString('en-US', { 
-                  month: 'long', 
-                  day: 'numeric',
-                  hour: '2-digit',
-                  minute: '2-digit'
-                });
-              })()
+              const date = new Date(pendingBookingData.bookingDate);
+              date.setHours(8, 0, 0, 0);
+              return date.toLocaleDateString('en-US', {
+                month: 'long',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+              });
+            })()
             : undefined
           }
         />

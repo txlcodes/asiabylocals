@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  User, 
-  LogOut, 
-  FileText, 
-  Plus, 
-  BarChart3, 
-  Settings, 
+import {
+  User,
+  LogOut,
+  FileText,
+  Plus,
+  BarChart3,
+  Settings,
   Bell,
   CheckCircle2,
   Clock,
@@ -897,7 +897,7 @@ const SupplierDashboard: React.FC<SupplierDashboardProps> = ({ supplier, onLogou
     try {
       const base64Url = await fileToBase64(file);
       const API_URL = import.meta.env.VITE_API_URL || (typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3001');
-      
+
       const response = await fetch(`${API_URL}/api/suppliers/${supplier.id}/update-document`, {
         method: 'PATCH',
         headers: {
@@ -958,9 +958,9 @@ const SupplierDashboard: React.FC<SupplierDashboardProps> = ({ supplier, onLogou
     try {
       const base64Urls = await Promise.all(files.map(fileToBase64));
       const updatedCertificates = [...documents.certificates, ...base64Urls];
-      
+
       const API_URL = import.meta.env.VITE_API_URL || (typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3001');
-      
+
       const response = await fetch(`${API_URL}/api/suppliers/${supplier.id}/update-document`, {
         method: 'PATCH',
         headers: {
@@ -974,7 +974,7 @@ const SupplierDashboard: React.FC<SupplierDashboardProps> = ({ supplier, onLogou
 
       const data = await response.json();
       if (data.success) {
-        const certUrls = data.supplier.certificates 
+        const certUrls = data.supplier.certificates
           ? (typeof data.supplier.certificates === 'string' ? JSON.parse(data.supplier.certificates) : data.supplier.certificates)
           : [];
         setDocuments(prev => ({ ...prev, certificates: certUrls }));
@@ -999,10 +999,10 @@ const SupplierDashboard: React.FC<SupplierDashboardProps> = ({ supplier, onLogou
     if (!supplier?.id || !confirm('Are you sure you want to delete this certificate?')) return;
 
     const updatedCertificates = documents.certificates.filter((_, i) => i !== index);
-    
+
     try {
       const API_URL = import.meta.env.VITE_API_URL || (typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3001');
-      
+
       const response = await fetch(`${API_URL}/api/suppliers/${supplier.id}/update-document`, {
         method: 'PATCH',
         headers: {
@@ -1050,32 +1050,32 @@ const SupplierDashboard: React.FC<SupplierDashboardProps> = ({ supplier, onLogou
     console.log('═══════════════════════════════════════════════════════════');
     console.log('📥 FETCHING SUPPLIER STATUS');
     console.log('═══════════════════════════════════════════════════════════');
-    
+
     if (!supplier?.id) {
       console.error('❌ SUPPLIER FETCH FAILED: supplier or supplier.id is missing');
       console.error('   supplier:', supplier);
       console.error('   supplier.id:', supplier?.id);
       return;
     }
-    
+
     const supplierId = supplier.id;
     console.log('📥 Supplier ID:', supplierId);
-    
+
     try {
       // Determine API URL
       const API_URL = (import.meta as any).env?.VITE_API_URL || (typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3001');
       const url = `${API_URL}/api/suppliers/${supplierId}`;
-      
+
       console.log('🔗 Request URL:', url);
       console.log('   API_URL:', API_URL);
       console.log('   Window origin:', typeof window !== 'undefined' ? window.location.origin : 'N/A (SSR)');
       console.log('   Environment VITE_API_URL:', (import.meta as any).env?.VITE_API_URL || 'not set');
-      
+
       // Verify backend availability first
       console.log('🔍 Checking backend availability...');
       const healthCheckUrl = `${API_URL}/api/health`;
       try {
-        const healthResponse = await fetch(healthCheckUrl, { 
+        const healthResponse = await fetch(healthCheckUrl, {
           method: 'GET',
           signal: AbortSignal.timeout(3000) // 3 second timeout
         });
@@ -1094,7 +1094,7 @@ const SupplierDashboard: React.FC<SupplierDashboardProps> = ({ supplier, onLogou
         console.error('   - Firewall blocking connection');
         throw new Error(`Backend server not accessible: ${healthError.message}`);
       }
-      
+
       console.log('📤 Making supplier fetch request...');
       const response = await fetch(url, {
         method: 'GET',
@@ -1103,12 +1103,12 @@ const SupplierDashboard: React.FC<SupplierDashboardProps> = ({ supplier, onLogou
         },
         signal: AbortSignal.timeout(10000) // 10 second timeout
       });
-      
+
       console.log('📥 Response received');
       console.log('   Response status:', response.status);
       console.log('   Response OK:', response.ok);
       console.log('   Response headers:', Object.fromEntries(response.headers.entries()));
-      
+
       if (!response.ok) {
         const errorText = await response.text();
         console.error('❌ SUPPLIER FETCH FAILED: HTTP error response');
@@ -1122,34 +1122,34 @@ const SupplierDashboard: React.FC<SupplierDashboardProps> = ({ supplier, onLogou
         console.error('   - Authentication required (401/403)');
         throw new Error(`HTTP error: ${response.status} ${response.statusText}`);
       }
-      
+
       const data = await response.json();
       console.log('✅ Response data received:', {
         hasSupplier: !!data.supplier,
         hasSuccess: !!data.success,
         keys: Object.keys(data)
       });
-      
+
       // Handle both response formats: { supplier } or { success: true, supplier }
       const supplierData = data.supplier || data;
-      
+
       if (supplierData && supplierData.id) {
         console.log('✅ Supplier data valid:', {
           id: supplierData.id,
           status: supplierData.status,
           emailVerified: supplierData.emailVerified
         });
-        
-        const updatedSupplier = { 
-          ...supplierData, 
+
+        const updatedSupplier = {
+          ...supplierData,
           id: String(supplierData.id),
           emailVerified: supplierData.emailVerified !== undefined ? supplierData.emailVerified : currentSupplier?.emailVerified
         };
-        
+
         // Update documents state
         if (supplierData.verificationDocumentUrl || supplierData.certificates) {
           try {
-            const certs = supplierData.certificates 
+            const certs = supplierData.certificates
               ? (typeof supplierData.certificates === 'string' ? JSON.parse(supplierData.certificates) : supplierData.certificates)
               : [];
             setDocuments({
@@ -1164,7 +1164,7 @@ const SupplierDashboard: React.FC<SupplierDashboardProps> = ({ supplier, onLogou
             });
           }
         }
-        
+
         // Only update if status actually changed to avoid unnecessary re-renders
         if (updatedSupplier.status !== currentSupplier?.status) {
           console.log('🔄 Supplier status changed:', {
@@ -1196,7 +1196,7 @@ const SupplierDashboard: React.FC<SupplierDashboardProps> = ({ supplier, onLogou
       console.error('Error name:', error?.name);
       console.error('Error message:', error?.message);
       console.error('Error stack:', error?.stack);
-      
+
       // Determine error type
       if (error?.name === 'AbortError' || error?.message?.includes('timeout')) {
         console.error('   Error type: TIMEOUT');
@@ -1232,7 +1232,7 @@ const SupplierDashboard: React.FC<SupplierDashboardProps> = ({ supplier, onLogou
   useEffect(() => {
     if (supplier) {
       try {
-        const certs = supplier.certificates 
+        const certs = supplier.certificates
           ? (typeof supplier.certificates === 'string' ? JSON.parse(supplier.certificates) : supplier.certificates)
           : [];
         setDocuments({
@@ -1262,11 +1262,11 @@ const SupplierDashboard: React.FC<SupplierDashboardProps> = ({ supplier, onLogou
   // Periodically check for supplier status updates (every 10 seconds)
   useEffect(() => {
     if (!supplier?.id) return;
-    
+
     const interval = setInterval(() => {
       fetchSupplierStatus();
     }, 10000); // Check every 10 seconds for faster status updates
-    
+
     return () => clearInterval(interval);
   }, [supplier?.id]);
 
@@ -1361,7 +1361,7 @@ const SupplierDashboard: React.FC<SupplierDashboardProps> = ({ supplier, onLogou
       if (!details.last4Digits || details.last4Digits.length !== 4) return 'Last 4 digits of card are required';
       if (!details.expiryDate) return 'Card expiry date is required';
       if (!details.billingAddress) return 'Billing address is required';
-    } else     if (paymentFormData.paymentMethod === 'upi') {
+    } else if (paymentFormData.paymentMethod === 'upi') {
       if (!details.upiId) return 'UPI ID is required';
       if (!details.upiId.includes('@')) return 'UPI ID must be in format: name@provider';
     } else if (paymentFormData.paymentMethod === 'wise') {
@@ -1376,7 +1376,7 @@ const SupplierDashboard: React.FC<SupplierDashboardProps> = ({ supplier, onLogou
   // Save payment details
   const handleSavePaymentDetails = async () => {
     if (!supplier?.id) return;
-    
+
     // Validate form
     const validationError = validatePaymentForm();
     if (validationError) {
@@ -1427,7 +1427,7 @@ const SupplierDashboard: React.FC<SupplierDashboardProps> = ({ supplier, onLogou
 
   const fetchBookings = async () => {
     if (!supplier?.id) return;
-    
+
     setIsLoadingBookings(true);
     try {
       const API_URL = (import.meta as any).env?.VITE_API_URL || (typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3001');
@@ -1452,15 +1452,15 @@ const SupplierDashboard: React.FC<SupplierDashboardProps> = ({ supplier, onLogou
       console.error('Cannot fetch tours: supplier or supplier.id is missing');
       return;
     }
-    
+
     setIsLoading(true);
     try {
       const API_URL = (import.meta as any).env?.VITE_API_URL || (typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3001');
-      
+
       // Add timeout handling - increased to 60 seconds for slow database connections
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 60000); // 60 second timeout
-      
+
       let response;
       try {
         response = await fetch(`${API_URL}/api/tours?supplierId=${supplier.id}`, {
@@ -1476,7 +1476,7 @@ const SupplierDashboard: React.FC<SupplierDashboardProps> = ({ supplier, onLogou
         }
         throw fetchError;
       }
-      
+
       const data = await response.json();
       if (data.success) {
         setTours(data.tours || []);
@@ -1523,7 +1523,7 @@ const SupplierDashboard: React.FC<SupplierDashboardProps> = ({ supplier, onLogou
       const API_URL = (import.meta as any).env?.VITE_API_URL || (typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3001');
       const response = await fetch(`${API_URL}/api/tours/${tour.id}`);
       const data = await response.json();
-      
+
       if (data.success && data.tour) {
         setEditingTour(data.tour);
         setShowTourForm(true);
@@ -1546,7 +1546,7 @@ const SupplierDashboard: React.FC<SupplierDashboardProps> = ({ supplier, onLogou
 
   const handleSaveProfile = async () => {
     if (!supplier?.id) return;
-    
+
     setIsSavingProfile(true);
     try {
       const API_URL = (import.meta as any).env?.VITE_API_URL || (typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3001');
@@ -1555,11 +1555,9 @@ const SupplierDashboard: React.FC<SupplierDashboardProps> = ({ supplier, onLogou
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           fullName: profileData.fullName,
-          phone: profileData.phone,
-          whatsapp: profileData.whatsapp
         })
       });
-      
+
       const data = await response.json();
       if (data.success) {
         // Update supplier in localStorage
@@ -1588,13 +1586,13 @@ const SupplierDashboard: React.FC<SupplierDashboardProps> = ({ supplier, onLogou
   const handleSubmitTour = async (tourId: string) => {
     try {
       const API_URL = (import.meta as any).env?.VITE_API_URL || (typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3001');
-      
+
       console.log(`📤 Submitting tour ${tourId} for review...`);
-      
+
       // Add timeout handling
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
-      
+
       let response;
       try {
         response = await fetch(`${API_URL}/api/tours/${tourId}/submit`, {
@@ -1612,17 +1610,17 @@ const SupplierDashboard: React.FC<SupplierDashboardProps> = ({ supplier, onLogou
         }
         throw fetchError;
       }
-      
+
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({ message: 'Failed to submit tour' }));
         console.error('❌ Submit tour failed:', errorData);
         alert(errorData.message || errorData.error || `Failed to submit tour (${response.status})`);
         return;
       }
-      
+
       const data = await response.json();
       console.log('✅ Submit tour response:', data);
-      
+
       if (data.success) {
         // Refresh tours list to show updated status
         await fetchTours();
@@ -1667,8 +1665,8 @@ const SupplierDashboard: React.FC<SupplierDashboardProps> = ({ supplier, onLogou
   };
 
   // Filter tours by status
-  const filteredTours = filterStatus === 'all' 
-    ? tours 
+  const filteredTours = filterStatus === 'all'
+    ? tours
     : tours.filter(tour => tour.status === filterStatus);
 
   // Calculate stats
@@ -1686,7 +1684,7 @@ const SupplierDashboard: React.FC<SupplierDashboardProps> = ({ supplier, onLogou
       setShowTourForm(false);
       return null;
     }
-    
+
     return (
       <TourCreationForm
         supplierId={supplier.id}
@@ -1706,7 +1704,7 @@ const SupplierDashboard: React.FC<SupplierDashboardProps> = ({ supplier, onLogou
         onProfileRequired={() => {
           setShowTourForm(false);
           setActiveTab('profile');
-          alert('Please add your phone number and WhatsApp number in your profile before creating a tour. This information will be shared with customers when they book your tours.');
+          alert('Please complete your profile details before creating a tour.');
         }}
       />
     );
@@ -1719,21 +1717,24 @@ const SupplierDashboard: React.FC<SupplierDashboardProps> = ({ supplier, onLogou
         <div className="max-w-7xl mx-auto px-6 pt-6 pb-0">
           <div className="flex items-center justify-between">
             {/* Left side - Logo */}
-            <div className="flex items-center flex-1 cursor-pointer">
-              <img 
-                src="/logo.png" 
-                alt="AsiaByLocals" 
-                className="h-[90px] sm:h-[85px] md:h-[95px] lg:h-[105px] xl:h-[115px] w-auto object-contain" 
+            <div
+              className="flex items-center flex-1 cursor-pointer"
+              onClick={() => window.location.href = '/'}
+            >
+              <img
+                src="/logo.png"
+                alt="Asia By Locals"
+                className="h-[90px] sm:h-[85px] md:h-[95px] lg:h-[105px] xl:h-[115px] w-auto object-contain"
                 style={{ transform: 'translateY(3px)' }}
               />
             </div>
-            
+
             {/* Center - Supplier Portal */}
             <div className="absolute left-1/2 transform -translate-x-1/2 text-center">
               <h1 className="text-xl font-black text-[#001A33]">Supplier Portal</h1>
               <p className="text-[12px] text-gray-500 font-semibold">Welcome back, {currentSupplier?.fullName || supplier.fullName}</p>
             </div>
-            
+
             {/* Right side - Actions */}
             <div className="flex items-center gap-4 flex-1 justify-end">
               <button className="p-2 hover:bg-gray-100 rounded-full transition-colors relative">
@@ -1768,7 +1769,7 @@ const SupplierDashboard: React.FC<SupplierDashboardProps> = ({ supplier, onLogou
               <div className="flex-1">
                 <h3 className="font-black text-[#001A33] mb-2">Account Under Review</h3>
                 <p className="text-[14px] text-gray-600 font-semibold">
-                  Your account is currently being reviewed by our team. We'll notify you once your account is approved. 
+                  Your account is currently being reviewed by our team. We'll notify you once your account is approved.
                   This usually takes 24-48 hours.
                 </p>
               </div>
@@ -1797,11 +1798,10 @@ const SupplierDashboard: React.FC<SupplierDashboardProps> = ({ supplier, onLogou
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id as any)}
-                className={`flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-xl font-bold text-[14px] transition-all ${
-                  activeTab === tab.id
-                    ? 'bg-[#10B981] text-white shadow-lg'
-                    : 'text-gray-600 hover:bg-gray-50'
-                }`}
+                className={`flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-xl font-bold text-[14px] transition-all ${activeTab === tab.id
+                  ? 'bg-[#10B981] text-white shadow-lg'
+                  : 'text-gray-600 hover:bg-gray-50'
+                  }`}
               >
                 <Icon size={18} />
                 {tab.label}
@@ -1821,7 +1821,7 @@ const SupplierDashboard: React.FC<SupplierDashboardProps> = ({ supplier, onLogou
                   <FileText className="text-[#10B981]" size={20} />
                 </div>
                 <p className="text-3xl font-black text-[#001A33]">{stats.total}</p>
-                <button 
+                <button
                   onClick={() => {
                     if (currentSupplier?.status !== 'approved') {
                       alert('Your account is under review. You can create tours only after your account is approved by admin. Please wait for approval notification via email.');
@@ -1830,11 +1830,10 @@ const SupplierDashboard: React.FC<SupplierDashboardProps> = ({ supplier, onLogou
                     setShowTourForm(true);
                   }}
                   disabled={currentSupplier?.status !== 'approved'}
-                  className={`mt-4 text-[13px] font-bold flex items-center gap-1 ${
-                    currentSupplier?.status === 'approved'
-                      ? 'text-[#10B981] hover:underline'
-                      : 'text-gray-400 cursor-not-allowed'
-                  }`}
+                  className={`mt-4 text-[13px] font-bold flex items-center gap-1 ${currentSupplier?.status === 'approved'
+                    ? 'text-[#10B981] hover:underline'
+                    : 'text-gray-400 cursor-not-allowed'
+                    }`}
                 >
                   <Plus size={14} />
                   {currentSupplier?.status === 'approved' ? 'Create Tour' : 'Awaiting Approval'}
@@ -1879,7 +1878,7 @@ const SupplierDashboard: React.FC<SupplierDashboardProps> = ({ supplier, onLogou
             <div className="bg-white rounded-2xl p-6 border border-gray-200">
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-2xl font-black text-[#001A33]">My Tours</h2>
-                <button 
+                <button
                   onClick={() => {
                     if (currentSupplier?.status !== 'approved') {
                       alert('Your account is under review. You can create tours only after your account is approved by admin. Please wait for approval notification via email.');
@@ -1888,11 +1887,10 @@ const SupplierDashboard: React.FC<SupplierDashboardProps> = ({ supplier, onLogou
                     setShowTourForm(true);
                   }}
                   disabled={currentSupplier?.status !== 'approved'}
-                  className={`font-black py-3 px-6 rounded-full text-[14px] flex items-center gap-2 transition-colors ${
-                    currentSupplier?.status === 'approved'
-                      ? 'bg-[#10B981] hover:bg-[#059669] text-white'
-                      : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                  }`}
+                  className={`font-black py-3 px-6 rounded-full text-[14px] flex items-center gap-2 transition-colors ${currentSupplier?.status === 'approved'
+                    ? 'bg-[#10B981] hover:bg-[#059669] text-white'
+                    : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                    }`}
                 >
                   <Plus size={18} />
                   {supplier.status === 'approved' ? 'Create New Tour' : 'Awaiting Approval'}
@@ -1903,46 +1901,42 @@ const SupplierDashboard: React.FC<SupplierDashboardProps> = ({ supplier, onLogou
               <div className="flex items-center gap-2 mb-6">
                 <button
                   onClick={() => setFilterStatus('all')}
-                  className={`px-4 py-2 rounded-full text-[13px] font-bold transition-all ${
-                    filterStatus === 'all'
-                      ? 'bg-[#10B981] text-white'
-                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                  }`}
+                  className={`px-4 py-2 rounded-full text-[13px] font-bold transition-all ${filterStatus === 'all'
+                    ? 'bg-[#10B981] text-white'
+                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                    }`}
                 >
                   All ({stats.total})
                 </button>
                 <button
                   onClick={() => setFilterStatus('draft')}
-                  className={`px-4 py-2 rounded-full text-[13px] font-bold transition-all ${
-                    filterStatus === 'draft'
-                      ? 'bg-[#10B981] text-white'
-                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                  }`}
+                  className={`px-4 py-2 rounded-full text-[13px] font-bold transition-all ${filterStatus === 'draft'
+                    ? 'bg-[#10B981] text-white'
+                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                    }`}
                 >
                   Draft ({stats.draft})
                 </button>
                 <button
                   onClick={() => setFilterStatus('pending')}
-                  className={`px-4 py-2 rounded-full text-[13px] font-bold transition-all ${
-                    filterStatus === 'pending'
-                      ? 'bg-[#10B981] text-white'
-                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                  }`}
+                  className={`px-4 py-2 rounded-full text-[13px] font-bold transition-all ${filterStatus === 'pending'
+                    ? 'bg-[#10B981] text-white'
+                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                    }`}
                 >
                   Pending ({stats.pending})
                 </button>
                 <button
                   onClick={() => setFilterStatus('approved')}
-                  className={`px-4 py-2 rounded-full text-[13px] font-bold transition-all ${
-                    filterStatus === 'approved'
-                      ? 'bg-[#10B981] text-white'
-                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                  }`}
+                  className={`px-4 py-2 rounded-full text-[13px] font-bold transition-all ${filterStatus === 'approved'
+                    ? 'bg-[#10B981] text-white'
+                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                    }`}
                 >
                   Live ({stats.live})
                 </button>
               </div>
-              
+
               {isLoading ? (
                 <div className="text-center py-12">
                   <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#10B981] mx-auto"></div>
@@ -1955,13 +1949,13 @@ const SupplierDashboard: React.FC<SupplierDashboardProps> = ({ supplier, onLogou
                     {filterStatus === 'all' ? 'No tours yet' : `No ${filterStatus} tours`}
                   </h3>
                   <p className="text-[14px] text-gray-500 font-semibold mb-6">
-                    {filterStatus === 'all' 
+                    {filterStatus === 'all'
                       ? 'Start creating amazing experiences for travelers!'
                       : `You don't have any ${filterStatus} tours yet.`
                     }
                   </p>
                   {filterStatus === 'all' && (
-                    <button 
+                    <button
                       onClick={() => {
                         if (currentSupplier?.status !== 'approved') {
                           alert('Your account is under review. You can create tours only after your account is approved by admin. Please wait for approval notification via email.');
@@ -1970,11 +1964,10 @@ const SupplierDashboard: React.FC<SupplierDashboardProps> = ({ supplier, onLogou
                         setShowTourForm(true);
                       }}
                       disabled={currentSupplier?.status !== 'approved'}
-                      className={`font-black py-3 px-6 rounded-full text-[14px] flex items-center gap-2 mx-auto transition-colors ${
-                        currentSupplier?.status === 'approved'
-                          ? 'bg-[#10B981] hover:bg-[#059669] text-white'
-                          : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                      }`}
+                      className={`font-black py-3 px-6 rounded-full text-[14px] flex items-center gap-2 mx-auto transition-colors ${currentSupplier?.status === 'approved'
+                        ? 'bg-[#10B981] hover:bg-[#059669] text-white'
+                        : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                        }`}
                     >
                       <Plus size={18} />
                       {supplier.status === 'approved' ? 'Create Your First Tour' : 'Awaiting Approval'}
@@ -2010,7 +2003,7 @@ const SupplierDashboard: React.FC<SupplierDashboardProps> = ({ supplier, onLogou
                             {(() => {
                               let startingPrice = 0;
                               let foundValidPrice = false;
-                              
+
                               // PRIORITY 1: Check ALL tour options for groupPricingTiers - find the first tier (1 person price)
                               // The first tier is always for 1 person - this is the "starting from" price
                               if (tour.options && Array.isArray(tour.options) && tour.options.length > 0) {
@@ -2018,8 +2011,8 @@ const SupplierDashboard: React.FC<SupplierDashboardProps> = ({ supplier, onLogou
                                 const mainTourOption = tour.options.find((opt: any) => opt.sortOrder === -1) || tour.options.find((opt: any) => opt.sortOrder === 0) || tour.options[0];
                                 if (mainTourOption && mainTourOption.groupPricingTiers) {
                                   try {
-                                    const tiers = typeof mainTourOption.groupPricingTiers === 'string' 
-                                      ? JSON.parse(mainTourOption.groupPricingTiers) 
+                                    const tiers = typeof mainTourOption.groupPricingTiers === 'string'
+                                      ? JSON.parse(mainTourOption.groupPricingTiers)
                                       : mainTourOption.groupPricingTiers;
                                     if (Array.isArray(tiers) && tiers.length > 0 && tiers[0] && tiers[0].price) {
                                       const firstTierPrice = parseFloat(tiers[0].price);
@@ -2032,7 +2025,7 @@ const SupplierDashboard: React.FC<SupplierDashboardProps> = ({ supplier, onLogou
                                     console.error('Error parsing main tour option groupPricingTiers:', e);
                                   }
                                 }
-                                
+
                                 // If not found in main option, check ALL other options
                                 if (!foundValidPrice) {
                                   // Sort options by sortOrder to check in order
@@ -2040,8 +2033,8 @@ const SupplierDashboard: React.FC<SupplierDashboardProps> = ({ supplier, onLogou
                                   for (const opt of sortedOptions) {
                                     if (opt.groupPricingTiers) {
                                       try {
-                                        const tiers = typeof opt.groupPricingTiers === 'string' 
-                                          ? JSON.parse(opt.groupPricingTiers) 
+                                        const tiers = typeof opt.groupPricingTiers === 'string'
+                                          ? JSON.parse(opt.groupPricingTiers)
                                           : opt.groupPricingTiers;
                                         if (Array.isArray(tiers) && tiers.length > 0 && tiers[0] && tiers[0].price) {
                                           const firstTierPrice = parseFloat(tiers[0].price);
@@ -2058,7 +2051,7 @@ const SupplierDashboard: React.FC<SupplierDashboardProps> = ({ supplier, onLogou
                                   }
                                 }
                               }
-                              
+
                               // PRIORITY 2: Check pricePerPerson (should be set from first tier by backend)
                               // Only use if it's reasonable (not the last tier price like ₹8,200)
                               if (!foundValidPrice && tour.pricePerPerson) {
@@ -2071,15 +2064,15 @@ const SupplierDashboard: React.FC<SupplierDashboardProps> = ({ supplier, onLogou
                                   foundValidPrice = true;
                                 }
                               }
-                              
+
                               // DO NOT use groupPrice - it's the LAST tier price (wrong for "starting from")
                               // groupPrice is ₹8,200 (10 people), not ₹1,000 (1 person)
-                              
+
                               // If still no valid price, show 0
                               if (startingPrice === 0 || isNaN(startingPrice)) {
                                 startingPrice = 0;
                               }
-                              
+
                               return `Starting from ${tour.currency === 'INR' ? '₹' : '$'}${startingPrice.toLocaleString()}`;
                             })()}
                           </span>
@@ -2153,25 +2146,24 @@ const SupplierDashboard: React.FC<SupplierDashboardProps> = ({ supplier, onLogou
                 <div className="space-y-4">
                   {bookings.map((booking) => {
                     const bookingDate = new Date(booking.bookingDate);
-                    const formattedDate = bookingDate.toLocaleDateString('en-US', { 
-                      weekday: 'long', 
-                      year: 'numeric', 
-                      month: 'long', 
-                      day: 'numeric' 
+                    const formattedDate = bookingDate.toLocaleDateString('en-US', {
+                      weekday: 'long',
+                      year: 'numeric',
+                      month: 'long',
+                      day: 'numeric'
                     });
-                    
+
                     return (
                       <div key={booking.id} className="border-2 border-gray-200 rounded-xl p-5 hover:border-[#10B981]/50 transition-all">
                         <div className="flex items-start justify-between mb-4">
                           <div className="flex-1">
                             <div className="flex items-center gap-3 mb-2">
                               <h3 className="text-lg font-black text-[#001A33]">{booking.tour?.title || 'Tour'}</h3>
-                              <span className={`px-3 py-1 rounded-full text-[11px] font-black ${
-                                booking.status === 'confirmed' ? 'bg-[#10B981]/10 text-[#10B981] border border-[#10B981]/20' :
+                              <span className={`px-3 py-1 rounded-full text-[11px] font-black ${booking.status === 'confirmed' ? 'bg-[#10B981]/10 text-[#10B981] border border-[#10B981]/20' :
                                 booking.status === 'pending' ? 'bg-yellow-500/10 text-yellow-700 border border-yellow-500/20' :
-                                booking.status === 'completed' ? 'bg-blue-500/10 text-blue-700 border border-blue-500/20' :
-                                'bg-gray-500/10 text-gray-700 border border-gray-500/20'
-                              }`}>
+                                  booking.status === 'completed' ? 'bg-blue-500/10 text-blue-700 border border-blue-500/20' :
+                                    'bg-gray-500/10 text-gray-700 border border-gray-500/20'
+                                }`}>
                                 {booking.status?.toUpperCase() || 'PENDING'}
                               </span>
                             </div>
@@ -2208,12 +2200,7 @@ const SupplierDashboard: React.FC<SupplierDashboardProps> = ({ supplier, onLogou
                             )}
                             <div className="mt-3 flex items-center gap-2 text-[12px] text-gray-500">
                               <span>Customer Email: <a href={`mailto:${booking.customerEmail}`} className="text-[#0071EB] hover:underline">{booking.customerEmail}</a></span>
-                              {booking.customerPhone && (
-                                <>
-                                  <span>•</span>
-                                  <span>Phone: <a href={`tel:${booking.customerPhone}`} className="text-[#0071EB] hover:underline">{booking.customerPhone}</a></span>
-                                </>
-                              )}
+
                             </div>
                           </div>
                         </div>
@@ -2230,7 +2217,7 @@ const SupplierDashboard: React.FC<SupplierDashboardProps> = ({ supplier, onLogou
               {/* Earnings Overview */}
               <div className="bg-white rounded-2xl p-6 border border-gray-200">
                 <h2 className="text-2xl font-black text-[#001A33] mb-6">Earnings</h2>
-                
+
                 {isLoadingPayment ? (
                   <div className="text-center py-12">
                     <RefreshCw className="mx-auto text-[#10B981] mb-4 animate-spin" size={48} />
@@ -2432,32 +2419,7 @@ const SupplierDashboard: React.FC<SupplierDashboardProps> = ({ supplier, onLogou
                     This email will be shared with customers for tour bookings
                   </p>
                 </div>
-                <div>
-                  <label className="block text-[14px] font-bold text-[#001A33] mb-2">Phone Number *</label>
-                  <input
-                    type="tel"
-                    value={profileData.phone}
-                    onChange={(e) => setProfileData({ ...profileData, phone: e.target.value })}
-                    placeholder="+91 1234567890"
-                    className="w-full bg-white border-2 border-gray-200 rounded-2xl py-4 px-4 font-bold text-[#001A33] text-[14px] focus:ring-2 focus:ring-[#10B981] focus:border-[#10B981] outline-none"
-                  />
-                  <p className="text-[12px] text-gray-500 font-semibold mt-2">
-                    This phone number will be shared with customers for tour bookings
-                  </p>
-                </div>
-                <div>
-                  <label className="block text-[14px] font-bold text-[#001A33] mb-2">WhatsApp Number *</label>
-                  <input
-                    type="tel"
-                    value={profileData.whatsapp}
-                    onChange={(e) => setProfileData({ ...profileData, whatsapp: e.target.value })}
-                    placeholder="+91 1234567890"
-                    className="w-full bg-white border-2 border-gray-200 rounded-2xl py-4 px-4 font-bold text-[#001A33] text-[14px] focus:ring-2 focus:ring-[#10B981] focus:border-[#10B981] outline-none"
-                  />
-                  <p className="text-[12px] text-gray-500 font-semibold mt-2">
-                    This WhatsApp number will be shared with customers for easy communication
-                  </p>
-                </div>
+
                 <div className="pt-4 border-t border-gray-200">
                   <button
                     onClick={handleSaveProfile}

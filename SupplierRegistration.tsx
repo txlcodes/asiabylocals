@@ -1,11 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { 
-  ChevronRight, 
-  ChevronLeft, 
-  Check, 
-  Upload, 
-  ShieldCheck, 
-  Globe, 
+import {
+  ChevronRight,
+  ChevronLeft,
+  Check,
+  Upload,
+  ShieldCheck,
+  Globe,
   Building2,
   Lock,
   Mail,
@@ -29,8 +29,8 @@ interface SupplierRegistrationProps {
 }
 
 const SupplierRegistration: React.FC<SupplierRegistrationProps> = ({ language = 'en', onClose }) => {
-  const t = (key: keyof typeof translations.en) => getTranslation(language, key);
-  
+  const t = (key: keyof typeof translations.en) => getTranslation(language as Language, key);
+
   const BUSINESS_TYPES = [
     {
       id: 'company',
@@ -57,7 +57,7 @@ const SupplierRegistration: React.FC<SupplierRegistrationProps> = ({ language = 
   const [companyActivities, setCompanyActivities] = useState<string>('');
   const [individualActivities, setIndividualActivities] = useState<string>('');
   const [otherActivities, setOtherActivities] = useState<string>('');
-  
+
   // Account form fields (GetYourGuide-style)
   const [firstName, setFirstName] = useState<string>('');
   const [lastName, setLastName] = useState<string>('');
@@ -69,15 +69,13 @@ const SupplierRegistration: React.FC<SupplierRegistrationProps> = ({ language = 
   const [preferredCurrency, setPreferredCurrency] = useState<string>('');
   const [acceptedTerms, setAcceptedTerms] = useState<boolean>(false);
   const [showPassword, setShowPassword] = useState<boolean>(false);
-  
+
   // Business details form fields
   const [companyName, setCompanyName] = useState<string>('');
   const [mainHub, setMainHub] = useState<string>('');
   const [city, setCity] = useState<string>('');
   const [tourLanguages, setTourLanguages] = useState<string>('');
-  const [phone, setPhone] = useState<string>('');
-  const [whatsapp, setWhatsapp] = useState<string>('');
-  
+
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [emailVerified, setEmailVerified] = useState(false);
@@ -120,7 +118,7 @@ const SupplierRegistration: React.FC<SupplierRegistrationProps> = ({ language = 
       // Business details step - validate required fields
       // Company name is only required for companies, optional for individuals
       const isCompanyNameRequired = selectedBusinessType === 'company';
-      if ((!isCompanyNameRequired || companyName) && mainHub && city && tourLanguages && phone && whatsapp) {
+      if ((!isCompanyNameRequired || companyName) && mainHub && city && tourLanguages) {
         nextStep();
       }
     } else if (step === ((selectedBusinessType === 'company' || selectedBusinessType === 'individual' || selectedBusinessType === 'other') ? 4 : 3)) {
@@ -136,15 +134,15 @@ const SupplierRegistration: React.FC<SupplierRegistrationProps> = ({ language = 
       const fullName = `${firstName} ${lastName}`.trim();
       // Password validation - allow common special characters
       const hasSpecialChar = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password);
-      const isValidPassword = password.length >= 8 && 
+      const isValidPassword = password.length >= 8 &&
         password.length <= 30 &&
-        /[A-Z]/.test(password) && 
-        /[a-z]/.test(password) && 
-        /[0-9]/.test(password) && 
+        /[A-Z]/.test(password) &&
+        /[a-z]/.test(password) &&
+        /[0-9]/.test(password) &&
         hasSpecialChar &&
         !password.includes(' ') &&
         !email.toLowerCase().split('@')[0].split('.').some(part => part.length > 2 && password.toLowerCase().includes(part));
-      
+
       if (firstName && lastName && email && isValidPassword && acceptedTerms) {
         // Submit registration at this step
         setIsSubmitting(true);
@@ -155,18 +153,18 @@ const SupplierRegistration: React.FC<SupplierRegistrationProps> = ({ language = 
     } else {
       // Final step - submit license document and certificates (registration already done)
       setIsSubmitting(true);
-      
+
       // Upload license document and certificates
       if (verificationDocument && supplierId) {
         console.log('📄 Uploading license document:', verificationDocument.name, 'Size:', verificationDocument.size);
         console.log('📄 Uploading certificates:', certificates.length);
-        
+
         // Read license document
         const licenseReader = new FileReader();
         licenseReader.onloadend = async () => {
           try {
             const licenseUrl = licenseReader.result as string;
-            
+
             // Read all certificates
             const certificatePromises = certificates.map((cert) => {
               return new Promise<string>((resolve, reject) => {
@@ -176,28 +174,28 @@ const SupplierRegistration: React.FC<SupplierRegistrationProps> = ({ language = 
                 reader.readAsDataURL(cert);
               });
             });
-            
+
             const certificateUrls = await Promise.all(certificatePromises);
-            
+
             console.log('📤 Sending documents to server...');
-            
+
             // Update supplier with license document and certificates
             const response = await fetch(`${API_URL}/api/suppliers/${supplierId}/update-document`, {
               method: 'PATCH',
               headers: {
                 'Content-Type': 'application/json',
               },
-              body: JSON.stringify({ 
+              body: JSON.stringify({
                 verificationDocumentUrl: licenseUrl,
                 certificates: certificateUrls.length > 0 ? JSON.stringify(certificateUrls) : null
               }),
             });
-            
+
             const data = await response.json();
             console.log('📥 Server response:', data);
-            
+
             setIsSubmitting(false);
-            
+
             if (data.success) {
               console.log('✅ Documents uploaded successfully!');
               setIsSuccess(true);
@@ -211,13 +209,13 @@ const SupplierRegistration: React.FC<SupplierRegistrationProps> = ({ language = 
             alert('Failed to upload documents. Check your connection and try again.');
           }
         };
-        
+
         licenseReader.onerror = () => {
           console.error('❌ FileReader error');
           setIsSubmitting(false);
           alert('Failed to read document. Please try again.');
         };
-        
+
         licenseReader.readAsDataURL(verificationDocument);
       } else {
         // No document, just mark as complete
@@ -232,44 +230,44 @@ const SupplierRegistration: React.FC<SupplierRegistrationProps> = ({ language = 
   const submitRegistration = async () => {
     // Validate all required fields before submission
     const fullName = `${firstName} ${lastName}`.trim();
-    
+
     if (!selectedBusinessType) {
       alert('Please select a business type.');
       setIsSubmitting(false);
       return;
     }
-    
+
     if (!fullName || !firstName || !lastName) {
       alert('Please enter your full name.');
       setIsSubmitting(false);
       return;
     }
-    
+
     if (!email || !email.includes('@')) {
       alert('Please enter a valid email address.');
       setIsSubmitting(false);
       return;
     }
-    
+
     if (!password || password.length < 8) {
       alert('Please enter a valid password (at least 8 characters).');
       setIsSubmitting(false);
       return;
     }
-    
+
     if (!acceptedTerms) {
       alert('Please accept the Terms and Conditions to continue.');
       setIsSubmitting(false);
       return;
     }
-    
+
     // Validate license document is uploaded
     if (!verificationDocument) {
       alert('Please upload your license/verification document before creating your account.');
       setIsSubmitting(false);
       return;
     }
-    
+
     // Convert license document to base64
     let documentBase64 = null;
     try {
@@ -285,7 +283,7 @@ const SupplierRegistration: React.FC<SupplierRegistrationProps> = ({ language = 
       setIsSubmitting(false);
       return;
     }
-    
+
     const registrationData = {
       businessType: selectedBusinessType,
       companyEmployees: selectedBusinessType === 'company' ? companyEmployees : null,
@@ -299,8 +297,6 @@ const SupplierRegistration: React.FC<SupplierRegistrationProps> = ({ language = 
       mainHub: mainHub || null,
       city: city || null,
       tourLanguages: tourLanguages || null,
-      phone: phone || null,
-      whatsapp: whatsapp || null,
       verificationDocumentUrl: documentBase64, // Include license document in registration
       language: language // Include language preference for email
     };
@@ -317,7 +313,7 @@ const SupplierRegistration: React.FC<SupplierRegistrationProps> = ({ language = 
     const makeRequest = async (retryCount = 0): Promise<Response> => {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
-      
+
       try {
         const response = await fetch(`${API_URL}/api/suppliers/register`, {
           method: 'POST',
@@ -345,123 +341,123 @@ const SupplierRegistration: React.FC<SupplierRegistrationProps> = ({ language = 
     };
 
     makeRequest()
-    .then(async response => {
-      console.log('📥 Registration API response:', response.status, response.statusText);
-      
-      // Get response text first to see what we're dealing with
-      const responseText = await response.text();
-      console.log('   Response body:', responseText);
-      
-      let data;
-      try {
-        data = JSON.parse(responseText);
-      } catch (e) {
-        console.error('   Failed to parse JSON response:', e);
-        throw new Error('Invalid server response. Please try again.');
-      }
-      
-      // Handle both 200 (existing account) and 201 (new account) as success
-      if (response.status === 200 || response.status === 201) {
-        return data;
-      } else {
-        console.error('   Registration failed:', data);
-        throw new Error(data.error || data.message || 'Registration failed');
-      }
-    })
-    .then(data => {
-      setIsSubmitting(false);
-      if (data.success) {
-        console.log('✅ Registration successful:', data);
-        console.log('   Email verified:', data.supplier.emailVerified);
-        console.log('   Supplier ID:', data.supplier.id);
-        
-        setSupplierId(data.supplier.id);
-        // Store supplier ID and email in localStorage for verification redirect
-        localStorage.setItem('pendingSupplierId', data.supplier.id);
-        localStorage.setItem('pendingSupplierEmail', email);
-        
-        // ALWAYS redirect to email verification waiting page
-        // Even if account exists and is verified, we should still verify email matches
-        // Only skip if this is an existing account AND email is verified AND we're coming from email verification
-        const isExistingAccount = data.existingAccount === true;
-        const isEmailVerified = data.supplier.emailVerified === true;
-        const isFromVerification = new URLSearchParams(window.location.search).get('verified') === 'true';
-        
-        console.log('   Registration response details:');
-        console.log('   - Existing account:', isExistingAccount);
-        console.log('   - Email verified:', isEmailVerified);
-        console.log('   - From verification:', isFromVerification);
-        console.log('   - Email entered:', email);
-        console.log('   - Email in response:', data.supplier.email);
-        
-        // Only skip verification if:
-        // 1. Account exists AND
-        // 2. Email is verified AND  
-        // 3. We're coming from email verification page (user just verified)
-        if (isExistingAccount && isEmailVerified && isFromVerification) {
-          console.log('   ✅ Email already verified and coming from verification, going directly to step 5');
-          setEmailVerified(true);
-          setIsCheckingVerification(false);
-          // Email already verified, registration complete
-          setIsSuccess(true);
-        } else {
-          // Always redirect to verification waiting page
-          console.log('   📧 Redirecting to email verification waiting page...');
-          console.log('   Reason: Email not verified or not coming from verification');
-          console.log('   Redirect URL:', `/email-verification-waiting?email=${encodeURIComponent(email)}&supplierId=${data.supplier.id}`);
-          // IMPORTANT: Use window.location.replace to ensure redirect happens
-          window.location.replace(`/email-verification-waiting?email=${encodeURIComponent(email)}&supplierId=${data.supplier.id}`);
+      .then(async response => {
+        console.log('📥 Registration API response:', response.status, response.statusText);
+
+        // Get response text first to see what we're dealing with
+        const responseText = await response.text();
+        console.log('   Response body:', responseText);
+
+        let data;
+        try {
+          data = JSON.parse(responseText);
+        } catch (e) {
+          console.error('   Failed to parse JSON response:', e);
+          throw new Error('Invalid server response. Please try again.');
         }
-      } else {
-        alert(data.error || data.message || 'Registration failed. Please try again.');
-      }
-    })
-    .catch(error => {
-      console.error('❌ Registration error:', error);
-      console.error('   Error message:', error.message);
-      console.error('   Error stack:', error.stack);
-      setIsSubmitting(false);
-      
-      // Better error message based on error type
-      let errorMessage = 'Failed to submit registration. ';
-      
-      // Handle Prisma errors
-      if (error.message?.includes('PrismaClientKnownRequestError') || error.message?.includes('P2002')) {
-        if (error.message?.includes('email') || error.message?.includes('Email')) {
-          errorMessage = 'An account with this email already exists. Please use a different email or log in.';
+
+        // Handle both 200 (existing account) and 201 (new account) as success
+        if (response.status === 200 || response.status === 201) {
+          return data;
         } else {
-          errorMessage = 'Registration failed due to a database error. Please try again.';
+          console.error('   Registration failed:', data);
+          throw new Error(data.error || data.message || 'Registration failed');
         }
-      }
-      // Network errors
-      else if (error.message?.includes('Failed to fetch') || error.message?.includes('NetworkError') || error.message?.includes('Network request failed')) {
-        errorMessage += 'Cannot connect to server. Please check your internet connection and try again.';
-      }
-      // Server errors
-      else if (error.message?.includes('Registration failed') || error.message?.includes('Internal server error')) {
-        errorMessage += 'Server error occurred. Please try again in a few moments.';
-      }
-      // Other errors
-      else {
-        // Extract user-friendly message from error
-        const cleanMessage = error.message
-          .replace('PrismaClientKnownRequestError: ', '')
-          .replace('Error: ', '');
-        errorMessage += cleanMessage || 'Please check your connection and try again.';
-      }
-      
-      console.error('   Showing error to user:', errorMessage);
-      alert(errorMessage);
-    });
+      })
+      .then(data => {
+        setIsSubmitting(false);
+        if (data.success) {
+          console.log('✅ Registration successful:', data);
+          console.log('   Email verified:', data.supplier.emailVerified);
+          console.log('   Supplier ID:', data.supplier.id);
+
+          setSupplierId(data.supplier.id);
+          // Store supplier ID and email in localStorage for verification redirect
+          localStorage.setItem('pendingSupplierId', data.supplier.id);
+          localStorage.setItem('pendingSupplierEmail', email);
+
+          // ALWAYS redirect to email verification waiting page
+          // Even if account exists and is verified, we should still verify email matches
+          // Only skip if this is an existing account AND email is verified AND we're coming from email verification
+          const isExistingAccount = data.existingAccount === true;
+          const isEmailVerified = data.supplier.emailVerified === true;
+          const isFromVerification = new URLSearchParams(window.location.search).get('verified') === 'true';
+
+          console.log('   Registration response details:');
+          console.log('   - Existing account:', isExistingAccount);
+          console.log('   - Email verified:', isEmailVerified);
+          console.log('   - From verification:', isFromVerification);
+          console.log('   - Email entered:', email);
+          console.log('   - Email in response:', data.supplier.email);
+
+          // Only skip verification if:
+          // 1. Account exists AND
+          // 2. Email is verified AND  
+          // 3. We're coming from email verification page (user just verified)
+          if (isExistingAccount && isEmailVerified && isFromVerification) {
+            console.log('   ✅ Email already verified and coming from verification, going directly to step 5');
+            setEmailVerified(true);
+            setIsCheckingVerification(false);
+            // Email already verified, registration complete
+            setIsSuccess(true);
+          } else {
+            // Always redirect to verification waiting page
+            console.log('   📧 Redirecting to email verification waiting page...');
+            console.log('   Reason: Email not verified or not coming from verification');
+            console.log('   Redirect URL:', `/email-verification-waiting?email=${encodeURIComponent(email)}&supplierId=${data.supplier.id}`);
+            // IMPORTANT: Use window.location.replace to ensure redirect happens
+            window.location.replace(`/email-verification-waiting?email=${encodeURIComponent(email)}&supplierId=${data.supplier.id}`);
+          }
+        } else {
+          alert(data.error || data.message || 'Registration failed. Please try again.');
+        }
+      })
+      .catch(error => {
+        console.error('❌ Registration error:', error);
+        console.error('   Error message:', error.message);
+        console.error('   Error stack:', error.stack);
+        setIsSubmitting(false);
+
+        // Better error message based on error type
+        let errorMessage = 'Failed to submit registration. ';
+
+        // Handle Prisma errors
+        if (error.message?.includes('PrismaClientKnownRequestError') || error.message?.includes('P2002')) {
+          if (error.message?.includes('email') || error.message?.includes('Email')) {
+            errorMessage = 'An account with this email already exists. Please use a different email or log in.';
+          } else {
+            errorMessage = 'Registration failed due to a database error. Please try again.';
+          }
+        }
+        // Network errors
+        else if (error.message?.includes('Failed to fetch') || error.message?.includes('NetworkError') || error.message?.includes('Network request failed')) {
+          errorMessage += 'Cannot connect to server. Please check your internet connection and try again.';
+        }
+        // Server errors
+        else if (error.message?.includes('Registration failed') || error.message?.includes('Internal server error')) {
+          errorMessage += 'Server error occurred. Please try again in a few moments.';
+        }
+        // Other errors
+        else {
+          // Extract user-friendly message from error
+          const cleanMessage = error.message
+            .replace('PrismaClientKnownRequestError: ', '')
+            .replace('Error: ', '');
+          errorMessage += cleanMessage || 'Please check your connection and try again.';
+        }
+
+        console.error('   Showing error to user:', errorMessage);
+        alert(errorMessage);
+      });
   };
 
-    // Poll for email verification status
+  // Poll for email verification status
   const startVerificationPolling = (supplierId: string) => {
     const checkVerification = async () => {
       try {
         const response = await fetch(`${API_URL}/api/suppliers/${supplierId}/verification-status`);
         const data = await response.json();
-        
+
         if (data.success && data.emailVerified) {
           setEmailVerified(true);
           setIsCheckingVerification(false);
@@ -480,7 +476,7 @@ const SupplierRegistration: React.FC<SupplierRegistrationProps> = ({ language = 
 
     // Check immediately
     checkVerification();
-    
+
     // Then check every 3 seconds
     pollingIntervalRef.current = setInterval(() => {
       checkVerification();
@@ -493,33 +489,33 @@ const SupplierRegistration: React.FC<SupplierRegistrationProps> = ({ language = 
     const urlParams = new URLSearchParams(window.location.search);
     const urlVerified = urlParams.get('verified');
     const urlSupplierId = urlParams.get('supplierId');
-    
+
     // PRIORITY: If coming from email verification redirect, proceed immediately
     if (urlVerified === 'true' && urlSupplierId) {
       console.log('✅ Email verified via URL, proceeding directly to PDF upload');
       console.log('   Supplier ID:', urlSupplierId);
-      
+
       // Immediately set state - don't wait for server check
       setSupplierId(String(urlSupplierId));
       setEmailVerified(true);
       setIsCheckingVerification(false);
-      
+
       // Clear polling if running
       if (pollingIntervalRef.current) {
         clearInterval(pollingIntervalRef.current);
         pollingIntervalRef.current = null;
       }
-      
+
       // Store in localStorage for persistence
       localStorage.setItem('pendingSupplierId', String(urlSupplierId));
       localStorage.setItem('emailVerified', 'true');
-      
+
       // Email verified, registration should be complete
       setIsSuccess(true);
-      
+
       // Clean up URL immediately
       window.history.replaceState({}, '', window.location.pathname);
-      
+
       // Optional: Verify with server in background (non-blocking)
       fetch(`${API_URL}/api/suppliers/${urlSupplierId}/verification-status`)
         .then(res => res.json())
@@ -532,19 +528,19 @@ const SupplierRegistration: React.FC<SupplierRegistrationProps> = ({ language = 
         .catch(error => {
           console.error('Error checking verification status (non-blocking):', error);
         });
-      
+
       return; // Exit early, don't check anything else
     }
-    
+
     // Check localStorage for verified email (fallback)
     const emailVerifiedFlag = localStorage.getItem('emailVerified');
     const verifiedSupplierId = localStorage.getItem('verifiedSupplierId');
     const pendingSupplierId = localStorage.getItem('pendingSupplierId');
-    
+
     // If verified via localStorage (but not URL)
     if (emailVerifiedFlag === 'true' && verifiedSupplierId && !urlVerified) {
       const finalSupplierId = verifiedSupplierId || pendingSupplierId;
-      
+
       if (finalSupplierId) {
         // Verify with server
         fetch(`${API_URL}/api/suppliers/${finalSupplierId}/verification-status`)
@@ -574,7 +570,7 @@ const SupplierRegistration: React.FC<SupplierRegistrationProps> = ({ language = 
           });
       }
     }
-    
+
     // Also check if we have a pending registration on mount (for polling)
     // BUT ONLY if we're NOT coming from a verification redirect
     if (pendingSupplierId && !emailVerified && !urlVerified && urlVerified !== 'true') {
@@ -613,7 +609,7 @@ const SupplierRegistration: React.FC<SupplierRegistrationProps> = ({ language = 
           <p className="text-gray-600 font-semibold mb-10 leading-relaxed text-[14px]">
             Please check your inbox and click the verification link to activate your account. Our partner success team will review your business details and contact you within 48 hours.
           </p>
-          <button 
+          <button
             onClick={onClose}
             className="w-full bg-[#001A33] hover:bg-black text-white font-black py-5 rounded-full transition-all text-[14px]"
           >
@@ -629,15 +625,18 @@ const SupplierRegistration: React.FC<SupplierRegistrationProps> = ({ language = 
       {/* Registration Header */}
       <header className="bg-[#001A33] text-white py-6 px-8 sticky top-0 z-50">
         <div className="max-w-4xl mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <img 
-              src="/logo.svg?v=4" 
-              alt="AsiaByLocals" 
-              className="h-10 w-10 object-contain"
+          <div
+            className="flex items-center gap-3 cursor-pointer"
+            onClick={() => window.location.href = '/'}
+          >
+            <img
+              src="/logo.png"
+              alt="Asia By Locals"
+              className="h-16 w-auto object-contain"
             />
             <span className="font-black tracking-tight text-lg">{t('createSupplierAccount')}</span>
           </div>
-          <button 
+          <button
             onClick={onClose}
             className="p-2 hover:bg-white/10 rounded-full transition-colors"
           >
@@ -686,9 +685,9 @@ const SupplierRegistration: React.FC<SupplierRegistrationProps> = ({ language = 
             <h2 className="text-xl font-black text-[#001A33]">Join us as a supply partner</h2>
             <span className="text-sm font-bold text-gray-500">Step {step} of {maxSteps}</span>
           </div>
-          
+
           <form onSubmit={handleSubmit} className="space-y-8">
-            
+
             {step === 1 && (
               <div className="space-y-6">
                 <div>
@@ -699,7 +698,7 @@ const SupplierRegistration: React.FC<SupplierRegistrationProps> = ({ language = 
                     </div>
                   </h3>
                 </div>
-                
+
                 <div className="grid gap-4">
                   {BUSINESS_TYPES.map((type) => {
                     const Icon = type.icon;
@@ -708,18 +707,16 @@ const SupplierRegistration: React.FC<SupplierRegistrationProps> = ({ language = 
                         key={type.id}
                         type="button"
                         onClick={() => setSelectedBusinessType(type.id)}
-                        className={`p-6 rounded-2xl border-2 text-left transition-all ${
-                          selectedBusinessType === type.id
-                            ? 'border-[#10B981] bg-[#10B981]/5'
-                            : 'border-gray-100 hover:border-gray-200 bg-white'
-                        }`}
+                        className={`p-6 rounded-2xl border-2 text-left transition-all ${selectedBusinessType === type.id
+                          ? 'border-[#10B981] bg-[#10B981]/5'
+                          : 'border-gray-100 hover:border-gray-200 bg-white'
+                          }`}
                       >
                         <div className="flex items-start gap-4">
-                          <div className={`p-3 rounded-xl ${
-                            selectedBusinessType === type.id
-                              ? 'bg-[#10B981] text-white'
-                              : 'bg-gray-100 text-gray-400'
-                          }`}>
+                          <div className={`p-3 rounded-xl ${selectedBusinessType === type.id
+                            ? 'bg-[#10B981] text-white'
+                            : 'bg-gray-100 text-gray-400'
+                            }`}>
                             <Icon size={24} />
                           </div>
                           <div className="flex-1">
@@ -755,11 +752,10 @@ const SupplierRegistration: React.FC<SupplierRegistrationProps> = ({ language = 
                           key={option}
                           type="button"
                           onClick={() => setCompanyEmployees(option)}
-                          className={`py-3 px-2 rounded-xl text-[12px] font-bold transition-all ${
-                            companyEmployees === option
-                              ? 'bg-[#10B981] text-white'
-                              : 'bg-gray-50 text-[#001A33] hover:bg-gray-100 border border-gray-100'
-                          }`}
+                          className={`py-3 px-2 rounded-xl text-[12px] font-bold transition-all ${companyEmployees === option
+                            ? 'bg-[#10B981] text-white'
+                            : 'bg-gray-50 text-[#001A33] hover:bg-gray-100 border border-gray-100'
+                            }`}
                         >
                           {option}
                         </button>
@@ -775,11 +771,10 @@ const SupplierRegistration: React.FC<SupplierRegistrationProps> = ({ language = 
                           key={option}
                           type="button"
                           onClick={() => setCompanyActivities(option)}
-                          className={`py-3 px-2 rounded-xl text-[12px] font-bold transition-all ${
-                            companyActivities === option
-                              ? 'bg-[#10B981] text-white'
-                              : 'bg-gray-50 text-[#001A33] hover:bg-gray-100 border border-gray-100'
-                          }`}
+                          className={`py-3 px-2 rounded-xl text-[12px] font-bold transition-all ${companyActivities === option
+                            ? 'bg-[#10B981] text-white'
+                            : 'bg-gray-50 text-[#001A33] hover:bg-gray-100 border border-gray-100'
+                            }`}
                         >
                           {option}
                         </button>
@@ -806,11 +801,10 @@ const SupplierRegistration: React.FC<SupplierRegistrationProps> = ({ language = 
                           key={option}
                           type="button"
                           onClick={() => setIndividualActivities(option)}
-                          className={`py-3 px-2 rounded-xl text-[12px] font-bold transition-all ${
-                            individualActivities === option
-                              ? 'bg-[#10B981] text-white'
-                              : 'bg-gray-50 text-[#001A33] hover:bg-gray-100 border border-gray-100'
-                          }`}
+                          className={`py-3 px-2 rounded-xl text-[12px] font-bold transition-all ${individualActivities === option
+                            ? 'bg-[#10B981] text-white'
+                            : 'bg-gray-50 text-[#001A33] hover:bg-gray-100 border border-gray-100'
+                            }`}
                         >
                           {option}
                         </button>
@@ -837,11 +831,10 @@ const SupplierRegistration: React.FC<SupplierRegistrationProps> = ({ language = 
                           key={option}
                           type="button"
                           onClick={() => setOtherActivities(option)}
-                          className={`py-3 px-2 rounded-xl text-[12px] font-bold transition-all ${
-                            otherActivities === option
-                              ? 'bg-[#10B981] text-white'
-                              : 'bg-gray-50 text-[#001A33] hover:bg-gray-100 border border-gray-100'
-                          }`}
+                          className={`py-3 px-2 rounded-xl text-[12px] font-bold transition-all ${otherActivities === option
+                            ? 'bg-[#10B981] text-white'
+                            : 'bg-gray-50 text-[#001A33] hover:bg-gray-100 border border-gray-100'
+                            }`}
                         >
                           {option}
                         </button>
@@ -858,12 +851,12 @@ const SupplierRegistration: React.FC<SupplierRegistrationProps> = ({ language = 
                   <h3 className="text-2xl font-black text-[#001A33] mb-2">{t('businessInformation')}</h3>
                   <p className="text-[14px] text-gray-400 font-semibold">{language === 'ja' ? '営業場所について教えてください。' : 'Tell us about where you operate.'}</p>
                 </div>
-                
+
                 <div className="space-y-4">
                   <div className="relative">
                     <Building2 className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
-                    <input 
-                      type="text" 
+                    <input
+                      type="text"
                       required={selectedBusinessType === 'company'}
                       value={companyName}
                       onChange={(e) => setCompanyName(e.target.value)}
@@ -872,7 +865,7 @@ const SupplierRegistration: React.FC<SupplierRegistrationProps> = ({ language = 
                     />
                   </div>
                   <div className="grid grid-cols-2 gap-4">
-                    <select 
+                    <select
                       value={mainHub}
                       onChange={(e) => {
                         setMainHub(e.target.value);
@@ -896,7 +889,7 @@ const SupplierRegistration: React.FC<SupplierRegistrationProps> = ({ language = 
                       <option value="Hong Kong">Hong Kong</option>
                     </select>
                     {mainHub === 'India' ? (
-                      <select 
+                      <select
                         value={city}
                         onChange={(e) => setCity(e.target.value)}
                         required
@@ -915,7 +908,7 @@ const SupplierRegistration: React.FC<SupplierRegistrationProps> = ({ language = 
                         <option value="Amritsar">Amritsar</option>
                       </select>
                     ) : mainHub === 'Japan' ? (
-                      <select 
+                      <select
                         value={city}
                         onChange={(e) => setCity(e.target.value)}
                         required
@@ -934,8 +927,8 @@ const SupplierRegistration: React.FC<SupplierRegistrationProps> = ({ language = 
                         <option value="Okinawa">Okinawa</option>
                       </select>
                     ) : (
-                      <input 
-                        type="text" 
+                      <input
+                        type="text"
                         required
                         value={city}
                         onChange={(e) => setCity(e.target.value)}
@@ -944,57 +937,23 @@ const SupplierRegistration: React.FC<SupplierRegistrationProps> = ({ language = 
                       />
                     )}
                   </div>
-                  <input 
-                    type="text" 
+                  <input
+                    type="text"
                     required
                     value={tourLanguages}
                     onChange={(e) => setTourLanguages(e.target.value)}
                     placeholder="Tour Languages (e.g. English, Hindi)"
                     className="w-full bg-gray-50 border-none rounded-2xl py-4 px-4 font-bold text-[#001A33] text-[14px] focus:ring-2 focus:ring-[#10B981] outline-none"
                   />
-                  
+
                   {/* Contact Information */}
                   <div className="pt-4 border-t border-gray-200">
                     <h4 className="text-[16px] font-black text-[#001A33] mb-4">Contact Information</h4>
                     <p className="text-[12px] text-gray-500 font-semibold mb-4">
                       This information will be shared with customers when they book your tours. Make sure your WhatsApp number is linked to your WhatsApp account.
                     </p>
-                    
-                    <div className="space-y-4">
-                      <div>
-                        <label className="block text-[14px] font-black text-[#001A33] mb-2">
-                          Phone Number *
-                        </label>
-                        <input 
-                          type="tel" 
-                          required
-                          value={phone}
-                          onChange={(e) => setPhone(e.target.value)}
-                          placeholder="+91 9876543210"
-                          className="w-full bg-gray-50 border-none rounded-2xl py-4 px-4 font-bold text-[#001A33] text-[14px] focus:ring-2 focus:ring-[#10B981] outline-none"
-                        />
-                        <p className="text-[11px] text-gray-400 mt-1">
-                          This phone number will be shared with customers for bookings.
-                        </p>
-                      </div>
-                      
-                      <div>
-                        <label className="block text-[14px] font-black text-[#001A33] mb-2">
-                          WhatsApp Number * <span className="text-[12px] font-normal text-gray-500">(Must be linked to WhatsApp)</span>
-                        </label>
-                        <input 
-                          type="tel" 
-                          required
-                          value={whatsapp}
-                          onChange={(e) => setWhatsapp(e.target.value)}
-                          placeholder="+91 9876543210"
-                          className="w-full bg-gray-50 border-none rounded-2xl py-4 px-4 font-bold text-[#001A33] text-[14px] focus:ring-2 focus:ring-[#10B981] outline-none"
-                        />
-                        <p className="text-[11px] text-gray-400 mt-1">
-                          Make sure this number is linked to your WhatsApp account. Customers will contact you via WhatsApp.
-                        </p>
-                      </div>
-                    </div>
+
+
                   </div>
                 </div>
               </div>
@@ -1013,7 +972,7 @@ const SupplierRegistration: React.FC<SupplierRegistrationProps> = ({ language = 
                 <p className="text-[12px] text-gray-500 font-semibold mt-2">
                   Your application will be reviewed by our admin team. You will receive an email notification once your account is approved, and then you can start creating tours.
                 </p>
-                
+
                 <div className="block">
                   <input
                     type="file"
@@ -1067,7 +1026,7 @@ const SupplierRegistration: React.FC<SupplierRegistrationProps> = ({ language = 
                     )}
                   </label>
                 </div>
-                
+
                 {documentPreview && (
                   <div className="mt-4">
                     <p className="text-[14px] font-bold text-[#001A33] mb-2">Preview:</p>
@@ -1083,7 +1042,7 @@ const SupplierRegistration: React.FC<SupplierRegistrationProps> = ({ language = 
                       You can upload up to 5 additional certificates (training certificates, awards, etc.) to strengthen your profile.
                     </p>
                   </div>
-                  
+
                   <div className="space-y-3">
                     {certificates.map((cert, index) => (
                       <div key={index} className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl border border-gray-200">
@@ -1103,7 +1062,7 @@ const SupplierRegistration: React.FC<SupplierRegistrationProps> = ({ language = 
                         </button>
                       </div>
                     ))}
-                    
+
                     {certificates.length < 5 && (
                       <div>
                         <input
@@ -1157,7 +1116,7 @@ const SupplierRegistration: React.FC<SupplierRegistrationProps> = ({ language = 
                         </label>
                       </div>
                     )}
-                    
+
                     {certificates.length >= 5 && (
                       <p className="text-[12px] text-gray-500 font-semibold text-center">
                         Maximum 5 certificates reached
@@ -1180,8 +1139,8 @@ const SupplierRegistration: React.FC<SupplierRegistrationProps> = ({ language = 
                 <div className="space-y-4">
                   <div>
                     <label className="block text-[14px] font-black text-[#001A33] mb-2">Company's brand/public name</label>
-                    <input 
-                      type="text" 
+                    <input
+                      type="text"
                       value={companyBrandName}
                       onChange={(e) => setCompanyBrandName(e.target.value)}
                       placeholder="Company's brand/public name"
@@ -1196,8 +1155,8 @@ const SupplierRegistration: React.FC<SupplierRegistrationProps> = ({ language = 
                     <p className="text-[12px] text-gray-500 mb-2">
                       You can add a website where your business has already been rated (e.g., Google Maps, or your own website)
                     </p>
-                    <input 
-                      type="text" 
+                    <input
+                      type="text"
                       value={website}
                       onChange={(e) => setWebsite(e.target.value)}
                       placeholder="www.website.com or website.com"
@@ -1211,7 +1170,7 @@ const SupplierRegistration: React.FC<SupplierRegistrationProps> = ({ language = 
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <label className="block text-[14px] font-black text-[#001A33] mb-2">Where's the company registered?</label>
-                      <select 
+                      <select
                         value={companyRegisteredCountry}
                         onChange={(e) => setCompanyRegisteredCountry(e.target.value)}
                         className="w-full bg-gray-50 border-none rounded-2xl py-4 px-4 font-bold text-[#001A33] text-[14px] focus:ring-2 focus:ring-[#10B981] outline-none cursor-pointer"
@@ -1235,7 +1194,7 @@ const SupplierRegistration: React.FC<SupplierRegistrationProps> = ({ language = 
                     </div>
                     <div>
                       <label className="block text-[14px] font-black text-[#001A33] mb-2">Preferred currency to be paid in</label>
-                      <select 
+                      <select
                         value={preferredCurrency}
                         onChange={(e) => setPreferredCurrency(e.target.value)}
                         className="w-full bg-gray-50 border-none rounded-2xl py-4 px-4 font-bold text-[#001A33] text-[14px] focus:ring-2 focus:ring-[#10B981] outline-none cursor-pointer"
@@ -1262,8 +1221,8 @@ const SupplierRegistration: React.FC<SupplierRegistrationProps> = ({ language = 
                   <div className="grid grid-cols-2 gap-4">
                     <div className="relative">
                       <User className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
-                      <input 
-                        type="text" 
+                      <input
+                        type="text"
                         required
                         value={firstName}
                         onChange={(e) => setFirstName(e.target.value)}
@@ -1273,8 +1232,8 @@ const SupplierRegistration: React.FC<SupplierRegistrationProps> = ({ language = 
                     </div>
                     <div className="relative">
                       <User className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
-                      <input 
-                        type="text" 
+                      <input
+                        type="text"
                         required
                         value={lastName}
                         onChange={(e) => setLastName(e.target.value)}
@@ -1285,8 +1244,8 @@ const SupplierRegistration: React.FC<SupplierRegistrationProps> = ({ language = 
                   </div>
                   <div className="relative">
                     <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
-                    <input 
-                      type="email" 
+                    <input
+                      type="email"
                       required
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
@@ -1303,7 +1262,7 @@ const SupplierRegistration: React.FC<SupplierRegistrationProps> = ({ language = 
                 <div className="space-y-4 pt-4 border-t border-gray-100">
                   <div className="relative">
                     <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
-                    <input 
+                    <input
                       type={showPassword ? "text" : "password"}
                       required
                       value={password}
@@ -1319,7 +1278,7 @@ const SupplierRegistration: React.FC<SupplierRegistrationProps> = ({ language = 
                       {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                     </button>
                   </div>
-                  
+
                   {/* Password Requirements */}
                   <div className="space-y-2 pl-4">
                     {[
@@ -1342,14 +1301,14 @@ const SupplierRegistration: React.FC<SupplierRegistrationProps> = ({ language = 
                       );
                     })}
                   </div>
-                  
+
                 </div>
 
                 {/* Terms and Conditions */}
                 <div className="pt-4 border-t border-gray-100">
                   <label className={`flex items-start gap-3 cursor-pointer ${!acceptedTerms ? 'opacity-60' : ''}`}>
-                    <input 
-                      type="checkbox" 
+                    <input
+                      type="checkbox"
                       checked={acceptedTerms}
                       onChange={(e) => setAcceptedTerms(e.target.checked)}
                       className="mt-1 w-5 h-5 rounded border-gray-300 text-[#10B981] focus:ring-[#10B981] cursor-pointer"
@@ -1402,7 +1361,7 @@ const SupplierRegistration: React.FC<SupplierRegistrationProps> = ({ language = 
                 <p className="text-[12px] text-gray-500 font-semibold mt-2">
                   Your application will be reviewed by our admin team. You will receive an email notification once your account is approved, and then you can start creating tours.
                 </p>
-                
+
                 <div className="block">
                   <input
                     type="file"
@@ -1507,7 +1466,7 @@ const SupplierRegistration: React.FC<SupplierRegistrationProps> = ({ language = 
 
             <div className="pt-6 flex gap-4">
               {step > 1 && (
-                <button 
+                <button
                   type="button"
                   onClick={prevStep}
                   className="px-8 py-5 rounded-full border border-gray-100 font-black text-[#001A33] text-[14px] hover:bg-gray-50 transition-all flex items-center gap-2"
@@ -1516,15 +1475,15 @@ const SupplierRegistration: React.FC<SupplierRegistrationProps> = ({ language = 
                   {t('previous')}
                 </button>
               )}
-              <button 
+              <button
                 type="submit"
                 disabled={
-                  isSubmitting || 
-                  (step === 1 && !selectedBusinessType) || 
-                  (step === 2 && selectedBusinessType === 'company' && (!companyEmployees || !companyActivities)) || 
-                  (step === 2 && selectedBusinessType === 'individual' && !individualActivities) || 
+                  isSubmitting ||
+                  (step === 1 && !selectedBusinessType) ||
+                  (step === 2 && selectedBusinessType === 'company' && (!companyEmployees || !companyActivities)) ||
+                  (step === 2 && selectedBusinessType === 'individual' && !individualActivities) ||
                   (step === 2 && selectedBusinessType === 'other' && !otherActivities) ||
-                  (step === ((selectedBusinessType === 'company' || selectedBusinessType === 'individual' || selectedBusinessType === 'other') ? 3 : 2) && ((selectedBusinessType === 'company' && !companyName) || !mainHub || !city || !tourLanguages || !phone || !whatsapp)) ||
+                  (step === ((selectedBusinessType === 'company' || selectedBusinessType === 'individual' || selectedBusinessType === 'other') ? 3 : 2) && ((selectedBusinessType === 'company' && !companyName) || !mainHub || !city || !tourLanguages)) ||
                   (step === ((selectedBusinessType === 'company' || selectedBusinessType === 'individual' || selectedBusinessType === 'other') ? 4 : 3) && !verificationDocument) ||
                   (step === ((selectedBusinessType === 'company' || selectedBusinessType === 'individual' || selectedBusinessType === 'other') ? 5 : 4) && (
                     !firstName || !lastName || !email || !password || !acceptedTerms ||

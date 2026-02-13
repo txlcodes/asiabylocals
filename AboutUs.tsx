@@ -5,21 +5,38 @@ const AboutUs: React.FC = () => {
   return (
     <div className="min-h-screen bg-white">
       {/* Header */}
-      <header className="sticky top-0 z-50 bg-white border-b border-gray-200 shadow-sm">
-        <div className="max-w-3xl mx-auto px-6 py-4">
-          <button
-            onClick={() => {
-              if (window.history.length > 1) {
-                window.history.back();
-              } else {
-                window.location.href = '/';
-              }
-            }}
-            className="flex items-center gap-2 text-[#001A33] font-semibold hover:text-[#10B981] transition-colors"
-          >
-            <ArrowLeft size={18} />
-            Back
-          </button>
+      <header className="sticky top-0 z-50 bg-white border-b border-gray-100 shadow-sm">
+        <div className="w-full h-16 sm:h-20 md:h-24 flex items-center justify-between px-3 sm:px-4 md:px-6">
+          <div className="flex items-center gap-3 h-full">
+            {/* Logo */}
+            <div
+              className="cursor-pointer"
+              onClick={() => window.location.href = '/'}
+            >
+              <img
+                src="/logo.png"
+                alt="Asia By Locals"
+                className="h-[90px] sm:h-[85px] md:h-[95px] lg:h-[105px] xl:h-[115px] w-auto object-contain"
+                style={{ transform: 'translateY(3px)' }}
+              />
+            </div>
+          </div>
+
+          <div className="flex items-center gap-4">
+            <button
+              onClick={() => {
+                if (window.history.length > 1) {
+                  window.history.back();
+                } else {
+                  window.location.href = '/';
+                }
+              }}
+              className="flex items-center gap-2 text-[#001A33] font-semibold hover:text-[#10B981] transition-colors"
+            >
+              <ArrowLeft size={18} />
+              Back
+            </button>
+          </div>
         </div>
       </header>
 
@@ -57,13 +74,30 @@ const AboutUs: React.FC = () => {
           <div className="space-y-4">
             <h3 className="text-xl font-black text-[#001A33]">Mr. Mohd Shahnawaz Khan</h3>
             <p className="text-gray-700 font-semibold leading-relaxed">
-              A Senior Tour Guide officially approved by the Ministry of Tourism, Government of India. With over 18 years of professional excellence, he ensures every journey is guided by carefully selected, highly qualified local experts.
+              A Senior Tour Guide officially approved by the Ministry of Tourism, Government of India, Mr. Mohd Shahnawaz Khan brings over 18 years of professional excellence in heritage tourism and cultural storytelling. His deep academic foundation and government accreditation ensure that every journey is authentic, insightful, and professionally managed.
             </p>
             <div className="flex flex-wrap gap-4 mt-4">
               <span className="px-4 py-2 bg-gray-100 rounded-lg text-sm font-semibold text-gray-700">Licensed by Govt. of India</span>
-              <span className="px-4 py-2 bg-gray-100 rounded-lg text-sm font-semibold text-gray-700">M.A. History</span>
+              <span className="px-4 py-2 bg-gray-100 rounded-lg text-sm font-semibold text-gray-700">PGD. in Hotel & Tourism Management (PGD HTM)</span>
               <span className="px-4 py-2 bg-gray-100 rounded-lg text-sm font-semibold text-gray-700">Tourism Management</span>
               <span className="px-4 py-2 bg-gray-100 rounded-lg text-sm font-semibold text-gray-700">18+ Years Experience</span>
+            </div>
+          </div>
+        </section>
+
+        {/* Co-Founder & CTO Section */}
+        <section className="mb-16">
+          <h2 className="text-2xl font-black text-[#001A33] mb-6">Co-Founder & CTO</h2>
+          <div className="space-y-4">
+            <h3 className="text-xl font-black text-[#001A33]">Mohd Bilal</h3>
+            <p className="text-gray-700 font-semibold leading-relaxed text-base">
+              A technology-driven professional and strategic leader responsible for digital transformation, automation systems, and global client engagement. Mohd Bilal ensures the company combines traditional tourism excellence with modern digital innovation to deliver seamless and premium travel experiences.
+            </p>
+            <div className="flex flex-wrap gap-4 mt-4">
+              <span className="px-4 py-2 bg-gray-100 rounded-lg text-sm font-semibold text-gray-700">Technology & Digital Strategy</span>
+              <span className="px-4 py-2 bg-gray-100 rounded-lg text-sm font-semibold text-gray-700">Operational Automation</span>
+              <span className="px-4 py-2 bg-gray-100 rounded-lg text-sm font-semibold text-gray-700">Customer Experience Optimization</span>
+              <span className="px-4 py-2 bg-gray-100 rounded-lg text-sm font-semibold text-gray-700">Global Outreach & Systems Development</span>
             </div>
           </div>
         </section>
@@ -78,7 +112,7 @@ const AboutUs: React.FC = () => {
               </div>
               <div>
                 <div className="text-3xl font-black mb-1">50+</div>
-                <div className="text-sm font-semibold text-gray-100">Employees</div>
+                <div className="text-sm font-semibold text-gray-100">Associates</div>
               </div>
               <div>
                 <div className="text-3xl font-black mb-1">200+</div>
@@ -86,7 +120,7 @@ const AboutUs: React.FC = () => {
               </div>
               <div>
                 <div className="text-3xl font-black mb-1">1000+</div>
-                <div className="text-sm font-semibold text-gray-100">Experiences</div>
+                <div className="text-sm font-semibold text-gray-100">Successful Tours</div>
               </div>
             </div>
           </div>
@@ -173,7 +207,6 @@ const AboutUs: React.FC = () => {
                 <p className="text-gray-700 font-black mb-2">Registered Office:</p>
                 <p className="text-gray-600 font-semibold">118 Rani Bagh Indirapuram<br />Agra 282001<br />Uttar Pradesh, India</p>
                 <p className="text-gray-600 font-semibold mt-3">
-                  Contact: +919897873562, +918938842594<br />
                   Email: info@asiabylocals.com, tajtourguide@gmail.com
                 </p>
               </div>

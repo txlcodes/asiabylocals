@@ -279,12 +279,12 @@ export const sendVerificationEmail = async (email, fullName, verificationToken) 
     if (resendClient) {
       console.log(`📧 Sending via Resend SDK to: ${email}`);
       console.log(`   From: ${fromEmail}`);
-      
+
       console.log(`📤 Sending email via Resend SDK:`);
       console.log(`   To: ${email}`);
       console.log(`   From: ${fromEmail}`);
       console.log(`   Subject: AsiaByLocals Registration Confirmation`);
-      
+
       const result = await resendClient.emails.send({
         from: `AsiaByLocals Registration <${fromEmail}>`,
         to: email,
@@ -292,23 +292,23 @@ export const sendVerificationEmail = async (email, fullName, verificationToken) 
         html: mailOptions.html,
         text: mailOptions.text
       });
-      
+
       console.log(`📬 Resend API Response:`);
       console.log(`   Result:`, JSON.stringify(result, null, 2));
-      
+
       // Check if Resend returned an error
       if (result.error) {
         console.error(`❌ Resend API Error:`);
         console.error('   Error:', result.error);
         throw new Error(`Resend API Error: ${JSON.stringify(result.error)}`);
       }
-      
+
       console.log(`✅ Verification email sent successfully to ${email}`);
       console.log('📬 Message ID:', result.data?.id);
       console.log('📧 Resend Response:', JSON.stringify(result.data));
       return { success: true, messageId: result.data?.id };
     }
-    
+
     // Fallback to nodemailer for SendGrid/Gmail
     const info = await transporter.sendMail(mailOptions);
     console.log(`✅ Verification email sent successfully to ${email}`);
@@ -320,7 +320,7 @@ export const sendVerificationEmail = async (email, fullName, verificationToken) 
     console.error('   Error message:', error.message);
     console.error('   Error code:', error.code);
     console.error('   Full error:', error);
-    
+
     // Resend-specific error handling
     if (resendClient) {
       console.error('   ⚠️ Resend API Error!');
@@ -341,7 +341,7 @@ export const sendVerificationEmail = async (email, fullName, verificationToken) 
         console.error('   → Verify API key is correct in Render');
       }
     }
-    
+
     // Nodemailer error handling
     if (error.code === 'EAUTH') {
       console.error('   ⚠️ Authentication failed!');
@@ -357,7 +357,7 @@ export const sendVerificationEmail = async (email, fullName, verificationToken) 
       console.error('   ⚠️ Email credentials not configured!');
       console.error('   → Set EMAIL_USER and EMAIL_APP_PASSWORD in Render environment variables');
     }
-    
+
     throw error;
   }
 };
@@ -526,14 +526,14 @@ export const sendBookingNotificationEmail = async (supplierEmail, supplierName, 
   }
 
   console.log(`📧 Sending booking notification email to supplier: ${supplierEmail}`);
-  
+
   const { bookingReference, tourTitle, customerName, customerEmail, customerPhone, bookingDate, numberOfGuests, totalAmount, currency, specialRequests } = bookingDetails;
-  
-  const formattedDate = new Date(bookingDate).toLocaleDateString('en-US', { 
-    weekday: 'long', 
-    month: 'long', 
-    day: 'numeric', 
-    year: 'numeric' 
+
+  const formattedDate = new Date(bookingDate).toLocaleDateString('en-US', {
+    weekday: 'long',
+    month: 'long',
+    day: 'numeric',
+    year: 'numeric'
   });
 
   const fromEmail = (resendApiKey || sendGridApiKey) ? 'info@asiabylocals.com' : (process.env.EMAIL_USER || 'asiabylocals@gmail.com');
@@ -618,14 +618,7 @@ export const sendBookingNotificationEmail = async (supplierEmail, supplierName, 
                               <a href="mailto:${customerEmail}" style="color: #0071EB; text-decoration: none;">${customerEmail}</a>
                             </td>
                           </tr>
-                          ${customerPhone ? `
-                          <tr>
-                            <td style="padding: 8px 0; font-weight: 600; color: #666;">Phone:</td>
-                            <td style="padding: 8px 0; color: #001A33;">
-                              <a href="tel:${customerPhone}" style="color: #0071EB; text-decoration: none;">${customerPhone}</a>
-                            </td>
-                          </tr>
-                          ` : ''}
+
                           ${specialRequests ? `
                           <tr>
                             <td style="padding: 8px 0; font-weight: 600; color: #666; vertical-align: top;">Special Requests:</td>
@@ -639,8 +632,8 @@ export const sendBookingNotificationEmail = async (supplierEmail, supplierName, 
                         <strong>Next Steps:</strong>
                       </p>
                       <ul style="margin: 0 0 30px 0; padding-left: 20px; font-size: 16px; line-height: 1.8; color: #001A33;">
-                        <li style="margin-bottom: 10px;">Contact the customer via email or phone to confirm the booking</li>
-                        <li style="margin-bottom: 10px;">Arrange payment and finalize details</li>
+                        <li style="margin-bottom: 10px;">Contact the customer via email to confirm the booking</li>
+                        <li style="margin-bottom: 10px;">Arrange payment and finalize details via mutual agreement</li>
                         <li style="margin-bottom: 10px;">Provide meeting point details and any additional information</li>
                       </ul>
                       
@@ -692,7 +685,6 @@ export const sendBookingNotificationEmail = async (supplierEmail, supplierName, 
       Customer Information:
       - Name: ${customerName}
       - Email: ${customerEmail}
-      ${customerPhone ? `- Phone: ${customerPhone}` : ''}
       ${specialRequests ? `- Special Requests: ${specialRequests}` : ''}
       
       Please contact the customer to confirm the booking and arrange payment.
@@ -729,41 +721,36 @@ export const sendBookingConfirmationEmail = async (customerEmail, customerName, 
   }
 
   console.log(`📧 Sending booking confirmation email to customer: ${customerEmail}`);
-  
-  const { 
+
+  const {
     bookingReference,
     bookingId,
-    tourTitle, 
+    tourTitle,
     tourSlug,
     city,
     country,
-    customerPhone, 
-    bookingDate, 
-    numberOfGuests, 
-    totalAmount, 
-    currency, 
+    customerPhone,
+    bookingDate,
+    numberOfGuests,
+    totalAmount,
+    currency,
     specialRequests,
     supplierName,
     supplierEmail,
     supplierPhone,
     supplierWhatsApp
   } = bookingDetails;
-  
-  const formattedDate = new Date(bookingDate).toLocaleDateString('en-US', { 
-    weekday: 'long', 
-    month: 'long', 
-    day: 'numeric', 
-    year: 'numeric' 
+
+  const formattedDate = new Date(bookingDate).toLocaleDateString('en-US', {
+    weekday: 'long',
+    month: 'long',
+    day: 'numeric',
+    year: 'numeric'
   });
 
   const bookingConfirmationUrl = `${process.env.FRONTEND_URL || 'http://localhost:3000'}/booking-confirmation/${bookingId}`;
 
-  // Generate WhatsApp link for guide contact
-  let whatsappContactLink = null;
-  if (supplierWhatsApp) {
-    const cleanWhatsApp = supplierWhatsApp.replace(/[^\d+]/g, '');
-    whatsappContactLink = `https://wa.me/${cleanWhatsApp}`;
-  }
+
 
   const fromEmail = (resendApiKey || sendGridApiKey) ? 'info@asiabylocals.com' : (process.env.EMAIL_USER || 'asiabylocals@gmail.com');
   const mailOptions = {
@@ -874,24 +861,7 @@ export const sendBookingConfirmationEmail = async (customerEmail, customerName, 
                             </td>
                           </tr>
                           ` : ''}
-                          ${supplierPhone ? `
-                          <tr>
-                            <td style="padding: 8px 0; font-weight: 600; color: #666;">Phone:</td>
-                            <td style="padding: 8px 0; color: #001A33;">
-                              <a href="tel:${supplierPhone}" style="color: #0071EB; text-decoration: none;">${supplierPhone}</a>
-                            </td>
-                          </tr>
-                          ` : ''}
-                          ${whatsappContactLink ? `
-                          <tr>
-                            <td style="padding: 8px 0; font-weight: 600; color: #666;">WhatsApp:</td>
-                            <td style="padding: 8px 0;">
-                              <a href="${whatsappContactLink}" style="display: inline-block; background-color: #25D366; color: #ffffff; text-decoration: none; padding: 8px 16px; border-radius: 6px; font-size: 14px; font-weight: 600;">
-                                💬 Contact via WhatsApp
-                              </a>
-                            </td>
-                          </tr>
-                          ` : ''}
+
                         </table>
                       </div>
                       
@@ -912,11 +882,6 @@ export const sendBookingConfirmationEmail = async (customerEmail, customerName, 
                             <a href="${bookingConfirmationUrl}" style="display: inline-block; background-color: #10B981; color: #ffffff; text-decoration: none; padding: 16px 40px; border-radius: 6px; font-size: 16px; font-weight: 600; text-align: center; margin: 0 10px 10px 10px;">
                               View Booking Details
                             </a>
-                            ${whatsappContactLink ? `
-                            <a href="${whatsappContactLink}" style="display: inline-block; background-color: #25D366; color: #ffffff; text-decoration: none; padding: 16px 40px; border-radius: 6px; font-size: 16px; font-weight: 600; text-align: center; margin: 0 10px 10px 10px;">
-                              Contact Guide via WhatsApp
-                            </a>
-                            ` : ''}
                           </td>
                         </tr>
                       </table>
@@ -972,8 +937,6 @@ export const sendBookingConfirmationEmail = async (customerEmail, customerName, 
       Your Guide Contact:
       - Name: ${supplierName}
       ${supplierEmail ? `- Email: ${supplierEmail}` : ''}
-      ${supplierPhone ? `- Phone: ${supplierPhone}` : ''}
-      ${whatsappContactLink ? `- WhatsApp: ${whatsappContactLink}` : ''}
       
       Important: Please save this email as proof of your booking. Your booking reference is ${bookingReference}.
       
@@ -1002,15 +965,15 @@ export const sendBookingConfirmationEmail = async (customerEmail, customerName, 
  */
 export const sendAdminPaymentNotificationEmail = async (bookingDetails) => {
   const adminEmail = process.env.ADMIN_EMAIL || process.env.EMAIL_USER || 'admin@asiabylocals.com';
-  
+
   if (!adminEmail || typeof adminEmail !== 'string' || !adminEmail.includes('@')) {
     console.error('❌ Invalid admin email address:', adminEmail);
     throw new Error('Invalid admin email address');
   }
 
   console.log(`📧 Sending payment notification email to admin: ${adminEmail}`);
-  
-  const { 
+
+  const {
     bookingReference,
     bookingId,
     tourTitle,
@@ -1029,12 +992,12 @@ export const sendAdminPaymentNotificationEmail = async (bookingDetails) => {
     razorpayPaymentId,
     razorpayOrderId
   } = bookingDetails;
-  
-  const formattedDate = new Date(bookingDate).toLocaleDateString('en-US', { 
-    weekday: 'long', 
-    month: 'long', 
-    day: 'numeric', 
-    year: 'numeric' 
+
+  const formattedDate = new Date(bookingDate).toLocaleDateString('en-US', {
+    weekday: 'long',
+    month: 'long',
+    day: 'numeric',
+    year: 'numeric'
   });
 
   const fromEmail = (resendApiKey || sendGridApiKey) ? 'info@asiabylocals.com' : (process.env.EMAIL_USER || 'asiabylocals@gmail.com');
@@ -1146,14 +1109,7 @@ export const sendAdminPaymentNotificationEmail = async (bookingDetails) => {
                               <a href="mailto:${customerEmail}" style="color: #0071EB; text-decoration: none;">${customerEmail}</a>
                             </td>
                           </tr>
-                          ${customerPhone ? `
-                          <tr>
-                            <td style="padding: 8px 0; font-weight: 600; color: #666;">Phone:</td>
-                            <td style="padding: 8px 0; color: #001A33;">
-                              <a href="tel:${customerPhone}" style="color: #0071EB; text-decoration: none;">${customerPhone}</a>
-                            </td>
-                          </tr>
-                          ` : ''}
+
                         </table>
                       </div>
                       
@@ -1174,14 +1130,7 @@ export const sendAdminPaymentNotificationEmail = async (bookingDetails) => {
                             </td>
                           </tr>
                           ` : ''}
-                          ${supplierPhone ? `
-                          <tr>
-                            <td style="padding: 8px 0; font-weight: 600; color: #666;">Phone:</td>
-                            <td style="padding: 8px 0; color: #001A33;">
-                              <a href="tel:${supplierPhone}" style="color: #0071EB; text-decoration: none;">${supplierPhone}</a>
-                            </td>
-                          </tr>
-                          ` : ''}
+
                         </table>
                       </div>
                       
@@ -1239,12 +1188,10 @@ export const sendAdminPaymentNotificationEmail = async (bookingDetails) => {
       Customer Information:
       - Name: ${customerName}
       - Email: ${customerEmail}
-      ${customerPhone ? `- Phone: ${customerPhone}` : ''}
       
       Supplier Information:
       - Name: ${supplierName}
       ${supplierEmail ? `- Email: ${supplierEmail}` : ''}
-      ${supplierPhone ? `- Phone: ${supplierPhone}` : ''}
       
       View in admin dashboard: ${process.env.FRONTEND_URL || 'http://localhost:3000'}/secure-panel-abl
       
@@ -1296,7 +1243,7 @@ export const sendTourApprovalEmail = async (supplierEmail, supplierName, tourTit
 
   const fromEmail = (resendApiKey || sendGridApiKey) ? 'info@asiabylocals.com' : (emailUser || 'asiabylocals@gmail.com');
   const serviceName = resendApiKey ? 'Resend' : (sendGridApiKey ? 'SendGrid' : 'Gmail SMTP');
-  
+
   // Build tour URL
   const countrySlug = country.toLowerCase().replace(/\s+/g, '-');
   const citySlug = city.toLowerCase().replace(/\s+/g, '-');
@@ -1483,7 +1430,7 @@ export const sendTourApprovalEmail = async (supplierEmail, supplierName, tourTit
       console.log(`   From: ${fromEmail}`);
       console.log(`   Service: Resend`);
       console.log(`   Subject: ✅ Your Tour Has Been Approved: ${tourTitle}`);
-      
+
       const result = await resendClient.emails.send({
         from: `AsiaByLocals <${fromEmail}>`,
         to: supplierEmail,
@@ -1491,21 +1438,21 @@ export const sendTourApprovalEmail = async (supplierEmail, supplierName, tourTit
         html: mailOptions.html,
         text: mailOptions.text
       });
-      
+
       // Check if Resend returned an error
       if (result.error) {
         console.error(`❌ Resend API Error:`);
         console.error('   Error:', result.error);
         throw new Error(`Resend API Error: ${JSON.stringify(result.error)}`);
       }
-      
+
       console.log(`✅ Tour approval email sent successfully via Resend`);
       console.log(`   Message ID: ${result.data?.id}`);
       console.log(`   Supplier: ${supplierName}`);
       console.log(`   Tour: ${tourTitle}`);
       return { success: true, messageId: result.data?.id };
     }
-    
+
     // Fallback to nodemailer for SendGrid/Gmail
     const info = await transporter.sendMail(mailOptions);
     console.log(`✅ Tour approval email sent successfully to ${supplierEmail}`);
@@ -1554,7 +1501,7 @@ export const sendTourRejectionEmail = async (supplierEmail, supplierName, tourTi
 
   const fromEmail = (resendApiKey || sendGridApiKey) ? 'info@asiabylocals.com' : (emailUser || 'asiabylocals@gmail.com');
   const serviceName = resendApiKey ? 'Resend' : (sendGridApiKey ? 'SendGrid' : 'Gmail SMTP');
-  
+
   // Build dashboard URL
   const dashboardUrl = `${process.env.FRONTEND_URL || 'https://www.asiabylocals.com'}/supplier/dashboard`;
 
@@ -1711,7 +1658,7 @@ The AsiaByLocals Team`
       console.log(`   From: ${fromEmail}`);
       console.log(`   Service: Resend`);
       console.log(`   Subject: ❌ Tour Review Update: ${tourTitle}`);
-      
+
       const result = await resendClient.emails.send({
         from: `AsiaByLocals <${fromEmail}>`,
         to: supplierEmail,
@@ -1719,21 +1666,21 @@ The AsiaByLocals Team`
         html: mailOptions.html,
         text: mailOptions.text
       });
-      
+
       // Check if Resend returned an error
       if (result.error) {
         console.error(`❌ Resend API Error:`);
         console.error('   Error:', result.error);
         throw new Error(`Resend API Error: ${JSON.stringify(result.error)}`);
       }
-      
+
       console.log(`✅ Tour rejection email sent successfully via Resend`);
       console.log(`   Message ID: ${result.data?.id}`);
       console.log(`   Supplier: ${supplierName}`);
       console.log(`   Tour: ${tourTitle}`);
       return { success: true, messageId: result.data?.id };
     }
-    
+
     // Fallback to nodemailer for SendGrid/Gmail
     const info = await transporter.sendMail(mailOptions);
     console.log(`✅ Tour rejection email sent successfully to ${supplierEmail}`);
@@ -1775,7 +1722,7 @@ export const sendItineraryVerificationEmail = async (email, city, verificationTo
 
   const fromEmail = (resendApiKey || sendGridApiKey) ? 'info@asiabylocals.com' : (emailUser || 'asiabylocals@gmail.com');
   const serviceName = resendApiKey ? 'Resend' : (sendGridApiKey ? 'SendGrid' : 'Gmail SMTP');
-  
+
   // URL encode the token to prevent issues with email clients modifying the URL
   const encodedToken = encodeURIComponent(verificationToken);
   const verificationUrl = `${process.env.FRONTEND_URL || process.env.VITE_FRONTEND_URL || 'http://localhost:3000'}/api/email/verify/${encodedToken}`;
@@ -1900,16 +1847,16 @@ ${verificationUrl}
         html: mailOptions.html,
         text: mailOptions.text
       });
-      
+
       if (result.error) {
         console.error(`❌ Resend API Error:`, result.error);
         throw new Error(`Resend API Error: ${JSON.stringify(result.error)}`);
       }
-      
+
       console.log(`✅ Itinerary verification email sent successfully`);
       return { success: true, messageId: result.data?.id };
     }
-    
+
     const info = await transporter.sendMail(mailOptions);
     console.log(`✅ Itinerary verification email sent successfully`);
     return { success: true, messageId: info.messageId };
@@ -1943,7 +1890,7 @@ export const sendItineraryWelcomeEmail = async (email, city) => {
   console.log(`   City: ${city}`);
 
   const fromEmail = (resendApiKey || sendGridApiKey) ? 'info@asiabylocals.com' : (emailUser || 'asiabylocals@gmail.com');
-  
+
   // City-specific itinerary content
   const cityItineraries = {
     'Agra': {
@@ -2153,16 +2100,16 @@ The AsiaByLocals Team
         html: mailOptions.html,
         text: mailOptions.text
       });
-      
+
       if (result.error) {
         console.error(`❌ Resend API Error:`, result.error);
         throw new Error(`Resend API Error: ${JSON.stringify(result.error)}`);
       }
-      
+
       console.log(`✅ Itinerary welcome email sent successfully`);
       return { success: true, messageId: result.data?.id };
     }
-    
+
     const info = await transporter.sendMail(mailOptions);
     console.log(`✅ Itinerary welcome email sent successfully`);
     return { success: true, messageId: info.messageId };

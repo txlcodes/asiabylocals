@@ -607,39 +607,6 @@ const App: React.FC = () => {
     return <AboutUs />;
   }
 
-  // Show tour detail page (SEO-friendly URL: /country/city/slug)
-  if (tourPageMatch && tourSlug) {
-    console.log('App.tsx - Routing to TourDetailPage', {
-      pathname: window.location.pathname,
-      tourPageMatch: !!tourPageMatch,
-      tourSlug,
-      tourCountrySlug,
-      tourCitySlug
-    });
-
-    return (
-      <ErrorBoundary>
-        <TourDetailPage
-          tourSlug={tourSlug}
-          country={slugToTitle(tourCountrySlug || '')}
-          city={slugToTitle(tourCitySlug || '')}
-          onClose={() => window.history.back()}
-        />
-      </ErrorBoundary>
-    );
-  }
-
-  // Show tour detail page (legacy ID route: /tour/:id)
-  if (tourId) {
-    return <TourDetailPage tourId={tourId} onClose={() => {
-      if (window.history.length > 1) {
-        window.history.back();
-      } else {
-        window.location.href = '/';
-      }
-    }} />;
-  }
-
   // Show city page (SEO-friendly URL: /country/city)
   if (cityPageMatch && countrySlug && citySlug) {
     try {
@@ -687,15 +654,15 @@ const App: React.FC = () => {
       <header className="sticky top-0 z-50 bg-white border-b border-gray-100 shadow-sm">
         <div className="w-full h-16 sm:h-20 md:h-24 flex items-center justify-between px-3 sm:px-4 md:px-6">
           <div className="flex items-center gap-3 h-full">
-            {/* Logo */}
-            <div className="cursor-pointer">
+            {/* Logo - Clickable to Homepage */}
+            <a href="/" className="flex items-center h-full cursor-pointer">
               <img
                 src="/logo.png"
                 alt="Asia By Locals"
                 className="h-[90px] sm:h-[85px] md:h-[95px] lg:h-[105px] xl:h-[115px] w-auto object-contain"
                 style={{ transform: 'translateY(3px)' }}
               />
-            </div>
+            </a>
 
             {/* Nav Links */}
             <nav className="hidden lg:flex items-center gap-6 text-[14px] font-semibold text-[#001A33]">
@@ -1138,8 +1105,27 @@ const App: React.FC = () => {
         )}
       </div>
 
-      {/* Hero Section */}
-      <section className="relative h-screen flex items-center justify-center overflow-hidden">
+      {/* Tour Detail Page - Renders within main layout */}
+      {(tourPageMatch && tourSlug) || tourId ? (
+        <ErrorBoundary>
+          <TourDetailPage
+            tourId={tourId}
+            tourSlug={tourSlug}
+            country={tourCountrySlug ? slugToTitle(tourCountrySlug) : undefined}
+            city={tourCitySlug ? slugToTitle(tourCitySlug) : undefined}
+            onClose={() => {
+              if (window.history.length > 1) {
+                window.history.back();
+              } else {
+                window.location.href = '/';
+              }
+            }}
+          />
+        </ErrorBoundary>
+      ) : (
+        <>
+          {/* Hero Section */}
+          <section className="relative h-screen flex items-center justify-center overflow-hidden">
         {heroImages.map((hero, index) => (
           <img
             key={index}
@@ -1361,6 +1347,8 @@ const App: React.FC = () => {
           </div>
         </section>
       </main>
+        </>
+      )}
 
       {/* Footer (GYG inspired structure) */}
       <footer className="bg-[#001A33] text-white pt-20 pb-10 px-6">
