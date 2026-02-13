@@ -175,8 +175,8 @@ const ExplorationFooter: React.FC = () => {
             key={tab.id}
             onClick={() => setActiveTab(tab.id)}
             className={`pb-4 text-[14px] font-bold transition-all whitespace-nowrap border-b-2 outline-none ${activeTab === tab.id
-                ? 'text-[#0071EB] border-[#0071EB]'
-                : 'text-gray-400 border-transparent hover:text-[#001A33]'
+              ? 'text-[#0071EB] border-[#0071EB]'
+              : 'text-gray-400 border-transparent hover:text-[#001A33]'
               }`}
           >
             {tab.label}
@@ -870,8 +870,8 @@ const App: React.FC = () => {
               setShowMobileInspirationDropdown(false);
             }}
             className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-semibold transition-all ${showMobilePlacesDropdown
-                ? 'bg-[#10B981] text-white'
-                : 'bg-gray-100 text-[#001A33] hover:bg-gray-200'
+              ? 'bg-[#10B981] text-white'
+              : 'bg-gray-100 text-[#001A33] hover:bg-gray-200'
               }`}
           >
             <span>Places to see</span>
@@ -887,8 +887,8 @@ const App: React.FC = () => {
               setShowMobilePlacesDropdown(false);
             }}
             className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-semibold transition-all ${showMobileInspirationDropdown
-                ? 'bg-[#10B981] text-white'
-                : 'bg-gray-100 text-[#001A33] hover:bg-gray-200'
+              ? 'bg-[#10B981] text-white'
+              : 'bg-gray-100 text-[#001A33] hover:bg-gray-200'
               }`}
           >
             <span>Trip inspiration</span>
@@ -1253,7 +1253,6 @@ const App: React.FC = () => {
                 }}
               >
                 {CITIES.map((city) => {
-                  const isLiveCity = ['agra', 'delhi', 'jaipur'].includes(city.id);
                   return (
                     <div
                       key={city.id}
@@ -1271,7 +1270,6 @@ const App: React.FC = () => {
                             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                           />
                           <div className="absolute inset-0 bg-gradient-to-t from-black/65 via-black/25 to-transparent"></div>
-
                           <div className="absolute bottom-0 left-0 right-0 p-3 sm:p-4">
                             <h3 className="text-white font-black text-lg sm:text-xl md:text-lg mb-1 drop-shadow-xl leading-tight">{city.name}</h3>
                             <p className="text-white/95 text-xs sm:text-sm md:text-[11px] font-semibold drop-shadow-md leading-snug">{city.localAngle}</p>

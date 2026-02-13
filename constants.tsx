@@ -140,17 +140,9 @@ export const CITY_LOCATIONS: Record<string, string[]> = {
     'Jaipur International Airport', 'Nahargarh Fort', 'Bapu Bazaar', 'Chandra Mahal',
     'Monkey Temple', 'Maota Lake', 'Jaigarh Fort', 'Patrika Gate', 'Chokhi Dhani', 'Birla Mandir'
   ],
-  'Goa': [
-    'Calangute Beach', 'Baga Beach', 'Anjuna Beach', 'Dudhsagar Falls',
-    'Basilica of Bom Jesus', 'Fort Aguada', 'Spice Plantations'
-  ],
   'Kerala': [
     'Backwaters', 'Munnar', 'Alleppey', 'Kochi', 'Wayanad',
     'Thekkady', 'Kovalam Beach', 'Varkala'
-  ],
-  'Varanasi': [
-    'Ganges River', 'Kashi Vishwanath Temple', 'Sarnath', 'Dashashwamedh Ghat',
-    'Manikarnika Ghat', 'Assi Ghat', 'Banaras Hindu University'
   ],
   'Jodhpur': [
     'Mehrangarh Fort', 'Jaswant Thada', 'Umaid Bhawan Palace', 'Clock Tower',
