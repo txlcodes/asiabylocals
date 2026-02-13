@@ -33,9 +33,6 @@ const AboutUs: React.FC = () => {
             </div>
           </div>
           <h1 className="text-4xl font-black text-[#001A33] mb-3">About AsiaByLocals</h1>
-          <p className="text-lg text-gray-600 font-semibold">
-            AsiaByLocals LLP
-          </p>
         </div>
 
         {/* Mission Section */}
@@ -56,7 +53,7 @@ const AboutUs: React.FC = () => {
 
         {/* Founder Section */}
         <section className="mb-16">
-          <h2 className="text-2xl font-black text-[#001A33] mb-6">Our Founder</h2>
+          <h2 className="text-2xl font-black text-[#001A33] mb-6">Founder</h2>
           <div className="space-y-4">
             <h3 className="text-xl font-black text-[#001A33]">Mr. Mohd Shahnawaz Khan</h3>
             <p className="text-gray-700 font-semibold leading-relaxed">
@@ -155,7 +152,7 @@ const AboutUs: React.FC = () => {
             <h2 className="text-xl font-black text-[#001A33] mb-6 text-center">Contact Us</h2>
             <div className="text-center mb-6">
               <div>
-                <span className="text-3xl font-black text-[#001A33]">
+                <span className="text-3xl font-black text-[#10B981]">
                   AsiaByLocals
                 </span>
               </div>
@@ -168,7 +165,7 @@ const AboutUs: React.FC = () => {
             </div>
             <div className="space-y-4">
               <div className="text-center">
-                <p className="text-gray-700 font-semibold mb-2">Registered Office:</p>
+                <p className="text-gray-700 font-black mb-2">Registered Office:</p>
                 <p className="text-gray-600 font-semibold">118 Rani Bagh Indirapuram<br />Agra 282001<br />Uttar Pradesh, India</p>
                 <p className="text-gray-600 font-semibold mt-3">
                   Contact: +919897873562 +918938842594<br />
