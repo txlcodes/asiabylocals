@@ -81,7 +81,7 @@ const AboutUs: React.FC = () => {
                 <div className="text-sm font-semibold text-gray-100">Employees</div>
               </div>
               <div>
-                <div className="text-3xl font-black mb-1">50+</div>
+                <div className="text-3xl font-black mb-1">200+</div>
                 <div className="text-sm font-semibold text-gray-100">Cities</div>
               </div>
               <div>
