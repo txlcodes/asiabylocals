@@ -129,7 +129,7 @@ const AboutUs: React.FC = () => {
               <Award className="text-[#10B981] flex-shrink-0 mt-1" size={20} />
               <div>
                 <h3 className="font-black text-[#001A33] mb-1">Government Approved Guides</h3>
-                <p className="text-gray-700 font-semibold text-sm">All guides licensed by Ministry of Tourism, Government of India.</p>
+                <p className="text-gray-700 font-semibold text-sm">All guides licensed by respective tourism ministries across Asia.</p>
               </div>
             </div>
             <div className="flex items-start gap-4">
@@ -153,10 +153,27 @@ const AboutUs: React.FC = () => {
         <section className="mb-16">
           <div className="bg-gray-50 rounded-xl p-6 border-2 border-gray-200">
             <h2 className="text-xl font-black text-[#001A33] mb-6 text-center">Contact Us</h2>
+            <div className="text-center mb-6">
+              <div>
+                <span className="text-3xl font-black text-[#001A33]">
+                  AsiaByLocals
+                </span>
+              </div>
+              <div className="mt-2">
+                <span className="text-base font-semibold text-[#001A33] relative">
+                  a unit of TajTourGuide
+                  <sup className="text-xs ml-1">™</sup>
+                </span>
+              </div>
+            </div>
             <div className="space-y-4">
               <div className="text-center">
                 <p className="text-gray-700 font-semibold mb-2">Registered Office:</p>
-                <p className="text-gray-600 font-semibold">94 A Rani Bagh Indirapuram<br />Agra 282001<br />Uttar Pradesh, India</p>
+                <p className="text-gray-600 font-semibold">118 Rani Bagh Indirapuram<br />Agra 282001<br />Uttar Pradesh, India</p>
+                <p className="text-gray-600 font-semibold mt-3">
+                  Contact: +919897873562 +918938842594<br />
+                  Email: info@asiabylocals.com
+                </p>
               </div>
               <div className="text-center pt-4 border-t border-gray-300">
                 <p className="text-gray-700 font-semibold mb-2">Branch Office:</p>
