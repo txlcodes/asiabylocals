@@ -162,6 +162,11 @@ const AboutUs: React.FC = () => {
                   <sup className="text-xs ml-1">™</sup>
                 </span>
               </div>
+              <div className="mt-2">
+                <span className="text-sm font-semibold text-[#001A33]">
+                  GSTIN : 09BPLPK5079QIZU
+                </span>
+              </div>
             </div>
             <div className="space-y-4">
               <div className="text-center">
