@@ -8,9 +8,9 @@ interface CityPageProps {
 }
 
 // City descriptions for SEO - Battle-tested structure
-const CITY_DESCRIPTIONS: Record<string, { 
-  title: string; 
-  description: string; 
+const CITY_DESCRIPTIONS: Record<string, {
+  title: string;
+  description: string;
   intro: string[];
   whyBook: string[];
   topAttractions: string[];
@@ -44,7 +44,7 @@ const CITY_DESCRIPTIONS: Record<string, {
     ],
     bestTime: 'The best time to visit Agra is from October to March when the weather is pleasant. Early mornings are highly recommended, especially for sunrise Taj Mahal tours when the monument glows in golden light and crowds are minimal.',
     faqs: [
-      
+
       {
         question: 'How long does a Taj Mahal tour take?',
         answer: 'A typical Taj Mahal tour takes 2-3 hours, including entry, guided exploration, and photography time. Combined tours with Agra Fort usually take 5-6 hours.'
@@ -342,27 +342,27 @@ const ThingsToDoSection: React.FC<ThingsToDoSectionProps> = ({ city }) => {
     seoKeywords: string[];
   }>> = {
     'Agra': [
-    {
-      title: 'From Delhi: Taj Mahal & Agra Private Day Trip with Transfers',
-      image: '/things-to-do/agra-taj-mahal-sunrise.jpg', // .avif file with .jpg extension
-      shortDescription: 'Begins your tour with the pickup from your hotel/airport in Delhi/Noida/Gurugram and depart to Agra. Meet your private guide when you arrive in Agra and proceed to the Taj Mahal, a UNESCO World Heritage Site and a living monument, which silently whispers the love of legendary Mughal emperor Shah Jahan for his beloved wife Mumtaz Mahal.',
-      fullDescription: 'Begins your tour with the pickup from your hotel/airport in Delhi/Noida/Gurugram and depart to Agra. Meet your private guide when you arrive in Agra and proceed to the Taj Mahal, a UNESCO World Heritage Site and a living monument, which silently whispers the love of legendary Mughal emperor Shah Jahan for his beloved wife Mumtaz Mahal. Continue onto the second UNESCO World Heritage Site Agra Fort. The imposing red sandstone fort was built by Emperor Akbar in 1565 AD, it combines both Hindu and Central Asian architectural styles. Then take a break for lunch at a 5-star Hotel and enjoy a mouth-watering meal of local and international flavor. After lunch, head towards the marvelous Tomb of Itmad-Ud-Daulah also known as Baby Taj. This pure marble structure was constructed by Noor Jahan for her father. Your tour ends with a return journey back to your hotel/airport or desired location in Delhi/Noida/Gurugram.',
-      seoKeywords: ['Taj Mahal', 'Agra Fort', 'Delhi to Agra', 'private day trip', 'Baby Taj']
-    },
-    {
-      title: 'From Delhi: Private Taj Mahal and Agra Day Tour with 5* Meal',
-      image: '/things-to-do/agra-fort.jpg',
-      shortDescription: 'Experience a premium Private Taj Mahal and Agra Day Tour from Delhi, thoughtfully designed for comfort, flexibility, and unforgettable experiences. Includes a private chauffeur pick-up from Delhi in an air-conditioned car.',
-      fullDescription: 'Experience a premium Private Taj Mahal and Agra Day Tour from Delhi, thoughtfully designed for comfort, flexibility, and unforgettable experiences. Includes a private chauffeur pick-up from Delhi in an air-conditioned car. Visit the world-famous Taj Mahal, one of the Seven Wonders of the World. For early risers, an optional sunrise visit offers fewer crowds, and exceptional photo opportunities. Explore the majestic Agra Fort (a UNESCO World Heritage Site), this site used to be the home to Mughal emperors before Delhi became the capital of India. If time permits, visit Itimad-ud-Daulah, often called the Baby Taj, known for its intricate marble inlay work. Enjoy a delicious 5-star breakfast or lunch at a premium restaurant. Experience personalized service, flexible timing, expert guidance, and a stress-free return to Delhi the same day.',
-      seoKeywords: ['Taj Mahal sunrise', 'Agra Fort', '5-star meal', 'premium tour', 'private tour']
-    },
-    {
-      title: 'From Delhi: Private Taj Mahal & Agra Tour with 5* Lunch',
-      image: '/things-to-do/agra-baby-taj.jpg',
-      shortDescription: 'Start your journey with an early pickup from your hotel in Delhi, Gurgaon, Noida, or the airport. Sit back in a private, air-conditioned car for a 3-hour drive to Agra. Upon arrival, meet your expert guide and proceed to the Taj Mahal to explore its beauty at sunrise for 2-3 hours.',
-      fullDescription: 'Start your journey with an early pickup from your hotel in Delhi, Gurgaon, Noida, or the airport. Sit back in a private, air-conditioned car for a 3-hour drive to Agra. Upon arrival, meet your expert guide and proceed to the Taj Mahal to explore its beauty at sunrise for 2-3 hours. Continue to the Agra Fort, an impressive red sandstone fortress built by Emperor Akbar in 1565 AD, it combines both Hindu and Central Asian architectural styles. After the fort visit, enjoy a breakfast or lunch at a 5-star hotel (if included in the package). Next, explore the elegant Baby Taj (Itmad-ud-Daulah), a pure marble structure constructed by Noor Jahan for her father. Your tour concludes with a comfortable return drive to Delhi in a private car, with drop-off at your chosen location.',
-      seoKeywords: ['Taj Mahal sunrise', 'Agra Fort', 'Baby Taj', '5-star lunch', 'private transfer']
-    },
+      {
+        title: 'From Delhi: Taj Mahal & Agra Private Day Trip with Transfers',
+        image: '/things-to-do/agra-taj-mahal-sunrise.jpg', // .avif file with .jpg extension
+        shortDescription: 'Begins your tour with the pickup from your hotel/airport in Delhi/Noida/Gurugram and depart to Agra. Meet your private guide when you arrive in Agra and proceed to the Taj Mahal, a UNESCO World Heritage Site and a living monument, which silently whispers the love of legendary Mughal emperor Shah Jahan for his beloved wife Mumtaz Mahal.',
+        fullDescription: 'Begins your tour with the pickup from your hotel/airport in Delhi/Noida/Gurugram and depart to Agra. Meet your private guide when you arrive in Agra and proceed to the Taj Mahal, a UNESCO World Heritage Site and a living monument, which silently whispers the love of legendary Mughal emperor Shah Jahan for his beloved wife Mumtaz Mahal. Continue onto the second UNESCO World Heritage Site Agra Fort. The imposing red sandstone fort was built by Emperor Akbar in 1565 AD, it combines both Hindu and Central Asian architectural styles. Then take a break for lunch at a 5-star Hotel and enjoy a mouth-watering meal of local and international flavor. After lunch, head towards the marvelous Tomb of Itmad-Ud-Daulah also known as Baby Taj. This pure marble structure was constructed by Noor Jahan for her father. Your tour ends with a return journey back to your hotel/airport or desired location in Delhi/Noida/Gurugram.',
+        seoKeywords: ['Taj Mahal', 'Agra Fort', 'Delhi to Agra', 'private day trip', 'Baby Taj']
+      },
+      {
+        title: 'From Delhi: Private Taj Mahal and Agra Day Tour with 5* Meal',
+        image: '/things-to-do/agra-fort.jpg',
+        shortDescription: 'Experience a premium Private Taj Mahal and Agra Day Tour from Delhi, thoughtfully designed for comfort, flexibility, and unforgettable experiences. Includes a private chauffeur pick-up from Delhi in an air-conditioned car.',
+        fullDescription: 'Experience a premium Private Taj Mahal and Agra Day Tour from Delhi, thoughtfully designed for comfort, flexibility, and unforgettable experiences. Includes a private chauffeur pick-up from Delhi in an air-conditioned car. Visit the world-famous Taj Mahal, one of the Seven Wonders of the World. For early risers, an optional sunrise visit offers fewer crowds, and exceptional photo opportunities. Explore the majestic Agra Fort (a UNESCO World Heritage Site), this site used to be the home to Mughal emperors before Delhi became the capital of India. If time permits, visit Itimad-ud-Daulah, often called the Baby Taj, known for its intricate marble inlay work. Enjoy a delicious 5-star breakfast or lunch at a premium restaurant. Experience personalized service, flexible timing, expert guidance, and a stress-free return to Delhi the same day.',
+        seoKeywords: ['Taj Mahal sunrise', 'Agra Fort', '5-star meal', 'premium tour', 'private tour']
+      },
+      {
+        title: 'From Delhi: Private Taj Mahal & Agra Tour with 5* Lunch',
+        image: '/things-to-do/agra-baby-taj.jpg',
+        shortDescription: 'Start your journey with an early pickup from your hotel in Delhi, Gurgaon, Noida, or the airport. Sit back in a private, air-conditioned car for a 3-hour drive to Agra. Upon arrival, meet your expert guide and proceed to the Taj Mahal to explore its beauty at sunrise for 2-3 hours.',
+        fullDescription: 'Start your journey with an early pickup from your hotel in Delhi, Gurgaon, Noida, or the airport. Sit back in a private, air-conditioned car for a 3-hour drive to Agra. Upon arrival, meet your expert guide and proceed to the Taj Mahal to explore its beauty at sunrise for 2-3 hours. Continue to the Agra Fort, an impressive red sandstone fortress built by Emperor Akbar in 1565 AD, it combines both Hindu and Central Asian architectural styles. After the fort visit, enjoy a breakfast or lunch at a 5-star hotel (if included in the package). Next, explore the elegant Baby Taj (Itmad-ud-Daulah), a pure marble structure constructed by Noor Jahan for her father. Your tour concludes with a comfortable return drive to Delhi in a private car, with drop-off at your chosen location.',
+        seoKeywords: ['Taj Mahal sunrise', 'Agra Fort', 'Baby Taj', '5-star lunch', 'private transfer']
+      },
       {
         title: 'Agra: Skip-the-Line Taj Mahal & Agra Fort Private Tour',
         image: '/things-to-do/agra-fatehpur-sikri.jpg',
@@ -488,7 +488,7 @@ const ThingsToDoSection: React.FC<ThingsToDoSectionProps> = ({ city }) => {
                   <h3 className="text-2xl font-black text-[#001A33] mb-3">
                     {item.title}
                   </h3>
-                  
+
                   <div className="text-[16px] text-gray-700 font-semibold leading-relaxed mb-4">
                     {isExpanded ? (
                       <div>
@@ -717,22 +717,22 @@ const CityPage: React.FC<CityPageProps> = ({ country, city }) => {
       const url = `${API_URL}/api/public/tours?country=${encodeURIComponent(country)}&city=${encodeURIComponent(city)}&status=approved`;
       console.log('CityPage - Fetching tours from:', url);
       console.log('CityPage - Country:', country, 'City:', city);
-      
+
       const response = await fetch(url);
       console.log('CityPage - Response status:', response.status);
-      
+
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-      
+
       const data = await response.json();
       console.log('CityPage - Response data:', data);
       console.log('CityPage - Tours count:', data.tours?.length || 0);
-      
+
       if (data.success) {
         // Handle both array and object responses
         let toursArray: any[] = [];
-        
+
         if (Array.isArray(data.tours)) {
           toursArray = data.tours;
         } else if (data.tours && typeof data.tours === 'object') {
@@ -743,11 +743,11 @@ const CityPage: React.FC<CityPageProps> = ({ country, city }) => {
             toursArray = [];
           }
         }
-        
+
         console.log('CityPage - Parsed tours array length:', toursArray.length);
         console.log('CityPage - Raw data.tours:', data.tours);
         console.log('CityPage - Data count:', data.count);
-        
+
         if (toursArray.length > 0) {
           // Ensure all tours have slugs
           const toursWithSlugs = toursArray.map((tour: any) => ({
@@ -820,7 +820,7 @@ const CityPage: React.FC<CityPageProps> = ({ country, city }) => {
   // Filter tours
   const filteredTours = tours.filter(tour => {
     const matchesCategory = filterCategory === 'all' || tour.category === filterCategory;
-    const matchesSearch = searchQuery === '' || 
+    const matchesSearch = searchQuery === '' ||
       tour.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       (tour.shortDescription && tour.shortDescription.toLowerCase().includes(searchQuery.toLowerCase()));
     return matchesCategory && matchesSearch;
@@ -889,7 +889,7 @@ const CityPage: React.FC<CityPageProps> = ({ country, city }) => {
   useEffect(() => {
     // Update title
     document.title = cityInfo.title;
-    
+
     // Update meta description
     let metaDescription = document.querySelector('meta[name="description"]');
     if (!metaDescription) {
@@ -898,7 +898,7 @@ const CityPage: React.FC<CityPageProps> = ({ country, city }) => {
       document.head.appendChild(metaDescription);
     }
     metaDescription.setAttribute('content', cityInfo.description);
-    
+
     // Update keywords
     let metaKeywords = document.querySelector('meta[name="keywords"]');
     if (!metaKeywords) {
@@ -907,7 +907,7 @@ const CityPage: React.FC<CityPageProps> = ({ country, city }) => {
       document.head.appendChild(metaKeywords);
     }
     metaKeywords.setAttribute('content', `${city} tours, ${city} experiences, ${country} tours, local guides ${city}, ${city} travel guide, things to do in ${city}, ${city} activities`);
-    
+
     // Update canonical
     let canonical = document.querySelector('link[rel="canonical"]');
     if (!canonical) {
@@ -916,7 +916,7 @@ const CityPage: React.FC<CityPageProps> = ({ country, city }) => {
       document.head.appendChild(canonical);
     }
     canonical.setAttribute('href', `https://www.asiabylocals.com/${countrySlug}/${citySlug}`);
-    
+
     // Update Open Graph
     const ogTags = [
       { property: 'og:title', content: cityInfo.title },
@@ -924,7 +924,7 @@ const CityPage: React.FC<CityPageProps> = ({ country, city }) => {
       { property: 'og:url', content: `https://asiabylocals.com/${countrySlug}/${citySlug}` },
       { property: 'og:type', content: 'website' }
     ];
-    
+
     ogTags.forEach(tag => {
       let ogTag = document.querySelector(`meta[property="${tag.property}"]`);
       if (!ogTag) {
@@ -934,7 +934,7 @@ const CityPage: React.FC<CityPageProps> = ({ country, city }) => {
       }
       ogTag.setAttribute('content', tag.content);
     });
-    
+
     // Add structured data
     let existingScript = document.querySelector('script[type="application/ld+json"][data-city-page]');
     if (existingScript) {
@@ -956,10 +956,10 @@ const CityPage: React.FC<CityPageProps> = ({ country, city }) => {
           <div className="flex items-center gap-3 h-full">
             {/* Logo - Clickable to Homepage */}
             <a href="/" className="flex items-center h-full cursor-pointer">
-              <img 
-                src="/logo.png" 
-                alt="Asia By Locals" 
-                className="h-[90px] sm:h-[85px] md:h-[95px] lg:h-[105px] xl:h-[115px] w-auto object-contain" 
+              <img
+                src="/logo.png"
+                alt="Asia By Locals"
+                className="h-[110px] sm:h-[100px] md:h-[105px] lg:h-[110px] xl:h-[120px] w-auto object-contain"
                 style={{ transform: 'translateY(3px)' }}
               />
             </a>
@@ -1017,13 +1017,13 @@ const CityPage: React.FC<CityPageProps> = ({ country, city }) => {
                   <Clock size={24} className="text-[#10B981]" />
                 </div>
               </div>
-              
+
               {/* Loading Text */}
               <h3 className="text-xl font-black text-[#001A33] mb-2">Loading tours...</h3>
               <p className="text-[14px] text-gray-500 font-semibold mb-4">
                 Please wait while we fetch the best tours in {city}
               </p>
-              
+
               {/* Loading Timer */}
               <div className="flex items-center gap-2 px-4 py-2 bg-[#10B981]/10 rounded-full border border-[#10B981]/20">
                 <Clock size={16} className="text-[#10B981]" />
@@ -1031,7 +1031,7 @@ const CityPage: React.FC<CityPageProps> = ({ country, city }) => {
                   {loadingTime > 0 ? `${loadingTime}s` : 'Starting...'}
                 </span>
               </div>
-              
+
               {/* Animated Dots */}
               <div className="flex gap-2 mt-6">
                 <div className="w-2 h-2 bg-[#10B981] rounded-full animate-bounce" style={{ animationDelay: '0s' }}></div>
@@ -1060,24 +1060,24 @@ const CityPage: React.FC<CityPageProps> = ({ country, city }) => {
                 const tourSlug = tour.slug || `tour-${tour.id}`;
                 const hasSkipLine = tour.included && tour.included.toLowerCase().includes('skip');
                 const hasPickup = tour.meetingPoint || (tour.included && tour.included.toLowerCase().includes('pickup'));
-                
+
                 // Calculate rating (random between 4.0 and 5.0, unique per tour)
                 const rating = calculateRating(tour);
                 const displayRating = rating.toFixed(1);
                 const isTopRated = rating >= 4.5;
-                
+
                 // Parse duration to extract hours
                 const durationMatch = tour.duration?.match(/(\d+)\s*hours?/i) || tour.duration?.match(/(\d+)\s*hrs?/i);
                 const durationHours = durationMatch ? durationMatch[1] : null;
-                
+
                 // Get lowest price from first tier of groupPricingTiers (price for 1 person)
                 let lowestPrice = 0;
-                
+
                 // PRIORITY 1: Check tour.groupPricingTiers directly (most reliable)
                 if (tour.groupPricingTiers) {
                   try {
-                    const tiers = typeof tour.groupPricingTiers === 'string' 
-                      ? JSON.parse(tour.groupPricingTiers) 
+                    const tiers = typeof tour.groupPricingTiers === 'string'
+                      ? JSON.parse(tour.groupPricingTiers)
                       : tour.groupPricingTiers;
                     if (Array.isArray(tiers) && tiers.length > 0 && tiers[0]?.price) {
                       lowestPrice = parseFloat(tiers[0].price) || 0;
@@ -1086,14 +1086,14 @@ const CityPage: React.FC<CityPageProps> = ({ country, city }) => {
                     console.error('Error parsing tour groupPricingTiers:', e);
                   }
                 }
-                
+
                 // PRIORITY 2: Check tour options for groupPricingTiers
                 if (lowestPrice === 0 && tour.options && Array.isArray(tour.options) && tour.options.length > 0) {
                   for (const opt of tour.options) {
                     if (opt.groupPricingTiers) {
                       try {
-                        const tiers = typeof opt.groupPricingTiers === 'string' 
-                          ? JSON.parse(opt.groupPricingTiers) 
+                        const tiers = typeof opt.groupPricingTiers === 'string'
+                          ? JSON.parse(opt.groupPricingTiers)
                           : opt.groupPricingTiers;
                         if (Array.isArray(tiers) && tiers.length > 0 && tiers[0]?.price) {
                           const firstTierPrice = parseFloat(tiers[0].price) || 0;
@@ -1107,12 +1107,12 @@ const CityPage: React.FC<CityPageProps> = ({ country, city }) => {
                     }
                   }
                 }
-                
+
                 // FALLBACK: Use pricePerPerson only if no tiers found
                 if (lowestPrice === 0) {
                   lowestPrice = tour.pricePerPerson || 0;
                 }
-                
+
                 return (
                   <a
                     key={tour.id}
@@ -1127,6 +1127,15 @@ const CityPage: React.FC<CityPageProps> = ({ country, city }) => {
                           alt={`${tour.title} in ${city} - ${cityInfo.description}`}
                           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                         />
+                        {/* Brand Logo Overlay */}
+                        <div className="absolute top-3 right-12 z-10">
+                          <img
+                            src="/logo.png"
+                            alt="AsiaByLocals"
+                            className="h-8 w-auto object-contain brightness-0 invert"
+                            style={{ filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.5))' }}
+                          />
+                        </div>
                         {/* Top Rated Badge */}
                         {isTopRated && (
                           <div className="absolute top-3 left-3">
@@ -1147,21 +1156,21 @@ const CityPage: React.FC<CityPageProps> = ({ country, city }) => {
                         </button>
                       </div>
                     )}
-                    
+
                     {/* Content Section */}
                     <div className="p-4">
                       {/* H3 - Tour Title (SEO Gold) */}
                       <h3 className="text-[16px] font-black text-[#001A33] mb-3 line-clamp-2 group-hover:text-[#10B981] transition-colors leading-tight">
                         {tour.title}
                       </h3>
-                      
+
                       {/* Duration */}
                       {durationHours && (
                         <div className="text-[12px] text-gray-500 font-semibold mb-3">
                           {durationHours} {durationHours === '1' ? 'hour' : 'hours'}
                         </div>
                       )}
-                      
+
                       {/* Tour Types */}
                       {tour.tourTypes && (() => {
                         try {
@@ -1192,7 +1201,7 @@ const CityPage: React.FC<CityPageProps> = ({ country, city }) => {
                         }
                         return null;
                       })()}
-                      
+
                       {/* Rating & Activity Provider Row */}
                       <div className="flex items-center justify-between mb-3">
                         {/* Rating */}
@@ -1204,13 +1213,13 @@ const CityPage: React.FC<CityPageProps> = ({ country, city }) => {
                               const halfFilled = i === Math.floor(starRating) && starRating % 1 >= 0.5;
                               return (
                                 <div key={i} className="relative">
-                                  <Star 
-                                    size={14} 
+                                  <Star
+                                    size={14}
                                     className="text-gray-300"
                                   />
                                   {(filled || halfFilled) && (
-                                    <Star 
-                                      size={14} 
+                                    <Star
+                                      size={14}
                                       className={`absolute top-0 left-0 text-yellow-400 fill-yellow-400 ${halfFilled ? 'clip-path-half' : ''}`}
                                       style={halfFilled ? { clipPath: 'inset(0 50% 0 0)' } : {}}
                                     />
@@ -1222,7 +1231,7 @@ const CityPage: React.FC<CityPageProps> = ({ country, city }) => {
                           <span className="text-[14px] font-black text-[#001A33]">{displayRating}</span>
                         </div>
                       </div>
-                      
+
                       {/* Price Row */}
                       <div className="flex items-center justify-between pt-2 border-t border-gray-100">
                         <div className="text-right w-full">
@@ -1371,7 +1380,7 @@ const CityPage: React.FC<CityPageProps> = ({ country, city }) => {
             <MapPin className="mx-auto text-gray-300 mb-4" size={48} />
             <h3 className="text-lg font-black text-[#001A33] mb-2">No tours available yet</h3>
             <p className="text-[14px] text-gray-500 font-semibold">
-              {searchQuery || filterCategory !== 'all' 
+              {searchQuery || filterCategory !== 'all'
                 ? 'Try adjusting your filters'
                 : `Be the first to create a tour in ${city}!`
               }

@@ -147,11 +147,13 @@ model Booking {
   totalAmount       Float       @map("total_amount")
   currency          String      @default("INR")
   specialRequests   String?     @map("special_requests")
-  status            String      @default("pending") // pending, confirmed, completed, cancelled
-  paymentStatus     String      @default("pending") @map("payment_status") // pending, paid, refunded
+  status            String      @default("pending_payment") // pending_payment, payment_failed, confirmed, cancelled, completed
+  paymentStatus     String      @default("pending") @map("payment_status") // pending, paid, failed, refunded
   razorpayOrderId   String?     @map("razorpay_order_id")
   razorpayPaymentId String?     @map("razorpay_payment_id")
   razorpaySignature String?     @map("razorpay_signature")
+  confirmedAt       DateTime?   @map("confirmed_at")
+  invoiceUrl        String?     @map("invoice_url")
   createdAt         DateTime    @default(now()) @map("created_at")
   updatedAt         DateTime    @updatedAt @map("updated_at")
 

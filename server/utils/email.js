@@ -279,12 +279,12 @@ export const sendVerificationEmail = async (email, fullName, verificationToken) 
     if (resendClient) {
       console.log(`📧 Sending via Resend SDK to: ${email}`);
       console.log(`   From: ${fromEmail}`);
-      
+
       console.log(`📤 Sending email via Resend SDK:`);
       console.log(`   To: ${email}`);
       console.log(`   From: ${fromEmail}`);
       console.log(`   Subject: AsiaByLocals Registration Confirmation`);
-      
+
       const result = await resendClient.emails.send({
         from: `AsiaByLocals Registration <${fromEmail}>`,
         to: email,
@@ -292,23 +292,23 @@ export const sendVerificationEmail = async (email, fullName, verificationToken) 
         html: mailOptions.html,
         text: mailOptions.text
       });
-      
+
       console.log(`📬 Resend API Response:`);
       console.log(`   Result:`, JSON.stringify(result, null, 2));
-      
+
       // Check if Resend returned an error
       if (result.error) {
         console.error(`❌ Resend API Error:`);
         console.error('   Error:', result.error);
         throw new Error(`Resend API Error: ${JSON.stringify(result.error)}`);
       }
-      
+
       console.log(`✅ Verification email sent successfully to ${email}`);
       console.log('📬 Message ID:', result.data?.id);
       console.log('📧 Resend Response:', JSON.stringify(result.data));
       return { success: true, messageId: result.data?.id };
     }
-    
+
     // Fallback to nodemailer for SendGrid/Gmail
     const info = await transporter.sendMail(mailOptions);
     console.log(`✅ Verification email sent successfully to ${email}`);
@@ -320,7 +320,7 @@ export const sendVerificationEmail = async (email, fullName, verificationToken) 
     console.error('   Error message:', error.message);
     console.error('   Error code:', error.code);
     console.error('   Full error:', error);
-    
+
     // Resend-specific error handling
     if (resendClient) {
       console.error('   ⚠️ Resend API Error!');
@@ -341,7 +341,7 @@ export const sendVerificationEmail = async (email, fullName, verificationToken) 
         console.error('   → Verify API key is correct in Render');
       }
     }
-    
+
     // Nodemailer error handling
     if (error.code === 'EAUTH') {
       console.error('   ⚠️ Authentication failed!');
@@ -357,7 +357,7 @@ export const sendVerificationEmail = async (email, fullName, verificationToken) 
       console.error('   ⚠️ Email credentials not configured!');
       console.error('   → Set EMAIL_USER and EMAIL_APP_PASSWORD in Render environment variables');
     }
-    
+
     throw error;
   }
 };
@@ -495,6 +495,26 @@ export const sendWelcomeEmail = async (email, fullName) => {
   };
 
   try {
+    // Use Resend SDK if available (more reliable than SMTP)
+    if (resendClient) {
+      console.log(`📧 Sending welcome email via Resend SDK to: ${email}`);
+      const fromEmail = 'info@asiabylocals.com';
+      const result = await resendClient.emails.send({
+        from: `AsiaByLocals <${fromEmail}>`,
+        to: email,
+        subject: mailOptions.subject,
+        html: mailOptions.html
+      });
+      if (result.error) {
+        console.error(`❌ Resend API Error:`, result.error);
+        throw new Error(`Resend API Error: ${JSON.stringify(result.error)}`);
+      }
+      console.log(`✅ Welcome email sent successfully via Resend to ${email}`);
+      console.log('📬 Message ID:', result.data?.id);
+      return { success: true, messageId: result.data?.id };
+    }
+
+    // Fallback to nodemailer for SendGrid/Gmail
     const info = await transporter.sendMail(mailOptions);
     console.log(`✅ Welcome email sent successfully to ${email}`);
     console.log('📬 Message ID:', info.messageId);
@@ -526,14 +546,14 @@ export const sendBookingNotificationEmail = async (supplierEmail, supplierName, 
   }
 
   console.log(`📧 Sending booking notification email to supplier: ${supplierEmail}`);
-  
+
   const { bookingReference, tourTitle, customerName, customerEmail, customerPhone, bookingDate, numberOfGuests, totalAmount, currency, specialRequests } = bookingDetails;
-  
-  const formattedDate = new Date(bookingDate).toLocaleDateString('en-US', { 
-    weekday: 'long', 
-    month: 'long', 
-    day: 'numeric', 
-    year: 'numeric' 
+
+  const formattedDate = new Date(bookingDate).toLocaleDateString('en-US', {
+    weekday: 'long',
+    month: 'long',
+    day: 'numeric',
+    year: 'numeric'
   });
 
   const fromEmail = (resendApiKey || sendGridApiKey) ? 'info@asiabylocals.com' : (process.env.EMAIL_USER || 'asiabylocals@gmail.com');
@@ -705,6 +725,46 @@ export const sendBookingNotificationEmail = async (supplierEmail, supplierName, 
   };
 
   try {
+    // Use Resend SDK if available (more reliable than SMTP)
+    if (resendClient) {
+      console.log(`📧 Sending booking notification via Resend SDK to supplier: ${supplierEmail}`);
+      const resendPayload = {
+        from: `AsiaByLocals Bookings <${fromEmail}>`,
+        to: supplierEmail,
+        subject: mailOptions.subject,
+        html: mailOptions.html,
+        text: mailOptions.text
+      };
+
+      // Attach invoice PDF if provided
+      if (bookingDetails.invoicePDFBase64) {
+        resendPayload.attachments = [{
+          filename: `AsiaByLocals_Invoice_${bookingDetails.bookingReference || 'booking'}.pdf`,
+          content: bookingDetails.invoicePDFBase64
+        }];
+        console.log('📎 Invoice PDF attached to supplier notification email');
+      }
+
+      const result = await resendClient.emails.send(resendPayload);
+      if (result.error) {
+        console.error(`❌ Resend API Error:`, result.error);
+        throw new Error(`Resend API Error: ${JSON.stringify(result.error)}`);
+      }
+      console.log(`✅ Booking notification email sent via Resend to supplier ${supplierEmail}`);
+      console.log('📬 Message ID:', result.data?.id);
+      return { success: true, messageId: result.data?.id };
+    }
+
+    // Fallback to nodemailer for SendGrid/Gmail
+    // Attach invoice PDF if provided
+    if (bookingDetails.invoicePDFBase64) {
+      mailOptions.attachments = [{
+        filename: `AsiaByLocals_Invoice_${bookingDetails.bookingReference || 'booking'}.pdf`,
+        content: Buffer.from(bookingDetails.invoicePDFBase64, 'base64'),
+        contentType: 'application/pdf'
+      }];
+      console.log('📎 Invoice PDF attached to supplier notification email');
+    }
     const info = await transporter.sendMail(mailOptions);
     console.log(`✅ Booking notification email sent successfully to ${supplierEmail}`);
     console.log('📬 Message ID:', info.messageId);
@@ -729,31 +789,31 @@ export const sendBookingConfirmationEmail = async (customerEmail, customerName, 
   }
 
   console.log(`📧 Sending booking confirmation email to customer: ${customerEmail}`);
-  
-  const { 
+
+  const {
     bookingReference,
     bookingId,
-    tourTitle, 
+    tourTitle,
     tourSlug,
     city,
     country,
-    customerPhone, 
-    bookingDate, 
-    numberOfGuests, 
-    totalAmount, 
-    currency, 
+    customerPhone,
+    bookingDate,
+    numberOfGuests,
+    totalAmount,
+    currency,
     specialRequests,
     supplierName,
     supplierEmail,
     supplierPhone,
     supplierWhatsApp
   } = bookingDetails;
-  
-  const formattedDate = new Date(bookingDate).toLocaleDateString('en-US', { 
-    weekday: 'long', 
-    month: 'long', 
-    day: 'numeric', 
-    year: 'numeric' 
+
+  const formattedDate = new Date(bookingDate).toLocaleDateString('en-US', {
+    weekday: 'long',
+    month: 'long',
+    day: 'numeric',
+    year: 'numeric'
   });
 
   const bookingConfirmationUrl = `${process.env.FRONTEND_URL || 'http://localhost:3000'}/booking-confirmation/${bookingId}`;
@@ -985,6 +1045,46 @@ export const sendBookingConfirmationEmail = async (customerEmail, customerName, 
   };
 
   try {
+    // Use Resend SDK if available (more reliable than SMTP)
+    if (resendClient) {
+      console.log(`📧 Sending booking confirmation via Resend SDK to: ${customerEmail}`);
+      const resendPayload = {
+        from: `AsiaByLocals Bookings <${fromEmail}>`,
+        to: customerEmail,
+        subject: mailOptions.subject,
+        html: mailOptions.html,
+        text: mailOptions.text
+      };
+
+      // Attach invoice PDF if provided
+      if (bookingDetails.invoicePDFBase64) {
+        resendPayload.attachments = [{
+          filename: `AsiaByLocals_Invoice_${bookingReference}.pdf`,
+          content: bookingDetails.invoicePDFBase64
+        }];
+        console.log('📎 Invoice PDF attached to customer confirmation email');
+      }
+
+      const result = await resendClient.emails.send(resendPayload);
+      if (result.error) {
+        console.error(`❌ Resend API Error:`, result.error);
+        throw new Error(`Resend API Error: ${JSON.stringify(result.error)}`);
+      }
+      console.log(`✅ Booking confirmation email sent via Resend to ${customerEmail}`);
+      console.log('📬 Message ID:', result.data?.id);
+      return { success: true, messageId: result.data?.id };
+    }
+
+    // Fallback to nodemailer for SendGrid/Gmail
+    // Attach invoice PDF if provided
+    if (bookingDetails.invoicePDFBase64) {
+      mailOptions.attachments = [{
+        filename: `AsiaByLocals_Invoice_${bookingReference}.pdf`,
+        content: Buffer.from(bookingDetails.invoicePDFBase64, 'base64'),
+        contentType: 'application/pdf'
+      }];
+      console.log('📎 Invoice PDF attached to customer confirmation email');
+    }
     const info = await transporter.sendMail(mailOptions);
     console.log(`✅ Booking confirmation email sent successfully to ${customerEmail}`);
     console.log('📬 Message ID:', info.messageId);
@@ -1002,15 +1102,15 @@ export const sendBookingConfirmationEmail = async (customerEmail, customerName, 
  */
 export const sendAdminPaymentNotificationEmail = async (bookingDetails) => {
   const adminEmail = process.env.ADMIN_EMAIL || process.env.EMAIL_USER || 'admin@asiabylocals.com';
-  
+
   if (!adminEmail || typeof adminEmail !== 'string' || !adminEmail.includes('@')) {
     console.error('❌ Invalid admin email address:', adminEmail);
     throw new Error('Invalid admin email address');
   }
 
   console.log(`📧 Sending payment notification email to admin: ${adminEmail}`);
-  
-  const { 
+
+  const {
     bookingReference,
     bookingId,
     tourTitle,
@@ -1029,12 +1129,12 @@ export const sendAdminPaymentNotificationEmail = async (bookingDetails) => {
     razorpayPaymentId,
     razorpayOrderId
   } = bookingDetails;
-  
-  const formattedDate = new Date(bookingDate).toLocaleDateString('en-US', { 
-    weekday: 'long', 
-    month: 'long', 
-    day: 'numeric', 
-    year: 'numeric' 
+
+  const formattedDate = new Date(bookingDate).toLocaleDateString('en-US', {
+    weekday: 'long',
+    month: 'long',
+    day: 'numeric',
+    year: 'numeric'
   });
 
   const fromEmail = (resendApiKey || sendGridApiKey) ? 'info@asiabylocals.com' : (process.env.EMAIL_USER || 'asiabylocals@gmail.com');
@@ -1254,6 +1354,26 @@ export const sendAdminPaymentNotificationEmail = async (bookingDetails) => {
   };
 
   try {
+    // Use Resend SDK if available (more reliable than SMTP)
+    if (resendClient) {
+      console.log(`📧 Sending admin payment notification via Resend SDK to: ${adminEmail}`);
+      const result = await resendClient.emails.send({
+        from: `AsiaByLocals Payments <${fromEmail}>`,
+        to: adminEmail,
+        subject: mailOptions.subject,
+        html: mailOptions.html,
+        text: mailOptions.text
+      });
+      if (result.error) {
+        console.error(`❌ Resend API Error:`, result.error);
+        throw new Error(`Resend API Error: ${JSON.stringify(result.error)}`);
+      }
+      console.log(`✅ Admin payment notification email sent via Resend to ${adminEmail}`);
+      console.log('📬 Message ID:', result.data?.id);
+      return { success: true, messageId: result.data?.id };
+    }
+
+    // Fallback to nodemailer for SendGrid/Gmail
     const info = await transporter.sendMail(mailOptions);
     console.log(`✅ Admin payment notification email sent successfully to ${adminEmail}`);
     console.log('📬 Message ID:', info.messageId);
@@ -1296,7 +1416,7 @@ export const sendTourApprovalEmail = async (supplierEmail, supplierName, tourTit
 
   const fromEmail = (resendApiKey || sendGridApiKey) ? 'info@asiabylocals.com' : (emailUser || 'asiabylocals@gmail.com');
   const serviceName = resendApiKey ? 'Resend' : (sendGridApiKey ? 'SendGrid' : 'Gmail SMTP');
-  
+
   // Build tour URL
   const countrySlug = country.toLowerCase().replace(/\s+/g, '-');
   const citySlug = city.toLowerCase().replace(/\s+/g, '-');
@@ -1483,7 +1603,7 @@ export const sendTourApprovalEmail = async (supplierEmail, supplierName, tourTit
       console.log(`   From: ${fromEmail}`);
       console.log(`   Service: Resend`);
       console.log(`   Subject: ✅ Your Tour Has Been Approved: ${tourTitle}`);
-      
+
       const result = await resendClient.emails.send({
         from: `AsiaByLocals <${fromEmail}>`,
         to: supplierEmail,
@@ -1491,21 +1611,21 @@ export const sendTourApprovalEmail = async (supplierEmail, supplierName, tourTit
         html: mailOptions.html,
         text: mailOptions.text
       });
-      
+
       // Check if Resend returned an error
       if (result.error) {
         console.error(`❌ Resend API Error:`);
         console.error('   Error:', result.error);
         throw new Error(`Resend API Error: ${JSON.stringify(result.error)}`);
       }
-      
+
       console.log(`✅ Tour approval email sent successfully via Resend`);
       console.log(`   Message ID: ${result.data?.id}`);
       console.log(`   Supplier: ${supplierName}`);
       console.log(`   Tour: ${tourTitle}`);
       return { success: true, messageId: result.data?.id };
     }
-    
+
     // Fallback to nodemailer for SendGrid/Gmail
     const info = await transporter.sendMail(mailOptions);
     console.log(`✅ Tour approval email sent successfully to ${supplierEmail}`);
@@ -1554,7 +1674,7 @@ export const sendTourRejectionEmail = async (supplierEmail, supplierName, tourTi
 
   const fromEmail = (resendApiKey || sendGridApiKey) ? 'info@asiabylocals.com' : (emailUser || 'asiabylocals@gmail.com');
   const serviceName = resendApiKey ? 'Resend' : (sendGridApiKey ? 'SendGrid' : 'Gmail SMTP');
-  
+
   // Build dashboard URL
   const dashboardUrl = `${process.env.FRONTEND_URL || 'https://www.asiabylocals.com'}/supplier/dashboard`;
 
@@ -1711,7 +1831,7 @@ The AsiaByLocals Team`
       console.log(`   From: ${fromEmail}`);
       console.log(`   Service: Resend`);
       console.log(`   Subject: ❌ Tour Review Update: ${tourTitle}`);
-      
+
       const result = await resendClient.emails.send({
         from: `AsiaByLocals <${fromEmail}>`,
         to: supplierEmail,
@@ -1719,21 +1839,21 @@ The AsiaByLocals Team`
         html: mailOptions.html,
         text: mailOptions.text
       });
-      
+
       // Check if Resend returned an error
       if (result.error) {
         console.error(`❌ Resend API Error:`);
         console.error('   Error:', result.error);
         throw new Error(`Resend API Error: ${JSON.stringify(result.error)}`);
       }
-      
+
       console.log(`✅ Tour rejection email sent successfully via Resend`);
       console.log(`   Message ID: ${result.data?.id}`);
       console.log(`   Supplier: ${supplierName}`);
       console.log(`   Tour: ${tourTitle}`);
       return { success: true, messageId: result.data?.id };
     }
-    
+
     // Fallback to nodemailer for SendGrid/Gmail
     const info = await transporter.sendMail(mailOptions);
     console.log(`✅ Tour rejection email sent successfully to ${supplierEmail}`);
@@ -1775,7 +1895,7 @@ export const sendItineraryVerificationEmail = async (email, city, verificationTo
 
   const fromEmail = (resendApiKey || sendGridApiKey) ? 'info@asiabylocals.com' : (emailUser || 'asiabylocals@gmail.com');
   const serviceName = resendApiKey ? 'Resend' : (sendGridApiKey ? 'SendGrid' : 'Gmail SMTP');
-  
+
   // URL encode the token to prevent issues with email clients modifying the URL
   const encodedToken = encodeURIComponent(verificationToken);
   const verificationUrl = `${process.env.FRONTEND_URL || process.env.VITE_FRONTEND_URL || 'http://localhost:3000'}/api/email/verify/${encodedToken}`;
@@ -1900,16 +2020,16 @@ ${verificationUrl}
         html: mailOptions.html,
         text: mailOptions.text
       });
-      
+
       if (result.error) {
         console.error(`❌ Resend API Error:`, result.error);
         throw new Error(`Resend API Error: ${JSON.stringify(result.error)}`);
       }
-      
+
       console.log(`✅ Itinerary verification email sent successfully`);
       return { success: true, messageId: result.data?.id };
     }
-    
+
     const info = await transporter.sendMail(mailOptions);
     console.log(`✅ Itinerary verification email sent successfully`);
     return { success: true, messageId: info.messageId };
@@ -1943,7 +2063,7 @@ export const sendItineraryWelcomeEmail = async (email, city) => {
   console.log(`   City: ${city}`);
 
   const fromEmail = (resendApiKey || sendGridApiKey) ? 'info@asiabylocals.com' : (emailUser || 'asiabylocals@gmail.com');
-  
+
   // City-specific itinerary content
   const cityItineraries = {
     'Agra': {
@@ -2153,16 +2273,16 @@ The AsiaByLocals Team
         html: mailOptions.html,
         text: mailOptions.text
       });
-      
+
       if (result.error) {
         console.error(`❌ Resend API Error:`, result.error);
         throw new Error(`Resend API Error: ${JSON.stringify(result.error)}`);
       }
-      
+
       console.log(`✅ Itinerary welcome email sent successfully`);
       return { success: true, messageId: result.data?.id };
     }
-    
+
     const info = await transporter.sendMail(mailOptions);
     console.log(`✅ Itinerary welcome email sent successfully`);
     return { success: true, messageId: info.messageId };

@@ -1,13 +1,13 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { 
-  Star, 
-  Share2, 
-  Calendar, 
-  Users, 
-  Globe, 
-  CheckCircle2, 
-  Clock, 
-  MapPin, 
+import {
+  Star,
+  Share2,
+  Calendar,
+  Users,
+  Globe,
+  CheckCircle2,
+  Clock,
+  MapPin,
   User,
   ChevronLeft,
   ChevronRight,
@@ -32,7 +32,7 @@ interface TourDetailPageProps {
 
 const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, country, city, onClose }) => {
   console.log('TourDetailPage - Component rendered', { tourId, tourSlug, country, city });
-  
+
   const [tour, setTour] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -53,13 +53,16 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
   const [showGuideContactModal, setShowGuideContactModal] = useState(false);
   const [guideContactInfo, setGuideContactInfo] = useState<any>(null);
   const [pendingBookingData, setPendingBookingData] = useState<any>(null);
+  const [isInitializingPayment, setIsInitializingPayment] = useState(false);
   const [bookingData, setBookingData] = useState({
     customerName: '',
     customerEmail: '',
     customerPhone: '',
     specialRequests: ''
   });
+  const [bookingError, setBookingError] = useState<string | null>(null);
   const bookingBoxRef = useRef<HTMLDivElement>(null);
+  const optionsRef = useRef<HTMLDivElement>(null);
 
   // Calculate price based on group pricing tiers and number of participants
   const calculateGroupPrice = (tourData: any, numParticipants: number): number | null => {
@@ -73,25 +76,19 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
       hasGroupPricingTiers: !!tourData?.groupPricingTiers,
       groupPricingTiersType: typeof tourData?.groupPricingTiers
     });
-    
+
     if (!tourData) {
       console.error('❌ PRICING ERROR: tourData is null/undefined');
       return null;
     }
-    
+
     // CRITICAL: Check Tour.groupPricingTiers FIRST (PRIMARY SOURCE - most reliable)
     // This is now stored directly on Tour model, simple and reliable
     let groupPricingTiers = null;
-    
-    // #region agent log
-    fetch('http://127.0.0.1:7242/ingest/c1426495-b81c-4a08-aaea-9440216322e2',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'TourDetailPage.tsx:82',message:'Checking tour.groupPricingTiers - tour object state',data:{tourExists:!!tour,tourId:tour?.id,tourTitle:tour?.title,hasGroupPricingTiers:!!tour?.groupPricingTiers,groupPricingTiersType:typeof tour?.groupPricingTiers,tourKeys:tour?Object.keys(tour).slice(0,20):null},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
-    // #endregion
-    
+
+
     if (tour && tour.groupPricingTiers) {
       console.log('🔍 PRIMARY: Checking tour.groupPricingTiers (Tour model - PRIMARY SOURCE)...');
-      // #region agent log
-      fetch('http://127.0.0.1:7242/ingest/c1426495-b81c-4a08-aaea-9440216322e2',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'TourDetailPage.tsx:85',message:'tour.groupPricingTiers exists - parsing',data:{type:typeof tour.groupPricingTiers,isString:typeof tour.groupPricingTiers==='string',isArray:Array.isArray(tour.groupPricingTiers),preview:typeof tour.groupPricingTiers==='string'?tour.groupPricingTiers.substring(0,100):JSON.stringify(tour.groupPricingTiers).substring(0,100)},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
-      // #endregion
       try {
         if (typeof tour.groupPricingTiers === 'string') {
           groupPricingTiers = JSON.parse(tour.groupPricingTiers);
@@ -100,34 +97,24 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
         }
         if (groupPricingTiers && Array.isArray(groupPricingTiers) && groupPricingTiers.length > 0) {
           console.log('✅ PRIMARY: Found groupPricingTiers on Tour model:', groupPricingTiers);
-          // #region agent log
-          fetch('http://127.0.0.1:7242/ingest/c1426495-b81c-4a08-aaea-9440216322e2',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'TourDetailPage.tsx:91',message:'Successfully parsed tour.groupPricingTiers',data:{tiersCount:groupPricingTiers.length,firstTier:groupPricingTiers[0]},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
-          // #endregion
         }
       } catch (e) {
         console.error('❌ Failed to parse tour.groupPricingTiers:', e);
-        // #region agent log
-        fetch('http://127.0.0.1:7242/ingest/c1426495-b81c-4a08-aaea-9440216322e2',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'TourDetailPage.tsx:94',message:'Failed to parse tour.groupPricingTiers',data:{error:e.message,errorStack:e.stack},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
-        // #endregion
       }
-    } else {
-      // #region agent log
-      fetch('http://127.0.0.1:7242/ingest/c1426495-b81c-4a08-aaea-9440216322e2',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'TourDetailPage.tsx:96',message:'tour.groupPricingTiers NOT found',data:{tourExists:!!tour,hasGroupPricingTiers:!!tour?.groupPricingTiers,reason:tour?'groupPricingTiers missing':'tour is null'},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
-      // #endregion
     }
-    
+
     // FALLBACK: Check tourData.groupPricingTiers (for options with custom pricing)
     if (!groupPricingTiers && tourData.groupPricingTiers) {
       console.log('🔍 FALLBACK: Checking tourData.groupPricingTiers (option custom pricing)...');
       let rawPricingData = tourData.groupPricingTiers;
-      
+
       console.log('📦 Supplier pricing response (raw):', {
         raw: rawPricingData,
         type: typeof rawPricingData,
         isString: typeof rawPricingData === 'string',
         isArray: Array.isArray(rawPricingData)
       });
-      
+
       try {
         // Handle both string and object formats
         if (typeof tourData.groupPricingTiers === 'string') {
@@ -147,23 +134,23 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
         groupPricingTiers = null;
       }
     }
-    
+
     // CRITICAL FALLBACK 2: Check main tour's options for groupPricingTiers
     // This handles both main tour and options (options fall back to main tour pricing)
     if (!groupPricingTiers && tour && tour.options && Array.isArray(tour.options) && tour.options.length > 0) {
       console.log('🔍 Checking main tour options for groupPricingTiers fallback...');
       console.log('   Total options available:', tour.options.length);
-      
+
       // Find main tour option (sortOrder -1 or first option)
       const mainTourOption = tour.options.find((opt: any) => opt.sortOrder === -1) || tour.options[0];
-      
+
       console.log('   Main tour option:', {
         id: mainTourOption?.id,
         title: mainTourOption?.optionTitle,
         sortOrder: mainTourOption?.sortOrder,
         hasGroupPricingTiers: !!mainTourOption?.groupPricingTiers
       });
-      
+
       if (mainTourOption && mainTourOption.groupPricingTiers) {
         try {
           console.log('   Found groupPricingTiers on main tour option, parsing...');
@@ -207,12 +194,12 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
         }
       }
     }
-    
+
     // CRITICAL: Log parsed pricing slabs
     if (groupPricingTiers && Array.isArray(groupPricingTiers) && groupPricingTiers.length > 0) {
       console.log('📊 Parsed pricing slabs:', groupPricingTiers);
       console.log('   Total slabs:', groupPricingTiers.length);
-      
+
       // CRITICAL: Always log the default price (1-1 person)
       const defaultSlab = groupPricingTiers.find((t: any) => t.minPeople === 1 && t.maxPeople === 1);
       if (defaultSlab) {
@@ -230,11 +217,11 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
         pricePerPerson: tourData.pricePerPerson || tour?.pricePerPerson,
         maxGroupSize: tourData.maxGroupSize || tour?.maxGroupSize
       });
-      
+
       // CRITICAL FALLBACK: Check main tour's groupPricingTiers before using multiplication
       // If tourData is an option without groupPricingTiers, use main tour's tiers
       console.log('🔍 FALLBACK: Checking main tour for groupPricingTiers...');
-      
+
       // FALLBACK 1: Check main tour option (sortOrder: -1) - this should have the main tour's tiers
       if (!groupPricingTiers && tour && tour.options && Array.isArray(tour.options) && tour.options.length > 0) {
         const mainTourOption = tour.options.find((opt: any) => opt.sortOrder === -1) || tour.options[0];
@@ -244,7 +231,7 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
           sortOrder: mainTourOption?.sortOrder,
           hasGroupPricingTiers: !!mainTourOption?.groupPricingTiers
         });
-        
+
         if (mainTourOption && mainTourOption.groupPricingTiers) {
           try {
             let mainTiers = null;
@@ -253,7 +240,7 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
             } else if (Array.isArray(mainTourOption.groupPricingTiers)) {
               mainTiers = mainTourOption.groupPricingTiers;
             }
-            
+
             if (Array.isArray(mainTiers) && mainTiers.length > 0) {
               console.log('✅ FALLBACK: Found main tour option groupPricingTiers, using for calculation');
               console.log('   Pricing slabs:', mainTiers);
@@ -265,7 +252,7 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
           }
         }
       }
-      
+
       // FALLBACK 2: If still no tiers, check tour.groupPricingTiers directly
       if (!groupPricingTiers && tour && tour.groupPricingTiers) {
         console.log('🔍 FALLBACK 2: Checking tour.groupPricingTiers directly...');
@@ -276,7 +263,7 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
           } else if (Array.isArray(tour.groupPricingTiers)) {
             mainTiers = tour.groupPricingTiers;
           }
-          
+
           if (Array.isArray(mainTiers) && mainTiers.length > 0) {
             console.log('✅ FALLBACK: Found tour.groupPricingTiers, using for calculation');
             console.log('   Pricing slabs:', mainTiers);
@@ -286,19 +273,19 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
           console.error('❌ Failed to parse tour.groupPricingTiers:', e);
         }
       }
-      
+
       // FALLBACK 3: If we STILL don't have groupPricingTiers, try TEMPORARY multiplication fallback
       if (!groupPricingTiers || !Array.isArray(groupPricingTiers) || groupPricingTiers.length === 0) {
         const fallbackPricePerPerson = tourData.pricePerPerson || tour?.pricePerPerson;
         const fallbackMaxGroupSize = tourData.maxGroupSize || tour?.maxGroupSize || 10;
-        
+
         if (fallbackPricePerPerson && fallbackPricePerPerson > 0) {
           console.warn('⚠️ WARNING: Using TEMPORARY multiplication fallback');
           console.warn('   This means groupPricingTiers is missing from database');
           console.warn('   pricePerPerson:', fallbackPricePerPerson);
           console.warn('   maxGroupSize:', fallbackMaxGroupSize);
           console.warn('⚠️ Tour should be edited and re-submitted to save proper groupPricingTiers');
-          
+
           // CRITICAL: For fallback, return pricePerPerson * numParticipants
           // This makes pricing dynamic even without proper tiers
           // NOTE: This is NOT ideal - proper tiered pricing should be saved in database
@@ -315,12 +302,12 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
         }
       }
     }
-    
+
     // If group pricing tiers exist, find the matching tier
     if (groupPricingTiers && Array.isArray(groupPricingTiers) && groupPricingTiers.length > 0) {
       console.log('🔍 Selected persons:', numParticipants);
       console.log('   Searching for matching slab...');
-      
+
       // Find the tier that matches the number of participants (exact match first)
       // For tiers like {minPeople: 4, maxPeople: 4}, we need exact match
       let matchingTier = null;
@@ -334,7 +321,7 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
           break; // Use first matching tier
         }
       }
-      
+
       if (matchingTier && matchingTier.price) {
         const price = parseFloat(matchingTier.price);
         if (isNaN(price) || price <= 0) {
@@ -342,7 +329,7 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
           console.error('   Pricing mismatch reason: price is NaN or <= 0');
           return null;
         }
-        
+
         console.log('✅ Matched slab:', {
           tier: `${matchingTier.minPeople}-${matchingTier.maxPeople} people`,
           price,
@@ -353,15 +340,32 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
         console.log('═══════════════════════════════════════════════════════════');
         return price;
       }
-      
+
+      // If no exact match and participants exceed max tier, use the highest tier price
+      const lastTier = groupPricingTiers[groupPricingTiers.length - 1];
+      if (lastTier && lastTier.price && numParticipants > lastTier.maxPeople) {
+        const maxTierPrice = parseFloat(lastTier.price);
+
+        if (!isNaN(maxTierPrice) && maxTierPrice > 0) {
+          console.warn('⚠️ Participants exceed max tier, using highest tier price:', {
+            numParticipants,
+            maxTier: `${lastTier.minPeople}-${lastTier.maxPeople}`,
+            maxTierPrice
+          });
+          console.log('💰 Final calculated price (highest tier):', maxTierPrice);
+          console.log('═══════════════════════════════════════════════════════════');
+          return maxTierPrice;
+        }
+      }
+
       console.error('❌ PRICING ERROR: No matching tier found for', numParticipants, 'participants');
-      console.error('   Available tiers:', 
+      console.error('   Available tiers:',
         groupPricingTiers.map((t: any) => `${t.minPeople}-${t.maxPeople} (₹${t.price})`).join(', '));
       console.error('   Pricing mismatch reason: numParticipants outside all tier ranges');
       console.log('═══════════════════════════════════════════════════════════');
       return null;
     }
-    
+
     // DO NOT use groupPrice fallback - it's the LAST tier price (wrong for "starting from")
     // groupPrice is ₹8,200 (10 people), not ₹1,000 (1 person)
     // If we have groupPricingTiers, we should have found a match above
@@ -376,17 +380,17 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
     // Always return true - all pricing is per group now
     return true;
     if (!tourData) return false;
-    
+
     const isOption = !!(tourData.optionTitle || tourData.tourId);
     const itemName = isOption ? `Option "${tourData.optionTitle || 'Unknown'}"` : `Main Tour "${tourData.title || 'Unknown'}"`;
-    
+
     // FIRST: Check tourTypes for "Group Tour" - this is the primary indicator (only for main tours, not options)
     if (!isOption && tourData.tourTypes) {
       try {
-        const tourTypes = typeof tourData.tourTypes === 'string' 
-          ? JSON.parse(tourData.tourTypes) 
+        const tourTypes = typeof tourData.tourTypes === 'string'
+          ? JSON.parse(tourData.tourTypes)
           : tourData.tourTypes;
-        if (Array.isArray(tourTypes) && tourTypes.some((t: string) => 
+        if (Array.isArray(tourTypes) && tourTypes.some((t: string) =>
           t && typeof t === 'string' && t.toLowerCase().includes('group')
         )) {
           console.log(`✅ ${itemName}: Group pricing detected via tourTypes`);
@@ -396,12 +400,12 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
         // Ignore parse errors
       }
     }
-    
+
     // SECOND: Check for group pricing tiers (works for both main tour and options)
     if (tourData.groupPricingTiers) {
       try {
-        const tiers = typeof tourData.groupPricingTiers === 'string' 
-          ? JSON.parse(tourData.groupPricingTiers) 
+        const tiers = typeof tourData.groupPricingTiers === 'string'
+          ? JSON.parse(tourData.groupPricingTiers)
           : tourData.groupPricingTiers;
         if (Array.isArray(tiers) && tiers.length > 0) {
           console.log(`✅ ${itemName}: Group pricing detected via groupPricingTiers (${tiers.length} tiers)`);
@@ -411,13 +415,13 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
         console.error(`❌ ${itemName}: Error parsing groupPricingTiers:`, e);
       }
     }
-    
+
     // THIRD: Check for legacy groupPrice + maxGroupSize (works for both main tour and options)
     if (tourData.groupPrice && tourData.maxGroupSize) {
       console.log(`✅ ${itemName}: Group pricing detected via legacy groupPrice + maxGroupSize`);
       return true; // Has groupPrice + maxGroupSize = per_group
     }
-    
+
     // FOURTH: If this is main tour (not an option), check main tour option for group pricing
     // This handles the case where main tour's group pricing tiers are stored in a special option (sortOrder: -1)
     const isMainTour = tourData.id && !tourData.optionTitle && !tourData.tourId;
@@ -427,8 +431,8 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
         // Check main tour option's groupPricingTiers
         if (mainTourOption.groupPricingTiers) {
           try {
-            const tiers = typeof mainTourOption.groupPricingTiers === 'string' 
-              ? JSON.parse(mainTourOption.groupPricingTiers) 
+            const tiers = typeof mainTourOption.groupPricingTiers === 'string'
+              ? JSON.parse(mainTourOption.groupPricingTiers)
               : mainTourOption.groupPricingTiers;
             if (Array.isArray(tiers) && tiers.length > 0) {
               console.log(`✅ ${itemName}: Group pricing detected via main tour option's groupPricingTiers (${tiers.length} tiers)`);
@@ -445,7 +449,7 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
         }
       }
     }
-    
+
     console.log(`❌ ${itemName}: No group pricing detected - defaulting to per person`);
     return false; // No group pricing = per_person
   };
@@ -514,18 +518,18 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
     if (tour) {
       const countrySlug = country?.toLowerCase() || '';
       const citySlug = city?.toLowerCase() || '';
-      const tourUrl = tour.slug && country && city 
+      const tourUrl = tour.slug && country && city
         ? `https://www.asiabylocals.com/${countrySlug}/${citySlug}/${tour.slug}`
         : `https://www.asiabylocals.com/tour/${tour.id}`;
-      
+
       const description = tour.shortDescription || tour.fullDescription?.substring(0, 155) || 'Discover authentic local tours and cultural experiences';
-      const imageUrl = (tour.images && Array.isArray(tour.images) && tour.images.length > 0) 
-        ? tour.images[0] 
+      const imageUrl = (tour.images && Array.isArray(tour.images) && tour.images.length > 0)
+        ? tour.images[0]
         : 'https://www.asiabylocals.com/logo.png';
-      
+
       // Set page title
       document.title = `${tour.title} | ${city || 'Tour'} | AsiaByLocals`;
-      
+
       // Set meta description
       let metaDescription = document.querySelector('meta[name="description"]');
       if (!metaDescription) {
@@ -534,7 +538,7 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
         document.head.appendChild(metaDescription);
       }
       metaDescription.setAttribute('content', description);
-      
+
       // Set canonical URL
       let canonical = document.querySelector('link[rel="canonical"]');
       if (!canonical) {
@@ -543,7 +547,7 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
         document.head.appendChild(canonical);
       }
       canonical.setAttribute('href', tourUrl);
-      
+
       // Open Graph tags
       const ogTags = [
         { property: 'og:type', content: 'website' },
@@ -554,7 +558,7 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
         { property: 'og:site_name', content: 'AsiaByLocals' },
         { property: 'og:locale', content: 'en_US' },
       ];
-      
+
       ogTags.forEach(tag => {
         let meta = document.querySelector(`meta[property="${tag.property}"]`);
         if (!meta) {
@@ -564,7 +568,7 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
         }
         meta.setAttribute('content', tag.content);
       });
-      
+
       // Twitter Card tags
       const twitterTags = [
         { name: 'twitter:card', content: 'summary_large_image' },
@@ -572,7 +576,7 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
         { name: 'twitter:description', content: description },
         { name: 'twitter:image', content: imageUrl },
       ];
-      
+
       twitterTags.forEach(tag => {
         let meta = document.querySelector(`meta[name="${tag.name}"]`);
         if (!meta) {
@@ -582,11 +586,11 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
         }
         meta.setAttribute('content', tag.content);
       });
-      
+
       // Structured Data (JSON-LD) - TouristTrip schema
       const existingSchema = document.querySelector('script[type="application/ld+json"][data-tour-schema]');
       if (existingSchema) existingSchema.remove();
-      
+
       const parseImages = () => {
         if (!tour.images) return [];
         try {
@@ -595,7 +599,7 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
           return Array.isArray(tour.images) ? tour.images : [];
         }
       };
-      
+
       const parseLocations = () => {
         if (!tour.locations) return [];
         try {
@@ -604,10 +608,10 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
           return Array.isArray(tour.locations) ? tour.locations : [];
         }
       };
-      
+
       const images = parseImages();
       const locations = parseLocations();
-      
+
       // Enhanced structured data with multiple schema types for better indexing
       const structuredData = {
         "@context": "https://schema.org",
@@ -651,7 +655,7 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
           "reviewCount": "50"
         }
       };
-      
+
       // Add BreadcrumbList schema for better navigation understanding
       const breadcrumbData = {
         "@context": "https://schema.org",
@@ -683,27 +687,27 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
           }
         ]
       };
-      
+
       // Remove undefined fields
       Object.keys(structuredData).forEach(key => {
         if (structuredData[key as keyof typeof structuredData] === undefined) {
           delete structuredData[key as keyof typeof structuredData];
         }
       });
-      
+
       // Remove existing schemas if any
       const existingTourSchemas = document.querySelectorAll('script[type="application/ld+json"][data-tour-schema]');
       existingTourSchemas.forEach(schema => schema.remove());
       const existingBreadcrumbSchemas = document.querySelectorAll('script[type="application/ld+json"][data-breadcrumb-schema]');
       existingBreadcrumbSchemas.forEach(schema => schema.remove());
-      
+
       // Add TouristTrip schema
       const tourScript = document.createElement('script');
       tourScript.type = 'application/ld+json';
       tourScript.setAttribute('data-tour-schema', 'true');
       tourScript.textContent = JSON.stringify(structuredData);
       document.head.appendChild(tourScript);
-      
+
       // Add BreadcrumbList schema
       const breadcrumbScript = document.createElement('script');
       breadcrumbScript.type = 'application/ld+json';
@@ -716,7 +720,7 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
   const fetchTour = async () => {
     setLoading(true);
     try {
-      const API_URL = import.meta.env.VITE_API_URL || (typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3001');
+      const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
       let url;
       if (tourSlug) {
         // Use slug-based endpoint for SEO-friendly URLs
@@ -736,23 +740,20 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
       console.log('TourDetailPage - Making API request to:', url);
       const response = await fetch(url);
       console.log('TourDetailPage - Response status:', response.status);
-      
+
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-      
+
       const data = await response.json();
-      
-      // #region agent log
-      fetch('http://127.0.0.1:7242/ingest/c1426495-b81c-4a08-aaea-9440216322e2',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'TourDetailPage.tsx:564',message:'API response received - checking tour.groupPricingTiers',data:{tourId:data.tour?.id,tourTitle:data.tour?.title,hasGroupPricingTiers:!!data.tour?.groupPricingTiers,groupPricingTiersType:typeof data.tour?.groupPricingTiers,groupPricingTiersValue:data.tour?.groupPricingTiers?typeof data.tour.groupPricingTiers==='string'?data.tour.groupPricingTiers.substring(0,100):JSON.stringify(data.tour.groupPricingTiers).substring(0,100):null,tourKeys:data.tour?Object.keys(data.tour).filter(k=>k.toLowerCase().includes('pricing')||k.toLowerCase().includes('group')):null,allTourKeys:data.tour?Object.keys(data.tour).slice(0,30):null},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
-      // #endregion
-      
+
+
       console.log('═══════════════════════════════════════════════════════════');
       console.log('📥 FRONTEND - API RESPONSE RECEIVED');
       console.log('═══════════════════════════════════════════════════════════');
       console.log('API Response:', data);
-      
-      
+
+
       if (data.success && data.tour) {
         console.log('✅ Tour data received:', data.tour.title);
         console.log('📊 Supplier pricing response (raw):', {
@@ -763,7 +764,7 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
         console.log('TourDetailPage - Options:', data.tour.options);
         console.log('TourDetailPage - Options type:', typeof data.tour.options, Array.isArray(data.tour.options));
         console.log('TourDetailPage - Options count:', data.tour.options?.length);
-        
+
         // CRITICAL: Log each option's groupPricingTiers in detail
         if (data.tour.options && Array.isArray(data.tour.options)) {
           console.log('═══════════════════════════════════════════════════════════');
@@ -778,9 +779,9 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
               hasGroupPricingTiers: !!opt.groupPricingTiers,
               groupPricingTiersType: typeof opt.groupPricingTiers,
               groupPricingTiersValue: opt.groupPricingTiers,
-              groupPricingTiersPreview: opt.groupPricingTiers 
-                ? (typeof opt.groupPricingTiers === 'string' 
-                  ? opt.groupPricingTiers.substring(0, 200) 
+              groupPricingTiersPreview: opt.groupPricingTiers
+                ? (typeof opt.groupPricingTiers === 'string'
+                  ? opt.groupPricingTiers.substring(0, 200)
                   : JSON.stringify(opt.groupPricingTiers).substring(0, 200))
                 : 'null',
               fullOptionKeys: Object.keys(opt)
@@ -805,13 +806,13 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
         console.log('TourDetailPage - Highlights:', data.tour.highlights);
         console.log('TourDetailPage - Highlights type:', typeof data.tour.highlights, Array.isArray(data.tour.highlights));
         console.log('TourDetailPage - Highlights count:', data.tour.highlights?.length);
-        
+
         // Ensure options is always an array
         if (data.tour.options && !Array.isArray(data.tour.options)) {
           console.warn('TourDetailPage - Options is not an array, converting...', data.tour.options);
           data.tour.options = [];
         }
-        
+
         // Ensure highlights is always an array
         if (data.tour.highlights && !Array.isArray(data.tour.highlights)) {
           console.warn('TourDetailPage - Highlights is not an array, converting...', data.tour.highlights);
@@ -822,11 +823,8 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
             data.tour.highlights = [];
           }
         }
-        
-        // #region agent log
-        fetch('http://127.0.0.1:7242/ingest/c1426495-b81c-4a08-aaea-9440216322e2',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'TourDetailPage.tsx:624',message:'API response received - checking tour.groupPricingTiers',data:{tourId:data.tour?.id,tourTitle:data.tour?.title,hasGroupPricingTiers:!!data.tour?.groupPricingTiers,groupPricingTiersType:typeof data.tour?.groupPricingTiers,groupPricingTiersValue:data.tour?.groupPricingTiers?typeof data.tour.groupPricingTiers==='string'?data.tour.groupPricingTiers.substring(0,100):JSON.stringify(data.tour.groupPricingTiers).substring(0,100):null,tourKeys:data.tour?Object.keys(data.tour).filter(k=>k.toLowerCase().includes('pricing')||k.toLowerCase().includes('group')):null},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
-        // #endregion
-        
+
+
         setTour(data.tour);
         setError(null);
         if (data.tour.languages && data.tour.languages.length > 0) {
@@ -836,36 +834,24 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
         // Parse groupPricingTiers properly
         let mainTourHasGroupPricing = false;
         let mainTourGroupPricingTiers = null;
-        
+
         if (data.tour.groupPricingTiers) {
-          // #region agent log
-          fetch('http://127.0.0.1:7242/ingest/c1426495-b81c-4a08-aaea-9440216322e2',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'TourDetailPage.tsx:634',message:'Parsing groupPricingTiers from API response',data:{type:typeof data.tour.groupPricingTiers,isString:typeof data.tour.groupPricingTiers==='string',isArray:Array.isArray(data.tour.groupPricingTiers)},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
-          // #endregion
           try {
-            mainTourGroupPricingTiers = typeof data.tour.groupPricingTiers === 'string' 
-              ? JSON.parse(data.tour.groupPricingTiers) 
+            mainTourGroupPricingTiers = typeof data.tour.groupPricingTiers === 'string'
+              ? JSON.parse(data.tour.groupPricingTiers)
               : data.tour.groupPricingTiers;
             mainTourHasGroupPricing = Array.isArray(mainTourGroupPricingTiers) && mainTourGroupPricingTiers.length > 0;
-            // #region agent log
-            fetch('http://127.0.0.1:7242/ingest/c1426495-b81c-4a08-aaea-9440216322e2',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'TourDetailPage.tsx:639',message:'Successfully parsed groupPricingTiers from API',data:{hasGroupPricing:mainTourHasGroupPricing,tiersCount:mainTourGroupPricingTiers?.length,firstTier:mainTourGroupPricingTiers?.[0]},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
-            // #endregion
           } catch (e) {
             console.error('Error parsing main tour groupPricingTiers:', e);
-            // #region agent log
-            fetch('http://127.0.0.1:7242/ingest/c1426495-b81c-4a08-aaea-9440216322e2',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'TourDetailPage.tsx:641',message:'Failed to parse groupPricingTiers from API',data:{error:e.message},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
-            // #endregion
           }
         } else {
-          // #region agent log
-          fetch('http://127.0.0.1:7242/ingest/c1426495-b81c-4a08-aaea-9440216322e2',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'TourDetailPage.tsx:643',message:'API response has NO groupPricingTiers',data:{tourId:data.tour?.id},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
-          // #endregion
         }
-        
+
         // Also check for legacy groupPrice + maxGroupSize
         if (!mainTourHasGroupPricing && data.tour.groupPrice && data.tour.maxGroupSize) {
           mainTourHasGroupPricing = true;
         }
-        
+
         // If main tour has group pricing AND has options, create main tour as first option
         if (mainTourHasGroupPricing && data.tour.options && Array.isArray(data.tour.options) && data.tour.options.length > 0) {
           // Main tour has group pricing AND has options - create a "main tour" option
@@ -887,12 +873,12 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
             groupPricingTiers: mainTourGroupPricingTiers || data.tour.groupPricingTiers,
             sortOrder: -1 // Show main tour option first
           };
-          
+
           // Prepend main tour option to options array
           data.tour.options = [mainTourOption, ...data.tour.options];
           console.log('TourDetailPage - Added main tour as option (has group pricing):', mainTourOption);
         }
-        
+
         // DO NOT auto-select any option - let user choose
         console.log('TourDetailPage - No option auto-selected - user must choose');
       } else {
@@ -922,28 +908,6 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
     return dates;
   };
 
-  const handleCheckAvailability = async () => {
-    if (!selectedDate) {
-      alert('Please select a date first');
-      return;
-    }
-
-    // If tour has options but none selected, prompt user to select one
-    if (tour?.options && Array.isArray(tour.options) && tour.options.length > 0 && !selectedOption) {
-      alert('Please select a tour option first');
-      return;
-    }
-
-    setAvailabilityStatus('checking');
-    
-    // Simulate API call - in real app, this would check actual availability
-    setTimeout(() => {
-      // For demo purposes, assume it's always available
-      // In production, this would call your backend API
-      setAvailabilityStatus('available');
-    }, 1000);
-  };
-
   const handleOptionSelected = (option: any) => {
     // Toggle: if clicking the same option, deselect it (go back to main tour)
     if (selectedOption?.id === option.id) {
@@ -953,16 +917,36 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
       // Scroll to booking box on mobile when option is selected
       if (window.innerWidth < 1024 && bookingBoxRef.current) {
         setTimeout(() => {
-          bookingBoxRef.current?.scrollIntoView({ 
-            behavior: 'smooth', 
-            block: 'start' 
+          bookingBoxRef.current?.scrollIntoView({
+            behavior: 'smooth',
+            block: 'start'
           });
         }, 100);
       }
     }
     setShowOptionSelectionModal(false);
+    if (bookingError === 'Please select a tour option first') {
+      setBookingError(null);
+    }
+  };
+
+  const handleCheckAvailability = async () => {
+    if (!selectedDate) {
+      setBookingError('Please select a date first');
+      return;
+    }
+
+    if (tour?.options && Array.isArray(tour.options) && tour.options.length > 0 && !selectedOption) {
+      setBookingError('Please select a tour option first');
+      if (optionsRef.current) {
+        optionsRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+      return;
+    }
+
+    setBookingError(null);
     setAvailabilityStatus('checking');
-    
+
     // Simulate API call - in real app, this would check actual availability
     setTimeout(() => {
       setAvailabilityStatus('available');
@@ -970,11 +954,21 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
   };
 
   const handleProceedToBooking = () => {
-    // If tour has options but none selected, prompt user to select one
-    if (tour?.options && Array.isArray(tour.options) && tour.options.length > 0 && !selectedOption) {
-      alert('Please select a tour option first');
+    if (!selectedDate) {
+      setBookingError('Please select a date first');
       return;
     }
+
+    // If tour has options but none selected, prompt user to select one
+    if (tour?.options && Array.isArray(tour.options) && tour.options.length > 0 && !selectedOption) {
+      setBookingError('Please select a tour option first');
+      if (optionsRef.current) {
+        optionsRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+      return;
+    }
+
+    setBookingError(null);
 
     if (availabilityStatus === 'available') {
       // Load draft data when opening booking modal
@@ -1017,7 +1011,7 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
 
   const handleBookingSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!tour || !selectedDate) {
       alert('Please select a date and ensure tour is loaded');
       return;
@@ -1028,10 +1022,10 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
     let currency = selectedOption?.currency || tour.currency || 'INR';
     const currentParticipants = isCustomParticipants ? customParticipants : participants;
     const tourData = selectedOption || tour;
-    
+
     // Always use group pricing logic - calculate from tiers
     const groupPrice = calculateGroupPrice(tourData, currentParticipants);
-    
+
     if (groupPrice !== null && groupPrice > 0) {
       totalAmount = groupPrice;
     } else {
@@ -1040,18 +1034,18 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
       const pricePerPerson = selectedOption?.price || tour.pricePerPerson || 0;
       totalAmount = pricePerPerson;
     }
-    
+
     // Store booking data and show checkout page
     setPendingBookingData({
       tourId: tour.id,
       tourOptionId: selectedOption?.id || null,
       bookingDate: selectedDate,
       numberOfGuests: currentParticipants,
-      specialRequests: bookingData.specialRequests,
+      specialRequests: '', // Will be collected in CheckoutPage
       totalAmount: totalAmount,
       currency: currency
     });
-    
+
     setShowBookingModal(false);
     setShowCheckoutPage(true);
   };
@@ -1062,6 +1056,7 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
     country: string;
     countryCode: string;
     phoneNumber: string;
+    specialRequests?: string;
   }) => {
     if (!pendingBookingData || !tour) {
       alert('Booking data is missing. Please try again.');
@@ -1070,7 +1065,15 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
 
     // Create booking via API
     try {
-      const API_URL = import.meta.env.VITE_API_URL || (typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3001');
+      setIsInitializingPayment(true); // Show loading state
+      const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+      console.log('📝 Creating booking...', {
+        tourId: pendingBookingData.tourId,
+        bookingDate: pendingBookingData.bookingDate,
+        numberOfGuests: pendingBookingData.numberOfGuests,
+        totalAmount: pendingBookingData.totalAmount
+      });
+
       const bookingResponse = await fetch(`${API_URL}/api/bookings`, {
         method: 'POST',
         headers: {
@@ -1084,97 +1087,123 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
           customerName: guestData.fullName,
           customerEmail: guestData.email,
           customerPhone: `${guestData.countryCode}${guestData.phoneNumber}`,
-          specialRequests: pendingBookingData.specialRequests,
+          specialRequests: guestData.specialRequests || '',
           totalAmount: pendingBookingData.totalAmount,
           currency: pendingBookingData.currency
         }),
       });
 
       const bookingResult = await bookingResponse.json();
-      
+      console.log('📝 Booking response:', bookingResult);
+
+      if (!bookingResponse.ok) {
+        throw new Error(bookingResult.message || `HTTP error! status: ${bookingResponse.status}`);
+      }
+
       if (bookingResult.success) {
-        // Show guide contact information instead of payment
-        const supplierInfo = bookingResult.supplier || tour.supplier;
-        setGuideContactInfo({
-          guideName: supplierInfo?.fullName || supplierInfo?.companyName || 'Your Guide',
-          guideEmail: supplierInfo?.email || '',
-          guidePhone: supplierInfo?.phone || '',
-          guideWhatsApp: supplierInfo?.whatsapp || supplierInfo?.phone || '',
-          bookingId: bookingResult.booking.id,
-          tourTitle: tour.title,
-          bookingDate: pendingBookingData.bookingDate,
-          numberOfGuests: pendingBookingData.numberOfGuests,
-          totalAmount: pendingBookingData.totalAmount,
-          currency: pendingBookingData.currency
-        });
+        const bookingId = bookingResult.booking.id.toString();
+        console.log('✅ Booking created successfully:', bookingId);
+
+        // Store booking ID for fallback
+        sessionStorage.setItem('pending_booking_id', bookingId);
+        localStorage.setItem('last_booking_id', bookingId);
+
+        // Close checkout page and initialize Razorpay payment
         setShowCheckoutPage(false);
-        setShowGuideContactModal(true);
-        // Clear draft after successful booking
-        if (tour?.id) {
-          const draftKey = `booking_draft_${tour.id}`;
-          localStorage.removeItem(draftKey);
+
+        try {
+          // Initialize Razorpay payment
+          await initializeRazorpayPayment(
+            bookingId,
+            pendingBookingData.totalAmount,
+            pendingBookingData.currency,
+            {
+              fullName: guestData.fullName,
+              email: guestData.email,
+              phoneNumber: `${guestData.countryCode}${guestData.phoneNumber}`
+            }
+          );
+        } catch (paymentError) {
+          console.error('❌ Payment initialization error:', paymentError);
+          setIsInitializingPayment(false);
+          alert(`Payment initialization failed: ${paymentError instanceof Error ? paymentError.message : 'Unknown error'}. Your booking was created (ID: ${bookingId}). Please contact support.`);
         }
-        // Reset form
-        setBookingData({
-          customerName: '',
-          customerEmail: '',
-          customerPhone: '',
-          specialRequests: ''
-        });
-        setPendingBookingData(null);
-        setAvailabilityStatus('idle');
       } else {
-        alert(bookingResult.message || 'Failed to create booking');
+        setIsInitializingPayment(false);
+        console.error('❌ Booking creation failed:', bookingResult);
+        alert(bookingResult.message || 'Failed to create booking. Please try again.');
       }
     } catch (error) {
-      console.error('Booking error:', error);
-      alert('Failed to create booking. Please try again.');
+      setIsInitializingPayment(false);
+      console.error('❌ Booking error:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      alert(`Failed to create booking: ${errorMessage}. Please check your connection and try again.`);
     }
   };
 
 
-  const initializeRazorpayPayment = async (bookingId: string, amount: number, currency: string) => {
+  const initializeRazorpayPayment = async (bookingId: string, amount: number, currency: string, guestData?: {
+    fullName: string;
+    email: string;
+    phoneNumber: string;
+  }) => {
     try {
-      // Create payment order via backend
-      const API_URL = import.meta.env.VITE_API_URL || (typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3001');
+      console.log('💳 Initializing Razorpay payment...', { bookingId, amount, currency });
+
+      // Step 1: Create payment order via backend
+      const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
       const paymentResponse = await fetch(`${API_URL}/api/payments/create-order`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           bookingId,
-          amount: amount * 100, // Convert to paise/paisa
+          amount: amount * 100, // Convert to paise
           currency: currency || 'INR'
         }),
       });
 
       const paymentData = await paymentResponse.json();
-      
-      if (!paymentData.success) {
-        alert('Failed to initialize payment');
+      console.log('💳 Payment order response:', paymentData);
+
+      if (!paymentData.success || !paymentData.order?.id || !paymentData.razorpayKeyId) {
+        setIsInitializingPayment(false);
+        alert(`Failed to initialize payment: ${paymentData.message || 'Invalid order data'}`);
         return;
       }
 
-      // Load Razorpay script dynamically
-      const script = document.createElement('script');
-      script.src = 'https://checkout.razorpay.com/v1/checkout.js';
-      script.onload = () => {
-        const options = {
-          key: paymentData.razorpayKeyId, // Your Razorpay key ID from backend
-          amount: paymentData.order.amount,
-          currency: paymentData.order.currency,
-          name: 'AsiaByLocals',
-          description: `Booking for ${tour?.title}`,
-          order_id: paymentData.order.id,
-          handler: async function(response: any) {
-            // Verify payment on backend
-            const API_URL = import.meta.env.VITE_API_URL || (typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3001');
-            const verifyResponse = await fetch(`${API_URL}/api/payments/verify`, {
+      // Step 2: Open Razorpay modal checkout (NO callback_url, NO redirect)
+      const options = {
+        key: paymentData.razorpayKeyId,
+        amount: paymentData.order.amount,
+        currency: paymentData.order.currency || 'INR',
+        name: 'AsiaByLocals',
+        description: `Booking for ${tour?.title || 'Tour'}`,
+        order_id: paymentData.order.id,
+        save: false, // CRITICAL: Prevent card saving prompt that causes redirects
+
+        // Step 3: Payment success handler — verify on backend, then redirect
+        handler: async function (response: any) {
+          console.log('✅ Payment successful callback received:', response);
+
+          // CRITICAL: Stop navigation immediately to prevent Razorpay redirects
+          window.stop();
+
+          // CRITICAL: Close modal immediately
+          try {
+            const currentRazorpay = (window as any).__currentRazorpayInstance;
+            if (currentRazorpay && typeof currentRazorpay.close === 'function') {
+              currentRazorpay.close();
+            }
+          } catch (e) {
+            console.log('Error closing modal:', e);
+          }
+
+          setIsInitializingPayment(true);
+
+          try {
+            const verifyResponse = await fetch(`${API_URL}/api/verify-payment`, {
               method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-              },
+              headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({
                 razorpay_order_id: response.razorpay_order_id,
                 razorpay_payment_id: response.razorpay_payment_id,
@@ -1183,44 +1212,87 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
               }),
             });
 
-            const verifyData = await verifyResponse.json();
-            
-            if (verifyData.success) {
-              alert('Payment successful! Your booking is confirmed.');
-              setShowBookingModal(false);
-              setAvailabilityStatus('idle');
-              setBookingData({
-                customerName: '',
-                customerEmail: '',
-                customerPhone: '',
-                specialRequests: ''
-              });
-            } else {
-              alert('Payment verification failed. Please contact support.');
-            }
-          },
-          prefill: {
-            name: bookingData.customerName,
-            email: bookingData.customerEmail,
-            contact: bookingData.customerPhone
-          },
-          theme: {
-            color: '#10B981'
-          },
-          modal: {
-            ondismiss: function() {
-              console.log('Payment cancelled');
-            }
-          }
-        };
+            const result = await verifyResponse.json();
+            console.log('🔐 Verification result:', result);
 
-        const razorpay = new (window as any).Razorpay(options);
-        razorpay.open();
+            if (result.success && result.bookingId) {
+              // Clear local state
+              if (tour?.id) localStorage.removeItem(`booking_draft_${tour.id}`);
+              sessionStorage.setItem('pending_booking_id', result.bookingId);
+              localStorage.setItem('last_booking_id', result.bookingId);
+              setPendingBookingData(null);
+              setAvailabilityStatus('idle');
+
+              // Redirect immediately using replace (no setTimeout)
+              console.log('✅ Payment verified successfully, redirecting to booking page...');
+              window.location.replace(`/booking/${result.bookingId}`);
+            } else {
+              setIsInitializingPayment(false);
+              console.error('❌ Payment verification failed:', result);
+              window.location.replace(`/booking/${bookingId}?status=failed`);
+            }
+          } catch (error) {
+            setIsInitializingPayment(false);
+            console.error('❌ Verification error:', error);
+            window.location.replace(`/booking/${bookingId}?status=failed`);
+          }
+
+          // CRITICAL: Return false to prevent Razorpay default redirect
+          return false;
+        },
+
+        prefill: {
+          name: guestData?.fullName || '',
+          email: guestData?.email || '',
+          contact: guestData?.phoneNumber || ''
+        },
+
+        theme: {
+          color: '#10B981'
+        },
+
+        modal: {
+          ondismiss: async function () {
+            console.log('Payment cancelled by user');
+            setIsInitializingPayment(false);
+
+            // Mark booking as payment_failed on backend
+            try {
+              await fetch(`${API_URL}/api/bookings/${bookingId}/mark-payment-failed`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' }
+              });
+              console.log('✅ Booking marked as payment_failed');
+            } catch (error) {
+              console.error('❌ Failed to mark booking as payment_failed:', error);
+            }
+
+            // Redirect to booking page with failed status
+            window.location.replace(`/booking/${bookingId}?status=failed`);
+          },
+          escape: true,
+          backdropclose: false
+        }
       };
-      document.body.appendChild(script);
+
+      const rzp = new (window as any).Razorpay(options);
+
+      // CRITICAL: Store Razorpay instance globally so handler can close it
+      (window as any).__currentRazorpayInstance = rzp;
+
+      rzp.on('payment.failed', function (response: any) {
+        console.error('❌ Payment failed:', response.error);
+        setIsInitializingPayment(false);
+        window.location.replace(`/booking/${bookingId}?status=failed`);
+      });
+
+      rzp.open();
+      console.log('✅ Razorpay modal opened');
+
     } catch (error) {
-      console.error('Payment initialization error:', error);
-      alert('Failed to initialize payment. Please try again.');
+      console.error('❌ Payment initialization error:', error);
+      setIsInitializingPayment(false);
+      alert(`Failed to initialize payment: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   };
 
@@ -1273,7 +1345,7 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
   let otherImages: any[] = [];
   let remainingImages = 0;
   let allImages: string[] = []; // Store all images for modal navigation
-  
+
   try {
     if (tour && tour.images) {
       const images = Array.isArray(tour.images) ? tour.images : (typeof tour.images === 'string' ? JSON.parse(tour.images) : []);
@@ -1291,25 +1363,25 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
     allImages = [];
   }
 
-  console.log('TourDetailPage - About to render', { 
-    loading, 
-    tour: !!tour, 
-    tourSlug, 
-    tourTitle: tour?.title, 
-    hasImages: !!mainImage, 
+  console.log('TourDetailPage - About to render', {
+    loading,
+    tour: !!tour,
+    tourSlug,
+    tourTitle: tour?.title,
+    hasImages: !!mainImage,
     imageCount: tour?.images?.length,
     hasOptions: !!tour?.options,
     optionsCount: tour?.options?.length,
     optionsType: typeof tour?.options,
     isOptionsArray: Array.isArray(tour?.options)
   });
-  
+
   return (
     <div className="min-h-screen bg-white">
       {/* Header */}
-      <header className="sticky top-0 z-50 bg-white border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-4">
+      <header className="sticky top-0 z-50 bg-white border-b border-gray-200 shadow-sm">
+        <div className="max-w-7xl mx-auto px-6 h-16 sm:h-20 md:h-24 flex items-center justify-between">
+          <div className="flex items-center gap-4 h-full">
             {onClose ? (
               <button
                 onClick={onClose}
@@ -1334,10 +1406,15 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
               </button>
             )}
           </div>
-          <div className="flex items-center gap-4">
-            <button className="p-2 hover:bg-gray-100 rounded-full transition-colors">
-              <Share2 size={20} className="text-gray-600" />
-            </button>
+          <div className="flex items-center gap-4 h-full">
+            <a href="/" className="flex items-center h-full cursor-pointer">
+              <img
+                src="/logo.png"
+                alt="Asia By Locals"
+                className="h-[110px] sm:h-[100px] md:h-[105px] lg:h-[110px] xl:h-[120px] w-auto object-contain"
+                style={{ transform: 'translateY(3px)' }}
+              />
+            </a>
           </div>
         </div>
       </header>
@@ -1362,7 +1439,7 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
             <p className="text-[16px] text-gray-700 font-semibold mb-3">
               Explore more guided tours in <a href={`/${country.toLowerCase().replace(/\s+/g, '-')}/${city.toLowerCase().replace(/\s+/g, '-')}`} className="text-[#10B981] font-black hover:underline">{city}</a>
             </p>
-            <a 
+            <a
               href={`/${country.toLowerCase().replace(/\s+/g, '-')}/${city.toLowerCase().replace(/\s+/g, '-')}`}
               className="inline-flex items-center gap-2 text-[#10B981] font-black hover:text-[#059669] transition-colors"
             >
@@ -1414,7 +1491,7 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
             {/* Image Gallery - GetYourGuide Style: Main image left, 2 thumbnails right */}
             <div className="grid grid-cols-3 gap-2 h-[500px] overflow-hidden relative mb-12">
               {mainImage && (
-                <div 
+                <div
                   className="col-span-2 relative cursor-pointer group overflow-hidden rounded-2xl h-[500px]"
                   onClick={() => {
                     setSelectedImageIndex(0);
@@ -1433,9 +1510,8 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
                 {otherImages.slice(0, 2).map((image: string, index: number) => (
                   <div
                     key={index}
-                    className={`relative cursor-pointer group overflow-hidden rounded-2xl ${
-                      index === 0 ? 'h-[246px]' : 'h-[246px]'
-                    }`}
+                    className={`relative cursor-pointer group overflow-hidden rounded-2xl ${index === 0 ? 'h-[246px]' : 'h-[246px]'
+                      }`}
                     onClick={() => {
                       setSelectedImageIndex(index + 1);
                       setShowImageModal(true);
@@ -1444,9 +1520,8 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
                     <img
                       src={image}
                       alt={`${tour.title} ${index + 2}`}
-                      className={`w-full object-cover rounded-2xl ${
-                        index === 0 ? 'h-[246px]' : 'h-[246px]'
-                      }`}
+                      className={`w-full object-cover rounded-2xl ${index === 0 ? 'h-[246px]' : 'h-[246px]'
+                        }`}
                     />
                     {index === 1 && remainingImages > 0 && (
                       <div className="absolute inset-0 bg-black/60 rounded-2xl flex items-center justify-center pointer-events-none z-10">
@@ -1490,25 +1565,25 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
               // Parse groupPricingTiers properly in render logic
               let mainTourHasGroupPricing = false;
               let mainTourGroupPricingTiers = null;
-              
+
               if (tour.groupPricingTiers) {
                 try {
-                  mainTourGroupPricingTiers = typeof tour.groupPricingTiers === 'string' 
-                    ? JSON.parse(tour.groupPricingTiers) 
+                  mainTourGroupPricingTiers = typeof tour.groupPricingTiers === 'string'
+                    ? JSON.parse(tour.groupPricingTiers)
                     : tour.groupPricingTiers;
                   mainTourHasGroupPricing = Array.isArray(mainTourGroupPricingTiers) && mainTourGroupPricingTiers.length > 0;
                 } catch (e) {
                   console.error('Error parsing main tour groupPricingTiers:', e);
                 }
               }
-              
+
               // Also check for legacy groupPrice + maxGroupSize
               if (!mainTourHasGroupPricing && tour.groupPrice && tour.maxGroupSize) {
                 mainTourHasGroupPricing = true;
               }
-              
+
               const shouldShowMainTourAsOption = mainTourHasGroupPricing && tour.options && tour.options.length > 0;
-              
+
               // Create main tour option if needed
               let allOptions = tour.options || [];
               if (shouldShowMainTourAsOption && !allOptions.find((opt: any) => opt.id === 'main-tour')) {
@@ -1532,117 +1607,115 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
                 };
                 allOptions = [mainTourOption, ...allOptions];
               }
-              
+
               // Sort options by sortOrder
               allOptions = allOptions.sort((a: any, b: any) => (a.sortOrder || 0) - (b.sortOrder || 0));
-              
+
               if (allOptions.length > 0) {
                 return (
-                  <div className="mb-8">
+                  <div className="mb-8" ref={optionsRef}>
                     <h2 className="text-2xl font-black text-[#001A33] mb-6">Choose from {allOptions.length} available option{allOptions.length > 1 ? 's' : ''}</h2>
                     <div className="space-y-4">
                       {allOptions.map((option: any) => {
-                    const isSelected = selectedOption?.id === option.id;
-                    const currencySymbol = option.currency === 'USD' ? '$' : option.currency === 'EUR' ? '€' : '₹';
-                    
-                    return (
-                      <div
-                        key={option.id}
-                        className={`bg-white border-2 rounded-2xl p-6 transition-all ${
-                          isSelected
-                            ? 'border-[#10B981] shadow-lg'
-                            : 'border-gray-200 hover:border-[#10B981]/50 hover:shadow-md'
-                        }`}
-                      >
-                        <div className="flex flex-col md:flex-row items-start justify-between gap-4 md:gap-6">
-                          {/* Left: Option Details */}
-                          <div className="flex-1 w-full md:w-auto">
-                            <h3 className="font-black text-[#001A33] text-[18px] mb-2">{option.optionTitle}</h3>
-                            <p className="text-[14px] text-gray-600 font-semibold mb-4 leading-relaxed">
-                              {option.optionDescription}
-                              {option.optionDescription && option.optionDescription.length > 100 && (
-                                <span className="text-[#0071EB] cursor-pointer ml-1">Read more</span>
-                              )}
-                            </p>
-                            
-                            {/* Key Details Row */}
-                            <div className="flex flex-wrap items-center gap-4 md:gap-6 text-[13px] text-gray-600 font-semibold">
-                              <div className="flex items-center gap-2">
-                                <Clock size={16} className="text-gray-500" />
-                                <span>{option.durationHours} {option.durationHours === 1 ? 'hour' : 'hours'}</span>
-                              </div>
-                              <div className="flex items-center gap-2">
-                                <User size={16} className="text-gray-500" />
-                                <span>Guide: {option.language}</span>
-                              </div>
-                              {option.pickupIncluded && (
-                                <div className="flex items-center gap-2">
-                                  <Bus size={16} className="text-gray-500" />
-                                  <span>Pickup included</span>
-                                </div>
-                              )}
-                            </div>
-                          </div>
+                        const isSelected = selectedOption?.id === option.id;
+                        const currencySymbol = option.currency === 'USD' ? '$' : option.currency === 'EUR' ? '€' : '₹';
 
-                          {/* Right: Pricing & Select Button */}
-                          <div className="text-left md:text-right flex flex-col items-start md:items-end w-full md:w-auto md:min-w-[200px]">
-                            <div className="mb-3">
-                              <div className="font-black text-[#001A33] text-[20px] mb-1">
-                                {(() => {
-                                  const currentParticipants = isCustomParticipants ? customParticipants : participants;
-                                  // Always use group pricing logic - calculate from tiers
-                                  const groupPrice = calculateGroupPrice(option, currentParticipants);
-                                  
-                                  if (groupPrice !== null) {
-                                    return `${currencySymbol}${groupPrice.toLocaleString()}`;
-                                  }
-                                  
-                                  if (option.groupPrice) {
-                                    return `${currencySymbol}${option.groupPrice.toLocaleString()}`;
-                                  }
-                                  
-                                  // Fallback: use option.price as fixed price
-                                  return `${currencySymbol}${(option.price || 0).toLocaleString()}`;
-                                })()}
+                        return (
+                          <div
+                            key={option.id}
+                            className={`bg-white border-2 rounded-2xl p-6 transition-all ${isSelected
+                              ? 'border-[#10B981] shadow-lg'
+                              : 'border-gray-200 hover:border-[#10B981]/50 hover:shadow-md'
+                              }`}
+                          >
+                            <div className="flex flex-col md:flex-row items-start justify-between gap-4 md:gap-6">
+                              {/* Left: Option Details */}
+                              <div className="flex-1 w-full md:w-auto">
+                                <h3 className="font-black text-[#001A33] text-[18px] mb-2">{option.optionTitle}</h3>
+                                <p className="text-[14px] text-gray-600 font-semibold mb-4 leading-relaxed">
+                                  {option.optionDescription}
+                                  {option.optionDescription && option.optionDescription.length > 100 && (
+                                    <span className="text-[#0071EB] cursor-pointer ml-1">Read more</span>
+                                  )}
+                                </p>
+
+                                {/* Key Details Row */}
+                                <div className="flex flex-wrap items-center gap-4 md:gap-6 text-[13px] text-gray-600 font-semibold">
+                                  <div className="flex items-center gap-2">
+                                    <Clock size={16} className="text-gray-500" />
+                                    <span>{option.durationHours} {option.durationHours === 1 ? 'hour' : 'hours'}</span>
+                                  </div>
+                                  <div className="flex items-center gap-2">
+                                    <User size={16} className="text-gray-500" />
+                                    <span>Guide: {option.language}</span>
+                                  </div>
+                                  {option.pickupIncluded && (
+                                    <div className="flex items-center gap-2">
+                                      <Bus size={16} className="text-gray-500" />
+                                      <span>Pickup included</span>
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+
+                              {/* Right: Pricing & Select Button */}
+                              <div className="text-left md:text-right flex flex-col items-start md:items-end w-full md:w-auto md:min-w-[200px]">
+                                <div className="mb-3">
+                                  <div className="font-black text-[#001A33] text-[20px] mb-1">
+                                    {(() => {
+                                      const currentParticipants = isCustomParticipants ? customParticipants : participants;
+                                      // Always use group pricing logic - calculate from tiers
+                                      const groupPrice = calculateGroupPrice(option, currentParticipants);
+
+                                      if (groupPrice !== null) {
+                                        return `${currencySymbol}${groupPrice.toLocaleString()}`;
+                                      }
+
+                                      if (option.groupPrice) {
+                                        return `${currencySymbol}${option.groupPrice.toLocaleString()}`;
+                                      }
+
+                                      // Fallback: use option.price as fixed price
+                                      return `${currencySymbol}${(option.price || 0).toLocaleString()}`;
+                                    })()}
+                                  </div>
+                                </div>
+
+                                <button
+                                  onClick={() => {
+                                    // Toggle: if clicking the same option, deselect it
+                                    if (isSelected) {
+                                      setSelectedOption(null);
+                                    } else {
+                                      setSelectedOption(option);
+                                      // Scroll to booking box on mobile when option is selected
+                                      if (window.innerWidth < 1024 && bookingBoxRef.current) {
+                                        setTimeout(() => {
+                                          bookingBoxRef.current?.scrollIntoView({
+                                            behavior: 'smooth',
+                                            block: 'start'
+                                          });
+                                        }, 100);
+                                      }
+                                    }
+                                  }}
+                                  className={`w-full md:w-auto px-6 py-3 rounded-xl font-black text-[14px] transition-all mb-2 ${isSelected
+                                    ? 'bg-[#10B981] text-white'
+                                    : 'bg-[#0071EB] text-white hover:bg-[#0056b3]'
+                                    }`}
+                                >
+                                  {isSelected ? 'Selected (Click to deselect)' : 'Select'}
+                                </button>
+
+                                {/* Free Cancellation Badge */}
+                                <div className="flex items-center gap-1 text-[12px] text-gray-600 w-full md:w-auto">
+                                  <CheckCircle2 size={14} className="text-[#10B981]" />
+                                  <span className="font-semibold">Free cancellation</span>
+                                </div>
                               </div>
                             </div>
-                            
-                            <button
-                              onClick={() => {
-                                // Toggle: if clicking the same option, deselect it
-                                if (isSelected) {
-                                  setSelectedOption(null);
-                                } else {
-                                  setSelectedOption(option);
-                                  // Scroll to booking box on mobile when option is selected
-                                  if (window.innerWidth < 1024 && bookingBoxRef.current) {
-                                    setTimeout(() => {
-                                      bookingBoxRef.current?.scrollIntoView({ 
-                                        behavior: 'smooth', 
-                                        block: 'start' 
-                                      });
-                                    }, 100);
-                                  }
-                                }
-                              }}
-                              className={`w-full md:w-auto px-6 py-3 rounded-xl font-black text-[14px] transition-all mb-2 ${
-                                isSelected
-                                  ? 'bg-[#10B981] text-white'
-                                  : 'bg-[#0071EB] text-white hover:bg-[#0056b3]'
-                              }`}
-                            >
-                              {isSelected ? 'Selected (Click to deselect)' : 'Select'}
-                            </button>
-                            
-                            {/* Free Cancellation Badge */}
-                            <div className="flex items-center gap-1 text-[12px] text-gray-600 w-full md:w-auto">
-                              <CheckCircle2 size={14} className="text-[#10B981]" />
-                              <span className="font-semibold">Free cancellation</span>
-                            </div>
                           </div>
-                        </div>
-                      </div>
-                    );
+                        );
                       })}
                     </div>
                   </div>
@@ -1842,11 +1915,11 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
                           console.log('═══════════════════════════════════════════════════════════');
                           console.log('🏷 "STARTING FROM" PRICE CALCULATION');
                           console.log('═══════════════════════════════════════════════════════════');
-                          
+
                           // Get the price for 1 person (first tier: 1-1 person)
                           let priceForOne = tour.pricePerPerson || 0;
                           console.log('📥 Initial priceForOne (from pricePerPerson):', priceForOne);
-                          
+
                           // Check main tour option (sortOrder: -1) for groupPricingTiers first
                           if (tour.options && Array.isArray(tour.options) && tour.options.length > 0) {
                             console.log('🔍 Checking main tour option for 1-1 person price...');
@@ -1856,11 +1929,11 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
                               title: mainTourOption?.optionTitle,
                               hasGroupPricingTiers: !!mainTourOption?.groupPricingTiers
                             });
-                            
+
                             if (mainTourOption && mainTourOption.groupPricingTiers) {
                               try {
-                                const tiers = typeof mainTourOption.groupPricingTiers === 'string' 
-                                  ? JSON.parse(mainTourOption.groupPricingTiers) 
+                                const tiers = typeof mainTourOption.groupPricingTiers === 'string'
+                                  ? JSON.parse(mainTourOption.groupPricingTiers)
                                   : mainTourOption.groupPricingTiers;
                                 console.log('   Parsed pricing slabs from main tour option:', tiers);
                                 if (Array.isArray(tiers) && tiers.length > 0 && tiers[0].price) {
@@ -1882,13 +1955,13 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
                               console.log('ℹ️ Main tour option has no groupPricingTiers');
                             }
                           }
-                          
+
                           // Check tour.groupPricingTiers directly
                           if (priceForOne === (tour.pricePerPerson || 0) && tour.groupPricingTiers) {
                             console.log('🔍 Checking tour.groupPricingTiers directly...');
                             try {
-                              const tiers = typeof tour.groupPricingTiers === 'string' 
-                                ? JSON.parse(tour.groupPricingTiers) 
+                              const tiers = typeof tour.groupPricingTiers === 'string'
+                                ? JSON.parse(tour.groupPricingTiers)
                                 : tour.groupPricingTiers;
                               console.log('   Parsed pricing slabs from tour:', tiers);
                               if (Array.isArray(tiers) && tiers.length > 0 && tiers[0].price) {
@@ -1905,7 +1978,7 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
                               console.error('❌ Error parsing tour groupPricingTiers:', e);
                             }
                           }
-                          
+
                           console.log('💰 FINAL "STARTING FROM" PRICE:', priceForOne);
                           console.log('═══════════════════════════════════════════════════════════');
                           return priceForOne.toLocaleString();
@@ -1920,16 +1993,16 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
                           console.log('═══════════════════════════════════════════════════════════');
                           console.log('📥 Selected persons:', currentParticipants);
                           console.log('   isCustomParticipants:', isCustomParticipants);
-                          
+
                           // Always use group pricing logic - calculate from tiers
                           const groupPrice = calculateGroupPrice(tour, currentParticipants);
-                          
+
                           if (groupPrice !== null && groupPrice > 0) {
                             console.log('✅ Using calculated group price:', groupPrice);
                             console.log('═══════════════════════════════════════════════════════════');
                             return groupPrice.toLocaleString();
                           }
-                          
+
                           // Check main tour option for group pricing
                           if (tour && tour.options && Array.isArray(tour.options) && tour.options.length > 0) {
                             console.log('🔍 Falling back to main tour option...');
@@ -1944,7 +2017,7 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
                             }
                             // DO NOT use groupPrice - it's the LAST tier price (wrong)
                           }
-                          
+
                           // Fallback: use pricePerPerson (should be first tier price)
                           console.warn('⚠️ Using fallback pricePerPerson:', tour.pricePerPerson);
                           console.log('═══════════════════════════════════════════════════════════');
@@ -1983,7 +2056,7 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
                             groupPricingTiersType: typeof selectedOption.groupPricingTiers
                           });
                           console.log('Current participants:', currentParticipants);
-                          
+
                           // ALWAYS use group pricing logic - calculate from tiers
                           // This will use option's tiers if available, otherwise fall back to main tour's tiers
                           const groupPrice = calculateGroupPrice(selectedOption, currentParticipants);
@@ -1992,7 +2065,7 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
                             console.log('═══════════════════════════════════════════════════════════');
                             return groupPrice.toLocaleString();
                           }
-                          
+
                           // DO NOT use groupPrice fallback - it's the LAST tier price (₹8,200 for 10 people)
                           // Final fallback: use main tour's pricing tiers
                           console.log('🔍 Selected option has no groupPricingTiers, falling back to main tour...');
@@ -2002,7 +2075,7 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
                             console.log('═══════════════════════════════════════════════════════════');
                             return mainTourPrice.toLocaleString();
                           }
-                          
+
                           // Last resort: use option.price (should be first tier price)
                           console.warn('⚠️ Using option.price fallback:', selectedOption.price);
                           console.log('═══════════════════════════════════════════════════════════');
@@ -2015,48 +2088,48 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
                     </div>
                   </div>
                 )}
-                
+
                 {/* Group Pricing Tiers Display */}
                 {(() => {
                   const tourData = selectedOption || tour;
                   let groupPricingTiers = null;
-                  
+
                   if (tourData.groupPricingTiers) {
                     try {
-                      groupPricingTiers = typeof tourData.groupPricingTiers === 'string' 
-                        ? JSON.parse(tourData.groupPricingTiers) 
+                      groupPricingTiers = typeof tourData.groupPricingTiers === 'string'
+                        ? JSON.parse(tourData.groupPricingTiers)
                         : tourData.groupPricingTiers;
                     } catch (e) {
                       console.error('Error parsing groupPricingTiers:', e);
                     }
                   }
-                  
+
                   // If no groupPricingTiers on tourData and this is main tour, check main tour option
                   if (!groupPricingTiers && !selectedOption && tour && tour.options && Array.isArray(tour.options) && tour.options.length > 0) {
                     const mainTourOption = tour.options.find((opt: any) => opt.sortOrder === -1) || tour.options[0];
                     if (mainTourOption && mainTourOption.groupPricingTiers) {
                       try {
-                        groupPricingTiers = typeof mainTourOption.groupPricingTiers === 'string' 
-                          ? JSON.parse(mainTourOption.groupPricingTiers) 
+                        groupPricingTiers = typeof mainTourOption.groupPricingTiers === 'string'
+                          ? JSON.parse(mainTourOption.groupPricingTiers)
                           : mainTourOption.groupPricingTiers;
                       } catch (e) {
                         console.error('Error parsing groupPricingTiers from main tour option:', e);
                       }
                     }
                   }
-                  
+
                   if (groupPricingTiers && Array.isArray(groupPricingTiers) && groupPricingTiers.length > 0) {
                     const currencySymbol = (tourData.currency || tour.currency || 'INR') === 'INR' ? '₹' : '$';
                     const currentParticipants = isCustomParticipants ? customParticipants : participants;
                     const currentPrice = calculateGroupPrice(tourData, currentParticipants);
-                    
+
                     // Don't show the pricing tiers table, but keep price calculation working
                     // Price will update dynamically when participants change
                     return null; // Hide the pricing tiers display
                   }
                   return null;
                 })()}
-                
+
                 {/* Tour Types - More Prominent Display */}
                 {tour.tourTypes && (() => {
                   try {
@@ -2207,9 +2280,9 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
               )}
 
               {/* Book Button - GetYourGuide Blue */}
-              <button 
+              <button
                 onClick={availabilityStatus === 'available' ? handleProceedToBooking : handleCheckAvailability}
-                disabled={!selectedDate || availabilityStatus === 'checking' || (tour.options && tour.options.length > 0 && !selectedOption)}
+                disabled={availabilityStatus === 'checking'}
                 className="w-full bg-[#0071EB] hover:bg-[#0056b3] text-white font-black py-5 rounded-2xl text-[16px] transition-all shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               >
                 {availabilityStatus === 'checking' ? (
@@ -2223,9 +2296,10 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
                   'Check availability'
                 )}
               </button>
-              {tour.options && tour.options.length > 0 && !selectedOption && (
-                <p className="text-[12px] text-red-500 font-semibold text-center mt-2">
-                  Please select an option above
+              {bookingError && (
+                <p className="text-[14px] text-red-500 font-bold text-center mt-3 p-3 bg-red-50 rounded-xl border border-red-100 flex items-center justify-center gap-2">
+                  <Info size={16} />
+                  {bookingError}
                 </p>
               )}
 
@@ -2238,749 +2312,813 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
       </div>
 
       {/* Image Modal */}
-      {showImageModal && allImages && allImages.length > 0 && (
-        <div className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-6" onClick={(e) => {
-          // Close modal when clicking outside the image
-          if (e.target === e.currentTarget) {
-            setShowImageModal(false);
-          }
-        }}>
-          <button
-            onClick={() => setShowImageModal(false)}
-            className="absolute top-6 right-6 text-white p-2 hover:bg-white/10 rounded-full transition-colors z-10"
-          >
-            <X size={24} />
-          </button>
-          <div className="max-w-6xl w-full relative" onClick={(e) => e.stopPropagation()}>
-            {allImages[selectedImageIndex] && (
-              <img
-                src={allImages[selectedImageIndex]}
-                alt={`${tour.title} - Image ${selectedImageIndex + 1}`}
-                className="w-full h-auto rounded-2xl max-h-[90vh] object-contain"
-              />
-            )}
-            {allImages.length > 1 && (
-              <>
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setSelectedImageIndex(prev => Math.max(0, prev - 1));
-                  }}
-                  disabled={selectedImageIndex === 0}
-                  className="absolute left-4 top-1/2 -translate-y-1/2 p-3 bg-white/10 hover:bg-white/20 rounded-full text-white disabled:opacity-50 transition-colors z-10"
-                >
-                  <ChevronLeft size={24} />
-                </button>
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setSelectedImageIndex(prev => Math.min(allImages.length - 1, prev + 1));
-                  }}
-                  disabled={selectedImageIndex === allImages.length - 1}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 p-3 bg-white/10 hover:bg-white/20 rounded-full text-white disabled:opacity-50 transition-colors z-10"
-                >
-                  <ChevronRight size={24} />
-                </button>
-                <div className="flex items-center justify-center gap-4 mt-4">
-                  <span className="text-white font-bold text-[14px]">
-                    {selectedImageIndex + 1} / {allImages.length}
-                  </span>
-                </div>
-              </>
-            )}
+      {
+        showImageModal && allImages && allImages.length > 0 && (
+          <div className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-6" onClick={(e) => {
+            // Close modal when clicking outside the image
+            if (e.target === e.currentTarget) {
+              setShowImageModal(false);
+            }
+          }}>
+            <button
+              onClick={() => setShowImageModal(false)}
+              className="absolute top-6 right-6 text-white p-2 hover:bg-white/10 rounded-full transition-colors z-10"
+            >
+              <X size={24} />
+            </button>
+            <div className="max-w-6xl w-full relative" onClick={(e) => e.stopPropagation()}>
+              {allImages[selectedImageIndex] && (
+                <img
+                  src={allImages[selectedImageIndex]}
+                  alt={`${tour.title} - Image ${selectedImageIndex + 1}`}
+                  className="w-full h-auto rounded-2xl max-h-[90vh] object-contain"
+                />
+              )}
+              {allImages.length > 1 && (
+                <>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setSelectedImageIndex(prev => Math.max(0, prev - 1));
+                    }}
+                    disabled={selectedImageIndex === 0}
+                    className="absolute left-4 top-1/2 -translate-y-1/2 p-3 bg-white/10 hover:bg-white/20 rounded-full text-white disabled:opacity-50 transition-colors z-10"
+                  >
+                    <ChevronLeft size={24} />
+                  </button>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setSelectedImageIndex(prev => Math.min(allImages.length - 1, prev + 1));
+                    }}
+                    disabled={selectedImageIndex === allImages.length - 1}
+                    className="absolute right-4 top-1/2 -translate-y-1/2 p-3 bg-white/10 hover:bg-white/20 rounded-full text-white disabled:opacity-50 transition-colors z-10"
+                  >
+                    <ChevronRight size={24} />
+                  </button>
+                  <div className="flex items-center justify-center gap-4 mt-4">
+                    <span className="text-white font-bold text-[14px]">
+                      {selectedImageIndex + 1} / {allImages.length}
+                    </span>
+                  </div>
+                </>
+              )}
+            </div>
           </div>
-        </div>
-      )}
+        )
+      }
 
       {/* Premium Calendar Modal */}
-      {showCalendarModal && (
-        <div 
-          className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"
-          onClick={() => setShowCalendarModal(false)}
-        >
-          <div 
-            className="bg-white rounded-3xl shadow-2xl max-w-md w-full p-6"
-            onClick={(e) => e.stopPropagation()}
+      {
+        showCalendarModal && (
+          <div
+            className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"
+            onClick={() => setShowCalendarModal(false)}
           >
-            {/* Header */}
-            <div className="flex items-center justify-between mb-6">
-              <h3 className="text-2xl font-black text-[#001A33]">Select Date</h3>
-              <button
-                onClick={() => setShowCalendarModal(false)}
-                className="p-2 hover:bg-gray-100 rounded-full transition-colors"
-              >
-                <X size={24} className="text-gray-600" />
-              </button>
-            </div>
-
-            {/* Month Navigation */}
-            <div className="flex items-center justify-between mb-6">
-              <button
-                onClick={() => {
-                  const newMonth = new Date(calendarMonth);
-                  newMonth.setMonth(newMonth.getMonth() - 1);
-                  setCalendarMonth(newMonth);
-                }}
-                className="p-2 hover:bg-gray-100 rounded-full transition-colors"
-              >
-                <ChevronLeft size={20} className="text-gray-600" />
-              </button>
-              <h4 className="text-xl font-black text-[#001A33]">
-                {calendarMonth.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
-              </h4>
-              <button
-                onClick={() => {
-                  const newMonth = new Date(calendarMonth);
-                  newMonth.setMonth(newMonth.getMonth() + 1);
-                  setCalendarMonth(newMonth);
-                }}
-                className="p-2 hover:bg-gray-100 rounded-full transition-colors"
-              >
-                <ChevronRight size={20} className="text-gray-600" />
-              </button>
-            </div>
-
-            {/* Calendar Grid */}
-            <div className="mb-4">
-              {/* Day Headers */}
-              <div className="grid grid-cols-7 gap-2 mb-2">
-                {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
-                  <div key={day} className="text-center text-[12px] font-black text-gray-500 py-2">
-                    {day}
-                  </div>
-                ))}
+            <div
+              className="bg-white rounded-3xl shadow-2xl max-w-md w-full p-6"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Header */}
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-2xl font-black text-[#001A33]">Select Date</h3>
+                <button
+                  onClick={() => setShowCalendarModal(false)}
+                  className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                >
+                  <X size={24} className="text-gray-600" />
+                </button>
               </div>
 
-              {/* Calendar Days */}
-              <div className="grid grid-cols-7 gap-2">
-                {(() => {
-                  const year = calendarMonth.getFullYear();
-                  const month = calendarMonth.getMonth();
-                  const firstDay = new Date(year, month, 1);
-                  const lastDay = new Date(year, month + 1, 0);
-                  const daysInMonth = lastDay.getDate();
-                  const startingDayOfWeek = firstDay.getDay();
-                  
-                  const today = new Date();
-                  today.setHours(0, 0, 0, 0);
-                  
-                  const days = [];
-                  
-                  // Empty cells for days before the first day of the month
-                  for (let i = 0; i < startingDayOfWeek; i++) {
-                    days.push(<div key={`empty-${i}`} className="h-10"></div>);
-                  }
-                  
-                  // Days of the month
-                  for (let day = 1; day <= daysInMonth; day++) {
-                    const date = new Date(year, month, day);
-                    const dateString = date.toISOString().split('T')[0];
-                    const isToday = date.getTime() === today.getTime();
-                    const isPast = date < today;
-                    const isSelected = selectedDate === dateString;
-                    const isAvailable = !isPast; // You can add custom availability logic here
-                    
-                    days.push(
-                      <button
-                        key={day}
-                        onClick={() => {
-                          if (isAvailable && !isPast) {
-                            setSelectedDate(dateString);
-                            setShowCalendarModal(false);
-                          }
-                        }}
-                        disabled={isPast || !isAvailable}
-                        className={`
+              {/* Month Navigation */}
+              <div className="flex items-center justify-between mb-6">
+                <button
+                  onClick={() => {
+                    const newMonth = new Date(calendarMonth);
+                    newMonth.setMonth(newMonth.getMonth() - 1);
+                    setCalendarMonth(newMonth);
+                  }}
+                  className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                >
+                  <ChevronLeft size={20} className="text-gray-600" />
+                </button>
+                <h4 className="text-xl font-black text-[#001A33]">
+                  {calendarMonth.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
+                </h4>
+                <button
+                  onClick={() => {
+                    const newMonth = new Date(calendarMonth);
+                    newMonth.setMonth(newMonth.getMonth() + 1);
+                    setCalendarMonth(newMonth);
+                  }}
+                  className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                >
+                  <ChevronRight size={20} className="text-gray-600" />
+                </button>
+              </div>
+
+              {/* Calendar Grid */}
+              <div className="mb-4">
+                {/* Day Headers */}
+                <div className="grid grid-cols-7 gap-2 mb-2">
+                  {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
+                    <div key={day} className="text-center text-[12px] font-black text-gray-500 py-2">
+                      {day}
+                    </div>
+                  ))}
+                </div>
+
+                {/* Calendar Days */}
+                <div className="grid grid-cols-7 gap-2">
+                  {(() => {
+                    const year = calendarMonth.getFullYear();
+                    const month = calendarMonth.getMonth();
+                    const firstDay = new Date(year, month, 1);
+                    const lastDay = new Date(year, month + 1, 0);
+                    const daysInMonth = lastDay.getDate();
+                    const startingDayOfWeek = firstDay.getDay();
+
+                    const today = new Date();
+                    today.setHours(0, 0, 0, 0);
+
+                    const days = [];
+
+                    // Empty cells for days before the first day of the month
+                    for (let i = 0; i < startingDayOfWeek; i++) {
+                      days.push(<div key={`empty-${i}`} className="h-10"></div>);
+                    }
+
+                    // Days of the month
+                    for (let day = 1; day <= daysInMonth; day++) {
+                      const date = new Date(year, month, day);
+                      const dateString = date.toISOString().split('T')[0];
+                      const isToday = date.getTime() === today.getTime();
+                      const isPast = date < today;
+                      const isSelected = selectedDate === dateString;
+                      const isAvailable = !isPast; // You can add custom availability logic here
+
+                      days.push(
+                        <button
+                          key={day}
+                          onClick={() => {
+                            if (isAvailable && !isPast) {
+                              setSelectedDate(dateString);
+                              setShowCalendarModal(false);
+                              if (bookingError === 'Please select a date first') {
+                                setBookingError(null);
+                              }
+                            }
+                          }}
+                          disabled={isPast || !isAvailable}
+                          className={`
                           h-10 rounded-xl font-bold text-[14px] transition-all
-                          ${isSelected 
-                            ? 'bg-[#10B981] text-white shadow-lg scale-105' 
-                            : isPast || !isAvailable
-                            ? 'text-gray-300 cursor-not-allowed'
-                            : 'text-[#001A33] hover:bg-[#10B981]/10 hover:scale-105'
-                          }
+                          ${isSelected
+                              ? 'bg-[#10B981] text-white shadow-lg scale-105'
+                              : isPast || !isAvailable
+                                ? 'text-gray-300 cursor-not-allowed'
+                                : 'text-[#001A33] hover:bg-[#10B981]/10 hover:scale-105'
+                            }
                           ${isToday && !isSelected ? 'ring-2 ring-[#10B981] ring-offset-2' : ''}
                         `}
-                      >
-                        {day}
-                      </button>
-                    );
-                  }
-                  
-                  return days;
-                })()}
-              </div>
-            </div>
+                        >
+                          {day}
+                        </button>
+                      );
+                    }
 
-            {/* Quick Date Selection */}
-            <div className="pt-4 border-t border-gray-200">
-              <div className="text-[14px] font-bold text-gray-600 mb-3">Quick select</div>
-              <div className="flex flex-wrap gap-2">
-                {getAvailableDates().slice(0, 7).map((date, index) => {
-                  const dateString = date.toISOString().split('T')[0];
-                  const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-                  const dayName = dayNames[date.getDay()];
-                  const dayNum = date.getDate();
-                  const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-                  const monthName = monthNames[date.getMonth()];
-                  
-                  return (
-                    <button
-                      key={index}
-                      onClick={() => {
-                        setSelectedDate(dateString);
-                        setShowCalendarModal(false);
-                      }}
-                      className={`
+                    return days;
+                  })()}
+                </div>
+              </div>
+
+              {/* Quick Date Selection */}
+              <div className="pt-4 border-t border-gray-200">
+                <div className="text-[14px] font-bold text-gray-600 mb-3">Quick select</div>
+                <div className="flex flex-wrap gap-2">
+                  {getAvailableDates().slice(0, 7).map((date, index) => {
+                    const dateString = date.toISOString().split('T')[0];
+                    const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+                    const dayName = dayNames[date.getDay()];
+                    const dayNum = date.getDate();
+                    const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+                    const monthName = monthNames[date.getMonth()];
+
+                    return (
+                      <button
+                        key={index}
+                        onClick={() => {
+                          setSelectedDate(dateString);
+                          setShowCalendarModal(false);
+                          if (bookingError === 'Please select a date first') {
+                            setBookingError(null);
+                          }
+                        }}
+                        className={`
                         px-4 py-2 rounded-xl font-bold text-[13px] transition-all
                         ${selectedDate === dateString
-                          ? 'bg-[#10B981] text-white'
-                          : 'bg-gray-100 text-[#001A33] hover:bg-[#10B981]/10'
-                        }
+                            ? 'bg-[#10B981] text-white'
+                            : 'bg-gray-100 text-[#001A33] hover:bg-[#10B981]/10'
+                          }
                       `}
+                      >
+                        {dayName} {dayNum} {monthName}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+          </div>
+        )
+      }
+
+      {/* Option Selection Modal - GetYourGuide Style */}
+      {
+        showOptionSelectionModal && tour && tour.options && tour.options.length > 0 && (
+          <div
+            className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 overflow-y-auto"
+            onClick={() => setShowOptionSelectionModal(false)}
+          >
+            <div
+              className="bg-white rounded-3xl shadow-2xl max-w-4xl w-full p-8 my-8"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Header */}
+              <div className="flex items-center justify-between mb-6">
+                <div>
+                  <h2 className="text-2xl font-black text-[#001A33] mb-2">Choose from {tour.options.length} available option{tour.options.length > 1 ? 's' : ''}</h2>
+                  <p className="text-[14px] text-gray-600 font-semibold">Select your preferred tour option</p>
+                </div>
+                <button
+                  onClick={() => setShowOptionSelectionModal(false)}
+                  className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                >
+                  <X size={24} className="text-gray-600" />
+                </button>
+              </div>
+
+              {/* Options List */}
+              <div className="space-y-4 max-h-[70vh] overflow-y-auto pr-2">
+                {tour.options.map((option: any) => {
+                  const isSelected = selectedOption?.id === option.id;
+                  const currencySymbol = option.currency === 'USD' ? '$' : option.currency === 'EUR' ? '€' : '₹';
+
+                  return (
+                    <div
+                      key={option.id}
+                      className={`border-2 rounded-2xl p-6 transition-all ${isSelected
+                        ? 'border-[#10B981] bg-[#10B981]/5 shadow-lg'
+                        : 'border-gray-200 hover:border-[#10B981]/50 hover:shadow-md'
+                        }`}
                     >
-                      {dayName} {dayNum} {monthName}
-                    </button>
+                      <div className="flex items-start justify-between gap-6">
+                        {/* Left: Option Details */}
+                        <div className="flex-1">
+                          <h3 className="font-black text-[#001A33] text-[18px] mb-2">{option.optionTitle}</h3>
+                          <p className="text-[14px] text-gray-600 font-semibold mb-4 leading-relaxed">
+                            {option.optionDescription}
+                          </p>
+
+                          {/* Key Details Row */}
+                          <div className="flex items-center gap-6 text-[13px] text-gray-600 font-semibold mb-4">
+                            <div className="flex items-center gap-2">
+                              <Clock size={16} className="text-gray-500" />
+                              <span>{option.durationHours} {option.durationHours === 1 ? 'hour' : 'hours'}</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <Globe size={16} className="text-gray-500" />
+                              <span>{option.language}</span>
+                            </div>
+                            {option.pickupIncluded && (
+                              <div className="flex items-center gap-2">
+                                <Bus size={16} className="text-gray-500" />
+                                <span>Pickup included</span>
+                              </div>
+                            )}
+                          </div>
+
+                          {/* Inclusions Badges */}
+                          <div className="flex flex-wrap gap-2 mb-4">
+                            {option.guideIncluded && (
+                              <span className="text-[12px] px-3 py-1 bg-orange-100 text-orange-700 rounded-full font-bold">Guide Included</span>
+                            )}
+                            {option.carIncluded && (
+                              <span className="text-[12px] px-3 py-1 bg-blue-100 text-blue-700 rounded-full font-bold">Private Car</span>
+                            )}
+                            {option.entryTicketIncluded && (
+                              <span className="text-[12px] px-3 py-1 bg-purple-100 text-purple-700 rounded-full font-bold">Entry Tickets</span>
+                            )}
+                            {option.pickupIncluded && (
+                              <span className="text-[12px] px-3 py-1 bg-green-100 text-green-700 rounded-full font-bold">Hotel Pickup</span>
+                            )}
+                          </div>
+
+                          {/* Free Cancellation */}
+                          <div className="flex items-center gap-2 text-[13px] text-gray-600">
+                            <CheckCircle2 size={14} className="text-[#10B981]" />
+                            <span className="font-semibold">Free cancellation</span>
+                          </div>
+                        </div>
+
+                        {/* Right: Pricing & Select Button */}
+                        <div className="text-right flex flex-col items-end min-w-[200px]">
+                          <div className="mb-3">
+                            <div className="font-black text-[#001A33] text-[20px] mb-1">
+                              {(() => {
+                                const currentParticipants = isCustomParticipants ? customParticipants : participants;
+                                // Always use group pricing logic - calculate from tiers
+                                const groupPrice = calculateGroupPrice(option, currentParticipants);
+
+                                if (groupPrice !== null) {
+                                  return `${currencySymbol}${groupPrice.toLocaleString()}`;
+                                }
+
+                                if (option.groupPrice) {
+                                  return `${currencySymbol}${option.groupPrice.toLocaleString()}`;
+                                }
+
+                                // Fallback: use option.price as fixed price
+                                return `${currencySymbol}${(option.price || 0).toLocaleString()}`;
+                              })()}
+                            </div>
+                          </div>
+
+                          <button
+                            onClick={() => handleOptionSelected(option)}
+                            className={`w-full px-6 py-3 rounded-xl font-black text-[14px] transition-all ${isSelected
+                              ? 'bg-[#10B981] text-white'
+                              : 'bg-[#0071EB] text-white hover:bg-[#0056b3]'
+                              }`}
+                          >
+                            {isSelected ? 'Selected (Click to deselect)' : 'Select'}
+                          </button>
+                        </div>
+                      </div>
+                    </div>
                   );
                 })}
               </div>
-            </div>
-          </div>
-        </div>
-      )}
 
-      {/* Option Selection Modal - GetYourGuide Style */}
-      {showOptionSelectionModal && tour && tour.options && tour.options.length > 0 && (
-        <div 
-          className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 overflow-y-auto"
-          onClick={() => setShowOptionSelectionModal(false)}
-        >
-          <div 
-            className="bg-white rounded-3xl shadow-2xl max-w-4xl w-full p-8 my-8"
-            onClick={(e) => e.stopPropagation()}
-          >
-            {/* Header */}
-            <div className="flex items-center justify-between mb-6">
-              <div>
-                <h2 className="text-2xl font-black text-[#001A33] mb-2">Choose from {tour.options.length} available option{tour.options.length > 1 ? 's' : ''}</h2>
-                <p className="text-[14px] text-gray-600 font-semibold">Select your preferred tour option</p>
-              </div>
-              <button
-                onClick={() => setShowOptionSelectionModal(false)}
-                className="p-2 hover:bg-gray-100 rounded-full transition-colors"
-              >
-                <X size={24} className="text-gray-600" />
-              </button>
-            </div>
-
-            {/* Options List */}
-            <div className="space-y-4 max-h-[70vh] overflow-y-auto pr-2">
-              {tour.options.map((option: any) => {
-                const isSelected = selectedOption?.id === option.id;
-                const currencySymbol = option.currency === 'USD' ? '$' : option.currency === 'EUR' ? '€' : '₹';
-                
-                return (
-                  <div
-                    key={option.id}
-                    className={`border-2 rounded-2xl p-6 transition-all ${
-                      isSelected
-                        ? 'border-[#10B981] bg-[#10B981]/5 shadow-lg'
-                        : 'border-gray-200 hover:border-[#10B981]/50 hover:shadow-md'
-                    }`}
-                  >
-                    <div className="flex items-start justify-between gap-6">
-                      {/* Left: Option Details */}
-                      <div className="flex-1">
-                        <h3 className="font-black text-[#001A33] text-[18px] mb-2">{option.optionTitle}</h3>
-                        <p className="text-[14px] text-gray-600 font-semibold mb-4 leading-relaxed">
-                          {option.optionDescription}
-                        </p>
-                        
-                        {/* Key Details Row */}
-                        <div className="flex items-center gap-6 text-[13px] text-gray-600 font-semibold mb-4">
-                          <div className="flex items-center gap-2">
-                            <Clock size={16} className="text-gray-500" />
-                            <span>{option.durationHours} {option.durationHours === 1 ? 'hour' : 'hours'}</span>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <Globe size={16} className="text-gray-500" />
-                            <span>{option.language}</span>
-                          </div>
-                          {option.pickupIncluded && (
-                            <div className="flex items-center gap-2">
-                              <Bus size={16} className="text-gray-500" />
-                              <span>Pickup included</span>
-                            </div>
-                          )}
-                        </div>
-
-                        {/* Inclusions Badges */}
-                        <div className="flex flex-wrap gap-2 mb-4">
-                          {option.guideIncluded && (
-                            <span className="text-[12px] px-3 py-1 bg-orange-100 text-orange-700 rounded-full font-bold">Guide Included</span>
-                          )}
-                          {option.carIncluded && (
-                            <span className="text-[12px] px-3 py-1 bg-blue-100 text-blue-700 rounded-full font-bold">Private Car</span>
-                          )}
-                          {option.entryTicketIncluded && (
-                            <span className="text-[12px] px-3 py-1 bg-purple-100 text-purple-700 rounded-full font-bold">Entry Tickets</span>
-                          )}
-                          {option.pickupIncluded && (
-                            <span className="text-[12px] px-3 py-1 bg-green-100 text-green-700 rounded-full font-bold">Hotel Pickup</span>
-                          )}
-                        </div>
-
-                        {/* Free Cancellation */}
-                        <div className="flex items-center gap-2 text-[13px] text-gray-600">
-                          <CheckCircle2 size={14} className="text-[#10B981]" />
-                          <span className="font-semibold">Free cancellation</span>
-                        </div>
-                      </div>
-
-                      {/* Right: Pricing & Select Button */}
-                      <div className="text-right flex flex-col items-end min-w-[200px]">
-                        <div className="mb-3">
-                          <div className="font-black text-[#001A33] text-[20px] mb-1">
-                            {(() => {
-                              const currentParticipants = isCustomParticipants ? customParticipants : participants;
-                              // Always use group pricing logic - calculate from tiers
-                              const groupPrice = calculateGroupPrice(option, currentParticipants);
-                              
-                              if (groupPrice !== null) {
-                                return `${currencySymbol}${groupPrice.toLocaleString()}`;
-                              }
-                              
-                              if (option.groupPrice) {
-                                return `${currencySymbol}${option.groupPrice.toLocaleString()}`;
-                              }
-                              
-                              // Fallback: use option.price as fixed price
-                              return `${currencySymbol}${(option.price || 0).toLocaleString()}`;
-                            })()}
-                          </div>
-                        </div>
-                        
-                        <button
-                          onClick={() => handleOptionSelected(option)}
-                          className={`w-full px-6 py-3 rounded-xl font-black text-[14px] transition-all ${
-                            isSelected
-                              ? 'bg-[#10B981] text-white'
-                              : 'bg-[#0071EB] text-white hover:bg-[#0056b3]'
-                          }`}
-                        >
-                          {isSelected ? 'Selected (Click to deselect)' : 'Select'}
-                        </button>
-                      </div>
+              {/* Footer Actions */}
+              {selectedOption && (
+                <div className="mt-6 pt-6 border-t border-gray-200">
+                  <div className="flex items-center justify-between mb-4">
+                    <div>
+                      <div className="text-[14px] text-gray-600 font-semibold mb-1">Selected option:</div>
+                      <div className="font-black text-[#001A33] text-[16px]">{selectedOption.optionTitle}</div>
                     </div>
-                  </div>
-                );
-              })}
-            </div>
-
-            {/* Footer Actions */}
-            {selectedOption && (
-              <div className="mt-6 pt-6 border-t border-gray-200">
-                <div className="flex items-center justify-between mb-4">
-                  <div>
-                    <div className="text-[14px] text-gray-600 font-semibold mb-1">Selected option:</div>
-                    <div className="font-black text-[#001A33] text-[16px]">{selectedOption.optionTitle}</div>
+                    <button
+                      onClick={() => setSelectedOption(null)}
+                      className="px-4 py-2 text-[#0071EB] font-semibold text-[13px] hover:underline"
+                    >
+                      Back to Main Tour
+                    </button>
                   </div>
                   <button
-                    onClick={() => setSelectedOption(null)}
-                    className="px-4 py-2 text-[#0071EB] font-semibold text-[13px] hover:underline"
+                    onClick={() => {
+                      setShowOptionSelectionModal(false);
+                      setAvailabilityStatus('checking');
+                      setTimeout(() => {
+                        setAvailabilityStatus('available');
+                      }, 1000);
+                    }}
+                    className="w-full bg-[#10B981] hover:bg-[#059669] text-white font-black px-8 py-3 rounded-xl transition-all"
                   >
-                    Back to Main Tour
+                    Continue to Booking
                   </button>
                 </div>
-                <button
-                  onClick={() => {
-                    setShowOptionSelectionModal(false);
-                    setAvailabilityStatus('checking');
-                    setTimeout(() => {
-                      setAvailabilityStatus('available');
-                    }, 1000);
-                  }}
-                  className="w-full bg-[#10B981] hover:bg-[#059669] text-white font-black px-8 py-3 rounded-xl transition-all"
-                >
-                  Continue to Booking
-                </button>
-              </div>
-            )}
+              )}
+            </div>
           </div>
-        </div>
-      )}
+        )
+      }
 
       {/* Booking Modal */}
-      {showBookingModal && tour && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[100]" onClick={() => {
-          // Save draft before closing
-          if (tour?.id) {
-            const draftKey = `booking_draft_${tour.id}`;
-            const draft = {
-              bookingData,
-              selectedDate,
-              participants,
-              selectedOptionId: selectedOption?.id || null,
-              tourId: tour.id
-            };
-            localStorage.setItem(draftKey, JSON.stringify(draft));
-          }
-          setShowBookingModal(false);
-        }}>
-          <div className="bg-white rounded-2xl shadow-xl p-8 w-full max-w-2xl max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
-            <div className="flex justify-between items-center mb-6">
-              <div>
-                <h3 className="text-2xl font-black text-[#001A33]">Complete Your Booking</h3>
-                {(bookingData.customerName || bookingData.customerEmail) && (
-                  <p className="text-[12px] text-gray-500 font-semibold mt-1">
-                    💾 Your progress is saved automatically
+      {
+        showBookingModal && tour && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[100]" onClick={() => {
+            // Save draft before closing
+            if (tour?.id) {
+              const draftKey = `booking_draft_${tour.id}`;
+              const draft = {
+                bookingData,
+                selectedDate,
+                participants,
+                selectedOptionId: selectedOption?.id || null,
+                tourId: tour.id
+              };
+              localStorage.setItem(draftKey, JSON.stringify(draft));
+            }
+            setShowBookingModal(false);
+          }}>
+            <div className="bg-white rounded-2xl shadow-xl p-8 w-full max-w-2xl max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+              <div className="flex justify-between items-center mb-6">
+                <div>
+                  <h3 className="text-2xl font-black text-[#001A33]">Complete Your Booking</h3>
+                  {(bookingData.customerName || bookingData.customerEmail) && (
+                    <p className="text-[12px] text-gray-500 font-semibold mt-1">
+                      💾 Your progress is saved automatically
+                    </p>
+                  )}
+                </div>
+                <button onClick={() => {
+                  // Save draft before closing
+                  if (tour?.id) {
+                    const draftKey = `booking_draft_${tour.id}`;
+                    const draft = {
+                      bookingData,
+                      selectedDate,
+                      participants,
+                      selectedOptionId: selectedOption?.id || null,
+                      tourId: tour.id
+                    };
+                    localStorage.setItem(draftKey, JSON.stringify(draft));
+                  }
+                  setShowBookingModal(false);
+                }} className="p-2 rounded-full hover:bg-gray-100">
+                  <X size={24} className="text-gray-600" />
+                </button>
+              </div>
+
+              {/* Booking Summary */}
+              <div className="bg-gray-50 rounded-2xl p-6 mb-6">
+                <h4 className="font-black text-[#001A33] text-[16px] mb-4">Booking Summary</h4>
+                <div className="space-y-2 text-[14px]">
+                  <div className="flex justify-between">
+                    <span className="text-gray-600 font-semibold">Tour:</span>
+                    <span className="font-black text-[#001A33]">{tour.title}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600 font-semibold">Date:</span>
+                    <span className="font-black text-[#001A33]">
+                      {selectedDate ? new Date(selectedDate).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' }) : 'Not selected'}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600 font-semibold">Participants:</span>
+                    <span className="font-black text-[#001A33]">{participants} {participants === 1 ? 'person' : 'people'}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600 font-semibold">Language:</span>
+                    <span className="font-black text-[#001A33]">{selectedLanguage}</span>
+                  </div>
+                  <div className="pt-4 border-t border-gray-200 mt-4">
+                    <div className="flex justify-between items-center">
+                      <span className="text-gray-600 font-semibold">Total Amount:</span>
+                      <span className="font-black text-[#001A33] text-[20px]">
+                        {(() => {
+                          const currentParticipants = isCustomParticipants ? customParticipants : participants;
+                          const tourData = selectedOption || tour;
+                          const currencySymbol = (selectedOption?.currency || tour.currency || 'INR') === 'INR' ? '₹' : '$';
+
+                          // Always use group pricing logic - calculate from tiers
+                          const groupPrice = calculateGroupPrice(tourData, currentParticipants);
+                          if (groupPrice !== null && groupPrice > 0) {
+                            return `${currencySymbol}${groupPrice.toLocaleString()}`;
+                          }
+                          // DO NOT use groupPrice fallback - it's the LAST tier price (wrong)
+                          // Fallback: use pricePerPerson (should be first tier price)
+                          const pricePerPerson = selectedOption?.price || tour.pricePerPerson || 0;
+                          return `${currencySymbol}${pricePerPerson.toLocaleString()}`;
+                        })()}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Booking Form */}
+              <form onSubmit={handleBookingSubmit} className="space-y-4">
+                <div className="pt-4">
+                  <button
+                    type="submit"
+                    className="w-full bg-[#10B981] hover:bg-[#059669] text-white font-black py-5 rounded-2xl text-[16px] transition-all shadow-lg flex items-center justify-center gap-2"
+                  >
+                    Continue to Checkout
+                    <ChevronRight size={20} />
+                  </button>
+                  <p className="text-[12px] text-gray-500 font-semibold text-center mt-4">
+                    You'll enter your details on the next page
+                  </p>
+                </div>
+              </form>
+
+              {/* Support Section - Outside Form */}
+              <div className="mt-6 pt-4 border-t border-gray-200">
+                <div className="bg-[#F0FDF4] border-2 border-[#10B981] rounded-xl p-5">
+                  <p className="text-[14px] text-gray-800 font-black text-center mb-2">Need help? Contact our support:</p>
+                  <p className="text-[13px] text-[#10B981] font-black text-center mb-4">Available 24/7 on WhatsApp support</p>
+                  <div className="flex items-center justify-center gap-4">
+                    <a
+                      href="https://wa.me/918449538716"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="bg-[#10B981] hover:bg-[#059669] text-white rounded-full p-4 transition-all hover:scale-110 shadow-lg"
+                      title="WhatsApp Support"
+                    >
+                      <svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z" />
+                      </svg>
+                    </a>
+                    <a
+                      href="https://wa.me/919897873562"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="bg-[#10B981] hover:bg-[#059669] text-white rounded-full p-4 transition-all hover:scale-110 shadow-lg"
+                      title="WhatsApp Support"
+                    >
+                      <svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z" />
+                      </svg>
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )
+      }
+
+      {/* Guide Contact Information Modal */}
+      {
+        showGuideContactModal && guideContactInfo && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[200]" onClick={() => {
+            setShowGuideContactModal(false);
+            if (onClose) onClose();
+          }}>
+            <div className="bg-white rounded-2xl shadow-xl p-8 w-full max-w-2xl max-h-[90vh] overflow-y-auto relative" onClick={(e) => e.stopPropagation()}>
+              {/* Close Button */}
+              <button
+                onClick={() => {
+                  setShowGuideContactModal(false);
+                  if (onClose) onClose();
+                }}
+                className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors"
+              >
+                <X size={24} />
+              </button>
+              <div className="text-center mb-6">
+                <div className="w-16 h-16 bg-[#10B981]/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <CheckCircle className="text-[#10B981]" size={32} />
+                </div>
+                <h3 className="text-2xl font-black text-[#001A33] mb-2">Payment Successful!</h3>
+                <p className="text-[14px] text-gray-600 font-semibold">
+                  Your booking has been confirmed and payment received.
+                </p>
+                {guideContactInfo.bookingReference && (
+                  <p className="text-[12px] text-gray-500 font-semibold mt-2">
+                    Booking Reference: <span className="font-black text-[#001A33]">{guideContactInfo.bookingReference}</span>
                   </p>
                 )}
               </div>
-              <button onClick={() => {
-                // Save draft before closing
-                if (tour?.id) {
-                  const draftKey = `booking_draft_${tour.id}`;
-                  const draft = {
-                    bookingData,
-                    selectedDate,
-                    participants,
-                    selectedOptionId: selectedOption?.id || null,
-                    tourId: tour.id
-                  };
-                  localStorage.setItem(draftKey, JSON.stringify(draft));
-                }
-                setShowBookingModal(false);
-              }} className="p-2 rounded-full hover:bg-gray-100">
-                <X size={24} className="text-gray-600" />
-              </button>
-            </div>
 
-            {/* Booking Summary */}
-            <div className="bg-gray-50 rounded-2xl p-6 mb-6">
-              <h4 className="font-black text-[#001A33] text-[16px] mb-4">Booking Summary</h4>
-              <div className="space-y-2 text-[14px]">
-                <div className="flex justify-between">
-                  <span className="text-gray-600 font-semibold">Tour:</span>
-                  <span className="font-black text-[#001A33]">{tour.title}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600 font-semibold">Date:</span>
-                  <span className="font-black text-[#001A33]">
-                    {selectedDate ? new Date(selectedDate).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' }) : 'Not selected'}
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600 font-semibold">Participants:</span>
-                  <span className="font-black text-[#001A33]">{participants} {participants === 1 ? 'person' : 'people'}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600 font-semibold">Language:</span>
-                  <span className="font-black text-[#001A33]">{selectedLanguage}</span>
-                </div>
-                <div className="pt-4 border-t border-gray-200 mt-4">
-                  <div className="flex justify-between items-center">
-                    <span className="text-gray-600 font-semibold">Total Amount:</span>
-                    <span className="font-black text-[#001A33] text-[20px]">
-                      {(() => {
-                        const currentParticipants = isCustomParticipants ? customParticipants : participants;
-                        const tourData = selectedOption || tour;
-                        const currencySymbol = (selectedOption?.currency || tour.currency || 'INR') === 'INR' ? '₹' : '$';
-                        
-                        // Always use group pricing logic - calculate from tiers
-                        const groupPrice = calculateGroupPrice(tourData, currentParticipants);
-                        if (groupPrice !== null && groupPrice > 0) {
-                          return `${currencySymbol}${groupPrice.toLocaleString()}`;
-                        }
-                        // DO NOT use groupPrice fallback - it's the LAST tier price (wrong)
-                        // Fallback: use pricePerPerson (should be first tier price)
-                        const pricePerPerson = selectedOption?.price || tour.pricePerPerson || 0;
-                        return `${currencySymbol}${pricePerPerson.toLocaleString()}`;
-                      })()}
+              {/* Invoice Section */}
+              <div className="bg-gradient-to-r from-[#10B981] to-[#059669] rounded-2xl p-6 mb-6 text-white">
+                <h4 className="font-black text-white text-[18px] mb-4 flex items-center gap-2">
+                  <CheckCircle size={20} />
+                  Invoice & Payment Confirmation
+                </h4>
+                <div className="bg-white/10 rounded-xl p-4 space-y-2 text-[14px]">
+                  {guideContactInfo.bookingReference && (
+                    <div className="flex justify-between">
+                      <span className="text-white/80 font-semibold">Booking Reference:</span>
+                      <span className="font-black text-white">{guideContactInfo.bookingReference}</span>
+                    </div>
+                  )}
+                  {guideContactInfo.paymentId && (
+                    <div className="flex justify-between">
+                      <span className="text-white/80 font-semibold">Payment ID:</span>
+                      <span className="font-black text-white text-[12px]">{guideContactInfo.paymentId.substring(0, 20)}...</span>
+                    </div>
+                  )}
+                  <div className="flex justify-between pt-2 border-t border-white/20 mt-2">
+                    <span className="text-white/80 font-semibold">Amount Paid:</span>
+                    <span className="font-black text-white text-[18px]">
+                      {guideContactInfo.currency === 'INR' ? '₹' : '$'}{guideContactInfo.totalAmount.toLocaleString()}
                     </span>
                   </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Booking Form */}
-            <form onSubmit={handleBookingSubmit} className="space-y-4">
-              <div>
-                <label className="block text-[14px] font-black text-[#001A33] mb-2">Full Name *</label>
-                <div className="relative">
-                  <User className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
-                  <input
-                    type="text"
-                    required
-                    value={bookingData.customerName}
-                    onChange={(e) => setBookingData({ ...bookingData, customerName: e.target.value })}
-                    placeholder="Enter your full name"
-                    className="w-full bg-gray-50 border-none rounded-2xl py-4 pl-12 pr-4 font-bold text-[#001A33] text-[14px] focus:ring-2 focus:ring-[#10B981] outline-none"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-[14px] font-black text-[#001A33] mb-2">Email Address *</label>
-                <div className="relative">
-                  <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
-                  <input
-                    type="email"
-                    required
-                    value={bookingData.customerEmail}
-                    onChange={(e) => setBookingData({ ...bookingData, customerEmail: e.target.value })}
-                    placeholder="your.email@example.com"
-                    className="w-full bg-gray-50 border-none rounded-2xl py-4 pl-12 pr-4 font-bold text-[#001A33] text-[14px] focus:ring-2 focus:ring-[#10B981] outline-none"
-                  />
+                  <div className="flex justify-between">
+                    <span className="text-white/80 font-semibold">Payment Status:</span>
+                    <span className="font-black text-green-200">✓ Paid</span>
+                  </div>
+                  {guideContactInfo.paymentDate && (
+                    <div className="flex justify-between">
+                      <span className="text-white/80 font-semibold">Payment Date:</span>
+                      <span className="font-black text-white text-[12px]">
+                        {new Date(guideContactInfo.paymentDate).toLocaleString('en-US', {
+                          month: 'short',
+                          day: 'numeric',
+                          year: 'numeric',
+                          hour: '2-digit',
+                          minute: '2-digit'
+                        })}
+                      </span>
+                    </div>
+                  )}
                 </div>
               </div>
 
-              <div>
-                <label className="block text-[14px] font-black text-[#001A33] mb-2">Phone Number *</label>
-                <div className="relative">
-                  <Phone className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
-                  <input
-                    type="tel"
-                    required
-                    value={bookingData.customerPhone}
-                    onChange={(e) => setBookingData({ ...bookingData, customerPhone: e.target.value })}
-                    placeholder="+91 1234567890"
-                    className="w-full bg-gray-50 border-none rounded-2xl py-4 pl-12 pr-4 font-bold text-[#001A33] text-[14px] focus:ring-2 focus:ring-[#10B981] outline-none"
-                  />
+              {/* Booking Summary */}
+              <div className="bg-gray-50 rounded-2xl p-6 mb-6">
+                <h4 className="font-black text-[#001A33] text-[16px] mb-4">Booking Details</h4>
+                <div className="space-y-2 text-[14px]">
+                  <div className="flex justify-between">
+                    <span className="text-gray-600 font-semibold">Tour:</span>
+                    <span className="font-black text-[#001A33]">{guideContactInfo.tourTitle}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600 font-semibold">Date:</span>
+                    <span className="font-black text-[#001A33]">
+                      {new Date(guideContactInfo.bookingDate).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600 font-semibold">Guests:</span>
+                    <span className="font-black text-[#001A33]">{guideContactInfo.numberOfGuests} {guideContactInfo.numberOfGuests === 1 ? 'person' : 'people'}</span>
+                  </div>
                 </div>
               </div>
 
-              <div>
-                <label className="block text-[14px] font-black text-[#001A33] mb-2">Special Requests (Optional)</label>
-                <textarea
-                  value={bookingData.specialRequests}
-                  onChange={(e) => setBookingData({ ...bookingData, specialRequests: e.target.value })}
-                  placeholder="Any special requests or dietary requirements..."
-                  rows={4}
-                  className="w-full bg-gray-50 border-none rounded-2xl py-4 px-4 font-bold text-[#001A33] text-[14px] focus:ring-2 focus:ring-[#10B981] outline-none resize-none"
-                />
-              </div>
-
-              <div className="pt-4">
-                <button
-                  type="submit"
-                  className="w-full bg-[#10B981] hover:bg-[#059669] text-white font-black py-5 rounded-2xl text-[16px] transition-all shadow-lg flex items-center justify-center gap-2"
-                >
-                  Complete Booking
-                  <ChevronRight size={20} />
-                </button>
-                <p className="text-[12px] text-gray-500 font-semibold text-center mt-4">
-                  You'll receive guide contact details after booking
+              {/* Guide Contact Information */}
+              <div className="bg-[#10B981]/5 rounded-2xl p-6 mb-6 border-2 border-[#10B981]/20">
+                <h4 className="font-black text-[#001A33] text-[18px] mb-4 flex items-center gap-2">
+                  <User className="text-[#10B981]" size={20} />
+                  Contact Your Guide
+                </h4>
+                <p className="text-[12px] text-gray-500 font-semibold mb-4">
+                  Contact information from guide's profile
                 </p>
-              </div>
-            </form>
+                <div className="space-y-4">
+                  <div>
+                    <div className="text-[12px] text-gray-500 font-bold uppercase mb-2">Guide Name</div>
+                    <div className="text-[16px] font-black text-[#001A33]">{guideContactInfo.guideName}</div>
+                  </div>
 
-            {/* Support Section - Outside Form */}
-            <div className="mt-6 pt-4 border-t border-gray-200">
-              <div className="bg-[#F0FDF4] border-2 border-[#10B981] rounded-xl p-5">
-                <p className="text-[14px] text-gray-800 font-black text-center mb-2">Need help? Contact our support:</p>
-                <p className="text-[13px] text-[#10B981] font-black text-center mb-4">Available 24/7 on WhatsApp support</p>
-                <div className="flex items-center justify-center gap-4">
-                  <a 
-                    href="https://wa.me/918449538716" 
-                    target="_blank" 
-                    rel="noopener noreferrer" 
-                    className="bg-[#10B981] hover:bg-[#059669] text-white rounded-full p-4 transition-all hover:scale-110 shadow-lg"
-                    title="WhatsApp Support"
-                  >
-                    <svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor">
-                      <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
-                    </svg>
-                  </a>
-                  <a 
-                    href="https://wa.me/919897873562" 
-                    target="_blank" 
-                    rel="noopener noreferrer" 
-                    className="bg-[#10B981] hover:bg-[#059669] text-white rounded-full p-4 transition-all hover:scale-110 shadow-lg"
-                    title="WhatsApp Support"
-                  >
-                    <svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor">
-                      <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
-                    </svg>
-                  </a>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+                  {(guideContactInfo.guideWhatsApp || guideContactInfo.guidePhone) ? (
+                    <>
+                      {(guideContactInfo.guideWhatsApp || guideContactInfo.guidePhone) && (
+                        <div>
+                          <div className="text-[12px] text-gray-500 font-bold uppercase mb-2">WhatsApp Number</div>
+                          <a
+                            href={`https://wa.me/${(guideContactInfo.guideWhatsApp || guideContactInfo.guidePhone || '').replace(/[^0-9]/g, '')}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center gap-3 bg-[#10B981] text-white font-black py-4 px-6 rounded-xl hover:bg-[#059669] transition-all"
+                          >
+                            <MessageCircle size={20} />
+                            <span>{guideContactInfo.guideWhatsApp || guideContactInfo.guidePhone}</span>
+                            <ChevronRight size={18} className="ml-auto" />
+                          </a>
+                          <p className="text-[12px] text-gray-500 font-semibold mt-2">Click to open WhatsApp chat</p>
+                        </div>
+                      )}
 
-      {/* Guide Contact Information Modal */}
-      {showGuideContactModal && guideContactInfo && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[100]" onClick={() => setShowGuideContactModal(false)}>
-          <div className="bg-white rounded-2xl shadow-xl p-8 w-full max-w-2xl max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
-            <div className="text-center mb-6">
-              <div className="w-16 h-16 bg-[#10B981]/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                <CheckCircle className="text-[#10B981]" size={32} />
-              </div>
-              <h3 className="text-2xl font-black text-[#001A33] mb-2">Booking Confirmed!</h3>
-              <p className="text-[14px] text-gray-600 font-semibold">
-                Your booking has been received. Contact your guide to complete payment and finalize details.
-              </p>
-            </div>
-
-            {/* Booking Summary */}
-            <div className="bg-gray-50 rounded-2xl p-6 mb-6">
-              <h4 className="font-black text-[#001A33] text-[16px] mb-4">Booking Details</h4>
-              <div className="space-y-2 text-[14px]">
-                <div className="flex justify-between">
-                  <span className="text-gray-600 font-semibold">Tour:</span>
-                  <span className="font-black text-[#001A33]">{guideContactInfo.tourTitle}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600 font-semibold">Date:</span>
-                  <span className="font-black text-[#001A33]">
-                    {new Date(guideContactInfo.bookingDate).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600 font-semibold">Guests:</span>
-                  <span className="font-black text-[#001A33]">{guideContactInfo.numberOfGuests} {guideContactInfo.numberOfGuests === 1 ? 'person' : 'people'}</span>
-                </div>
-                <div className="flex justify-between pt-4 border-t border-gray-200 mt-4">
-                  <span className="text-gray-600 font-semibold">Total Amount:</span>
-                  <span className="font-black text-[#001A33] text-[18px]">
-                    {guideContactInfo.currency === 'INR' ? '₹' : '$'}{guideContactInfo.totalAmount.toLocaleString()}
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            {/* Guide Contact Information */}
-            <div className="bg-[#10B981]/5 rounded-2xl p-6 mb-6 border-2 border-[#10B981]/20">
-              <h4 className="font-black text-[#001A33] text-[18px] mb-4 flex items-center gap-2">
-                <User className="text-[#10B981]" size={20} />
-                Contact Your Guide
-              </h4>
-              <p className="text-[12px] text-gray-500 font-semibold mb-4">
-                Contact information from guide's profile
-              </p>
-              <div className="space-y-4">
-                <div>
-                  <div className="text-[12px] text-gray-500 font-bold uppercase mb-2">Guide Name</div>
-                  <div className="text-[16px] font-black text-[#001A33]">{guideContactInfo.guideName}</div>
-                </div>
-
-                {(guideContactInfo.guideWhatsApp || guideContactInfo.guidePhone) ? (
-                  <>
-                    {(guideContactInfo.guideWhatsApp || guideContactInfo.guidePhone) && (
-                      <div>
-                        <div className="text-[12px] text-gray-500 font-bold uppercase mb-2">WhatsApp Number</div>
-                        <a
-                          href={`https://wa.me/${(guideContactInfo.guideWhatsApp || guideContactInfo.guidePhone || '').replace(/[^0-9]/g, '')}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="flex items-center gap-3 bg-[#10B981] text-white font-black py-4 px-6 rounded-xl hover:bg-[#059669] transition-all"
-                        >
-                          <MessageCircle size={20} />
-                          <span>{guideContactInfo.guideWhatsApp || guideContactInfo.guidePhone}</span>
-                          <ChevronRight size={18} className="ml-auto" />
-                        </a>
-                        <p className="text-[12px] text-gray-500 font-semibold mt-2">Click to open WhatsApp chat</p>
-                      </div>
-                    )}
-
-                    {guideContactInfo.guidePhone && guideContactInfo.guidePhone !== guideContactInfo.guideWhatsApp && (
-                      <div>
-                        <div className="text-[12px] text-gray-500 font-bold uppercase mb-2">Phone Number</div>
-                        <a
-                          href={`tel:${guideContactInfo.guidePhone}`}
-                          className="flex items-center gap-3 bg-white border-2 border-gray-200 text-[#001A33] font-black py-4 px-6 rounded-xl hover:border-[#10B981] transition-all"
-                        >
-                          <Phone size={20} />
-                          <span>{guideContactInfo.guidePhone}</span>
-                          <ChevronRight size={18} className="ml-auto" />
-                        </a>
-                        <p className="text-[12px] text-gray-500 font-semibold mt-2">Click to call</p>
-                      </div>
-                    )}
-                  </>
-                ) : (
-                  <div className="bg-yellow-50 border-2 border-yellow-200 rounded-xl p-4">
-                    <div className="flex items-start gap-3">
-                      <Info className="text-yellow-600 shrink-0 mt-1" size={20} />
-                      <div>
-                        <p className="text-[14px] font-black text-[#001A33] mb-1">Contact Information Not Available</p>
-                        <p className="text-[12px] text-gray-600 font-semibold">
-                          The guide hasn't added their phone or WhatsApp number to their profile yet. Please contact them via email.
-                        </p>
+                      {guideContactInfo.guidePhone && guideContactInfo.guidePhone !== guideContactInfo.guideWhatsApp && (
+                        <div>
+                          <div className="text-[12px] text-gray-500 font-bold uppercase mb-2">Phone Number</div>
+                          <a
+                            href={`tel:${guideContactInfo.guidePhone}`}
+                            className="flex items-center gap-3 bg-white border-2 border-gray-200 text-[#001A33] font-black py-4 px-6 rounded-xl hover:border-[#10B981] transition-all"
+                          >
+                            <Phone size={20} />
+                            <span>{guideContactInfo.guidePhone}</span>
+                            <ChevronRight size={18} className="ml-auto" />
+                          </a>
+                          <p className="text-[12px] text-gray-500 font-semibold mt-2">Click to call</p>
+                        </div>
+                      )}
+                    </>
+                  ) : (
+                    <div className="bg-yellow-50 border-2 border-yellow-200 rounded-xl p-4">
+                      <div className="flex items-start gap-3">
+                        <Info className="text-yellow-600 shrink-0 mt-1" size={20} />
+                        <div>
+                          <p className="text-[14px] font-black text-[#001A33] mb-1">Contact Information Not Available</p>
+                          <p className="text-[12px] text-gray-600 font-semibold">
+                            The guide hasn't added their phone or WhatsApp number to their profile yet. Please contact them via email.
+                          </p>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                )}
+                  )}
 
-                {guideContactInfo.guideEmail && (
-                  <div>
-                    <div className="text-[12px] text-gray-500 font-bold uppercase mb-2">Email Address</div>
-                    <a
-                      href={`mailto:${guideContactInfo.guideEmail}`}
-                      className="flex items-center gap-3 bg-white border-2 border-gray-200 text-[#001A33] font-black py-4 px-6 rounded-xl hover:border-[#10B981] transition-all"
-                    >
-                      <Mail size={20} />
-                      <span className="break-all">{guideContactInfo.guideEmail}</span>
-                      <ChevronRight size={18} className="ml-auto" />
-                    </a>
-                    <p className="text-[12px] text-gray-500 font-semibold mt-2">Click to send email</p>
-                  </div>
-                )}
+                  {guideContactInfo.guideEmail && (
+                    <div>
+                      <div className="text-[12px] text-gray-500 font-bold uppercase mb-2">Email Address</div>
+                      <a
+                        href={`mailto:${guideContactInfo.guideEmail}`}
+                        className="flex items-center gap-3 bg-white border-2 border-gray-200 text-[#001A33] font-black py-4 px-6 rounded-xl hover:border-[#10B981] transition-all"
+                      >
+                        <Mail size={20} />
+                        <span className="break-all">{guideContactInfo.guideEmail}</span>
+                        <ChevronRight size={18} className="ml-auto" />
+                      </a>
+                      <p className="text-[12px] text-gray-500 font-semibold mt-2">Click to send email</p>
+                    </div>
+                  )}
+                </div>
               </div>
-            </div>
 
-            {/* Important Note */}
-            <div className="bg-yellow-50 border border-yellow-200 rounded-2xl p-4 mb-6">
-              <div className="flex items-start gap-3">
-                <Info className="text-yellow-600 shrink-0 mt-1" size={20} />
-                <div>
-                  <div className="font-black text-[#001A33] text-[14px] mb-1">Next Steps</div>
-                  <div className="text-[12px] text-gray-700 font-semibold">
-                    Contact your guide via WhatsApp or phone to confirm the booking and arrange payment. The guide will provide you with meeting point details and finalize all arrangements.
+              {/* Important Note */}
+              <div className="bg-green-50 border border-green-200 rounded-2xl p-4 mb-6">
+                <div className="flex items-start gap-3">
+                  <CheckCircle className="text-green-600 shrink-0 mt-1" size={20} />
+                  <div>
+                    <div className="font-black text-[#001A33] text-[14px] mb-1">Booking Confirmed!</div>
+                    <div className="text-[12px] text-gray-700 font-semibold">
+                      Your payment has been received. Contact your guide via WhatsApp or phone to arrange meeting details and finalize your tour arrangements.
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
 
-            <button
-              onClick={() => {
-                setShowGuideContactModal(false);
-                window.location.reload(); // Refresh to reset state
-              }}
-              className="w-full bg-[#001A33] hover:bg-[#003366] text-white font-black py-4 rounded-2xl text-[16px] transition-all"
-            >
-              Done
-            </button>
+              <div className="flex flex-col gap-3">
+                <button
+                  onClick={() => {
+                    setShowGuideContactModal(false);
+                    // Redirect to booking confirmation page
+                    if (guideContactInfo.bookingId) {
+                      window.location.href = `/booking-confirmation/${guideContactInfo.bookingId}`;
+                    } else {
+                      window.location.href = '/';
+                    }
+                  }}
+                  className="w-full bg-[#10B981] hover:bg-[#059669] text-white font-black py-4 rounded-2xl text-[16px] transition-all shadow-lg"
+                >
+                  View Booking Details & Invoice
+                </button>
+                <div className="flex gap-3">
+                  <button
+                    onClick={() => {
+                      setShowGuideContactModal(false);
+                      if (onClose) {
+                        onClose();
+                      } else {
+                        window.history.back();
+                      }
+                    }}
+                    className="flex-1 bg-gray-200 hover:bg-gray-300 text-[#001A33] font-black py-4 rounded-2xl text-[16px] transition-all"
+                  >
+                    Close
+                  </button>
+                  <button
+                    onClick={() => {
+                      setShowGuideContactModal(false);
+                      window.location.href = '/';
+                    }}
+                    className="flex-1 bg-[#001A33] hover:bg-[#003366] text-white font-black py-4 rounded-2xl text-[16px] transition-all"
+                  >
+                    Continue Browsing
+                  </button>
+                </div>
+              </div>
+            </div>
           </div>
-        </div>
-      )}
+        )
+      }
 
       {/* Checkout Page */}
-      {showCheckoutPage && (
-        <CheckoutPage
-          onClose={() => {
-            setShowCheckoutPage(false);
-            setShowBookingModal(true);
-          }}
-          onProceedToPayment={handleProceedToPayment}
-          cancellationDate={pendingBookingData?.bookingDate 
-            ? (() => {
+      {
+        showCheckoutPage && (
+          <CheckoutPage
+            onClose={() => {
+              setShowCheckoutPage(false);
+              setShowBookingModal(true);
+            }}
+            onProceedToPayment={handleProceedToPayment}
+            cancellationDate={pendingBookingData?.bookingDate
+              ? (() => {
                 const date = new Date(pendingBookingData.bookingDate);
                 date.setHours(8, 0, 0, 0);
-                return date.toLocaleDateString('en-US', { 
-                  month: 'long', 
+                return date.toLocaleDateString('en-US', {
+                  month: 'long',
                   day: 'numeric',
                   hour: '2-digit',
                   minute: '2-digit'
                 });
               })()
-            : undefined
-          }
-        />
-      )}
+              : undefined
+            }
+            tour={tour}
+          />
+        )
+      }
 
-    </div>
+      {/* Payment Initialization Loading Overlay */}
+      {
+        isInitializingPayment && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[200]">
+            <div className="bg-white rounded-2xl shadow-xl p-8 max-w-md mx-4 text-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#10B981] mx-auto mb-4"></div>
+              <h3 className="text-xl font-black text-[#001A33] mb-2">Initializing Payment</h3>
+              <p className="text-gray-600 font-semibold">Please wait while we set up your payment...</p>
+              <p className="text-sm text-gray-500 mt-2">This may take a few seconds</p>
+            </div>
+          </div>
+        )
+      }
+
+    </div >
   );
 };
 

@@ -25,6 +25,9 @@ import EmailVerificationWaiting from './EmailVerificationWaiting';
 import TourDetailPage from './TourDetailPage';
 import CityPage from './CityPage';
 import AdminDashboard from './AdminDashboard';
+import BookingPage from './BookingPage';
+import BookingConfirmation from './BookingConfirmation';
+import PaymentCallback from './PaymentCallback';
 import SafetyGuidelines from './SafetyGuidelines';
 import PrivacyPolicy from './PrivacyPolicy';
 import TermsAndConditions from './TermsAndConditions';
@@ -608,6 +611,34 @@ const App: React.FC = () => {
     return <AboutUs />;
   }
 
+  // Show payment callback page
+  const paymentCallbackMatch = window.location.pathname === '/payment-callback';
+  if (paymentCallbackMatch) {
+    return (
+      <ErrorBoundary>
+        <PaymentCallback />
+      </ErrorBoundary>
+    );
+  }
+
+  // Show booking page (production standard: /booking/:bookingId)
+  const bookingPageMatch = window.location.pathname.match(/^\/booking\/(\d+)$/);
+  if (bookingPageMatch) {
+    return (
+      <ErrorBoundary>
+        <BookingPage />
+      </ErrorBoundary>
+    );
+  }
+
+  // Legacy booking confirmation page (redirect to new format)
+  const bookingConfirmationMatch = window.location.pathname.match(/^\/booking-confirmation\/(\d+)$/);
+  if (bookingConfirmationMatch) {
+    const bookingId = bookingConfirmationMatch[1];
+    window.location.replace(`/booking/${bookingId}`);
+    return null;
+  }
+
   // Show tour detail page (SEO-friendly URL: /country/city/slug)
   if (tourPageMatch && tourSlug) {
     console.log('App.tsx - Routing to TourDetailPage', { 
@@ -693,7 +724,7 @@ const App: React.FC = () => {
               <img 
                 src="/logo.png" 
                 alt="Asia By Locals" 
-                className="h-[90px] sm:h-[85px] md:h-[95px] lg:h-[105px] xl:h-[115px] w-auto object-contain" 
+                className="h-[110px] sm:h-[100px] md:h-[105px] lg:h-[110px] xl:h-[120px] w-auto object-contain" 
                 style={{ transform: 'translateY(3px)' }}
               />
             </div>
