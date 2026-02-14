@@ -1128,14 +1128,7 @@ const CityPage: React.FC<CityPageProps> = ({ country, city }) => {
                           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                         />
                         {/* Brand Logo Overlay */}
-                        <div className="absolute top-3 right-12 z-10">
-                          <img
-                            src="/logo.png"
-                            alt="AsiaByLocals"
-                            className="h-8 w-auto object-contain brightness-0 invert"
-                            style={{ filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.5))' }}
-                          />
-                        </div>
+
                         {/* Top Rated Badge */}
                         {isTopRated && (
                           <div className="absolute top-3 left-3">

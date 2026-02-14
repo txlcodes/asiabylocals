@@ -61,6 +61,20 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
     specialRequests: ''
   });
   const [bookingError, setBookingError] = useState<string | null>(null);
+  const [expandedOptions, setExpandedOptions] = useState<Set<number>>(new Set());
+
+  const toggleOptionExpand = (optionId: number) => {
+    setExpandedOptions(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(optionId)) {
+        newSet.delete(optionId);
+      } else {
+        newSet.add(optionId);
+      }
+      return newSet;
+    });
+  };
+
   const bookingBoxRef = useRef<HTMLDivElement>(null);
   const optionsRef = useRef<HTMLDivElement>(null);
 
@@ -1632,12 +1646,29 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
                               {/* Left: Option Details */}
                               <div className="flex-1 w-full md:w-auto">
                                 <h3 className="font-black text-[#001A33] text-[18px] mb-2">{option.optionTitle}</h3>
-                                <p className="text-[14px] text-gray-600 font-semibold mb-4 leading-relaxed">
-                                  {option.optionDescription}
-                                  {option.optionDescription && option.optionDescription.length > 100 && (
-                                    <span className="text-[#0071EB] cursor-pointer ml-1">Read more</span>
+                                <div className="text-[14px] text-gray-600 font-semibold mb-4 leading-relaxed">
+                                  {option.optionDescription && (
+                                    <>
+                                      {expandedOptions.has(option.id) || !option.optionDescription || option.optionDescription.length <= 150 ? (
+                                        <span>{option.optionDescription}</span>
+                                      ) : (
+                                        <span>{option.optionDescription.substring(0, 150)}...</span>
+                                      )}
+
+                                      {option.optionDescription && option.optionDescription.length > 150 && (
+                                        <button
+                                          onClick={(e) => {
+                                            e.stopPropagation();
+                                            toggleOptionExpand(option.id);
+                                          }}
+                                          className="text-[#0071EB] font-bold ml-1 hover:underline focus:outline-none inline-block cursor-pointer"
+                                        >
+                                          {expandedOptions.has(option.id) ? 'Show less' : 'Read more'}
+                                        </button>
+                                      )}
+                                    </>
                                   )}
-                                </p>
+                                </div>
 
                                 {/* Key Details Row */}
                                 <div className="flex flex-wrap items-center gap-4 md:gap-6 text-[13px] text-gray-600 font-semibold">
