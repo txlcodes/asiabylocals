@@ -33,7 +33,7 @@ async function generateSitemap() {
 
 
     const today = new Date().toISOString().split('T')[0];
-    
+
     let xml = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 
@@ -65,7 +65,7 @@ async function generateSitemap() {
       const countrySlug = createSlug(country);
       const citySlug = createSlug(city);
       const lastmod = today;
-      
+
       xml += `  <!-- Layer 3: ${city}, ${country} -->
   <url>
     <loc>https://www.asiabylocals.com/${countrySlug}/${citySlug}</loc>
@@ -84,18 +84,18 @@ async function generateSitemap() {
       const dateB = b.updatedAt ? new Date(b.updatedAt).getTime() : 0;
       return dateB - dateA; // Newest first
     });
-    
+
     sortedTours.forEach(tour => {
       if (!tour.slug) {
         console.warn(`⚠️  Skipping tour ${tour.id} - missing slug`);
         return;
       }
-      
+
       const countrySlug = createSlug(tour.country);
       const citySlug = createSlug(tour.city);
       const tourSlug = tour.slug;
       const lastmod = tour.updatedAt ? new Date(tour.updatedAt).toISOString().split('T')[0] : today;
-      
+
       xml += `  <!-- Layer 4: Tour ${tour.id} - ${tourSlug} -->
   <url>
     <loc>https://www.asiabylocals.com/${countrySlug}/${citySlug}/${tourSlug}</loc>
@@ -113,10 +113,10 @@ async function generateSitemap() {
     // Write to both public and dist directories
     const publicPath = path.join(__dirname, '..', 'public', 'sitemap.xml');
     const distPath = path.join(__dirname, '..', 'dist', 'sitemap.xml');
-    
+
     fs.writeFileSync(publicPath, xml, 'utf8');
     console.log(`✅ Written to: ${publicPath}`);
-    
+
     // Also write to dist if it exists
     try {
       const distDir = path.join(__dirname, '..', 'dist');
@@ -144,7 +144,17 @@ async function generateSitemap() {
   }
 }
 
-generateSitemap();
+// Export for use in server.js
+export { generateSitemap };
+
+// Run if called directly
+if (process.argv[1] === fileURLToPath(import.meta.url)) {
+  generateSitemap()
+    .catch(console.error)
+    .finally(async () => {
+      await prisma.$disconnect();
+    });
+}
 
 
 

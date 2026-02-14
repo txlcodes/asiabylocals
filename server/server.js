@@ -10,6 +10,7 @@ import Razorpay from 'razorpay';
 import { sendVerificationEmail, sendWelcomeEmail, sendBookingNotificationEmail, sendBookingConfirmationEmail, sendAdminPaymentNotificationEmail, sendTourApprovalEmail, sendTourRejectionEmail } from './utils/email.js';
 import { uploadMultipleImages } from './utils/cloudinary.js';
 import { generateInvoicePDF } from './utils/invoice.js';
+import { generateSitemap } from './generate-sitemap.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -6518,38 +6519,15 @@ app.post('/api/admin/tours/:id/approve', verifyAdmin, async (req, res) => {
 
     // Regenerate sitemap after tour approval (non-blocking)
     // This ensures new tours are automatically added to sitemap for Google indexing
-    (async () => {
-      try {
-        const { exec } = await import('child_process');
-        const { promisify } = await import('util');
-        const execAsync = promisify(exec);
-
-        // Get the correct path to generate-sitemap.js
-        const path = await import('path');
-        const { fileURLToPath } = await import('url');
-        const __filename = fileURLToPath(import.meta.url);
-        const __dirname = path.dirname(__filename);
-        const sitemapScript = path.join(__dirname, 'generate-sitemap.js');
-
-        console.log(`🔄 Regenerating sitemap after tour approval...`);
-        console.log(`   Script: ${sitemapScript}`);
-
-        const { stdout, stderr } = await execAsync(`node "${sitemapScript}"`);
-
-        if (stdout) console.log('✅ Sitemap regeneration output:', stdout);
-        if (stderr) console.warn('⚠️ Sitemap regeneration warnings:', stderr);
-
-        console.log('✅ Sitemap successfully regenerated - new tour will be indexed by Google');
-        console.log(`   Tour URL: https://www.asiabylocals.com/${updatedTour.country.toLowerCase()}/${updatedTour.city.toLowerCase()}/${updatedTour.slug}`);
-        console.log(`   Sitemap URL: https://www.asiabylocals.com/sitemap.xml`);
-        console.log(`   💡 Next step: Submit sitemap to Google Search Console or request indexing for this URL`);
-
-      } catch (sitemapError) {
-        console.error('⚠️ Sitemap regeneration failed (non-critical):', sitemapError.message);
-        console.error('   This tour will still be approved, but sitemap needs manual update');
-        console.error('   Run manually: node server/generate-sitemap.js');
-      }
-    })();
+    generateSitemap().then(() => {
+      console.log('✅ Sitemap successfully regenerated - new tour will be indexed by Google');
+      console.log(`   Tour URL: https://www.asiabylocals.com/${updatedTour.country.toLowerCase()}/${updatedTour.city.toLowerCase()}/${updatedTour.slug}`);
+      console.log(`   Sitemap URL: https://www.asiabylocals.com/sitemap.xml`);
+      console.log(`   💡 Next step: Submit sitemap to Google Search Console or request indexing for this URL`);
+    }).catch(sitemapError => {
+      console.error('⚠️ Sitemap regeneration failed (non-critical):', sitemapError.message);
+      console.error('   This tour will still be approved, but sitemap needs manual update');
+    });
 
     // Send approval email to supplier using Resend (non-blocking)
     try {

@@ -4,7 +4,7 @@
   <!-- Layer 1: Homepage -->
   <url>
     <loc>https://www.asiabylocals.com/</loc>
-    <lastmod>2026-02-04</lastmod>
+    <lastmod>2026-02-14</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
@@ -12,7 +12,7 @@
   <!-- Supplier Registration -->
   <url>
     <loc>https://www.asiabylocals.com/supplier</loc>
-    <lastmod>2026-02-04</lastmod>
+    <lastmod>2026-02-14</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -20,7 +20,7 @@
   <!-- Layer 3: Agra, India -->
   <url>
     <loc>https://www.asiabylocals.com/india/agra</loc>
-    <lastmod>2026-02-04</lastmod>
+    <lastmod>2026-02-14</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
@@ -28,7 +28,7 @@
   <!-- Layer 3: Delhi, India -->
   <url>
     <loc>https://www.asiabylocals.com/india/delhi</loc>
-    <lastmod>2026-02-04</lastmod>
+    <lastmod>2026-02-14</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
@@ -36,7 +36,7 @@
   <!-- Layer 3: Jaipur, India -->
   <url>
     <loc>https://www.asiabylocals.com/india/jaipur</loc>
-    <lastmod>2026-02-04</lastmod>
+    <lastmod>2026-02-14</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
@@ -44,7 +44,7 @@
   <!-- Layer 3: Udaipur, India -->
   <url>
     <loc>https://www.asiabylocals.com/india/udaipur</loc>
-    <lastmod>2026-02-04</lastmod>
+    <lastmod>2026-02-14</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
@@ -52,9 +52,41 @@
   <!-- Layer 3: Jaisalmer, India -->
   <url>
     <loc>https://www.asiabylocals.com/india/jaisalmer</loc>
-    <lastmod>2026-02-04</lastmod>
+    <lastmod>2026-02-14</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
+  </url>
+
+  <!-- Layer 4: Tour 185 - taj-mahal-guided-tour -->
+  <url>
+    <loc>https://www.asiabylocals.com/india/agra/taj-mahal-guided-tour</loc>
+    <lastmod>2026-02-14</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Layer 4: Tour 186 - taj-mahal-delhi-guided-tour -->
+  <url>
+    <loc>https://www.asiabylocals.com/india/agra/taj-mahal-delhi-guided-tour</loc>
+    <lastmod>2026-02-13</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Layer 4: Tour 183 - taj-mahal-sunrise-sunrise-tour -->
+  <url>
+    <loc>https://www.asiabylocals.com/india/agra/taj-mahal-sunrise-sunrise-tour</loc>
+    <lastmod>2026-02-13</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Layer 4: Tour 182 - india-gate-full-day-tour -->
+  <url>
+    <loc>https://www.asiabylocals.com/india/delhi/india-gate-full-day-tour</loc>
+    <lastmod>2026-02-05</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
   </url>
 
   <!-- Layer 4: Tour 181 - taj-mahal-full-day-tour -->

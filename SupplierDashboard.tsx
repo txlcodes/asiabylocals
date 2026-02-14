@@ -1716,45 +1716,51 @@ const SupplierDashboard: React.FC<SupplierDashboardProps> = ({ supplier, onLogou
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
       <header className="bg-white border-b border-gray-200 sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-6 pt-6 pb-0">
-          <div className="flex items-center justify-between">
+        <div className="max-w-7xl mx-auto px-4 md:px-6 pt-4 md:pt-6 pb-2 md:pb-0">
+          <div className="flex items-center justify-between relative h-16 md:h-20">
             {/* Left side - Logo */}
-            <div className="flex items-center flex-1 cursor-pointer">
+            <div className="flex items-center cursor-pointer z-10">
               <img
                 src="/logo.png"
                 alt="Asia By Locals"
-                className="h-[110px] sm:h-[100px] md:h-[105px] lg:h-[110px] xl:h-[120px] w-auto object-contain"
+                className="h-[60px] sm:h-[100px] md:h-[105px] lg:h-[110px] xl:h-[120px] w-auto object-contain"
                 style={{ transform: 'translateY(3px)' }}
               />
             </div>
 
-            {/* Center - Supplier Portal */}
-            <div className="absolute left-1/2 transform -translate-x-1/2 text-center">
+            {/* Center - Supplier Portal (Hidden on mobile) */}
+            <div className="hidden md:block absolute left-1/2 transform -translate-x-1/2 text-center pointer-events-none">
               <h1 className="text-xl font-black text-[#001A33]">Supplier Portal</h1>
               <p className="text-[12px] text-gray-500 font-semibold">Welcome back, {currentSupplier?.fullName || supplier.fullName}</p>
             </div>
 
             {/* Right side - Actions */}
-            <div className="flex items-center gap-4 flex-1 justify-end">
+            <div className="flex items-center gap-2 md:gap-4 justify-end z-10">
               <button className="p-2 hover:bg-gray-100 rounded-full transition-colors relative">
                 <Bell size={20} className="text-gray-600" />
                 <span className="absolute top-1 right-1 w-2 h-2 bg-[#10B981] rounded-full"></span>
               </button>
               <a
                 href="/"
-                className="flex items-center gap-2 px-4 py-2 text-gray-600 hover:text-[#001A33] font-semibold text-[14px] transition-colors"
+                className="flex items-center gap-2 px-2 md:px-4 py-2 text-gray-600 hover:text-[#001A33] font-semibold text-[14px] transition-colors"
+                title="Homepage"
               >
-                <Home size={18} />
-                Homepage
+                <Home size={20} className="md:w-[18px] md:h-[18px]" />
+                <span className="hidden md:inline">Homepage</span>
               </a>
               <button
                 onClick={onLogout}
-                className="flex items-center gap-2 px-4 py-2 text-gray-600 hover:text-[#001A33] font-semibold text-[14px] transition-colors"
+                className="flex items-center gap-2 px-2 md:px-4 py-2 text-gray-600 hover:text-[#001A33] font-semibold text-[14px] transition-colors"
+                title="Logout"
               >
-                <LogOut size={18} />
-                Logout
+                <LogOut size={20} className="md:w-[18px] md:h-[18px]" />
+                <span className="hidden md:inline">Logout</span>
               </button>
             </div>
+          </div>
+          {/* Mobile Welcome Message */}
+          <div className="md:hidden pb-2 text-center">
+            <p className="text-[12px] text-gray-500 font-semibold truncate">Welcome back, {currentSupplier?.fullName || supplier.fullName}</p>
           </div>
         </div>
       </header>
@@ -1784,7 +1790,7 @@ const SupplierDashboard: React.FC<SupplierDashboardProps> = ({ supplier, onLogou
         )}
 
         {/* Tabs */}
-        <div className="flex items-center gap-1 bg-white rounded-2xl p-2 mb-8 border border-gray-200">
+        <div className="flex items-center gap-2 overflow-x-auto pb-2 md:pb-0 scrollbar-hide bg-white rounded-2xl p-2 mb-8 border border-gray-200">
           {[
             { id: 'overview', label: 'Overview', icon: BarChart3 },
             { id: 'activities', label: 'Activities', icon: FileText },
@@ -1797,9 +1803,9 @@ const SupplierDashboard: React.FC<SupplierDashboardProps> = ({ supplier, onLogou
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id as any)}
-                className={`flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-xl font-bold text-[14px] transition-all ${activeTab === tab.id
-                    ? 'bg-[#10B981] text-white shadow-lg'
-                    : 'text-gray-600 hover:bg-gray-50'
+                className={`flex-none md:flex-1 flex items-center justify-center gap-2 py-3 px-6 md:px-4 rounded-xl font-bold text-[14px] transition-all whitespace-nowrap ${activeTab === tab.id
+                  ? 'bg-[#10B981] text-white shadow-lg'
+                  : 'text-gray-600 hover:bg-gray-50'
                   }`}
               >
                 <Icon size={18} />
@@ -1830,8 +1836,8 @@ const SupplierDashboard: React.FC<SupplierDashboardProps> = ({ supplier, onLogou
                   }}
                   disabled={currentSupplier?.status !== 'approved'}
                   className={`mt-4 text-[13px] font-bold flex items-center gap-1 ${currentSupplier?.status === 'approved'
-                      ? 'text-[#10B981] hover:underline'
-                      : 'text-gray-400 cursor-not-allowed'
+                    ? 'text-[#10B981] hover:underline'
+                    : 'text-gray-400 cursor-not-allowed'
                     }`}
                 >
                   <Plus size={14} />
@@ -1875,7 +1881,7 @@ const SupplierDashboard: React.FC<SupplierDashboardProps> = ({ supplier, onLogou
 
           {activeTab === 'activities' && (
             <div className="bg-white rounded-2xl p-6 border border-gray-200">
-              <div className="flex items-center justify-between mb-6">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
                 <h2 className="text-2xl font-black text-[#001A33]">My Tours</h2>
                 <button
                   onClick={() => {
@@ -1886,9 +1892,9 @@ const SupplierDashboard: React.FC<SupplierDashboardProps> = ({ supplier, onLogou
                     setShowTourForm(true);
                   }}
                   disabled={currentSupplier?.status !== 'approved'}
-                  className={`font-black py-3 px-6 rounded-full text-[14px] flex items-center gap-2 transition-colors ${currentSupplier?.status === 'approved'
-                      ? 'bg-[#10B981] hover:bg-[#059669] text-white'
-                      : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                  className={`font-black py-3 px-6 rounded-full text-[14px] flex items-center justify-center gap-2 transition-colors w-full sm:w-auto ${currentSupplier?.status === 'approved'
+                    ? 'bg-[#10B981] hover:bg-[#059669] text-white'
+                    : 'bg-gray-300 text-gray-500 cursor-not-allowed'
                     }`}
                 >
                   <Plus size={18} />
@@ -1897,12 +1903,12 @@ const SupplierDashboard: React.FC<SupplierDashboardProps> = ({ supplier, onLogou
               </div>
 
               {/* Filter */}
-              <div className="flex items-center gap-2 mb-6">
+              <div className="flex flex-wrap items-center gap-2 mb-6">
                 <button
                   onClick={() => setFilterStatus('all')}
                   className={`px-4 py-2 rounded-full text-[13px] font-bold transition-all ${filterStatus === 'all'
-                      ? 'bg-[#10B981] text-white'
-                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                    ? 'bg-[#10B981] text-white'
+                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                     }`}
                 >
                   All ({stats.total})
@@ -1910,8 +1916,8 @@ const SupplierDashboard: React.FC<SupplierDashboardProps> = ({ supplier, onLogou
                 <button
                   onClick={() => setFilterStatus('draft')}
                   className={`px-4 py-2 rounded-full text-[13px] font-bold transition-all ${filterStatus === 'draft'
-                      ? 'bg-[#10B981] text-white'
-                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                    ? 'bg-[#10B981] text-white'
+                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                     }`}
                 >
                   Draft ({stats.draft})
@@ -1919,8 +1925,8 @@ const SupplierDashboard: React.FC<SupplierDashboardProps> = ({ supplier, onLogou
                 <button
                   onClick={() => setFilterStatus('pending')}
                   className={`px-4 py-2 rounded-full text-[13px] font-bold transition-all ${filterStatus === 'pending'
-                      ? 'bg-[#10B981] text-white'
-                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                    ? 'bg-[#10B981] text-white'
+                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                     }`}
                 >
                   Pending ({stats.pending})
@@ -1928,8 +1934,8 @@ const SupplierDashboard: React.FC<SupplierDashboardProps> = ({ supplier, onLogou
                 <button
                   onClick={() => setFilterStatus('approved')}
                   className={`px-4 py-2 rounded-full text-[13px] font-bold transition-all ${filterStatus === 'approved'
-                      ? 'bg-[#10B981] text-white'
-                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                    ? 'bg-[#10B981] text-white'
+                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                     }`}
                 >
                   Live ({stats.live})
@@ -1964,8 +1970,8 @@ const SupplierDashboard: React.FC<SupplierDashboardProps> = ({ supplier, onLogou
                       }}
                       disabled={currentSupplier?.status !== 'approved'}
                       className={`font-black py-3 px-6 rounded-full text-[14px] flex items-center gap-2 mx-auto transition-colors ${currentSupplier?.status === 'approved'
-                          ? 'bg-[#10B981] hover:bg-[#059669] text-white'
-                          : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                        ? 'bg-[#10B981] hover:bg-[#059669] text-white'
+                        : 'bg-gray-300 text-gray-500 cursor-not-allowed'
                         }`}
                     >
                       <Plus size={18} />
@@ -2159,9 +2165,9 @@ const SupplierDashboard: React.FC<SupplierDashboardProps> = ({ supplier, onLogou
                             <div className="flex items-center gap-3 mb-2">
                               <h3 className="text-lg font-black text-[#001A33]">{booking.tour?.title || 'Tour'}</h3>
                               <span className={`px-3 py-1 rounded-full text-[11px] font-black ${booking.status === 'confirmed' ? 'bg-[#10B981]/10 text-[#10B981] border border-[#10B981]/20' :
-                                  booking.status === 'pending' ? 'bg-yellow-500/10 text-yellow-700 border border-yellow-500/20' :
-                                    booking.status === 'completed' ? 'bg-blue-500/10 text-blue-700 border border-blue-500/20' :
-                                      'bg-gray-500/10 text-gray-700 border border-gray-500/20'
+                                booking.status === 'pending' ? 'bg-yellow-500/10 text-yellow-700 border border-yellow-500/20' :
+                                  booking.status === 'completed' ? 'bg-blue-500/10 text-blue-700 border border-blue-500/20' :
+                                    'bg-gray-500/10 text-gray-700 border border-gray-500/20'
                                 }`}>
                                 {booking.status?.toUpperCase() || 'PENDING'}
                               </span>
@@ -2171,7 +2177,7 @@ const SupplierDashboard: React.FC<SupplierDashboardProps> = ({ supplier, onLogou
                                 Booking Reference: <span className="font-black text-[#001A33]">{booking.bookingReference}</span>
                               </p>
                             )}
-                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-[14px]">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-[14px]">
                               <div>
                                 <p className="text-gray-500 font-semibold mb-1">Date</p>
                                 <p className="font-black text-[#001A33]">{formattedDate}</p>
