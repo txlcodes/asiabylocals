@@ -734,7 +734,9 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
   const fetchTour = async () => {
     setLoading(true);
     try {
-      const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+      // Use relative path in development to leverage Vite proxy for mobile testing
+      // In production, use VITE_API_URL or origin
+      const API_URL = import.meta.env.DEV ? '' : (import.meta.env.VITE_API_URL || (typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3001'));
       let url;
       if (tourSlug) {
         // Use slug-based endpoint for SEO-friendly URLs

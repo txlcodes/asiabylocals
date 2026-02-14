@@ -712,8 +712,9 @@ const CityPage: React.FC<CityPageProps> = ({ country, city }) => {
     setLoading(true);
     setLoadingTime(0);
     try {
-      // Use explicit backend URL - check if we're in production
-      const API_URL = import.meta.env.VITE_API_URL || (typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3001');
+      // Use relative path in development to leverage Vite proxy for mobile testing
+      // In production, use VITE_API_URL or origin
+      const API_URL = import.meta.env.DEV ? '' : (import.meta.env.VITE_API_URL || (typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3001'));
       const url = `${API_URL}/api/public/tours?country=${encodeURIComponent(country)}&city=${encodeURIComponent(city)}&status=approved`;
       console.log('CityPage - Fetching tours from:', url);
       console.log('CityPage - Country:', country, 'City:', city);
@@ -1239,6 +1240,25 @@ const CityPage: React.FC<CityPageProps> = ({ country, city }) => {
               })}
             </div>
           </section>
+        )}
+
+        {/* No Tours Found Message */}
+        {!loading && sortedTours.length === 0 && (
+          <div className="mb-12 text-center py-12 bg-gray-50/50 rounded-2xl border border-gray-100">
+            <div className="bg-white inline-flex p-4 rounded-full shadow-sm mb-4">
+              <MapPin size={32} className="text-[#10B981]" />
+            </div>
+            <h3 className="text-xl font-black text-[#001A33] mb-2">No tours found in {city}</h3>
+            <p className="text-gray-500 max-w-md mx-auto mb-6">
+              We're currently expanding our offerings. Check back soon for new experiences!
+            </p>
+            <button
+              onClick={fetchTours}
+              className="px-6 py-2.5 bg-[#10B981] text-white font-bold rounded-xl hover:bg-[#059669] transition-all"
+            >
+              Refresh Results
+            </button>
+          </div>
         )}
 
         {/* H2 #1: Things to Do Section */}
