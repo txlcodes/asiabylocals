@@ -3,7 +3,6 @@ import {
   Globe,
   Search,
   Heart,
-  ShoppingCart,
   User,
   Star,
   MapPin,
@@ -209,12 +208,10 @@ const App: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [showSuggestions, setShowSuggestions] = useState(false);
 
-  // Wishlist, Cart, Profile state
+  // Wishlist, Profile state
   const [showWishlistModal, setShowWishlistModal] = useState(false);
-  const [showCartModal, setShowCartModal] = useState(false);
   const [showProfileModal, setShowProfileModal] = useState(false);
   const [wishlist, setWishlist] = useState<any[]>([]);
-  const [cart, setCart] = useState<any[]>([]);
   const [user, setUser] = useState<any>(null);
 
   // Tourist authentication modals
@@ -271,10 +268,9 @@ const App: React.FC = () => {
     setShowSuggestions(false);
   };
 
-  // Load wishlist and cart from localStorage
+  // Load wishlist from localStorage
   useEffect(() => {
     const savedWishlist = localStorage.getItem('wishlist');
-    const savedCart = localStorage.getItem('cart');
     const savedUser = localStorage.getItem('user');
 
     if (savedWishlist) {
@@ -282,14 +278,6 @@ const App: React.FC = () => {
         setWishlist(JSON.parse(savedWishlist));
       } catch (e) {
         console.error('Error loading wishlist:', e);
-      }
-    }
-
-    if (savedCart) {
-      try {
-        setCart(JSON.parse(savedCart));
-      } catch (e) {
-        console.error('Error loading cart:', e);
       }
     }
 
@@ -308,14 +296,10 @@ const App: React.FC = () => {
     };
   }, []);
 
-  // Save wishlist and cart to localStorage when they change
+  // Save wishlist to localStorage when it changes
   useEffect(() => {
     localStorage.setItem('wishlist', JSON.stringify(wishlist));
   }, [wishlist]);
-
-  useEffect(() => {
-    localStorage.setItem('cart', JSON.stringify(cart));
-  }, [cart]);
 
   // Expose functions globally so tour pages can add items
   useEffect(() => {
@@ -348,25 +332,17 @@ const App: React.FC = () => {
     };
 
     (window as any).addToWishlist = wishlistHandler;
-    (window as any).addToCart = (tour: any) => {
-      if (!cart.find((item: any) => item.id === tour.id)) {
-        setCart((prev: any[]) => [...prev, tour]);
-      }
-    };
     (window as any).openWishlist = () => setShowWishlistModal(true);
-    (window as any).openCart = () => setShowCartModal(true);
     (window as any).user = user; // Expose user state
     (window as any).wishlist = wishlist; // Expose wishlist state for checking
 
     return () => {
       delete (window as any).addToWishlist;
-      delete (window as any).addToCart;
       delete (window as any).openWishlist;
-      delete (window as any).openCart;
       delete (window as any).user;
       delete (window as any).wishlist;
     };
-  }, [wishlist, cart, user]);
+  }, [wishlist, user]);
 
   // Handle successful tourist login/signup
   const handleTouristAuthSuccess = (userData: any) => {
@@ -382,21 +358,6 @@ const App: React.FC = () => {
 
   const removeFromWishlist = (tourId: string) => {
     setWishlist(wishlist.filter((item: any) => item.id !== tourId));
-  };
-
-  // Cart functions
-  const addToCart = (tour: any) => {
-    if (!cart.find((item: any) => item.id === tour.id)) {
-      setCart([...cart, tour]);
-    }
-  };
-
-  const removeFromCart = (tourId: string) => {
-    setCart(cart.filter((item: any) => item.id !== tourId));
-  };
-
-  const clearCart = () => {
-    setCart([]);
   };
 
   // Helper to get tour price for display and calculation
@@ -891,18 +852,6 @@ const App: React.FC = () => {
 
           <div className="flex items-center gap-2 sm:gap-3 md:gap-4 lg:gap-6 text-[13px] font-semibold text-[#001A33]">
             <div className="flex items-center gap-2 sm:gap-3 md:gap-4 lg:gap-5">
-              <button
-                onClick={() => setShowCartModal(true)}
-                className="flex flex-col items-center gap-0.5 sm:gap-1 hover:text-[#10B981] relative p-1.5 sm:p-2 min-w-[44px] min-h-[44px] justify-center"
-              >
-                <ShoppingCart size={18} className="sm:w-5 sm:h-5" />
-                <span className="hidden lg:block text-[11px]">Cart</span>
-                {cart.length > 0 && (
-                  <span className="absolute -top-1 -right-1 bg-[#10B981] text-white text-[10px] font-black rounded-full w-5 h-5 flex items-center justify-center">
-                    {cart.length}
-                  </span>
-                )}
-              </button>
               <button className="flex flex-col items-center gap-0.5 sm:gap-1 hover:text-[#10B981] p-1.5 sm:p-2 min-w-[44px] min-h-[44px] justify-center">
                 <Globe size={18} className="sm:w-5 sm:h-5" />
                 <span className="hidden lg:block text-[11px]">EN/USD</span>
@@ -1554,145 +1503,7 @@ const App: React.FC = () => {
         </div>
       )}
 
-      {/* Cart Modal */}
-      {showCartModal && (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl max-w-2xl w-full max-h-[80vh] overflow-hidden flex flex-col">
-            <div className="flex items-center justify-between p-6 border-b border-gray-200">
-              <h2 className="text-2xl font-black text-[#001A33]">Shopping Cart</h2>
-              <button
-                onClick={() => setShowCartModal(false)}
-                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-              >
-                <X size={24} />
-              </button>
-            </div>
-            <div className="flex-1 overflow-y-auto p-6">
-              {cart.length === 0 ? (
-                <div className="text-center py-12">
-                  <ShoppingCart size={48} className="mx-auto text-gray-300 mb-4" />
-                  <p className="text-gray-500 font-semibold text-lg mb-2">Your cart is empty</p>
-                  <p className="text-gray-400 text-sm">Add tours to your cart to get started!</p>
-                </div>
-              ) : (
-                <div className="space-y-4">
-                  {cart.map((tour) => (
-                    <div
-                      key={tour.id}
-                      className="flex gap-4 p-4 border border-gray-200 rounded-xl hover:border-[#10B981] transition-colors"
-                    >
-                      {tour.images && JSON.parse(tour.images)[0] && (
-                        <img
-                          src={JSON.parse(tour.images)[0]}
-                          alt={tour.title}
-                          className="w-24 h-24 object-cover rounded-lg"
-                        />
-                      )}
-                      <div className="flex-1">
-                        <h3 className="font-black text-[#001A33] mb-1">{tour.title}</h3>
-                        <p className="text-sm text-gray-600 mb-2">{tour.city}, {tour.country}</p>
-                        <div className="flex items-center justify-between">
-                          <span className="font-black text-[#10B981]">
-                            {(() => {
-                              // Get price from first tier of groupPricingTiers (price for 1 person)
-                              let displayPrice = 0;
 
-                              // PRIORITY 1: Check tour.groupPricingTiers directly
-                              if (tour.groupPricingTiers) {
-                                try {
-                                  const tiers = typeof tour.groupPricingTiers === 'string'
-                                    ? JSON.parse(tour.groupPricingTiers)
-                                    : tour.groupPricingTiers;
-                                  if (Array.isArray(tiers) && tiers.length > 0 && tiers[0]?.price) {
-                                    displayPrice = parseFloat(tiers[0].price) || 0;
-                                  }
-                                } catch (e) {
-                                  console.error('Error parsing tour groupPricingTiers:', e);
-                                }
-                              }
-
-                              // PRIORITY 2: Check tour options for groupPricingTiers
-                              if (displayPrice === 0 && tour.options && Array.isArray(tour.options) && tour.options.length > 0) {
-                                for (const opt of tour.options) {
-                                  if (opt.groupPricingTiers) {
-                                    try {
-                                      const tiers = typeof opt.groupPricingTiers === 'string'
-                                        ? JSON.parse(opt.groupPricingTiers)
-                                        : opt.groupPricingTiers;
-                                      if (Array.isArray(tiers) && tiers.length > 0 && tiers[0]?.price) {
-                                        const firstTierPrice = parseFloat(tiers[0].price) || 0;
-                                        if (firstTierPrice > 0) {
-                                          displayPrice = displayPrice === 0 ? firstTierPrice : Math.min(displayPrice, firstTierPrice);
-                                        }
-                                      }
-                                    } catch (e) {
-                                      console.error('Error parsing option groupPricingTiers:', e);
-                                    }
-                                  }
-                                }
-                              }
-
-                              // FALLBACK: Use pricePerPerson only if no tiers found
-                              if (displayPrice === 0) {
-                                displayPrice = tour.pricePerPerson || 0;
-                              }
-
-                              return `Starting from ${tour.currency === 'INR' ? '₹' : '$'}${displayPrice.toLocaleString()}`;
-                            })()}
-                          </span>
-                          <div className="flex gap-2">
-                            <button
-                              onClick={() => window.location.href = `/india/${tour.city?.toLowerCase()}/${tour.slug}`}
-                              className="px-4 py-2 bg-[#10B981] text-white font-bold rounded-lg hover:bg-[#059669] transition-colors text-sm"
-                            >
-                              Book Now
-                            </button>
-                            <button
-                              onClick={() => removeFromCart(tour.id)}
-                              className="p-2 text-gray-400 hover:text-red-500 transition-colors"
-                            >
-                              <Trash2 size={18} />
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-            {cart.length > 0 && (
-              <div className="p-6 border-t border-gray-200">
-                <div className="flex items-center justify-between mb-4">
-                  <span className="font-black text-lg text-[#001A33]">Total:</span>
-                  <span className="font-black text-xl text-[#10B981]">
-                    {cart[0]?.currency === 'INR' ? '₹' : '$'}
-                    {cart.reduce((sum, tour) => sum + getTourPrice(tour), 0).toLocaleString()}
-                  </span>
-                </div>
-                <div className="flex gap-3">
-                  <button
-                    onClick={clearCart}
-                    className="flex-1 px-4 py-3 border-2 border-gray-300 text-gray-700 font-bold rounded-lg hover:border-gray-400 transition-colors"
-                  >
-                    Clear Cart
-                  </button>
-                  <button
-                    onClick={() => {
-                      if (cart.length > 0) {
-                        window.location.href = `/india/${cart[0].city?.toLowerCase()}/${cart[0].slug}`;
-                      }
-                    }}
-                    className="flex-1 px-4 py-3 bg-[#10B981] text-white font-black rounded-lg hover:bg-[#059669] transition-colors"
-                  >
-                    Proceed to Checkout
-                  </button>
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-      )}
 
       {/* Profile Modal */}
       {showProfileModal && (
