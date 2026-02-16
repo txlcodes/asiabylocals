@@ -20,7 +20,7 @@ import {
   MessageCircle,
   CheckCircle
 } from 'lucide-react';
-import CheckoutPage from './CheckoutPage';
+import BookingForm from './BookingForm';
 
 interface TourDetailPageProps {
   tourId?: string;
@@ -49,7 +49,7 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
   const [availabilityStatus, setAvailabilityStatus] = useState<'idle' | 'checking' | 'available' | 'unavailable'>('idle');
   const [showOptionSelectionModal, setShowOptionSelectionModal] = useState(false);
   const [showBookingModal, setShowBookingModal] = useState(false);
-  const [showCheckoutPage, setShowCheckoutPage] = useState(false);
+  const [showBookingForm, setShowBookingForm] = useState(false);
   const [showGuideContactModal, setShowGuideContactModal] = useState(false);
   const [guideContactInfo, setGuideContactInfo] = useState<any>(null);
   const [pendingBookingData, setPendingBookingData] = useState<any>(null);
@@ -1058,19 +1058,19 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
       totalAmount = pricePerPerson;
     }
 
-    // Store booking data and show checkout page
+    // Store booking data and show booking form
     setPendingBookingData({
       tourId: tour.id,
       tourOptionId: selectedOption?.id || null,
       bookingDate: selectedDate,
       numberOfGuests: currentParticipants,
-      specialRequests: '', // Will be collected in CheckoutPage
+      specialRequests: '',
       totalAmount: totalAmount,
       currency: currency
     });
 
     setShowBookingModal(false);
-    setShowCheckoutPage(true);
+    setShowBookingForm(true);
   };
 
   const handleProceedToPayment = async (guestData: {
@@ -1131,8 +1131,8 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
         sessionStorage.setItem('pending_booking_id', bookingId);
         localStorage.setItem('last_booking_id', bookingId);
 
-        // Close checkout page and initialize Razorpay payment
-        setShowCheckoutPage(false);
+        // Close booking form and initialize Razorpay payment
+        setShowBookingForm(false);
 
         try {
           // Initialize Razorpay payment
@@ -2101,8 +2101,6 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
                           // This will use option's tiers if available, otherwise fall back to main tour's tiers
                           const groupPrice = calculateGroupPrice(selectedOption, currentParticipants);
                           if (groupPrice !== null && groupPrice > 0) {
-                            console.log('✅ Using selected option groupPricingTiers:', groupPrice);
-                            console.log('═══════════════════════════════════════════════════════════');
                             return groupPrice.toLocaleString();
                           }
 
@@ -3117,29 +3115,21 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
         )
       }
 
-      {/* Checkout Page */}
+      {/* Booking Form */}
       {
-        showCheckoutPage && (
-          <CheckoutPage
+        showBookingForm && pendingBookingData && (
+          <BookingForm
+            tourTitle={tour.title}
+            bookingDate={pendingBookingData.bookingDate}
+            guests={pendingBookingData.numberOfGuests}
+            totalAmount={pendingBookingData.totalAmount}
+            currency={pendingBookingData.currency}
+            onSubmit={handleProceedToPayment}
             onClose={() => {
-              setShowCheckoutPage(false);
+              setShowBookingForm(false);
               setShowBookingModal(true);
             }}
-            onProceedToPayment={handleProceedToPayment}
-            cancellationDate={pendingBookingData?.bookingDate
-              ? (() => {
-                const date = new Date(pendingBookingData.bookingDate);
-                date.setHours(8, 0, 0, 0);
-                return date.toLocaleDateString('en-US', {
-                  month: 'long',
-                  day: 'numeric',
-                  hour: '2-digit',
-                  minute: '2-digit'
-                });
-              })()
-              : undefined
-            }
-            tour={tour}
+            isSubmitting={isInitializingPayment}
           />
         )
       }
