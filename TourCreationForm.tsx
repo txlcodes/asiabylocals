@@ -2526,7 +2526,7 @@ const TourCreationForm: React.FC<TourCreationFormProps> = ({
                 <div className="border-2 border-dashed border-gray-200 rounded-2xl p-6 md:p-8 text-center hover:border-[#10B981] transition-colors">
                   <input
                     type="file"
-                    accept="image/jpeg,image/jpg,image/png,image/gif,image/webp,image/avif,image/svg+xml"
+                    accept="image/jpeg,image/png,image/webp,image/gif,image/heic,image/heif"
                     multiple
                     onChange={handleImageUpload}
                     className="hidden"
@@ -2545,7 +2545,7 @@ const TourCreationForm: React.FC<TourCreationFormProps> = ({
                         JPG, PNG, GIF, WebP, AVIF, or SVG (Max 7MB each) • Landscape format recommended
                       </div>
                       <div className="text-[10px] md:text-[11px] text-[#10B981] font-semibold mt-2">
-                        📱 Mobile: Tap to take photo or choose from gallery
+                        📱 Mobile: Tap to choose photos from your gallery
                       </div>
                     </div>
                   </label>

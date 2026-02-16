@@ -2491,7 +2491,7 @@ const SupplierDashboard: React.FC<SupplierDashboardProps> = ({ supplier, onLogou
                       <label className="cursor-pointer">
                         <input
                           type="file"
-                          accept=".pdf,.jpg,.jpeg,.png"
+                          accept="application/pdf,image/jpeg,image/png,image/webp,image/heic"
                           onChange={handleLicenseUpload}
                           disabled={isUploadingLicense}
                           className="hidden"
@@ -2558,7 +2558,7 @@ const SupplierDashboard: React.FC<SupplierDashboardProps> = ({ supplier, onLogou
                         <label className="cursor-pointer">
                           <input
                             type="file"
-                            accept=".pdf,.jpg,.jpeg,.png"
+                            accept="application/pdf,image/jpeg,image/png,image/webp,image/heic"
                             multiple
                             onChange={handleCertificatesUpload}
                             disabled={isUploadingCertificates}

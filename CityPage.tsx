@@ -312,6 +312,129 @@ const CITY_DESCRIPTIONS: Record<string, {
         answer: 'Yes, camel rides are safe when conducted by experienced guides. Our tours use well-trained camels and follow safety protocols for a comfortable experience.'
       }
     ]
+  },
+  'Varanasi': {
+    title: 'Varanasi Tours & Things to Do | Guided Experiences by Locals',
+    description: 'Discover the best tours in Varanasi with licensed local guides. sunrise boat rides, temple walks, Sarnath tours & spiritual experiences.',
+    intro: [
+      'Varanasi, also known as Kashi or Benaras, is one of the world\'s oldest living cities and the spiritual capital of India. Located on the banks of the sacred Ganges River, it is a city of temples, ghats, and timeless rituals.',
+      'At AsiaByLocals, explore Varanasi through expert-led tours with licensed local guides. Experience the mesmerizing Ganga Aarti, take a sunrise boat ride on the Ganges, and walk through the narrow alleys of the old city. Our guides share the deep spiritual significance and history of this holy city.'
+    ],
+    whyBook: [
+      'Licensed & experienced local experts',
+      'Deep spiritual and historical insights',
+      'Ethical, small-group experiences',
+      'Direct support to local communities'
+    ],
+    topAttractions: [
+      'Ganges Ghats',
+      'Kashi Vishwanath Temple',
+      'Sarnath',
+      'Ganga Aarti',
+      'Ramnagar Fort',
+      'Dashashwamedh Ghat'
+    ],
+    bestTime: 'The best time to visit Varanasi is from October to March when the weather is pleasant. Early mornings are essential for boat rides and witnessing the city wake up.',
+    faqs: [
+      {
+        question: 'When is the best time for a boat ride?',
+        answer: 'Sunrise is the best time for a boat ride on the Ganges to witness the morning rituals and the golden light on the ghats.'
+      },
+      {
+        question: 'Is it safe to walk in the narrow alleys?',
+        answer: 'Yes, but it can be overwhelming. A local guide helps you navigate the labyrinthine lanes safely and understand the hidden gems.'
+      },
+      {
+        question: 'Can non-Hindus visit Kashi Vishwanath Temple?',
+        answer: 'Non-Hindus can visit the temple complex but may have restricted access to the inner sanctum. Passports are required for entry.'
+      },
+      {
+        question: 'How far is Sarnath from Varanasi?',
+        answer: 'Sarnath is about 10-12 km from Varanasi and takes about 30-45 minutes by car. It\'s a perfect half-day trip.'
+      }
+    ]
+  },
+  'Jodhpur': {
+    title: 'Jodhpur Tours & Things to Do | Guided Experiences by Locals',
+    description: 'Discover the best tours in Jodhpur with licensed local guides. Mehrangarh Fort tours, Blue City walks, Bishnoi safaris & cultural experiences.',
+    intro: [
+      'Jodhpur, the Blue City, is dominated by the majestic Mehrangarh Fort and is a gateway to the Thar Desert. Its blue-painted houses and vibrant markets make it one of Rajasthan\'s most photogenic cities.',
+      'At AsiaByLocals, explore Jodhpur through expert-led tours with licensed local guides. Visit the towering Mehrangarh Fort, stroll through the blue streets of the old city, and experience rural life on a Bishnoi village safari. Our guides help you discover the legends of the Rathore clan and the vibrant culture of Marwar.'
+    ],
+    whyBook: [
+      'Licensed & experienced local experts',
+      'Cultural and historical context you won\'t find in guidebooks',
+      'Ethical, small-group experiences',
+      'Direct support to local communities'
+    ],
+    topAttractions: [
+      'Mehrangarh Fort',
+      'Jaswant Thada',
+      'Umaid Bhawan Palace',
+      'Clock Tower Market',
+      'Mandore Gardens',
+      'Bishnoi Villages'
+    ],
+    bestTime: 'The best time to visit Jodhpur is from October to March. Evenings are perfect for exploring the markets and enjoying rooftop views of the fort.',
+    faqs: [
+      {
+        question: 'How much time is needed for Mehrangarh Fort?',
+        answer: 'You should allocate at least 2-3 hours to explore the extensive palaces and museums within Mehrangarh Fort.'
+      },
+      {
+        question: 'What is a Bishnoi Village Safari?',
+        answer: 'It\'s a tour to rural villages inhabited by the Bishnoi community, known for their nature conservation. You can see local crafts, wildlife, and traditional homes.'
+      },
+      {
+        question: 'Where can I see the blue houses?',
+        answer: 'The blue houses are located in the old city (Brahmpuri and Navchokiya areas) behind the fort. A guided walking tour is the best way to explore them.'
+      },
+      {
+        question: 'Is Jodhpur safe for tourists?',
+        answer: 'Yes, Jodhpur is generally very safe. Standard precautions apply, especially in crowded markets.'
+      }
+    ]
+  },
+  'Kochi': {
+    title: 'Kochi Tours & Things to Do | Guided Experiences by Locals',
+    description: 'Discover the best tours in Kochi with licensed local guides. Fort Kochi walks, backwater cruises, Kathakali shows & cultural experiences.',
+    intro: [
+      'Kochi (Cochin) is a vibrant port city in Kerala, known as the Queen of the Arabian Sea. It boasts a unique blend of Dutch, Portuguese, British, and Jewish influences, set against the backdrop of serene backwaters.',
+      'At AsiaByLocals, explore Kochi through expert-led tours with licensed local guides. See the iconic Chinese fishing nets, visit historic churches and synagogues, and cruise the tranquil backwaters. Our guides share the fascinating history of the spice trade and the diverse cultural tapestry of this coastal city.'
+    ],
+    whyBook: [
+      'Licensed & experienced local experts',
+      'Cultural and historical context you won\'t find in guidebooks',
+      'Ethical, small-group experiences',
+      'Direct support to local communities'
+    ],
+    topAttractions: [
+      'Chinese Fishing Nets',
+      'Fort Kochi Beach',
+      'Mattancherry Palace',
+      'Paradesi Synagogue',
+      'St. Francis Church',
+      'Kerala Folklore Museum'
+    ],
+    bestTime: 'The best time to visit Kochi is from September to March when the weather is pleasant. December and January are peak tourist months.',
+    faqs: [
+      {
+        question: 'How far are the backwaters from Kochi?',
+        answer: 'The closest backwaters are in Alleppey, about 1-1.5 hours drive from Kochi. Day cruises are easily arranged.'
+      },
+      {
+        question: 'What is unique about Fort Kochi?',
+        answer: 'Fort Kochi is a historical area with colonial architecture, ancient churches, and the famous Chinese fishing nets, reflecting centuries of trade history.'
+      },
+      {
+        question: 'Is one day enough for Kochi?',
+        answer: 'One day is sufficient to see the main highlights of Fort Kochi and Mattancherry. Two days allow for a backwater cruise or a Kathakali performance.'
+      },
+      {
+        question: 'What should I wear in Kochi?',
+        answer: 'Light cotton clothing is best due to the humidity. Modest dress is recommended when visiting temples and churches.'
+      }
+    ]
   }
 };
 
@@ -344,35 +467,35 @@ const ThingsToDoSection: React.FC<ThingsToDoSectionProps> = ({ city }) => {
     'Agra': [
       {
         title: 'From Delhi: Taj Mahal & Agra Private Day Trip with Transfers',
-        image: '/things-to-do/agra-taj-mahal-sunrise.jpg', // .avif file with .jpg extension
+        image: '/things-to-do/agra-taj-mahal-sunset.jpg',
         shortDescription: 'Begins your tour with the pickup from your hotel/airport in Delhi/Noida/Gurugram and depart to Agra. Meet your private guide when you arrive in Agra and proceed to the Taj Mahal, a UNESCO World Heritage Site and a living monument, which silently whispers the love of legendary Mughal emperor Shah Jahan for his beloved wife Mumtaz Mahal.',
         fullDescription: 'Begins your tour with the pickup from your hotel/airport in Delhi/Noida/Gurugram and depart to Agra. Meet your private guide when you arrive in Agra and proceed to the Taj Mahal, a UNESCO World Heritage Site and a living monument, which silently whispers the love of legendary Mughal emperor Shah Jahan for his beloved wife Mumtaz Mahal. Continue onto the second UNESCO World Heritage Site Agra Fort. The imposing red sandstone fort was built by Emperor Akbar in 1565 AD, it combines both Hindu and Central Asian architectural styles. Then take a break for lunch at a 5-star Hotel and enjoy a mouth-watering meal of local and international flavor. After lunch, head towards the marvelous Tomb of Itmad-Ud-Daulah also known as Baby Taj. This pure marble structure was constructed by Noor Jahan for her father. Your tour ends with a return journey back to your hotel/airport or desired location in Delhi/Noida/Gurugram.',
         seoKeywords: ['Taj Mahal', 'Agra Fort', 'Delhi to Agra', 'private day trip', 'Baby Taj']
       },
       {
         title: 'From Delhi: Private Taj Mahal and Agra Day Tour with 5* Meal',
-        image: '/things-to-do/agra-fort.jpg',
+        image: '/things-to-do/agra-fort-gate.jpg',
         shortDescription: 'Experience a premium Private Taj Mahal and Agra Day Tour from Delhi, thoughtfully designed for comfort, flexibility, and unforgettable experiences. Includes a private chauffeur pick-up from Delhi in an air-conditioned car.',
         fullDescription: 'Experience a premium Private Taj Mahal and Agra Day Tour from Delhi, thoughtfully designed for comfort, flexibility, and unforgettable experiences. Includes a private chauffeur pick-up from Delhi in an air-conditioned car. Visit the world-famous Taj Mahal, one of the Seven Wonders of the World. For early risers, an optional sunrise visit offers fewer crowds, and exceptional photo opportunities. Explore the majestic Agra Fort (a UNESCO World Heritage Site), this site used to be the home to Mughal emperors before Delhi became the capital of India. If time permits, visit Itimad-ud-Daulah, often called the Baby Taj, known for its intricate marble inlay work. Enjoy a delicious 5-star breakfast or lunch at a premium restaurant. Experience personalized service, flexible timing, expert guidance, and a stress-free return to Delhi the same day.',
         seoKeywords: ['Taj Mahal sunrise', 'Agra Fort', '5-star meal', 'premium tour', 'private tour']
       },
       {
         title: 'From Delhi: Private Taj Mahal & Agra Tour with 5* Lunch',
-        image: '/things-to-do/agra-baby-taj.jpg',
+        image: '/things-to-do/agra-taj-mahal-mosque.jpg',
         shortDescription: 'Start your journey with an early pickup from your hotel in Delhi, Gurgaon, Noida, or the airport. Sit back in a private, air-conditioned car for a 3-hour drive to Agra. Upon arrival, meet your expert guide and proceed to the Taj Mahal to explore its beauty at sunrise for 2-3 hours.',
         fullDescription: 'Start your journey with an early pickup from your hotel in Delhi, Gurgaon, Noida, or the airport. Sit back in a private, air-conditioned car for a 3-hour drive to Agra. Upon arrival, meet your expert guide and proceed to the Taj Mahal to explore its beauty at sunrise for 2-3 hours. Continue to the Agra Fort, an impressive red sandstone fortress built by Emperor Akbar in 1565 AD, it combines both Hindu and Central Asian architectural styles. After the fort visit, enjoy a breakfast or lunch at a 5-star hotel (if included in the package). Next, explore the elegant Baby Taj (Itmad-ud-Daulah), a pure marble structure constructed by Noor Jahan for her father. Your tour concludes with a comfortable return drive to Delhi in a private car, with drop-off at your chosen location.',
         seoKeywords: ['Taj Mahal sunrise', 'Agra Fort', 'Baby Taj', '5-star lunch', 'private transfer']
       },
       {
         title: 'Agra: Skip-the-Line Taj Mahal & Agra Fort Private Tour',
-        image: '/things-to-do/agra-fatehpur-sikri.jpg',
+        image: '/things-to-do/agra-taj-mahal-garden.jpg',
         shortDescription: 'Tour begins with a pick up from hotel/airport or any requested location in Agra city, meet with tour guide and proceed to visit Taj Mahal with an express entry ticket and discover the marble mausoleum of the Taj Mahal in Agra at your own pace.',
         fullDescription: 'Tour begins with a pick up from hotel/airport or any requested location in Agra city, meet with tour guide and proceed to visit Taj Mahal with an express entry ticket and discover the marble mausoleum of the Taj Mahal in Agra at your own pace. After visiting Taj Mahal, take a break for breakfast at a multi cuisine restaurant (pay by your own). Later, visit the historic Agra Fort, another UNESCO World Heritage Site, this site used to be the home to Mughal emperors before Delhi became the capital of India. Be transferred back to your hotel/airport or any desired location in Agra after the tour ends.',
         seoKeywords: ['Skip the line', 'Taj Mahal express entry', 'Agra Fort', 'private tour', 'Agra city tour']
       },
       {
         title: 'Delhi/Jaipur/Agra: Private One-Way Transfer',
-        image: '/things-to-do/shared-private-transfer.jpg', // Shared image for all cities
+        image: '/things-to-do/agra-transfer-car.jpg',
         shortDescription: 'Enjoy a private transfer from Delhi, Agra, or Jaipur with driver in a private air-conditioned car. Be picked up from your preferred location and taken to your destination hassle-free.',
         fullDescription: 'Enjoy a private transfer from Delhi, Agra, or Jaipur with driver in a private air-conditioned car. Be picked up from your preferred location, whether it\'s the airport or your hotel, and be taken to your hotel or the airport in Delhi, Jaipur, or Agra. Don\'t waste your time trying to find a taxi and haggling over prices, pre-book your convenient transfer and have a more relaxing vacation. Sit back and relax knowing you\'re in safe hands and will end up exactly where you want to be. Sip on free water during the drive. The vehicle used depends on the number of people being transported: 1 to 3 people - AC Sedan, Toyota Etios, or Maruti Swift Dzire; 4 to 6 people - A/C Kia Carens or Innova; 12 to 26 people - Tempo Traveller or Mini Bus. Professional drivers ensure safe and comfortable journeys between these major tourist destinations.',
         seoKeywords: ['private transfer', 'Delhi Jaipur Agra', 'airport transfer', 'private car', 'Golden Triangle transfer']
@@ -381,28 +504,28 @@ const ThingsToDoSection: React.FC<ThingsToDoSectionProps> = ({ city }) => {
     'Delhi': [
       {
         title: 'Old Delhi Heritage Walk & Street Food Tour',
-        image: '/things-to-do/delhi-old-delhi-heritage.jpg',
+        image: '/things-to-do/junaid-ahmad-ansari-9WP-NVh2d6U-unsplash (1).jpg',
         shortDescription: 'Explore the historic lanes of Old Delhi, visit the magnificent Jama Masjid, and discover authentic street food in Chandni Chowk. Experience the vibrant culture and rich history of Delhi\'s oldest neighborhood with a local guide.',
         fullDescription: 'Explore the historic lanes of Old Delhi, visit the magnificent Jama Masjid, and discover authentic street food in Chandni Chowk. Experience the vibrant culture and rich history of Delhi\'s oldest neighborhood with a local guide. Your tour begins in the narrow, bustling streets of Old Delhi, where history comes alive. Visit the Jama Masjid, one of India\'s largest mosques, built by Emperor Shah Jahan in 1656. Walk through the colorful spice market of Khari Baoli, the largest wholesale spice market in Asia. Discover hidden gems like the Paranthe Wali Gali, famous for its traditional Indian flatbreads. Your guide will take you to trusted street food vendors where you can sample authentic Delhi delicacies like chaat, jalebi, and parathas. Learn about the Mughal history, colonial influences, and modern-day life in this fascinating part of Delhi.',
         seoKeywords: ['Old Delhi', 'heritage walk', 'street food tour', 'Jama Masjid', 'Chandni Chowk']
       },
       {
         title: 'Red Fort & India Gate Private Tour',
-        image: '/things-to-do/delhi-red-fort.avif',
+        image: '/things-to-do/dewang-gupta-tFqGkt0iwnc-unsplash.jpg',
         shortDescription: 'Visit the iconic Red Fort, a UNESCO World Heritage Site, and the majestic India Gate. Explore the rich history of Mughal Delhi and modern India\'s capital with an expert local guide.',
         fullDescription: 'Visit the iconic Red Fort, a UNESCO World Heritage Site, and the majestic India Gate. Explore the rich history of Mughal Delhi and modern India\'s capital with an expert local guide. The Red Fort, built by Emperor Shah Jahan in 1639, served as the main residence of Mughal emperors for nearly 200 years. Your guide will take you through the fort\'s impressive structures including the Diwan-i-Am (Hall of Public Audience), Diwan-i-Khas (Hall of Private Audience), and the beautiful gardens. Learn about the fort\'s significance during India\'s independence movement. Then, visit India Gate, a war memorial dedicated to Indian soldiers who died in World War I. The monument stands as a symbol of national pride and is surrounded by beautiful gardens. Your guide will share stories of Delhi\'s transformation from Mughal capital to modern India\'s political center.',
         seoKeywords: ['Red Fort', 'India Gate', 'UNESCO World Heritage', 'Mughal Delhi', 'Delhi monuments']
       },
       {
         title: 'Qutub Minar & Humayun\'s Tomb Heritage Tour',
-        image: '/things-to-do/delhi-qutub-minar.jpg',
+        image: '/things-to-do/sreehari-devadas-j4hGnHYl8ic-unsplash.jpg',
         shortDescription: 'Discover two UNESCO World Heritage Sites: the towering Qutub Minar and the beautiful Humayun\'s Tomb. Explore Delhi\'s ancient Islamic architecture and learn about the city\'s rich historical legacy.',
         fullDescription: 'Discover two UNESCO World Heritage Sites: the towering Qutub Minar and the beautiful Humayun\'s Tomb. Explore Delhi\'s ancient Islamic architecture and learn about the city\'s rich historical legacy. Qutub Minar, built in the 12th century, is the world\'s tallest brick minaret at 73 meters. The complex includes ancient ruins, the Iron Pillar that has stood rust-free for over 1,600 years, and beautiful Indo-Islamic architecture. Your guide will explain the minaret\'s history and the Qutub Complex\'s significance. Then, visit Humayun\'s Tomb, a masterpiece of Mughal architecture that inspired the Taj Mahal\'s design. Built in 1570, this magnificent mausoleum is set in beautiful gardens and represents the first garden-tomb on the Indian subcontinent. Your guide will share stories of the Mughal dynasty and explain how this tomb influenced later Mughal architecture.',
         seoKeywords: ['Qutub Minar', 'Humayun\'s Tomb', 'UNESCO World Heritage', 'Islamic architecture', 'Delhi heritage']
       },
       {
         title: 'Delhi City Tour: Old & New Delhi Full Day Experience',
-        image: '/things-to-do/delhi-city-tour.jpg',
+        image: '/things-to-do/brijesh-anand-6eGxyrxTfD8-unsplash.jpg',
         shortDescription: 'Experience the best of both worlds with a comprehensive tour covering Old Delhi\'s historic sites and New Delhi\'s modern landmarks. Visit Red Fort, India Gate, Lotus Temple, and more in one day.',
         fullDescription: 'Experience the best of both worlds with a comprehensive tour covering Old Delhi\'s historic sites and New Delhi\'s modern landmarks. Visit Red Fort, India Gate, Lotus Temple, and more in one day. This full-day tour takes you through Delhi\'s fascinating history, from ancient monuments to modern architecture. Start with Old Delhi, visiting the Red Fort and Jama Masjid. Then explore New Delhi, including India Gate, the Parliament House area, and the beautiful Lotus Temple, a Bahá\'í House of Worship known for its unique flower-like architecture. Drive past the Rashtrapati Bhavan (Presidential Palace) and other government buildings. Your guide will explain Delhi\'s role as India\'s capital, its diverse cultures, and how the city has evolved over centuries. This tour offers a complete overview of Delhi\'s most important sites and is perfect for first-time visitors.',
         seoKeywords: ['Delhi city tour', 'Old Delhi', 'New Delhi', 'full day tour', 'Delhi landmarks']
@@ -443,6 +566,186 @@ const ThingsToDoSection: React.FC<ThingsToDoSectionProps> = ({ city }) => {
         shortDescription: 'Enjoy a private transfer from Delhi, Agra, or Jaipur with driver in a private air-conditioned car. Be picked up from your preferred location and taken to your destination hassle-free.',
         fullDescription: 'Enjoy a private transfer from Delhi, Agra, or Jaipur with driver in a private air-conditioned car. Be picked up from your preferred location, whether it\'s the airport or your hotel, and be taken to your hotel or the airport in Delhi, Jaipur, or Agra. Don\'t waste your time trying to find a taxi and haggling over prices, pre-book your convenient transfer and have a more relaxing vacation. Sit back and relax knowing you\'re in safe hands and will end up exactly where you want to be. Sip on free water during the drive. The vehicle used depends on the number of people being transported: 1 to 3 people - AC Sedan, Toyota Etios, or Maruti Swift Dzire; 4 to 6 people - A/C Kia Carens or Innova; 12 to 26 people - Tempo Traveller or Mini Bus. Professional drivers ensure safe and comfortable journeys between these major tourist destinations.',
         seoKeywords: ['private transfer', 'Delhi Jaipur Agra', 'airport transfer', 'private car', 'Golden Triangle transfer']
+      }
+    ],
+    'Mumbai': [
+      {
+        title: 'Mumbai: Elephanta Caves Half-Day Guided Tour with Ferry',
+        image: 'https://images.unsplash.com/photo-1628522339678-75218d6f5193?auto=format&fit=crop&q=80&w=800',
+        shortDescription: 'Take a ferry from the Gateway of India to explore the ancient rock-cut temples of Elephanta Island. Discover 5th-century sculptures dedicated to Lord Shiva with an expert guide.',
+        fullDescription: 'Take a ferry from the Gateway of India to explore the ancient rock-cut temples of Elephanta Island. Discover 5th-century sculptures dedicated to Lord Shiva with an expert guide. Your tour begins at the iconic Gateway of India, where you board a ferry for a scenic hour-long ride across Mumbai Harbour to Elephanta Island. Upon arrival, take a toy train or walk up the steps to the UNESCO World Heritage caves. Your guide will explain the history, mythology, and architectural significance of these 5th-century rock-cut temples. Marvel at the main cave\'s massive pillars and the famous Trimurti sculpture, depicting the three faces of Lord Shiva. Explore the smaller Buddhist stupa caves and enjoy panoramic views of the ocean before returning to Mumbai.',
+        seoKeywords: ['Elephanta Caves', 'Mumbai caves', 'Gateway of India ferry', 'UNESCO World Heritage', 'rock-cut temples']
+      },
+      {
+        title: 'Mumbai: Dharavi Slum Tour & Dhobi Ghat Experience',
+        image: 'https://images.unsplash.com/photo-1570183244247-4952d75f306d?auto=format&fit=crop&q=80&w=800',
+        shortDescription: 'Gain a unique perspective on Mumbai with an ethical walking tour of Dharavi. Witness the incredible industry and community spirit, then visit Dhobi Ghat, the world\'s largest open-air laundry.',
+        fullDescription: 'Gain a unique perspective on Mumbai with an ethical walking tour of Dharavi. Witness the incredible industry and community spirit, then visit Dhobi Ghat, the world\'s largest open-air laundry. This tour challenges stereotypes by showcasing Dharavi as the economic engine it is. Visit small-scale industries producing leather, pottery, textiles, and recycled plastics, generating over $665 million annually. Meet local residents and learn about their daily lives, education, and community initiatives. Your guide, often from the community, ensures a respectful and insightful experience. Afterward, visit Dhobi Ghat to see hundreds of dhobis (washermen) washing clothes in traditional open-air troughs, a practice unchanged for over a century. This tour offers a profound understanding of Mumbai\'s resilience and industriousness.',
+        seoKeywords: ['Dharavi slum tour', 'Dhobi Ghat', 'Mumbai walking tour', 'ethical tourism', 'community tour']
+      },
+      {
+        title: 'Mumbai: Private Bollywood Studio Tour & Live Filming',
+        image: 'https://images.unsplash.com/photo-1594165565349-2e6730302eb6?auto=format&fit=crop&q=80&w=800',
+        shortDescription: 'Step into the glitz and glamour of Bollywood with a private studio tour. Visit film sets, learn about special effects, and try your hand at dubbing or dance moves.',
+        fullDescription: 'Step into the glitz and glamour of Bollywood with a private studio tour. Visit film sets, learn about special effects, and try your hand at dubbing or dance moves. Mumbai is the heart of the Indian film industry, and this tour gives you a behind-the-scenes look. Visit a working film studio to see specially designed sets like a police station, hospital, or temple. Learn about the history of Bollywood, the filmmaking process, and advancements in VFX. If lucky, you might catch a glimpse of a live shoot (subject to availability). The tour includes fun interactive experiences like recording a song in a dubbing studio or learning a few Bollywood dance steps. It\'s a fun and colorful immersion into the world of Indian cinema.',
+        seoKeywords: ['Bollywood tour', 'Mumbai film city', 'studio tour', 'Indian cinema', 'live filming']
+      },
+      {
+        title: 'Mumbai: Private Airport Transfer to/from Hotel',
+        image: 'https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?auto=format&fit=crop&q=80&w=800',
+        shortDescription: 'Enjoy a stress-free start or end to your Mumbai trip with a private airport transfer. reliable pick-up from Chhatrapati Shivaji Maharaj International Airport (BOM) to your hotel.',
+        fullDescription: 'Enjoy a stress-free start or end to your Mumbai trip with a private airport transfer. Reliable pick-up from Chhatrapati Shivaji Maharaj International Airport (BOM) to your hotel in South Mumbai, Bandra, or Juhu. Your professional driver will wait for you at the arrivals hall with a name placard, assist with your luggage, and drive you safely to your destination in a comfortable, air-conditioned car. Avoid the hassle of negotiating with taxi drivers or navigating public transport with luggage. We monitor flight arrivals to account for delays, ensuring your driver is there when you land. Transfers are also available from your hotel to the airport for your departure flight.',
+        seoKeywords: ['Mumbai airport transfer', 'BOM airport taxi', 'private car Mumbai', 'airport pickup', 'chauffeur service']
+      }
+    ],
+    'Varanasi': [
+      {
+        title: 'Varanasi: Sunrise Boat Ride & Ganga Aarti Tour',
+        image: 'https://images.unsplash.com/photo-1561361513-35bd4e7d07e3?auto=format&fit=crop&q=80&w=800',
+        shortDescription: 'Experience the spiritual heart of India with a sunrise boat ride on the Ganges. Witness morning rituals on the ghats and return in the evening for the mesmerizing Ganga Aarti ceremony.',
+        fullDescription: 'Experience the spiritual heart of India with a sunrise boat ride on the Ganges. Witness morning rituals on the ghats and return in the evening for the mesmerizing Ganga Aarti ceremony. Your day begins before dawn with a serene boat ride along the sacred river. Watch the city wake up as devotees perform morning prayers and ablutions in the holy water. See the burning ghats of Manikarnika and learn about the cycle of life and death in Hinduism. Walk through the narrow lanes of the old city, visiting the Kashi Vishwanath Temple. In the evening, witness the spectacular Ganga Aarti at Dashashwamedh Ghat, where priests perform a synchronized ritual with fire, incense, and chanting, creating a deeply spiritual atmosphere.',
+        seoKeywords: ['Varanasi boat ride', 'Ganga Aarti', 'sunrise tour', 'Kashi Vishwanath', 'Ganges river']
+      },
+      {
+        title: 'Sarnath Day Tour: Place of Buddha\'s First Sermon',
+        image: 'https://images.unsplash.com/photo-1572886737332-9a0082f4817a?auto=format&fit=crop&q=80&w=800',
+        shortDescription: 'Visit Sarnath, a major Buddhist pilgrimage site where Lord Buddha delivered his first sermon. Explore the Dhamek Stupa, ancient ruins, and the Sarnath Archaeological Museum.',
+        fullDescription: 'Visit Sarnath, a major Buddhist pilgrimage site where Lord Buddha delivered his first sermon. Explore the Dhamek Stupa, ancient ruins, and the Sarnath Archaeological Museum. Located just 10km from Varanasi, Sarnath is a peaceful contrast to the bustling city. It is here that Buddha first taught the Dharma after attaining enlightenment. Visit the massive Dhamek Stupa, dating back to 500 CE, and the ruins of ancient monasteries. See the Ashoka Pillar, whose lion capital is India\'s national emblem. Explore the Mulagandhakuti Vihara temple with its beautiful frescoes depicting Buddha\'s life. The nearby Archaeological Museum houses a superb collection of Buddhist art and sculptures. This tour offers a profound insight into the origins of Buddhism.',
+        seoKeywords: ['Sarnath tour', 'Buddhist pilgrimage', 'Dhamek Stupa', 'Buddha sermon', 'Varanasi day trip']
+      },
+      {
+        title: 'Varanasi: Private City & Temple Walking Tour',
+        image: 'https://images.unsplash.com/photo-1596541223961-758b9f7a77d7?auto=format&fit=crop&q=80&w=800',
+        shortDescription: 'Explore the "City of Temples" on a private walking tour. Visit the famous Kashi Vishwanath Temple, Sankat Mochan, and Durga Temple while navigating the vibrant narrow alleys.',
+        fullDescription: 'Explore the "City of Temples" on a private walking tour. Visit the famous Kashi Vishwanath Temple, Sankat Mochan, and Durga Temple while navigating the vibrant narrow alleys. Varanasi is one of the world\'s oldest living cities, and its spiritual energy is best experienced on foot. Visit the Golden Temple (Kashi Vishwanath), dedicated to Lord Shiva and the most important temple in Varanasi. (Note: Foreigners may have restricted access to the inner sanctum). Explore the Monkey Temple (Sankat Mochan) surrounded by greenery and the red-colored Durga Temple. Navigate the labyrinthine lanes (galis) of Godowlia, filled with shops selling silk, spices, and sweets. Taste local treats like "Mallaiyo" (seasonal) or "Lassi" and soak in the timeless atmosphere of this holy city.',
+        seoKeywords: ['Varanasi temples', 'walking tour', 'Kashi Vishwanath', 'old city Varanasi', 'spiritual tour']
+      },
+      {
+        title: 'Varanasi: Private Airport Transfer',
+        image: 'https://images.unsplash.com/photo-1599540061218-c288593a2aee?auto=format&fit=crop&q=80&w=800',
+        shortDescription: 'Ensure a smooth arrival or departure in Varanasi with a private transfer between Lal Bahadur Shastri International Airport (VNS) and your hotel.',
+        fullDescription: 'Ensure a smooth arrival or departure in Varanasi with a private transfer between Lal Bahadur Shastri International Airport (VNS) and your hotel. Avoid the chaos of finding a taxi upon arrival. Your professional driver will greet you at the airport, assist with luggage, and drive you comfortably to your accommodation in Varanasi city or the ghats area. For departures, enjoy a punctual pick-up from your hotel to reach the airport on time. Our air-conditioned cars provide a respite from the city\'s heat and bustle, ensuring a relaxed start or end to your spiritual journey.',
+        seoKeywords: ['Varanasi airport transfer', 'VNS airport taxi', 'private car Varanasi', 'airport pickup', 'hassle-free transfer']
+      }
+    ],
+    'Udaipur': [
+      {
+        title: 'Udaipur: City Palace & Lake Pichola Boat Ride Tour',
+        image: 'https://images.unsplash.com/photo-1595267154095-2c813fd4e304?auto=format&fit=crop&q=80&w=800',
+        shortDescription: 'Discover the grandeur of the City Palace complex and enjoy a scenic boat ride on Lake Pichola. Visit Jag Mandir Island and admire the stunning architecture reflecting in the lake.',
+        fullDescription: 'Discover the grandeur of the City Palace complex and enjoy a scenic boat ride on Lake Pichola. Visit Jag Mandir Island and admire the stunning architecture reflecting in the lake. Start your tour at the majestic City Palace, Rajasthan\'s largest palace complex, built over 400 years. Explore its labyrinths of courtyards, balconies, and halls adorned with mirrors and paintings. Visit the Crystal Gallery and the vintage car museum. In the evening, board a boat for a romantic cruise on Lake Pichola. Sail past the Lake Palace (now a luxury hotel) and stop at Jag Mandir Island, a 17th-century palace where you can stroll in the gardens and enjoy panoramic views of the city skyline and the Aravalli hills during sunset.',
+        seoKeywords: ['City Palace Udaipur', 'Lake Pichola boat ride', 'Jag Mandir', 'Udaipur sightseeing', 'sunset cruise']
+      },
+      {
+        title: 'Udaipur: Monsoon Palace & Fateh Sagar Lake Sunset',
+        image: 'https://images.unsplash.com/photo-1615836245337-f5b9b2303f10?auto=format&fit=crop&q=80&w=800',
+        shortDescription: 'Visit the hilltop Monsoon Palace (Sajjangarh) for breathtaking panoramic views. Later, enjoy a relaxing evening at Fateh Sagar Lake, popular for its sunset views and street food.',
+        fullDescription: 'Visit the hilltop Monsoon Palace (Sajjangarh) for breathtaking panoramic views. Later, enjoy a relaxing evening at Fateh Sagar Lake, popular for its sunset views and street food. Drive up the Bansdara hills to the Monsoon Palace, built in 1884 to watch the monsoon clouds. The palace offers the best vantage point in Udaipur, providing bird\'s-eye views of the city, lakes, and surrounding countryside – perfect for photography. Afterward, head to Fateh Sagar Lake, a picturesque artificial lake. Take a walk along the promenade, enjoy a boat ride to Nehru Park island, or savor local snacks like "Kulhad Coffee" at the lakeside stalls known as Bombay Market. It\'s a favorite spot for locals to unwind and enjoy the cool breeze.',
+        seoKeywords: ['Monsoon Palace', 'Sajjangarh', 'Fateh Sagar Lake', 'Udaipur panoramic view', 'sunset point']
+      },
+      {
+        title: 'Kumbhalgarh Fort & Ranakpur Jain Temple Day Trip',
+        image: 'https://images.unsplash.com/photo-1598889980838-89c02fd76332?auto=format&fit=crop&q=80&w=800',
+        shortDescription: 'Embark on a full-day excursion to the massive Kumbhalgarh Fort, with its Great Wall of India, and the exquisite Ranakpur Jain Temple, famous for its 1,444 stunning marble pillars.',
+        fullDescription: 'Embark on a full-day excursion to the massive Kumbhalgarh Fort, with its Great Wall of India, and the exquisite Ranakpur Jain Temple, famous for its 1,444 stunning marble pillars. Drive through the Aravalli hills to Kumbhalgarh Fort, a UNESCO World Heritage Site with the second-longest wall in the world after China\'s. Explore its palaces, temples, and enjoy the stunning views. Then, proceed to Ranakpur (about 50km away) to visit the 15th-century Jain Temple dedicated to Adinatha. Marvel at its intricate architecture and the forest of white marble pillars, no two of which are carved alike. The serene atmosphere and artistic mastery make it one of India\'s most beautiful temples. This day trip combines military might and spiritual grace.',
+        seoKeywords: ['Kumbhalgarh Fort', 'Ranakpur Jain Temple', 'Udaipur day trip', 'Great Wall of India', 'marble temple']
+      },
+      {
+        title: 'Udaipur: Private Airport Transfer',
+        image: 'https://images.unsplash.com/photo-1545622359-86f31776ce8d?auto=format&fit=crop&q=80&w=800',
+        shortDescription: 'Travel comfortably between Maharana Pratap Airport (UDR) and your Udaipur hotel with a private transfer. Reliable, air-conditioned car service for a stress-free journey.',
+        fullDescription: 'Travel comfortably between Maharana Pratap Airport (UDR) and your Udaipur hotel with a private transfer. Reliable, air-conditioned car service for a stress-free journey. Whether arriving for a romantic getaway or business, start your trip right. Your driver will track your flight and meet you at the airport exit. Relax on the approx. 45-minute to 1-hour drive into the city, enjoying views of the Rajasthan countryside. We also offer timely drop-offs for your departure flight, ensuring you reach the airport with plenty of time to spare.',
+        seoKeywords: ['Udaipur airport transfer', 'UDR airport taxi', 'private car Udaipur', 'airport pickup', 'hotel transfer']
+      }
+    ],
+    'Jodhpur': [
+      {
+        title: 'Jodhpur: Mehrangarh Fort & Jaswant Thada Private Tour',
+        image: 'https://images.unsplash.com/photo-1592398555610-d9da95ba324b?auto=format&fit=crop&q=80&w=800',
+        shortDescription: 'Explore the imposing Mehrangarh Fort, one of India\'s largest forts, and the beautiful Jaswant Thada cenotaph. Discover the history and legends of the Rathore clan with an expert guide.',
+        fullDescription: 'Explore the imposing Mehrangarh Fort, one of India\'s largest forts, and the beautiful Jaswant Thada cenotaph. Discover the history and legends of the Rathore clan with an expert guide. Rising 125 meters above the city, Mehrangarh Fort is a masterpiece of Rajput architecture. Visit its palaces like Moti Mahal (Pearl Palace) and Phool Mahal (Flower Palace), known for their exquisite carvings and stained glass. See the museum\'s collection of royal palanquins, arms, and paintings. From the ramparts, enjoy panoramic views of Jodhpur\'s iconic blue houses. Next, visit the nearby Jaswant Thada, a milky-white marble memorial built for Maharaja Jaswant Singh II. Its serene gardens and intricate marble lattice screens offer a peaceful retreat and great photo opportunities.',
+        seoKeywords: ['Mehrangarh Fort', 'Jaswant Thada', 'Jodhpur sightseeing', 'Blue City view', 'private tour']
+      },
+      {
+        title: 'Jodhpur: Blue City Heritage Walk & Market Tour',
+        image: 'https://images.unsplash.com/photo-1534234828569-1f480393f9c6?auto=format&fit=crop&q=80&w=800',
+        shortDescription: 'Walk through the winding blue-hued streets of the old city. Visit the Clock Tower market, stepwells, and interact with locals to experience the authentic vibe of Jodhpur.',
+        fullDescription: 'Walk through the winding blue-hued streets of the old city. Visit the Clock Tower market, stepwells, and interact with locals to experience the authentic vibe of Jodhpur. Start at the bustling Ghanta Ghar (Clock Tower) area, delving into the Sadar Market where you can buy spices, textiles, and handicrafts. Your guide will lead you through narrow medieval lanes lined with indigo-painted houses that give the city its nickname. Visit the ancient Toorji Ka Jhalra stepwell, a stunning architectural feature recently restored. Learn about the caste system, local traditions, and the reason behind the blue color. Stop for a cup of masala chai or try the famous "Makhaniya Lassi" at a local shop.',
+        seoKeywords: ['Blue City walk', 'Jodhpur heritage tour', 'Clock Tower market', 'Toorji Ka Jhalra', 'cultural walk']
+      },
+      {
+        title: 'Jodhpur: Bishnoi Village Safari & Desert Experience',
+        image: 'https://images.unsplash.com/photo-1472911762194-e0eb3f769bf7?auto=format&fit=crop&q=80&w=800',
+        shortDescription: 'Experience rural Rajasthan with a jeep safari to Bishnoi villages. Meet the eco-friendly Bishnoi community, watch potters and weavers at work, and spot wildlife like blackbucks.',
+        fullDescription: 'Experience rural Rajasthan with a jeep safari to Bishnoi villages. Meet the eco-friendly Bishnoi community, watch potters and weavers at work, and spot wildlife like blackbucks. The Bishnoi people are known for their staunch protection of nature. Visit their clean, mud-plastered homes and learn about their unique lifestyle and beliefs. See local artisans creating pottery and dhurrie rugs. On the safari, keep an eye out for desert wildlife such as blackbuck antelopes, chinkara gazelles, and migratory cranes at Guda Bishnoi Lake. This tour offers a genuine connection with the rural culture and natural beauty of the Thar Desert region.',
+        seoKeywords: ['Bishnoi village safari', 'Jodhpur desert safari', 'rural Rajasthan', 'wildlife tour', 'cultural experience']
+      },
+      {
+        title: 'Jodhpur: Private Airport Transfer',
+        image: 'https://images.unsplash.com/photo-1582283995574-d4b68e92a83e?auto=format&fit=crop&q=80&w=800',
+        shortDescription: 'Enjoy a convenient private transfer between Jodhpur Airport (JDH) and your hotel. Skip the taxi queues and travel safely in a clean, air-conditioned vehicle.',
+        fullDescription: 'Enjoy a convenient private transfer between Jodhpur Airport (JDH) and your hotel. Skip the taxi queues and travel safely in a clean, air-conditioned vehicle. Whether you are arriving to explore the Blue City or catching a flight out, our professional drivers ensure a punctual and smooth service. We track your flight status to handle early arrivals or delays. Benefit from door-to-door service with luggage assistance, allowing you to relax and enjoy the views of this historic city.',
+        seoKeywords: ['Jodhpur airport transfer', 'JDH airport taxi', 'private car Jodhpur', 'airport pickup', 'shuttle service']
+      }
+    ],
+    'Kochi': [
+      {
+        title: 'Kochi: Private Backwater Houseboat Day Cruise',
+        image: 'https://images.unsplash.com/photo-1593693397690-362cb96667e3?auto=format&fit=crop&q=80&w=800',
+        shortDescription: 'Relax on a private houseboat cruise through the serene Kerala backwaters. Enjoy a traditional lunch on board while drifting past coconut palms, paddy fields, and local villages.',
+        fullDescription: 'Relax on a private houseboat cruise through the serene Kerala backwaters. Enjoy a traditional lunch on board while drifting past coconut palms, paddy fields, and local villages. Drive from Kochi to Alleppey (approx. 1.5 hours) to board your private houseboat (Kettuvallam). Cruise along the tranquil canals and Vembanad Lake, the heart of Kerala\'s backwater network. Observe the slow-paced village life, fishermen casting nets, and ducks paddling by. Savor an authentic Kerala lunch prepared fresh on the boat, featuring local fish and spices. This day cruise offers the quintessential Kerala experience without an overnight stay, perfect for those with limited time.',
+        seoKeywords: ['Kerala houseboat', 'Alleppey backwaters', 'day cruise', 'Kochi day trip', 'Kerala lunch']
+      },
+      {
+        title: 'Fort Kochi & Mattancherry Heritage Walking Tour',
+        image: 'https://images.unsplash.com/photo-1516027879685-645391d4e412?auto=format&fit=crop&q=80&w=800',
+        shortDescription: 'Explore the colonial history of Fort Kochi. See the Chinese Fishing Nets, St. Francis Church, Jewish Synagogue, and Dutch Palace on a guided walking tour.',
+        fullDescription: 'Explore the colonial history of Fort Kochi. See the Chinese Fishing Nets, St. Francis Church, Jewish Synagogue, and Dutch Palace on a guided walking tour. Discover the unique blend of Portuguese, Dutch, and British influences in this historic port town. Watch fishermen operate the iconic Chinese Fishing Nets at the waterfront. Visit St. Francis Church, the oldest European church in India. Walk through Jew Town to see the Paradesi Synagogue (closed Fridays/Saturdays) with its hand-painted tiles. Explore the Mattancherry Palace (Dutch Palace) known for its stunning murals of Hindu mythology. Your guide will narrate stories of the spice trade and the diverse communities that call Kochi home.',
+        seoKeywords: ['Fort Kochi tour', 'Chinese Fishing Nets', 'Jewish Synagogue', 'Mattancherry Palace', 'heritage walk']
+      },
+      {
+        title: 'Munnar Tea Garden & Hill Station Private Day Trip',
+        image: 'https://images.unsplash.com/photo-1597818919632-15f5d88698bf?auto=format&fit=crop&q=80&w=800',
+        shortDescription: 'Escape to the cool hills of Munnar on a private day trip. Visit lush tea plantations, the Tea Museum, Mattupetty Dam, and enjoy breathtaking mountain views.',
+        fullDescription: 'Escape to the cool hills of Munnar on a private day trip. Visit lush tea plantations, the Tea Museum, Mattupetty Dam, and enjoy breathtaking mountain views. Drive from Kochi to Munnar (approx. 4 hours), winding through scenic Western Ghats roads lined with waterfalls and spice gardens. Visit the Tata Tea Museum to learn about tea processing and taste different varieties. Walk through emerald-green tea estates for photos. Stop at Mattupetty Dam and Echo Point for boat rides or just to admire the landscape. Breathe in the fresh mountain air and enjoy the serenity before returning to Kochi. This tour is a refreshing break from the coastal humidity.',
+        seoKeywords: ['Munnar day trip', 'tea plantation tour', 'Kerala hill station', 'Tea Museum', 'Western Ghats']
+      },
+      {
+        title: 'Kochi: Private Airport Transfer to/from Hotel/Resort',
+        image: 'https://images.unsplash.com/photo-1549488346-63300a89aa7d?auto=format&fit=crop&q=80&w=800',
+        shortDescription: 'Start your Kerala vacation smoothly with a private transfer from Cochin International Airport (COK). Reliable service to hotels in Fort Kochi, Ernakulam, or Alleppey.',
+        fullDescription: 'Start your Kerala vacation smoothly with a private transfer from Cochin International Airport (COK). Reliable service to hotels in Fort Kochi, Ernakulam, or even Alleppey/Kumarakom resorts. Our driver will meet you at the arrival terminal with a pager board. Enjoy a comfortable ride in a clean, sanitized car to your destination. We accommodate all flight schedules, ensuring a safe transport even for late-night arrivals. Avoid the hassle of local taxis and enjoy a fixed-price, professional service.',
+        seoKeywords: ['Kochi airport transfer', 'COK airport taxi', 'private car Kerala', 'airport pickup', 'Fort Kochi transfer']
+      }
+    ],
+    'Goa': [
+      {
+        title: 'Goa: Old Goa Churches & Spice Plantation Tour',
+        image: 'https://images.unsplash.com/photo-1548013146-72479768bada?auto=format&fit=crop&q=80&w=800',
+        shortDescription: 'Discover Goa\'s Portuguese heritage at UNESCO World Heritage churches. Then, stimulate your senses with a guided walk and lunch at a tropical spice plantation.',
+        fullDescription: 'Discover Goa\'s Portuguese heritage at UNESCO World Heritage churches. Then, stimulate your senses with a guided walk and lunch at a tropical spice plantation. Visit Old Goa, the former capital of Portuguese India. Admire the Basilica of Bom Jesus, holding the remains of St. Francis Xavier, and the majestic Se Cathedral. Your guide will explain the history of Portuguese rule. Next, drive inland to a lush spice plantation. Take a guided walk to identify spices like cardamom, pepper, vanilla, and cinnamon growing in their natural habitat. Enjoy a traditional Goan buffet lunch served on banana leaves, accompanied by Feni tasting (local cashew spirit). This tour combines history, nature, and gastronomy perfectly.',
+        seoKeywords: ['Old Goa churches', 'spice plantation tour', 'Basilica of Bom Jesus', 'Goan lunch', 'cultural tour']
+      },
+      {
+        title: 'Goa: Island Hopping & Snorkeling Boat Trip',
+        image: 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?auto=format&fit=crop&q=80&w=800',
+        shortDescription: 'Enjoy a fun-filled day at sea with an island hopping boat trip. Spot dolphins, snorkel in clear waters, try fishing, and enjoy a BBQ lunch on a secluded beach.',
+        fullDescription: 'Enjoy a fun-filled day at sea with an island hopping boat trip. Spot dolphins, snorkel in clear waters, try fishing, and enjoy a BBQ lunch on a secluded beach. Set sail from the jetty towards Grand Island. Keep your camera ready for playful dolphins swimming alongside the boat. Anchor near the island for snorkeling; equipment is provided to help you see colorful coral and fish. Try your hand at traditional bottom fishing. Relax on a quiet beach like Monkey Beach for a delicious BBQ lunch (veg/non-veg options) with drinks. This group tour is perfect for water lovers and those looking to relax and have fun in the sun.',
+        seoKeywords: ['Goa boat trip', 'Grand Island snorkeling', 'dolphin watching', 'island hopping', 'water sports']
+      },
+      {
+        title: 'Goa: Dudhsagar Waterfalls & Jeep Safari Day Trip',
+        image: 'https://images.unsplash.com/photo-1596895111956-bf1cf0599ce5?auto=format&fit=crop&q=80&w=800',
+        shortDescription: 'Adventure into the jungle to see the majestic Dudhsagar Waterfalls. Enjoy a thrilling jeep safari through the Mollem National Park and swim in the natural pool.',
+        fullDescription: 'Adventure into the jungle to see the majestic Dudhsagar Waterfalls. Enjoy a thrilling jeep safari through the Mollem National Park and swim in the natural pool. Drive to the Goa-Karnataka border to reach the base of one of India\'s tallest waterfalls. Transfer to a 4x4 jeep for an exciting off-road ride through the jungle and river crossings. Hike a short distance to the waterfall\'s base where you can spot monkeys and exotic birds. Take a refreshing dip in the cool waters of the natural pool at the falls\' foot. The "Sea of Milk" cascading down four tiers is a spectacular sight. On the way back, visit a spice farm for lunch (optional inclusion).',
+        seoKeywords: ['Dudhsagar Waterfalls', 'Goa jeep safari', 'jungle trek', 'waterfall tour', 'nature trip']
+      },
+      {
+        title: 'Goa: Private Airport Transfer (Dabolim/Mopa)',
+        image: 'https://images.unsplash.com/photo-1563911302283-d2bc129e7c1f?auto=format&fit=crop&q=80&w=800',
+        shortDescription: 'Start your beach holiday without stress. Pre-book a private transfer from Dabolim (GOI) or Mopa (GOX) Airport to your hotel in North or South Goa.',
+        fullDescription: 'Start your beach holiday without stress. Pre-book a private transfer from Dabolim (GOI) or Mopa (GOX) Airport to your hotel in North or South Goa. Whether you\'re staying in Calangute, Baga, Panjim, or Palolem, we provide reliable transport. Your driver will meet you with a name sign, assist with bags, and drive you safely in a well-maintained AC car. No need to haggle with taxi drivers or wait in long queues. We offer 24/7 service to suit any flight time, ensuring you reach your resort comfortably and quickly.',
+        seoKeywords: ['Goa airport transfer', 'private taxi Goa', 'Dabolim airport', 'Mopa airport', 'hotel transfer']
       }
     ]
   };
@@ -539,15 +842,17 @@ const EmailSignupBox: React.FC<EmailSignupBoxProps> = ({ city, country }) => {
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState('');
 
-  // City-specific images
-  const cityImages: Record<string, string> = {
-    'Agra': '/agra-itinerary-hero.jpg',
-    'Delhi': '/delhi-itinerary-hero.jpg',
-    'Jaipur': '/jaipur-itinerary-hero.jpg'
-  };
+  // Pool of itinerary hero images from Agra, Delhi, and Jaipur to be used across all cities
+  const itineraryImages = [
+    '/agra-itinerary-hero.jpg',
+    '/delhi-itinerary-hero.jpg',
+    '/jaipur-itinerary-hero.jpg'
+  ];
 
-  // Fallback to city hero image if itinerary-specific image doesn't exist
-  const imageSrc = cityImages[city] || `/${city.toLowerCase()}-hero.jpg`;
+  // Select an image based on the city name to ensure it stays consistent for the same city
+  // but varies across different cities (pseudo-random distribution)
+  const imageIndex = city.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0) % itineraryImages.length;
+  const imageSrc = itineraryImages[imageIndex];
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -1258,9 +1563,7 @@ const CityPage: React.FC<CityPageProps> = ({ country, city }) => {
         )}
 
         {/* H2 #1: Things to Do Section */}
-        {(city === 'Agra' || city === 'Delhi' || city === 'Jaipur') && (
-          <ThingsToDoSection city={city} />
-        )}
+        <ThingsToDoSection city={city} />
 
         {/* H2 #2: Why Book with Local Guides */}
         <section className="mb-12">
@@ -1305,9 +1608,7 @@ const CityPage: React.FC<CityPageProps> = ({ country, city }) => {
         </section>
 
         {/* Email Signup Box - Only show for cities with itineraries */}
-        {(city === 'Agra' || city === 'Delhi' || city === 'Jaipur') && (
-          <EmailSignupBox city={city} country={country} />
-        )}
+        <EmailSignupBox city={city} country={country} />
 
         {/* H2 #5: FAQs */}
         {cityInfo.faqs.length > 0 && (

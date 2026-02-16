@@ -74,6 +74,9 @@ export const ASIAN_CITIES_DATABASE: CityInfo[] = [
   { name: 'Rishikesh', country: 'India', region: 'South Asia', type: 'City' },
   { name: 'Darjeeling', country: 'India', region: 'South Asia', type: 'City' },
   { name: 'Jaisalmer', country: 'India', region: 'South Asia', type: 'City' },
+  { name: 'Jodhpur', country: 'India', region: 'South Asia', type: 'City' },
+  { name: 'Amritsar', country: 'India', region: 'South Asia', type: 'City' },
+  { name: 'Leh Ladakh', country: 'India', region: 'South Asia', type: 'Region' },
 
   // Indonesia
   { name: 'Bali', country: 'Indonesia', region: 'Southeast Asia', type: 'Region' },
@@ -175,6 +178,22 @@ export const getCityImage = (cityName: string): string => {
     'Kuala Lumpur': '/kuala-lumpur-hero.jpg',
     'Taipei': '/taipei-hero.jpg',
     'Jaisalmer': '/cities-images/jaisalmer.jpg',
+    'Jodhpur': '/cities-images/jodhpur.jpg',
+    'Bikaner': '/cities-images/bikaner.jpg',
+    'Mathura': '/cities-images/mathura.jpg',
+    'Varanasi': '/cities-images/varanasi.jpg',
+    'Khajuraho': '/cities-images/khajurao.jpg',
+    'Gwalior': '/cities-images/gwalior.jpg',
+    'Aurangabad': '/cities-images/aurangabad.jpg',
+    'Goa': '/cities-images/goa.jpg',
+    'Mysore': '/cities-images/mysore.jpg',
+    'Bengaluru': '/cities-images/bangalore.jpg',
+    'Delhi': '/cities-images/delhi.jpg',
+    'Udaipur': 'https://images.unsplash.com/photo-1624235113031-86640fb6acfb?auto=format&fit=crop&q=80&w=600',
+    'Amritsar': '/cities-images/amritsar.jpg',
+    'Rishikesh': '/cities-images/rishikesh.jpg',
+    'Mumbai': 'https://images.unsplash.com/photo-1595658658481-d53d3f999875?auto=format&fit=crop&q=80&w=600',
+    'Leh Ladakh': 'https://images.unsplash.com/photo-1542144611-13e9259a287c?auto=format&fit=crop&q=80&w=600',
   };
 
   return cityImages[cityName] || `https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?auto=format&fit=crop&q=80&w=200`;

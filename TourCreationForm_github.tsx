@@ -1223,8 +1223,8 @@ const TourCreationForm: React.FC<TourCreationFormProps> = ({
                     type="button"
                     onClick={() => handleInputChange('category', 'Entry Ticket')}
                     className={`p-6 rounded-2xl border-2 transition-all text-left ${formData.category === 'Entry Ticket'
-                        ? 'border-[#10B981] bg-[#10B981]/5'
-                        : 'border-gray-200 hover:border-[#10B981]/50'
+                      ? 'border-[#10B981] bg-[#10B981]/5'
+                      : 'border-gray-200 hover:border-[#10B981]/50'
                       }`}
                   >
                     <div className="font-black text-[#001A33] text-[16px] mb-2">Entry Ticket</div>
@@ -1236,8 +1236,8 @@ const TourCreationForm: React.FC<TourCreationFormProps> = ({
                     type="button"
                     onClick={() => handleInputChange('category', 'Guided Tour')}
                     className={`p-6 rounded-2xl border-2 transition-all text-left ${formData.category === 'Guided Tour'
-                        ? 'border-[#10B981] bg-[#10B981]/5'
-                        : 'border-gray-200 hover:border-[#10B981]/50'
+                      ? 'border-[#10B981] bg-[#10B981]/5'
+                      : 'border-gray-200 hover:border-[#10B981]/50'
                       }`}
                   >
                     <div className="font-black text-[#001A33] text-[16px] mb-2">Guided Tour</div>
@@ -1406,8 +1406,8 @@ const TourCreationForm: React.FC<TourCreationFormProps> = ({
                                         });
                                       }}
                                       className={`p-2 rounded-lg border-2 text-[12px] font-semibold transition-all ${isSelected
-                                          ? 'border-[#10B981] bg-[#10B981]/10 text-[#10B981]'
-                                          : 'border-gray-200 hover:border-[#10B981]/50 text-[#001A33]'
+                                        ? 'border-[#10B981] bg-[#10B981]/10 text-[#10B981]'
+                                        : 'border-gray-200 hover:border-[#10B981]/50 text-[#001A33]'
                                         }`}
                                     >
                                       {location}
@@ -1445,8 +1445,8 @@ const TourCreationForm: React.FC<TourCreationFormProps> = ({
                               key={location}
                               onClick={() => handleLocationToggle(location)}
                               className={`relative p-4 bg-white rounded-xl border-2 cursor-pointer transition-all hover:shadow-md ${isSelected
-                                  ? 'border-[#10B981] bg-[#10B981]/5'
-                                  : 'border-gray-200 hover:border-[#10B981]/50'
+                                ? 'border-[#10B981] bg-[#10B981]/5'
+                                : 'border-gray-200 hover:border-[#10B981]/50'
                                 }`}
                             >
                               {isSelected && (
@@ -1902,8 +1902,8 @@ const TourCreationForm: React.FC<TourCreationFormProps> = ({
                           });
                         }}
                         className={`p-3 rounded-xl border-2 transition-all text-[13px] font-semibold ${isSelected
-                            ? 'border-red-500 bg-red-50 text-red-700'
-                            : 'border-gray-200 hover:border-red-300 text-gray-700 bg-white'
+                          ? 'border-red-500 bg-red-50 text-red-700'
+                          : 'border-gray-200 hover:border-red-300 text-gray-700 bg-white'
                           }`}
                       >
                         {day.label}
@@ -1935,8 +1935,8 @@ const TourCreationForm: React.FC<TourCreationFormProps> = ({
                         type="button"
                         onClick={() => handleTourTypeToggle(tourType)}
                         className={`p-3 rounded-xl border-2 transition-all text-left text-[13px] font-semibold ${isSelected
-                            ? 'border-[#10B981] bg-[#10B981]/10 text-[#10B981]'
-                            : 'border-gray-200 hover:border-[#10B981]/50 text-gray-700'
+                          ? 'border-[#10B981] bg-[#10B981]/10 text-[#10B981]'
+                          : 'border-gray-200 hover:border-[#10B981]/50 text-gray-700'
                           }`}
                       >
                         {tourType}
@@ -2632,7 +2632,7 @@ const TourCreationForm: React.FC<TourCreationFormProps> = ({
                 <div className="border-2 border-dashed border-gray-200 rounded-2xl p-6 md:p-8 text-center hover:border-[#10B981] transition-colors">
                   <input
                     type="file"
-                    accept="image/jpeg,image/jpg,image/png,image/gif,image/webp,image/avif,image/svg+xml"
+                    accept="image/jpeg,image/png,image/webp,image/gif,image/heic,image/heif"
                     multiple
                     onChange={handleImageUpload}
                     className="hidden"
@@ -2651,7 +2651,7 @@ const TourCreationForm: React.FC<TourCreationFormProps> = ({
                         JPG, PNG, GIF, WebP, AVIF, or SVG (Max 7MB each) • Landscape format recommended
                       </div>
                       <div className="text-[10px] md:text-[11px] text-[#10B981] font-semibold mt-2">
-                        📱 Mobile: Tap to take photo or choose from gallery
+                        📱 Mobile: Tap to choose photos from your gallery
                       </div>
                     </div>
                   </label>
@@ -3012,8 +3012,8 @@ const TourCreationForm: React.FC<TourCreationFormProps> = ({
                   }}
                   disabled={isSubmitting || !canProceed() || !hasRequiredContactInfo}
                   className={`px-6 py-3 font-black rounded-full text-[14px] transition-all flex items-center gap-2 ${isSubmitting || !canProceed() || !hasRequiredContactInfo
-                      ? 'bg-gray-400 cursor-not-allowed opacity-50'
-                      : 'bg-[#10B981] hover:bg-[#059669] text-white cursor-pointer'
+                    ? 'bg-gray-400 cursor-not-allowed opacity-50'
+                    : 'bg-[#10B981] hover:bg-[#059669] text-white cursor-pointer'
                     }`}
                   title={
                     !hasRequiredContactInfo
