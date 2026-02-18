@@ -44,7 +44,7 @@ export async function generateInvoicePDF(booking) {
         .fontSize(10)
         .font('Helvetica')
         .text('118 Rani Bagh Indirapuram', 120, 80)
-        .text('Ghaziabad, Uttar Pradesh, India', 120, 95)
+        .text('Agra, Uttar Pradesh, India', 120, 95)
         .text('GSTIN: 09BPLPK5079QIZU', 120, 110)
         .text('Email: info@asiabylocals.com', 120, 125);
 
