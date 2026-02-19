@@ -1285,10 +1285,7 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
         handler: async function (response: any) {
           console.log('✅ Payment successful callback received:', response);
 
-          // CRITICAL: Stop navigation immediately to prevent Razorpay redirects
-          window.stop();
-
-          // CRITICAL: Close modal immediately
+          // Close Razorpay modal first
           try {
             const currentRazorpay = (window as any).__currentRazorpayInstance;
             if (currentRazorpay && typeof currentRazorpay.close === 'function') {
@@ -1337,7 +1334,7 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
             window.location.replace(`/booking/${bookingId}?status=failed`);
           }
 
-          // CRITICAL: Return false to prevent Razorpay default redirect
+          // Return false to prevent Razorpay default redirect
           return false;
         },
 
