@@ -1364,7 +1364,7 @@ ${a(9)}`;
                   type="text"
                   value={formData.title}
                   onChange={(e) => handleInputChange('title', e.target.value)}
-                  placeholder="e.g., Taj Mahal Sunrise Tour with Local Guide"
+                  placeholder={formData.country === 'Thailand' ? "e.g., Bangkok City Tour with Local Guide" : "e.g., Taj Mahal Sunrise Tour with Local Guide"}
                   maxLength={100}
                   className="w-full bg-gray-50 border-none rounded-2xl py-4 px-4 font-bold text-[#001A33] text-[14px] focus:ring-2 focus:ring-[#10B981] outline-none"
                 />

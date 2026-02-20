@@ -18,6 +18,7 @@ import {
   LogOut
 } from 'lucide-react';
 import { CITIES, EXPERIENCES, ATTRACTIONS } from './constants';
+import { ASIAN_CITIES_DATABASE } from './citiesDatabase';
 import SupplierPage from './SupplierPage';
 import VerifyEmail from './VerifyEmail';
 import EmailVerificationWaiting from './EmailVerificationWaiting';
@@ -219,25 +220,14 @@ const App: React.FC = () => {
   const [showTouristSignup, setShowTouristSignup] = useState(false);
   const [pendingWishlistTour, setPendingWishlistTour] = useState<any>(null);
 
-  // Focus cities: Agra, Delhi, Jaipur, and other Indian cities
-  const focusCities = [
-    { name: 'Agra', country: 'India', slug: 'agra' },
-    { name: 'Delhi', country: 'India', slug: 'delhi' },
-    { name: 'Jaipur', country: 'India', slug: 'jaipur' },
-    { name: 'Jodhpur', country: 'India', slug: 'jodhpur' },
-    { name: 'Bikaner', country: 'India', slug: 'bikaner' },
-    { name: 'Mathura', country: 'India', slug: 'mathura' },
-    { name: 'Varanasi', country: 'India', slug: 'varanasi' },
-    { name: 'Khajuraho', country: 'India', slug: 'khajuraho' },
-    { name: 'Gwalior', country: 'India', slug: 'gwalior' },
-    { name: 'Mumbai', country: 'India', slug: 'mumbai' },
-    { name: 'Aurangabad', country: 'India', slug: 'aurangabad' },
-    { name: 'Goa', country: 'India', slug: 'goa' },
-    { name: 'Mysore', country: 'India', slug: 'mysore' },
-    { name: 'Bengaluru', country: 'India', slug: 'bengaluru' },
-    { name: 'Udaipur', country: 'India', slug: 'udaipur' },
-    { name: 'Jaisalmer', country: 'India', slug: 'jaisalmer' }
-  ];
+  // Use ASIAN_CITIES_DATABASE for search suggestions
+  const focusCities = useMemo(() => {
+    return ASIAN_CITIES_DATABASE.map(city => ({
+      name: city.name,
+      country: city.country,
+      slug: city.name.toLowerCase().replace(/\s+/g, '-')
+    }));
+  }, []);
 
   // Filter suggestions based on search query
   const filteredSuggestions = focusCities.filter(city =>
@@ -255,14 +245,16 @@ const App: React.FC = () => {
     );
 
     if (matchedCity) {
-      window.location.href = `/india/${matchedCity.slug}`;
+      const countrySlug = matchedCity.country.toLowerCase().replace(/\s+/g, '-');
+      window.location.href = `/${countrySlug}/${matchedCity.slug}`;
     } else {
       // If no exact match, try fuzzy match
       const fuzzyMatch = focusCities.find(city =>
         city.name.toLowerCase().includes(query.toLowerCase())
       );
       if (fuzzyMatch) {
-        window.location.href = `/india/${fuzzyMatch.slug}`;
+        const countrySlug = fuzzyMatch.country.toLowerCase().replace(/\s+/g, '-');
+        window.location.href = `/${countrySlug}/${fuzzyMatch.slug}`;
       }
     }
     setShowSuggestions(false);

@@ -281,6 +281,69 @@ export const CITY_LOCATIONS: Record<string, string[]> = {
     'Manza Beach', 'Nakagusuku Castle Ruins', 'Sefa Utaki', 'Okinawa Peace Memorial Park',
     'Cape Manzamo', 'Ryukyu Mura'
   ],
+  // Thailand - Top 10 attractions for each city
+  'Bangkok': [
+    'Grand Palace', 'Wat Pho', 'Wat Arun', 'Chinatown (Yaowarat)', 'Chatuchak Weekend Market',
+    'ICONSIAM', 'Jim Thompson House', 'Bangkok Canal Tour', 'Asiatique Riverfront', 'Floating Market (Day Trip Option)'
+  ],
+  'Chiang Mai': [
+    'Doi Suthep', 'Old City Temples', 'Elephant Sanctuary (ethical only)', 'Doi Inthanon',
+    'Sunday Walking Street', 'Night Bazaar', 'Sticky Waterfalls', 'Thai Cooking Class',
+    'Chiang Rai (White Temple)', 'Nimmanhaemin Road'
+  ],
+  'Phuket': [
+    'Phi Phi Islands', 'Phang Nga Bay / James Bond Island', 'Big Buddha', 'Wat Chalong',
+    'Phuket Old Town', 'Promthep Cape', 'Private Speedboat Tour', 'Sunset Catamaran Cruise',
+    'Elephant Sanctuary (ethical)', 'Patong Beach (optional)'
+  ],
+  'Pattaya': [
+    'Sanctuary of Truth', 'Walking Street', 'Nong Nooch Botanical Garden', 'Pattaya Beach',
+    'Jomtien Beach', 'Pattaya Floating Market', 'Koh Larn (Coral Island)', 'Mini Siam',
+    'Art in Paradise', 'Big Buddha Temple'
+  ],
+  'Krabi': [
+    'Railay Beach', 'Ao Nang', 'Emerald Pool (Thung Teao)', 'Tiger Cave Temple',
+    'Koh Lanta', 'Krabi Town Night Market', 'Phra Nang Beach', 'Hong Islands',
+    'Maya Bay', 'Khao Khanab Nam'
+  ],
+  'Ayutthaya': [
+    'Wat Mahathat', 'Wat Phra Si Sanphet', 'Wat Chaiwatthanaram', 'Wat Yai Chai Mongkhon',
+    'Ayutthaya Historical Park', 'Bang Pa-In Royal Palace', 'Wat Phra Ram', 'Wat Lokayasutharam',
+    'Chao Sam Phraya National Museum', 'Chao Phraya River'
+  ],
+  'Sukhothai': [
+    'Sukhothai Historical Park', 'Wat Mahathat', 'Wat Si Chum', 'Wat Sa Si',
+    'Wat Phra Phai Luang', 'Ramkhamhaeng National Museum', 'Wat Sorasak', 'Wat Traphang Ngoen',
+    'Si Satchanalai Historical Park', 'Sangkhalok Museum'
+  ],
+  'Hua Hin': [
+    'Hua Hin Beach', 'Cicada Market', 'Hua Hin Railway Station', 'Khao Takiab',
+    'Vana Nava Water Jungle', 'Monsoon Valley Vineyard', 'Phraya Nakhon Cave', 'Black Mountain Water Park',
+    'Hua Hin Night Market', 'Maruekhathaiyawan Palace'
+  ],
+  'Ko Samui': [
+    'Chaweng Beach', 'Lamai Beach', 'Big Buddha Temple (Wat Phra Yai)', 'Fisherman\'s Village Bophut',
+    'Hin Ta and Hin Yai Rocks', 'Na Muang Waterfalls', 'Ang Thong National Marine Park', 'Secret Buddha Garden',
+    'Wat Plai Laem', 'Silver Beach'
+  ],
+  'Ko Phangan': [
+    'Full Moon Party (Haad Rin)', 'Thong Sala Night Market', 'Bottle Beach', 'Salad Beach',
+    'Phaeng Waterfall', 'Than Sadet National Park', 'Mae Haad Beach', 'Koh Ma',
+    'Wat Phu Khao Noi', 'Secret Beach'
+  ],
+  'Ko Lanta': [
+    'Long Beach (Phra Ae)', 'Klong Dao Beach', 'Mu Ko Lanta National Park', 'Lanta Old Town',
+    'Klong Nin Beach', 'Bamboo Bay', 'Khlong Chak Waterfall', 'Koh Rok',
+    'Sala Dan Pier', 'Sea Gypsy Village'
+  ],
+  'Phi Phi Islands': [
+    'Maya Bay', 'Phi Phi Viewpoint', 'Bamboo Island', 'Monkey Beach', 'Viking Cave',
+    'Tonsai Village', 'Loh Dalum Bay', 'Pi Leh Bay', 'Moo Dee Bay', 'Mosquito Island'
+  ],
+  'Pai': [
+    'Pai Canyon', 'Tham Lod Cave', 'Yun Lai Viewpoint', 'Pai Walking Street', 'Mo Paeng Waterfall',
+    'Tha Pai Hot Springs', 'Chedi Phra That Mae Yen (White Buddha)', 'Santichon Village', 'Bamboo Bridge', 'Pai River'
+  ],
   // Add more cities as needed
 };
 

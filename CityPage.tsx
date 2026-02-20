@@ -456,6 +456,112 @@ const CITY_DESCRIPTIONS: Record<string, {
         answer: 'Light cotton clothing is best due to the humidity. Modest dress is recommended when visiting temples and churches.'
       }
     ]
+  },
+  'Bangkok': {
+    title: 'Bangkok Tours & Things to Do | Guided Experiences by Locals',
+    description: 'Discover the best tours in Bangkok with licensed local guides. Grand Palace visits, canal tours, street food walks & floating markets.',
+    intro: [
+      'Bangkok, the "City of Angels," is a vibrant metropolis that blends ancient spiritual traditions with modern luxury. From the shimmering spires of the Grand Palace to the neon-lit food markets of Chinatown, the city is a sensory masterpiece.',
+      'At AsiaByLocals, explore Bangkok through world-class tours led by expert local guides. Discover the majestic Chao Phraya River, hidden canals, and historic temples through authentic, locally curated experiences that show you the soul of Thailand.'
+    ],
+    whyBook: [
+      'Licensed & experienced local experts',
+      'Direct support to local communities',
+      'Ethical, small-group experiences',
+      'Skip-the-line access to major monuments'
+    ],
+    topAttractions: [
+      'Grand Palace',
+      'Wat Pho',
+      'Wat Arun',
+      'Chinatown (Yaowarat)',
+      'Chatuchak Weekend Market',
+      'ICONSIAM',
+      'Jim Thompson House',
+      'Bangkok Canal Tour'
+    ],
+    bestTime: 'The best time to visit Bangkok is from November to February during the cool and dry season. March and April are the hottest months, while the monsoon lasts from June to October.',
+    faqs: [
+      {
+        question: 'Is it easy to get around Bangkok for tours?',
+        answer: 'Yes, Bangkok has excellent transport options. Most of our tours use a combination of the BTS Skytrain, MRT, and traditional Tuk-Tuks or private cars to ensure a smooth experience.'
+      },
+      {
+        question: 'What is the dress code for Bangkok temples?',
+        answer: 'Modest dress is strictly required for the Grand Palace and major temples. Shoulders and knees must be covered. Wearing comfortable, easy-to-remove shoes is also recommended.'
+      },
+      {
+        question: 'Are street food tours safe in Bangkok?',
+        answer: 'Our guides take you to trusted vendors with high hygiene standards. We ensure a safe and delicious introduction to Thailand\'s legendary street food scene.'
+      }
+    ]
+  },
+  'Chiang Mai': {
+    title: 'Chiang Mai Tours & Things to Do | Guided Experiences by Locals',
+    description: 'Discover the best tours in Chiang Mai with licensed local guides. Doi Suthep tours, ethical elephant encounters, cooking classes & night markets.',
+    intro: [
+      'Chiang Mai, the cultural heart of Northern Thailand, is a city of misty mountains, ancient temples, and vibrant night markets. It is a place where tradition meets modernity, offering a peaceful escape from the bustle of the south.',
+      'At AsiaByLocals, experience the magic of Chiang Mai with expert local guides. From the sacred Doi Suthep mountain to ethical elephant sanctuaries and traditional cooking classes, discover the authentic spirit of the "Rose of the North."'
+    ],
+    whyBook: [
+      'Licensed & experienced local experts',
+      'Direct support to local communities',
+      'Ethical, small-group experiences',
+      'Support for local artisans and farmers'
+    ],
+    topAttractions: [
+      'Doi Suthep',
+      'Old City Temples',
+      'Elephant Sanctuary (ethical only)',
+      'Doi Inthanon',
+      'Sunday Walking Street',
+      'Night Bazaar',
+      'Chiang Rai (White Temple)'
+    ],
+    bestTime: 'The best time to visit Chiang Mai is from November to February when the weather is cool and clear. Note that "burning season" (air pollution) typically occurs from February to April.',
+    faqs: [
+      {
+        question: 'Are elephant sanctuaries in Chiang Mai ethical?',
+        answer: 'AsiaByLocals only partners with 100% ethical sanctuaries that prioritize animal welfare, with no riding or circus-style shows.'
+      },
+      {
+        question: 'How far is the White Temple from Chiang Mai?',
+        answer: 'The White Temple (Wat Rong Khun) is in Chiang Rai, about a 3-hour drive from Chiang Mai. We offer full-day trips that cover the major highlights of Chiang Rai.'
+      }
+    ]
+  },
+  'Phuket': {
+    title: 'Phuket Tours & Things to Do | Guided Experiences by Locals',
+    description: 'Discover the best tours in Phuket with licensed local guides. Phi Phi Islands, Phang Nga Bay cruises, Big Buddha visits & Old Town tours.',
+    intro: [
+      'Phuket, Thailand\'s largest island, is a tropical paradise of turquoise waters, white sand beaches, and historic Sino-Portuguese charm. It serves as the gateway to the stunning Phi Phi Islands and Phang Nga Bay.',
+      'At AsiaByLocals, discover Phuket through expert-led tours that go beyond the beaches. Explore the colorful Old Town, visit the iconic Big Buddha, and cruise the Andaman Sea in private speedboats or sunset catamarans with knowledgeable local experts.'
+    ],
+    whyBook: [
+      'Licensed & experienced local experts',
+      'Direct support to local communities',
+      'Ethical, small-group experiences',
+      'Safety-first approach for all water activities'
+    ],
+    topAttractions: [
+      'Phi Phi Islands',
+      'Phang Nga Bay / James Bond Island',
+      'Big Buddha',
+      'Wat Chalong',
+      'Phuket Old Town',
+      'Promthep Cape'
+    ],
+    bestTime: 'The best time to visit Phuket is from December to March (dry season). May to October is the monsoon season, which can bring heavy rain and rougher seas.',
+    faqs: [
+      {
+        question: 'Which is better: Phi Phi Islands or Phang Nga Bay?',
+        answer: 'Both are unique! Phi Phi offers iconic beaches like Maya Bay and snorkeling, while Phang Nga Bay is famous for its towering limestone cliffs and sea caves.'
+      },
+      {
+        question: 'Is Phuket Old Town worth visiting?',
+        answer: 'Absolutely. It offers a fascinating look at the island\'s tin-mining history through beautiful Sino-Portuguese architecture, street art, and legendary local cafes.'
+      }
+    ]
   }
 };
 
