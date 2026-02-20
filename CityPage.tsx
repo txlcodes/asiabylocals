@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { MapPin, Star, Clock, Users, Search, Filter, Heart, User, Globe, ChevronDown, Calendar, ChevronUp, Mail, ArrowLeft } from 'lucide-react';
 import { CITY_LOCATIONS } from './constants';
+import { Helmet } from 'react-helmet-async';
 
 interface CityPageProps {
   country: string;
@@ -1163,19 +1164,45 @@ const CityPage: React.FC<CityPageProps> = ({ country, city }) => {
   const countrySlug = country.toLowerCase().replace(/\s+/g, '-');
   const citySlug = city.toLowerCase().replace(/\s+/g, '-');
 
+  // Preferred top-rated tours to prioritize in the list
+  const preferredTitles = [
+    'Book Official Tour Guide for Taj mahal',
+    'Skip-The-Line Tajmahal Sunrise Tour With Guide'
+  ];
+
   // Helper function to generate unique random rating between 4.0 and 5.0 for each tour
   const calculateRating = (tour: any) => {
-    // Generate a consistent random rating based on tour ID (so it's unique but stable)
-    // This creates a pseudo-random number between 4.0 and 5.0
+    const title = tour.title?.toLowerCase() || '';
+    const isPreferred = preferredTitles.some(pt => title.includes(pt.toLowerCase()));
+
+    if (isPreferred) {
+      // Force 4.9+ rating for preferred tours
+      return 4.9 + (Math.random() * 0.1);
+    }
+
+    // Generate a consistent random rating based on tour ID
     const seed = parseInt(tour.id) || 0;
     const random = (seed * 9301 + 49297) % 233280;
     const normalized = random / 233280;
-    return 4.0 + (normalized * 1.0); // Range: 4.0 to 5.0
+
+    // Scale down the non-preferred tours so they receive between 4.1 and 4.6
+    return 4.1 + (normalized * 0.5);
   };
 
   // Sort tours
   const sortedTours = [...filteredTours].sort((a, b) => {
     if (sortBy === 'recommended') {
+      const aTitle = a.title?.toLowerCase() || '';
+      const bTitle = b.title?.toLowerCase() || '';
+
+      const aIndex = preferredTitles.findIndex(pt => aTitle.includes(pt.toLowerCase()));
+      const bIndex = preferredTitles.findIndex(pt => bTitle.includes(pt.toLowerCase()));
+
+      // Prioritize preferred tours first
+      if (aIndex !== -1 && bIndex === -1) return -1;
+      if (bIndex !== -1 && aIndex === -1) return 1;
+      if (aIndex !== -1 && bIndex !== -1) return aIndex - bIndex;
+
       // Sort by rating (descending)
       const ratingA = calculateRating(a) || 0;
       const ratingB = calculateRating(b) || 0;
@@ -1218,70 +1245,23 @@ const CityPage: React.FC<CityPageProps> = ({ country, city }) => {
     }))
   };
 
-  // Update SEO meta tags
-  useEffect(() => {
-    // Update title
-    document.title = cityInfo.title;
-
-    // Update meta description
-    let metaDescription = document.querySelector('meta[name="description"]');
-    if (!metaDescription) {
-      metaDescription = document.createElement('meta');
-      metaDescription.setAttribute('name', 'description');
-      document.head.appendChild(metaDescription);
-    }
-    metaDescription.setAttribute('content', cityInfo.description);
-
-    // Update keywords
-    let metaKeywords = document.querySelector('meta[name="keywords"]');
-    if (!metaKeywords) {
-      metaKeywords = document.createElement('meta');
-      metaKeywords.setAttribute('name', 'keywords');
-      document.head.appendChild(metaKeywords);
-    }
-    metaKeywords.setAttribute('content', `${city} tours, ${city} experiences, ${country} tours, local guides ${city}, ${city} travel guide, things to do in ${city}, ${city} activities`);
-
-    // Update canonical
-    let canonical = document.querySelector('link[rel="canonical"]');
-    if (!canonical) {
-      canonical = document.createElement('link');
-      canonical.setAttribute('rel', 'canonical');
-      document.head.appendChild(canonical);
-    }
-    canonical.setAttribute('href', `https://www.asiabylocals.com/${countrySlug}/${citySlug}`);
-
-    // Update Open Graph
-    const ogTags = [
-      { property: 'og:title', content: cityInfo.title },
-      { property: 'og:description', content: cityInfo.description },
-      { property: 'og:url', content: `https://asiabylocals.com/${countrySlug}/${citySlug}` },
-      { property: 'og:type', content: 'website' }
-    ];
-
-    ogTags.forEach(tag => {
-      let ogTag = document.querySelector(`meta[property="${tag.property}"]`);
-      if (!ogTag) {
-        ogTag = document.createElement('meta');
-        ogTag.setAttribute('property', tag.property);
-        document.head.appendChild(ogTag);
-      }
-      ogTag.setAttribute('content', tag.content);
-    });
-
-    // Add structured data
-    let existingScript = document.querySelector('script[type="application/ld+json"][data-city-page]');
-    if (existingScript) {
-      existingScript.remove();
-    }
-    const script = document.createElement('script');
-    script.type = 'application/ld+json';
-    script.setAttribute('data-city-page', 'true');
-    script.textContent = JSON.stringify(structuredData);
-    document.head.appendChild(script);
-  }, [city, country, cityInfo, countrySlug, citySlug, structuredData]);
+  // Removed manual SEO meta tag DOM updates in favor of Helmet
 
   return (
     <div className="min-h-screen bg-white">
+      <Helmet>
+        <title>{cityInfo.title}</title>
+        <meta name="description" content={cityInfo.description} />
+        <meta name="keywords" content={`${city} tours, ${city} experiences, ${country} tours, local guides ${city}, ${city} travel guide, things to do in ${city}, ${city} activities`} />
+        <link rel="canonical" href={`https://www.asiabylocals.com/${countrySlug}/${citySlug}`} />
+        <meta property="og:title" content={cityInfo.title} />
+        <meta property="og:description" content={cityInfo.description} />
+        <meta property="og:url" content={`https://www.asiabylocals.com/${countrySlug}/${citySlug}`} />
+        <meta property="og:type" content="website" />
+        <script type="application/ld+json">
+          {JSON.stringify(structuredData)}
+        </script>
+      </Helmet>
 
       {/* Header Navigation */}
       <header className="sticky top-0 z-50 bg-white border-b border-gray-100 shadow-sm">
@@ -1455,6 +1435,7 @@ const CityPage: React.FC<CityPageProps> = ({ country, city }) => {
                           src={tour.images[0]}
                           alt={`${tour.title} in ${city} - ${cityInfo.description}`}
                           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                          loading="lazy"
                         />
                         {/* Brand Logo Overlay */}
 

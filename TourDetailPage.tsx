@@ -33,6 +33,8 @@ import {
   Home
 } from 'lucide-react';
 import BookingForm from './BookingForm';
+import RelatedTours from './RelatedTours';
+import { Helmet } from 'react-helmet-async';
 
 interface TourDetailPageProps {
   tourId?: string;
@@ -1478,8 +1480,31 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
     isOptionsArray: Array.isArray(tour?.options)
   });
 
+  const structuredData = {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    "name": tour?.title || "Tour",
+    "description": tour?.shortDescription || "",
+    "image": tour?.images?.[0] || "",
+    "offers": {
+      "@type": "Offer",
+      "price": tour?.pricePerPerson || 0,
+      "priceCurrency": tour?.currency || "USD"
+    }
+  };
+
   return (
     <div className="min-h-screen bg-white">
+      <Helmet>
+        <title>{tour?.title ? `${tour.title} | ${city || 'Tour'} | AsiaByLocals` : 'AsiaByLocals'}</title>
+        <meta name="description" content={tour?.shortDescription || `Book your next adventure in ${city || 'Asia'} with AsiaByLocals.`} />
+        <meta property="og:title" content={tour?.title} />
+        <meta property="og:description" content={tour?.shortDescription} />
+        {tour?.images?.[0] && <meta property="og:image" content={tour.images[0]} />}
+        <script type="application/ld+json">
+          {JSON.stringify(structuredData)}
+        </script>
+      </Helmet>
       {/* Header */}
       <header className="sticky top-0 z-50 bg-white border-b border-gray-200 shadow-sm">
         <div className="max-w-7xl mx-auto px-6 h-16 sm:h-20 md:h-24 flex items-center justify-between">
@@ -2129,6 +2154,8 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
                 )}
               </div>
             </div>
+
+            <RelatedTours currentTourId={tour?.id} country={country || tour?.country} city={city || tour?.city} />
 
           </div>
 

@@ -1,4 +1,4 @@
-# Agra City Page - Complete SEO Content
+![alt text](image.png)# Agra City Page - Complete SEO Content
 
 ## URL Structure
 `/india/agra`

@@ -35,7 +35,20 @@ If you see "Email or password is incorrect":
 
 #### Option C: Account Not Found
 If you see "Email or password is incorrect" and you're sure the password is right:
-1. The account might not have been created properly
+1. The account might not have been created properly![🔧 Use These Settings
+model: "gpt-4.1-mini",
+max_tokens: 750,
+temperature: 0.7,
+stream: true
+
+
+Why:
+
+750 tokens keeps you under ~500–550 words
+
+0.7 keeps variation high (important for SEO uniqueness)
+
+Streaming improves UX](image-1.png)
 2. **Solution**: Register again with the same email
    - The system will detect existing email
    - It will resend verification email
