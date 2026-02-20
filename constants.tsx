@@ -131,7 +131,7 @@ export const CITY_LOCATIONS: Record<string, string[]> = {
   ],
   'Agra': [
     'Taj Mahal', 'Agra Fort', 'Baby Taj', 'Mehtab Bagh', 'Jama Masjid',
-    'Handicraft Store Agra', 'Agra Railway Station', 'Agra Airport',
+    'Agra Railway Station', 'Agra Airport',
     'Tomb of Akbar the Great', 'Shri Mankameshwar Temple', 'Sadar Bazar', 'Kinari Bazar'
   ],
   'Jaipur': [

@@ -261,13 +261,13 @@ const BookingConfirmation: React.FC = () => {
           <div className="bg-white rounded-2xl shadow-xl p-8">
             <h3 className="text-2xl font-black text-[#001A33] mb-6 flex items-center gap-2">
               <User className="text-[#10B981]" size={24} />
-              Contact Your Guide
+              Contact Your Supplier
             </h3>
             <div className="space-y-4">
               <div>
-                <div className="text-sm text-gray-500 font-bold uppercase mb-2">Guide Name</div>
+                <div className="text-sm text-gray-500 font-bold uppercase mb-2">Supplier Name</div>
                 <div className="text-lg font-black text-[#001A33]">
-                  {booking.supplier.fullName || booking.supplier.companyName || 'Your Guide'}
+                  {booking.supplier.fullName || booking.supplier.companyName || 'Your Supplier'}
                 </div>
               </div>
 

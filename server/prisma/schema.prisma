@@ -90,7 +90,8 @@ model Tour {
   createdAt        DateTime     @default(now()) @map("created_at")
   updatedAt        DateTime     @updatedAt @map("updated_at")
   approvedAt       DateTime?    @map("approved_at")
-  itineraryItems     String?      @map("itinerary_items") // JSON array of {title, time, description}
+  itineraryItems     String?      @map("itinerary_items") // JSON array of {title, time, duration, description, type, optional}
+  detailedItinerary  String?      @map("detailed_itinerary") // Long-form text itinerary (300+ words)
   visitorInfo        String?      @map("visitor_info")
   checklistItems     String?      @map("checklist_items") // JSON array of {label, value, iconType}
   supplier         Supplier     @relation(fields: [supplierId], references: [id], onDelete: Cascade)

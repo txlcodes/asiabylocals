@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, ChevronRight, ChevronLeft, ChevronDown, Upload, ArrowUp, ArrowDown, Trash2, CheckCircle2, AlertCircle, Phone, Mail, Plus, MapPin, Clock, Shield, Info } from 'lucide-react';
+import { X, ChevronRight, ChevronLeft, ChevronDown, Upload, ArrowUp, ArrowDown, Trash2, CheckCircle2, AlertCircle, Phone, Mail, Plus, MapPin, Clock, Shield, Info, Car, Landmark, UtensilsCrossed, Star, CircleDot, Flag, FileText, Sparkles, PenLine, Loader2, Lightbulb } from 'lucide-react';
 import { CITY_LOCATIONS, TRANSPORTATION_TYPES, ENTRY_TICKET_OPTIONS, EntryTicketOption } from './constants';
 import { COUNTRIES, COUNTRY_CITIES } from './src/locations';
 
@@ -25,7 +25,20 @@ const DURATION_OPTIONS = [
   '4 hours',
   '6 hours',
   '8 hours',
-  'Full day',
+  '10 hours',
+  '12 hours',
+  '1 day',
+  '2 days',
+  '3 days',
+  '4 days',
+  '5 days',
+  '6 days',
+  '7 days',
+  '8 days',
+  '9 days',
+  '10 days',
+  '11 days',
+  '12 days',
   'Flexible'
 ];
 
@@ -78,6 +91,10 @@ const TourCreationForm: React.FC<TourCreationFormProps> = ({
   const isEditing = !!tour;
   const [step, setStep] = useState(1);
   const [showDurationError, setShowDurationError] = useState(false);
+  const [itineraryMode, setItineraryMode] = useState<'choose' | 'manual' | 'ai'>('choose');
+  const [aiCurrentQuestion, setAiCurrentQuestion] = useState(0);
+  const [aiAnswers, setAiAnswers] = useState<Record<number, string>>({});
+  const [aiGenerating, setAiGenerating] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submissionStatus, setSubmissionStatus] = useState<string>('');
   const [transportationSearch, setTransportationSearch] = useState('');
@@ -122,7 +139,8 @@ const TourCreationForm: React.FC<TourCreationFormProps> = ({
         transportationTypes: Array.isArray(tour.transportationTypes) ? tour.transportationTypes : (typeof tour.transportationTypes === 'string' ? JSON.parse(tour.transportationTypes || '[]') : []),
         multiCityTravel: tour.multiCityTravel || false,
         tourOptions: tour.options || [],
-        itineraryItems: tour.itineraryItems ? (typeof tour.itineraryItems === 'string' ? JSON.parse(tour.itineraryItems) : tour.itineraryItems) : []
+        itineraryItems: tour.itineraryItems ? (typeof tour.itineraryItems === 'string' ? JSON.parse(tour.itineraryItems) : tour.itineraryItems) : [],
+        detailedItinerary: tour.detailedItinerary || ''
       };
     } catch (e) {
       console.error('Error parsing tour data:', e);
@@ -191,7 +209,8 @@ const TourCreationForm: React.FC<TourCreationFormProps> = ({
         groupPrice?: string;
         groupPricingTiers?: Array<{ minPeople: number; maxPeople: number; price: string }>;
       }>,
-      itineraryItems: [] as Array<{ title: string; time: string; description: string }>
+      itineraryItems: [] as Array<{ title: string; time: string; duration: string; description: string; type: 'pickup' | 'transport' | 'visit' | 'meal' | 'activity' | 'optional' | 'return'; optional: boolean }>,
+      detailedItinerary: ''
     };
   });
 
@@ -220,6 +239,196 @@ const TourCreationForm: React.FC<TourCreationFormProps> = ({
       }
     }
   }, [step, formData.locations.length]); // Only run when step changes or locations change
+
+  // --- AI Wizard Logic ---
+  const getMajorStops = () => {
+    const items = formData.itineraryItems || [];
+    // Prioritize visits/activities
+    const visits = items.filter(i => ['visit', 'activity', 'optional'].includes(i.type));
+    if (visits.length >= 2) return [visits[0], visits[1]];
+    if (visits.length === 1) return [visits[0], items.find(i => i !== visits[0] && !['pickup', 'return', 'transport'].includes(i.type)) || items[1]];
+
+    // Fallback: exclude transport/pickup if possible
+    const meaningful = items.filter(i => !['pickup', 'return', 'transport'].includes(i.type));
+    return [meaningful[0] || items[1], meaningful[1] || items[2]];
+  };
+
+  const [stop1, stop2] = getMajorStops();
+
+  const aiQuestions = [
+    {
+      id: 0,
+      question: 'What is the main title/heading for this itinerary?',
+      placeholder: `e.g. ${formData.title || 'Agra Same Day Tour'} Itinerary (From ${formData.city || 'Delhi'})`,
+      defaultValue: `${formData.title || 'Agra Same Day Tour'} Itinerary (From ${formData.city || 'Delhi'})`,
+      hint: 'This becomes the H2 heading for SEO'
+    },
+    {
+      id: 1,
+      question: 'Describe the pickup — time, location, and vehicle type?',
+      placeholder: 'e.g. Early morning pickup at 6:00 AM from your hotel in Delhi/NCR in a comfortable AC sedan',
+      defaultValue: 'Early morning pickup at 6:00 AM from your hotel in Delhi/NCR in a comfortable AC sedan',
+      hint: 'Include time, pickup point, and vehicle details'
+    },
+    {
+      id: 2,
+      question: 'What route do you take and how long is the drive?',
+      placeholder: 'e.g. 3.5 hour drive via Yamuna Expressway, scenic countryside views along the way',
+      defaultValue: '3.5 hour drive via Yamuna Expressway, scenic countryside views along the way',
+      hint: 'Mention expressway/highway, duration, and scenery'
+    },
+    {
+      id: 3,
+      question: `Describe the first major stop — ${stop1 ? `${stop1.title} (${stop1.type})` : 'Main Attraction'}?`,
+      placeholder: `e.g. Visit ${stop1?.title || 'the main attraction'} — history, key highlights, time spent here`,
+      defaultValue: `Visit ${stop1?.title || 'the main attraction'} and explore its history and key highlights.`,
+      hint: 'Include history, what they\'ll see, time spent, and insider tips'
+    },
+    {
+      id: 4,
+      question: `Describe the second major stop — ${stop2 ? `${stop2.title} (${stop2.type})` : 'Second Attraction'}?`,
+      placeholder: `e.g. Explore ${stop2?.title || 'the next site'} — architecture, cultural significance, views`,
+      defaultValue: `Explore ${stop2?.title || 'the next site'} and discover its cultural significance.`,
+      hint: 'Historical significance, key highlights, approximate time'
+    },
+    {
+      id: 5,
+      question: 'What are the meal/lunch arrangements?',
+      placeholder: 'e.g. Lunch at a local restaurant serving authentic Mughlai cuisine — both veg and non-veg options available (at traveller\'s own expense)',
+      defaultValue: 'Lunch at a local restaurant serving authentic Mughlai cuisine.',
+      hint: 'Restaurant type, cuisine, veg/non-veg, included or extra cost'
+    },
+    {
+      id: 6,
+      question: 'Any optional stops or add-ons available?',
+      placeholder: 'e.g. Optional visit to Mehtab Bagh for sunset views, local marble handicraft workshop, or Fatehpur Sikri (additional charge)',
+      defaultValue: 'Optional visits can be arranged upon request.',
+      hint: 'Shopping, extra sightseeing, upgrades'
+    },
+    {
+      id: 7,
+      question: 'Describe the return journey?',
+      placeholder: 'e.g. Depart around 5:00 PM, comfortable drive back, drop-off at hotel by 8:30 PM',
+      defaultValue: 'Depart around 5:00 PM for a comfortable drive back, with drop-off at your hotel.',
+      hint: 'Departure time, route, expected arrival'
+    },
+    {
+      id: 8,
+      question: 'What makes YOUR tour special compared to competitors?',
+      placeholder: 'e.g. Skip-the-line entry, government-licensed guide, flexible itinerary, bottled water provided',
+      defaultValue: 'Skip-the-line entry, professional guide, and a flexible itinerary.',
+      hint: 'Your unique selling points — what sets you apart'
+    },
+    {
+      id: 9,
+      question: 'Share insider tips for travellers?',
+      placeholder: 'e.g. Wear comfortable shoes, carry sunscreen, best photos at sunrise',
+      defaultValue: 'Wear comfortable shoes and carry sunscreen.',
+      hint: 'Practical tips — clothing, weather, photography, dos & don\'ts'
+    }
+  ];
+
+  const totalQuestions = aiQuestions.length;
+  // Calculate answered count based on whether user typed OR we have a default (wait, answered count is visualized progress)
+  // Progress should reflect TYPED answers probably? Or just current step?
+  // Let's stick to simple progress: currentQuestion / totalQuestions?
+  // Or typed answers.
+  const answeredCount = Object.keys(aiAnswers).filter(k => aiAnswers[parseInt(k)]?.trim()).length;
+  const currentQ = aiQuestions[aiCurrentQuestion];
+  const allAnswered = answeredCount >= totalQuestions || aiCurrentQuestion === totalQuestions; // Allow generation if at end
+
+  const handleGenerateItinerary = async () => {
+    setAiGenerating(true);
+    try {
+      const API_URL = import.meta.env.VITE_API_URL || (typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3001');
+
+      // Prepare answers with defaults
+      const finalAnswers: Record<string, string> = {};
+      aiQuestions.forEach(q => {
+        finalAnswers[q.id] = aiAnswers[q.id] || q.defaultValue;
+      });
+
+      const response = await fetch(`${API_URL}/api/generate-itinerary`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ answers: finalAnswers }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`API error: ${response.status}`);
+      }
+
+      // Switch to manual view to show streaming
+      setItineraryMode('manual');
+
+      const reader = response.body?.getReader();
+      const decoder = new TextDecoder();
+      let fullText = '';
+
+      if (reader) {
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          const chunk = decoder.decode(value);
+          const lines = chunk.split('\n').filter(line => line.startsWith('data: '));
+          for (const line of lines) {
+            try {
+              const data = JSON.parse(line.slice(6));
+              if (data.content) {
+                fullText += data.content;
+                handleInputChange('detailedItinerary', fullText);
+              }
+              if (data.error) {
+                throw new Error(data.error);
+              }
+            } catch (parseErr) {
+              // Skip unparseable lines
+            }
+          }
+        }
+      }
+
+      setAiGenerating(false);
+    } catch (err) {
+      console.error('AI generation failed, using template fallback:', err);
+      alert('⚠️ AI Generation failed. Using offline template instead.\n\nError: ' + (err instanceof Error ? err.message : String(err)));
+      // Fallback to template
+      const a = (idx: number) => aiAnswers[idx] || aiQuestions[idx].defaultValue;
+      const generated = `## ${a(0)}
+
+## Pickup & Departure Details
+
+${a(1)} ${a(2) ? `\n\n${a(2)}` : ''} Sit back and relax as your professional driver navigates the route.
+
+## First Major Stop
+
+${a(3)} Your expert guide will share fascinating stories and historical facts to bring the past to life.
+
+## Second Major Stop
+
+${a(4)} This stop offers a unique perspective on the region's rich cultural heritage.
+
+## Lunch Break
+
+${a(5)} This is a wonderful opportunity to savour authentic local cuisine.
+
+## Optional Add-ons
+
+${a(6)} These optional additions allow you to tailor the experience to your interests.
+
+## Return Journey
+
+${a(7)} Your driver will ensure a safe and comfortable return.
+
+## Insider Tips
+
+${a(9)}`;
+
+      handleInputChange('detailedItinerary', generated);
+      setAiGenerating(false);
+      setItineraryMode('manual');
+    }
+  };
 
   const handleInputChange = (field: string, value: any) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -365,7 +574,11 @@ const TourCreationForm: React.FC<TourCreationFormProps> = ({
         return shortLength >= 200 && fullLength >= 500 && formData.included && formData.highlights.filter(h => h.trim()).length >= 3;
       case 6:
         // Step 6: Itinerary
-        return formData.itineraryItems.length > 0 && formData.itineraryItems.every(item => item.title.trim() && item.time.trim() && item.description.trim());
+        if (formData.itineraryItems.length === 0) return false;
+        if (!formData.itineraryItems.every(item => item.title.trim() && item.time.trim() && item.type)) return false;
+        // Detailed itinerary must be 500+ words
+        const wordCount = formData.detailedItinerary.trim().split(/\s+/).filter(w => w.length > 0).length;
+        return wordCount >= 500;
       case 7:
         // Step 7: Tour Options
         return formData.tourOptions.length > 0 && formData.tourOptions.every(opt => {
@@ -550,6 +763,7 @@ const TourCreationForm: React.FC<TourCreationFormProps> = ({
         transportationTypes: JSON.stringify(formData.transportationTypes),
         multiCityTravel: formData.multiCityTravel || false,
         itineraryItems: JSON.stringify(formData.itineraryItems),
+        detailedItinerary: formData.detailedItinerary?.trim() || null,
         // visitorInfo: formData.visitorInfo, // Removed
         // checklistItems: JSON.stringify(formData.checklistItems), // Removed
         tourOptions: formData.tourOptions.map((opt, idx) => {
@@ -1044,7 +1258,7 @@ const TourCreationForm: React.FC<TourCreationFormProps> = ({
                     value={formData.country}
                     onChange={(e) => {
                       handleInputChange('country', e.target.value);
-                      handleInputChange('city', ''); // Reset city when country changes
+                      handleInputChange('city', '');
                     }}
                     className="w-full bg-white border-2 border-gray-100 rounded-xl py-4 px-4 pr-10 font-bold text-[#001A33] text-[14px] focus:ring-2 focus:ring-[#10B981] focus:border-[#10B981] outline-none appearance-none shadow-sm transition-all hover:border-gray-200"
                   >
@@ -1328,6 +1542,47 @@ const TourCreationForm: React.FC<TourCreationFormProps> = ({
                           );
                         })}
                       </div>
+
+                      {/* Custom Location Input */}
+                      <div className="mt-4 flex gap-3">
+                        <input
+                          type="text"
+                          id="custom-location-input"
+                          placeholder="Add a custom location..."
+                          className="flex-1 bg-gray-50 border-2 border-dashed border-gray-300 rounded-xl py-3 px-4 font-semibold text-[#001A33] text-[13px] focus:ring-2 focus:ring-[#10B981] focus:border-[#10B981] outline-none"
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter') {
+                              e.preventDefault();
+                              const input = e.target as HTMLInputElement;
+                              const value = input.value.trim();
+                              if (value && !formData.locations.includes(value)) {
+                                setFormData(prev => ({
+                                  ...prev,
+                                  locations: [...prev.locations, value]
+                                }));
+                                input.value = '';
+                              }
+                            }
+                          }}
+                        />
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const input = document.getElementById('custom-location-input') as HTMLInputElement;
+                            const value = input?.value?.trim();
+                            if (value && !formData.locations.includes(value)) {
+                              setFormData(prev => ({
+                                ...prev,
+                                locations: [...prev.locations, value]
+                              }));
+                              input.value = '';
+                            }
+                          }}
+                          className="px-5 py-3 bg-[#10B981] text-white font-bold rounded-xl hover:bg-[#0d9668] transition-all text-[13px]"
+                        >
+                          + Add
+                        </button>
+                      </div>
                       {formData.locations.length > 0 && (
                         <div className="mt-4 p-4 bg-[#10B981]/10 rounded-xl border border-[#10B981]/20">
                           <p className="text-[14px] font-bold text-[#10B981] mb-2">
@@ -1337,9 +1592,21 @@ const TourCreationForm: React.FC<TourCreationFormProps> = ({
                             {formData.locations.map((loc) => (
                               <span
                                 key={loc}
-                                className="px-3 py-1 bg-[#10B981] text-white text-[12px] font-bold rounded-full"
+                                className="inline-flex items-center gap-1.5 px-3 py-1 bg-[#10B981] text-white text-[12px] font-bold rounded-full"
                               >
                                 {loc}
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    setFormData(prev => ({
+                                      ...prev,
+                                      locations: prev.locations.filter(l => l !== loc),
+                                    }));
+                                  }}
+                                  className="ml-0.5 hover:text-red-200 transition-colors"
+                                >
+                                  <X size={12} />
+                                </button>
                               </span>
                             ))}
                           </div>
@@ -1460,6 +1727,7 @@ const TourCreationForm: React.FC<TourCreationFormProps> = ({
                   Duration *
                 </label>
                 <select
+                  id="duration-select"
                   value={formData.duration}
                   onChange={(e) => {
                     handleInputChange('duration', e.target.value);
@@ -1900,125 +2168,410 @@ const TourCreationForm: React.FC<TourCreationFormProps> = ({
 
         {/* Step 6: Detailed Itinerary */}
         {step === 6 && (
-          <div className="bg-white rounded-2xl p-8 border border-gray-200">
-            <div className="flex items-center justify-between mb-8">
-              <div>
-                <h2 className="text-2xl font-black text-[#001A33]">Build Your Experience Timeline</h2>
-                <p className="text-[14px] text-gray-500 font-semibold mt-1">
-                  Add chronological time slots to guide your customers through the journey.
-                </p>
+          <div className="space-y-8">
+            {/* Part 1: Visual Itinerary Builder */}
+            <div className="bg-white rounded-2xl p-8 border border-gray-200">
+              <div className="flex items-center justify-between mb-6">
+                <div>
+                  <h2 className="text-2xl font-black text-[#001A33]">Build Your Itinerary Timeline</h2>
+                  <p className="text-[14px] text-gray-500 font-semibold mt-1">
+                    Add time slots with activity types to create a visual journey for travelers.
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const newItems = [...formData.itineraryItems, { title: '', time: '', duration: '', description: '', type: 'visit' as const, optional: false }];
+                    handleInputChange('itineraryItems', newItems);
+                  }}
+                  className="bg-[#10B981] hover:bg-[#059669] text-white font-black py-2.5 px-6 rounded-xl text-[14px] transition-all flex items-center gap-2 shadow-sm"
+                >
+                  <Plus size={18} /> Add Stop
+                </button>
               </div>
-              <button
-                type="button"
-                onClick={() => {
-                  const newItems = [...formData.itineraryItems, { title: '', time: '', description: '' }];
-                  handleInputChange('itineraryItems', newItems);
-                }}
-                className="bg-[#10B981] hover:bg-[#059669] text-white font-black py-2.5 px-6 rounded-xl text-[14px] transition-all flex items-center gap-2 shadow-sm"
-              >
-                <Plus size={18} /> Add Time Slot
-              </button>
+
+              <div className="space-y-6">
+                {formData.itineraryItems.length === 0 ? (
+                  <div className="bg-gray-50 border-2 border-dashed border-gray-200 rounded-[2rem] p-12 text-center">
+                    <div className="bg-white w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 shadow-sm">
+                      <Clock className="text-[#10B981]" size={32} />
+                    </div>
+                    <h3 className="text-[18px] font-black text-[#001A33] mb-2">No timeline items yet</h3>
+                    <p className="text-[14px] text-gray-500 font-semibold max-w-sm mx-auto mb-6">
+                      A detailed timeline helps travelers visualize the day and increases booking confidence.
+                    </p>
+                    <button
+                      type="button"
+                      onClick={() => handleInputChange('itineraryItems', [
+                        { title: 'Pickup location', time: '06:00', duration: '30 minutes', description: 'Pickup from your hotel or airport', type: 'pickup' as const, optional: false },
+                        { title: 'Car', time: '06:30', duration: '3.5 hours', description: 'Drive to Agra in private AC car', type: 'transport' as const, optional: false },
+                        { title: 'Taj Mahal', time: '10:00', duration: '3 hours', description: 'Visit and guided tour of the iconic Taj Mahal', type: 'visit' as const, optional: false },
+                        { title: 'Lunch at 5-star Hotel', time: '13:00', duration: '45 minutes', description: 'Enjoy a delicious meal at a premium restaurant', type: 'meal' as const, optional: false },
+                        { title: 'Agra Fort', time: '14:00', duration: '1 hour', description: 'Visit and guided tour of the historic Agra Fort', type: 'visit' as const, optional: false },
+                        { title: 'Baby Taj', time: '15:30', duration: '30 minutes', description: 'Visit the beautiful Tomb of Itmad-ud-Daulah', type: 'visit' as const, optional: true },
+                        { title: 'Car', time: '16:00', duration: '3.5 hours', description: 'Return drive to Delhi', type: 'transport' as const, optional: false },
+                        { title: 'Arrive back', time: '19:30', duration: '', description: 'Drop-off at your hotel or airport', type: 'return' as const, optional: false }
+                      ])}
+                      className="text-[#10B981] font-bold hover:underline py-2 px-4"
+                    >
+                      + Start with an example (Agra Day Trip)
+                    </button>
+                  </div>
+                ) : (
+                  <div className="relative">
+                    {/* Vertical line */}
+                    <div className="absolute left-[24px] top-8 bottom-8 w-[4px] bg-gradient-to-b from-[#10B981] via-[#10B981] to-[#10B981] z-0 rounded-full" />
+
+                    <div className="space-y-1">
+                      {formData.itineraryItems.map((item, index) => {
+                        const typeConfig: Record<string, { icon: React.ReactNode; bg: string; border: string }> = {
+                          pickup: { icon: <MapPin size={18} className="text-white" />, bg: 'bg-[#10B981]', border: 'border-[#10B981]' },
+                          transport: { icon: <Car size={18} className="text-[#10B981]" />, bg: 'bg-white', border: 'border-[#10B981]' },
+                          visit: { icon: <Landmark size={18} className="text-white" />, bg: 'bg-[#10B981]', border: 'border-[#10B981]' },
+                          meal: { icon: <UtensilsCrossed size={18} className="text-white" />, bg: 'bg-[#10B981]', border: 'border-[#10B981]' },
+                          activity: { icon: <Star size={18} className="text-white" />, bg: 'bg-[#10B981]', border: 'border-[#10B981]' },
+                          optional: { icon: <CircleDot size={18} className="text-gray-400" />, bg: 'bg-white', border: 'border-gray-300' },
+                          return: { icon: <Flag size={18} className="text-white" />, bg: 'bg-[#10B981]', border: 'border-[#10B981]' }
+                        };
+                        const config = typeConfig[item.type] || typeConfig.visit;
+
+                        return (
+                          <div key={index} className="relative pl-16 group py-3">
+                            <div className={`absolute left-[8px] top-6 w-[36px] h-[36px] rounded-full ${config.bg} ${config.border} border-2 flex items-center justify-center z-10 shadow-md`}>
+                              {config.icon}
+                            </div>
+
+                            <div className="bg-white border border-gray-100 rounded-xl p-5 shadow-sm hover:shadow-md hover:border-gray-200 transition-all relative">
+                              <div className="absolute -top-2 -right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-all z-20">
+                                {index > 0 && (
+                                  <button type="button" onClick={() => { const items = [...formData.itineraryItems];[items[index], items[index - 1]] = [items[index - 1], items[index]]; handleInputChange('itineraryItems', items); }} className="bg-white text-gray-500 hover:text-[#001A33] rounded-full p-1.5 shadow-md border border-gray-100"><ArrowUp size={14} /></button>
+                                )}
+                                {index < formData.itineraryItems.length - 1 && (
+                                  <button type="button" onClick={() => { const items = [...formData.itineraryItems];[items[index], items[index + 1]] = [items[index + 1], items[index]]; handleInputChange('itineraryItems', items); }} className="bg-white text-gray-500 hover:text-[#001A33] rounded-full p-1.5 shadow-md border border-gray-100"><ArrowDown size={14} /></button>
+                                )}
+                                <button type="button" onClick={() => { handleInputChange('itineraryItems', formData.itineraryItems.filter((_: any, i: number) => i !== index)); }} className="bg-red-50 text-red-500 hover:bg-red-500 hover:text-white rounded-full p-1.5 shadow-md"><Trash2 size={14} /></button>
+                              </div>
+
+                              <div className="grid grid-cols-12 gap-3 mb-3">
+                                <div className="col-span-3">
+                                  <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Type</label>
+                                  <select
+                                    value={item.type}
+                                    onChange={(e) => { const items = [...formData.itineraryItems]; items[index] = { ...items[index], type: e.target.value as any }; handleInputChange('itineraryItems', items); }}
+                                    className="w-full bg-gray-50 border-none rounded-lg py-2.5 px-3 font-bold text-[#001A33] text-[13px] focus:ring-2 focus:ring-[#10B981] outline-none"
+                                  >
+                                    <option value="pickup">Pickup</option>
+                                    <option value="transport">Transport</option>
+                                    <option value="visit">Visit / Sightseeing</option>
+                                    <option value="meal">Meal / Break</option>
+                                    <option value="activity">Activity</option>
+                                    <option value="optional">Optional Stop</option>
+                                    <option value="return">Return / Drop-off</option>
+                                  </select>
+                                </div>
+                                <div className="col-span-4">
+                                  <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Title</label>
+                                  <input type="text" value={item.title} onChange={(e) => { const items = [...formData.itineraryItems]; items[index].title = e.target.value; handleInputChange('itineraryItems', items); }} placeholder="e.g. Taj Mahal" className="w-full bg-gray-50 border-none rounded-lg py-2.5 px-3 font-black text-[#001A33] text-[14px] focus:ring-2 focus:ring-[#10B981] outline-none" />
+                                </div>
+                                <div className="col-span-2">
+                                  <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Time</label>
+                                  <select
+                                    value={item.time}
+                                    onChange={(e) => { const items = [...formData.itineraryItems]; items[index].time = e.target.value; handleInputChange('itineraryItems', items); }}
+                                    className="w-full bg-gray-50 border-none rounded-lg py-2.5 px-3 font-black text-[#001A33] text-[13px] focus:ring-2 focus:ring-[#10B981] outline-none appearance-none"
+                                  >
+                                    <option value="">Select</option>
+                                    {Array.from({ length: 48 }, (_, i) => {
+                                      const hour24 = Math.floor(i / 2);
+                                      const minutes = i % 2 === 0 ? '00' : '30';
+                                      const period = hour24 < 12 ? 'AM' : 'PM';
+                                      const hour12 = hour24 === 0 ? 12 : hour24 > 12 ? hour24 - 12 : hour24;
+                                      const label = `${hour12}:${minutes} ${period}`;
+                                      const value24 = `${String(hour24).padStart(2, '0')}:${minutes}`;
+                                      return <option key={value24} value={value24}>{label}</option>;
+                                    })}
+                                  </select>
+                                </div>
+                                <div className="col-span-3">
+                                  <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Duration</label>
+                                  <input type="text" value={item.duration} onChange={(e) => { const items = [...formData.itineraryItems]; items[index].duration = e.target.value; handleInputChange('itineraryItems', items); }} placeholder="e.g. 2 hours" className="w-full bg-gray-50 border-none rounded-lg py-2.5 px-3 font-bold text-[#001A33] text-[13px] focus:ring-2 focus:ring-[#10B981] outline-none" />
+                                </div>
+                              </div>
+
+                              <div className="flex gap-3 items-start">
+                                <div className="flex-1">
+                                  <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Description</label>
+                                  <input type="text" value={item.description} onChange={(e) => { const items = [...formData.itineraryItems]; items[index].description = e.target.value; handleInputChange('itineraryItems', items); }} placeholder="Brief description of this stop..." className="w-full bg-gray-50 border-none rounded-lg py-2.5 px-3 font-semibold text-gray-600 text-[13px] focus:ring-2 focus:ring-[#10B981] outline-none" />
+                                </div>
+                                <div className="pt-5">
+                                  <label className="flex items-center gap-2 cursor-pointer">
+                                    <input type="checkbox" checked={item.optional} onChange={(e) => { const items = [...formData.itineraryItems]; items[index].optional = e.target.checked; if (e.target.checked) items[index].type = 'optional' as any; handleInputChange('itineraryItems', items); }} className="w-4 h-4 rounded border-gray-300 text-[#10B981] focus:ring-[#10B981]" />
+                                    <span className="text-[11px] font-bold text-gray-400 uppercase whitespace-nowrap">Optional</span>
+                                  </label>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+
+                    <div className="relative pl-14 pt-2">
+                      <div className="absolute left-[15px] top-4 w-5 h-5 rounded-full border-2 border-dashed border-gray-300 z-10" />
+                      <button
+                        type="button"
+                        onClick={() => { handleInputChange('itineraryItems', [...formData.itineraryItems, { title: '', time: '', duration: '', description: '', type: 'visit' as const, optional: false }]); }}
+                        className="text-[#10B981] font-bold text-[13px] hover:underline py-2"
+                      >
+                        + Add another stop
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
 
-            <div className="space-y-6">
-              {formData.itineraryItems.length === 0 ? (
-                <div className="bg-gray-50 border-2 border-dashed border-gray-200 rounded-[2rem] p-12 text-center">
-                  <div className="bg-white w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 shadow-sm">
-                    <Clock className="text-[#10B981]" size={32} />
-                  </div>
-                  <h3 className="text-[18px] font-black text-[#001A33] mb-2">No timeline items yet</h3>
-                  <p className="text-[14px] text-gray-500 font-semibold max-w-sm mx-auto mb-6">
-                    A detailed timeline helps travelers visualize the day and increases booking confidence.
-                  </p>
-                  <button
-                    type="button"
-                    onClick={() => handleInputChange('itineraryItems', [
-                      { title: 'Morning Pickup', time: '09:00 AM', description: 'Meet your private guide at your hotel lobby to begin your personalized journey.' },
-                      { title: 'Monument Exploration', time: '10:30 AM', description: 'Discover the rich history and architecture with in-depth local stories.' }
-                    ])}
-                    className="text-[#10B981] font-bold hover:underline py-2 px-4"
-                  >
-                    + Start with an example
-                  </button>
-                </div>
-              ) : (
-                <div className="relative space-y-8 before:absolute before:left-8 before:top-4 before:bottom-4 before:w-[2px] before:bg-gray-100 before:-z-0">
-                  {formData.itineraryItems.map((item, index) => (
-                    <div key={index} className="relative pl-16 group">
-                      {/* Numbered Circle */}
-                      <div className="absolute left-1 top-2 w-14 h-14 rounded-full bg-white border-4 border-[#10B981] text-[#10B981] flex items-center justify-center font-black text-[18px] shadow-sm z-10 transition-transform group-hover:scale-110">
-                        {index + 1}
-                      </div>
+            {/* Part 2: Detailed Text Itinerary */}
+            <div className="bg-white rounded-2xl p-8 border border-gray-200">
+              <h2 className="text-2xl font-black text-[#001A33] mb-2">Detailed Itinerary Description</h2>
+              <p className="text-[14px] text-gray-500 font-semibold mb-6">
+                Write a comprehensive, detailed description of the entire tour experience. <span className="text-[#FF6B35] font-black">Minimum 500 words required.</span>
+              </p>
 
-                      <div className="bg-white border-2 border-gray-100 rounded-[2rem] p-6 shadow-sm hover:shadow-md hover:border-gray-200 transition-all relative">
+              {/* Mode Toggle */}
+              <div className="flex bg-gray-100 p-1.5 rounded-xl mb-8">
+                <button
+                  type="button"
+                  onClick={() => setItineraryMode('manual')}
+                  className={`flex-1 py-3 rounded-lg text-[14px] font-bold transition-all flex items-center justify-center gap-2 ${itineraryMode === 'manual' || itineraryMode === 'choose' ? 'bg-white shadow-sm text-[#001A33] ring-1 ring-black/5' : 'text-gray-500 hover:text-gray-700 hover:bg-gray-200/50'}`}
+                >
+                  <PenLine size={16} />
+                  Manual Editor
+                </button>
+                <button
+                  type="button"
+                  onClick={() => { setItineraryMode('ai'); if (Object.keys(aiAnswers).length === 0) setAiCurrentQuestion(0); }}
+                  className={`flex-1 py-3 rounded-lg text-[14px] font-bold transition-all flex items-center justify-center gap-2 ${itineraryMode === 'ai' ? 'bg-white shadow-sm text-[#10B981] ring-1 ring-black/5' : 'text-gray-500 hover:text-gray-700 hover:bg-gray-200/50'}`}
+                >
+                  <Sparkles size={16} className={itineraryMode === 'ai' ? 'text-[#10B981]' : 'text-gray-400'} />
+                  AI Writer
+                </button>
+              </div>
+
+              {/* AI Questionnaire Mode */}
+              {itineraryMode === 'ai' && (
+                <div>
+                  {/* Progress */}
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center gap-2">
+                      <Sparkles size={16} className="text-[#10B981]" />
+                      <span className="text-[13px] font-black text-[#10B981]">AsiaByLocals AI Writer</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-[12px] font-bold text-gray-400">{answeredCount}/{totalQuestions} steps</span>
+                    </div>
+                  </div>
+                  <div className="w-full h-2 bg-gray-100 rounded-full mb-6 overflow-hidden">
+                    <div className="h-full bg-[#10B981] rounded-full transition-all duration-300" style={{ width: `${(Math.min(answeredCount, totalQuestions) / totalQuestions) * 100}%` }} />
+                  </div>
+
+                  {/* Question Card */}
+                  {currentQ && (
+                    <div className="bg-gradient-to-br from-emerald-50/50 to-white border-2 border-[#10B981]/20 rounded-2xl p-6 mb-4">
+                      <div className="flex items-center gap-2 mb-3">
+                        <span className="w-7 h-7 bg-[#10B981] text-white text-[12px] font-black rounded-full flex items-center justify-center">{currentQ.id + 1}</span>
+                        <span className="text-[11px] font-bold text-gray-400 uppercase tracking-wider">Question {currentQ.id + 1} of {totalQuestions}</span>
+                      </div>
+                      <h3 className="text-[16px] font-black text-[#001A33] mb-2">{currentQ.question}</h3>
+                      <p className="text-[12px] text-gray-400 font-semibold mb-4 flex items-start gap-1.5"><Lightbulb size={13} className="text-amber-400 mt-0.5 shrink-0" /> {currentQ.hint}</p>
+                      <textarea
+                        value={aiAnswers[currentQ.id] || ''}
+                        onChange={(e) => setAiAnswers(prev => ({ ...prev, [currentQ.id]: e.target.value }))}
+                        placeholder={currentQ.placeholder}
+                        rows={3}
+                        className="w-full bg-white border-2 border-gray-200 rounded-xl py-3 px-4 font-semibold text-gray-700 text-[14px] focus:ring-2 focus:ring-[#10B981] focus:border-[#10B981] outline-none resize-none leading-relaxed"
+                        autoFocus
+                      />
+                      <div className="flex items-center justify-between mt-4">
+                        <button
+                          type="button"
+                          onClick={() => setAiCurrentQuestion(Math.max(0, aiCurrentQuestion - 1))}
+                          disabled={aiCurrentQuestion === 0}
+                          className="px-4 py-2 text-[13px] font-bold text-gray-400 hover:text-gray-600 disabled:opacity-30 transition-colors"
+                        >
+                          ← Previous
+                        </button>
                         <button
                           type="button"
                           onClick={() => {
-                            const newItems = formData.itineraryItems.filter((_, i) => i !== index);
-                            handleInputChange('itineraryItems', newItems);
+                            if (aiCurrentQuestion < totalQuestions - 1) {
+                              setAiCurrentQuestion(aiCurrentQuestion + 1);
+                            } else {
+                              // Finish - hide question card
+                              setAiCurrentQuestion(totalQuestions);
+                            }
                           }}
-                          className="absolute -top-3 -right-3 bg-red-50 text-red-500 hover:bg-red-500 hover:text-white rounded-full p-2 shadow-md transition-all opacity-0 group-hover:opacity-100"
+                          className="px-6 py-2.5 bg-[#10B981] text-white font-black text-[13px] rounded-xl hover:bg-[#0d9668] transition-all"
                         >
-                          <Trash2 size={16} />
+                          {aiCurrentQuestion === totalQuestions - 1 ? 'Finish' : 'Next →'}
                         </button>
-
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-4">
-                          <div>
-                            <label className="block text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-2">Estimated Time</label>
-                            <div className="relative">
-                              <Clock className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
-                              <input
-                                type="time"
-                                value={item.time && (item.time.includes('AM') || item.time.includes('PM')) ? (() => {
-                                  const [time, modifier] = item.time.split(' ');
-                                  let [hours, minutes] = time.split(':');
-                                  if (hours === '12') hours = '00';
-                                  if (modifier === 'PM') hours = String(parseInt(hours, 10) + 12);
-                                  return `${hours.padStart(2, '0')}:${minutes}`;
-                                })() : item.time}
-                                onChange={(e) => {
-                                  const newItems = [...formData.itineraryItems];
-                                  newItems[index].time = e.target.value;
-                                  handleInputChange('itineraryItems', newItems);
-                                }}
-                                className="w-full bg-gray-50 border-none rounded-xl py-3 px-11 font-black text-[#001A33] text-[15px] focus:ring-2 focus:ring-[#10B981] outline-none"
-                              />
-                            </div>
-                          </div>
-                          <div>
-                            <label className="block text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-2">Activity Title</label>
-                            <input
-                              type="text"
-                              value={item.title}
-                              onChange={(e) => {
-                                const newItems = [...formData.itineraryItems];
-                                newItems[index].title = e.target.value;
-                                handleInputChange('itineraryItems', newItems);
-                              }}
-                              placeholder="e.g. Arrival at Taj Mahal"
-                              className="w-full bg-gray-50 border-none rounded-xl py-3 px-5 font-black text-[#001A33] text-[15px] focus:ring-2 focus:ring-[#10B981] outline-none"
-                            />
-                          </div>
-                        </div>
-
-                        <div>
-                          <label className="block text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-2">What will you guide/do in this slot?</label>
-                          <textarea
-                            value={item.description}
-                            onChange={(e) => {
-                              const newItems = [...formData.itineraryItems];
-                              newItems[index].description = e.target.value;
-                              handleInputChange('itineraryItems', newItems);
-                            }}
-                            placeholder="Describe the experience, the history you'll share, or the activities involved..."
-                            rows={3}
-                            className="w-full bg-gray-50 border-none rounded-2xl py-4 px-5 font-semibold text-gray-600 text-[14px] focus:ring-2 focus:ring-[#10B981] outline-none resize-none leading-relaxed"
-                          />
-                        </div>
                       </div>
                     </div>
-                  ))}
+                  )}
+
+                  {/* Question Pills - Quick nav */}
+                  <div className="flex flex-wrap gap-2 mb-4">
+                    {aiQuestions.map((q) => (
+                      <button
+                        key={q.id}
+                        type="button"
+                        onClick={() => setAiCurrentQuestion(q.id)}
+                        className={`w-8 h-8 rounded-full text-[11px] font-black transition-all ${aiAnswers[q.id]?.trim()
+                          ? 'bg-[#10B981] text-white'
+                          : aiCurrentQuestion === q.id
+                            ? 'bg-[#10B981]/20 text-[#10B981] border-2 border-[#10B981]'
+                            : 'bg-gray-100 text-gray-400'
+                          }`}
+                      >
+                        {q.id + 1}
+                      </button>
+                    ))}
+                  </div>
+
+                  {/* Generate Button */}
+                  {allAnswered && (
+                    <button
+                      type="button"
+                      onClick={handleGenerateItinerary}
+                      disabled={aiGenerating}
+                      className="w-full py-4 bg-gradient-to-r from-[#10B981] to-emerald-600 text-white font-black text-[16px] rounded-xl hover:from-[#0d9668] hover:to-emerald-700 transition-all flex items-center justify-center gap-3 shadow-lg shadow-[#10B981]/20 disabled:opacity-60"
+                    >
+                      {aiGenerating ? (
+                        <>
+                          <Loader2 size={20} className="animate-spin" />
+                          Generating your itinerary...
+                        </>
+                      ) : (
+                        <>
+                          <Sparkles size={20} />
+                          Generate Itinerary with AI
+                        </>
+                      )}
+                    </button>
+                  )}
                 </div>
+              )}
+
+              {/* Manual Editor */}
+              {(itineraryMode === 'manual' || (itineraryMode === 'choose' && !itineraryMode.includes('ai'))) && (
+                <>
+
+                  {/* SEO Structure Guide */}
+                  <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-5 mb-4">
+                    <div className="flex items-start gap-3 mb-3">
+                      <CheckCircle2 size={18} className="text-[#10B981] mt-0.5 shrink-0" />
+                      <div>
+                        <p className="text-[14px] font-black text-[#001A33] mb-1">Structure your itinerary with clear sections</p>
+                        <p className="text-[12px] text-gray-500 font-semibold">Organise your content under section headings. Well-structured itineraries rank higher on Google and convert more bookings.</p>
+                      </div>
+                    </div>
+                    <div className="bg-white rounded-lg p-4 border border-emerald-100">
+                      <p className="text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-3">Recommended Sections</p>
+                      <div className="flex flex-wrap gap-2">
+                        {['Tour Overview', 'Pickup & Departure', 'Sightseeing Stops', 'Lunch Break', 'Optional Add-ons', 'Return Journey', 'Insider Tips', 'Important Notes'].map((section) => (
+                          <span key={section} className="inline-flex items-center gap-1.5 text-[12px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-3 py-1.5 rounded-lg">
+                            <CheckCircle2 size={12} className="text-[#10B981]" /> {section}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Use Template Button */}
+                  {!formData.detailedItinerary.includes('##') && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const template = `## ${formData.title || 'Tour'} Itinerary${formData.city ? ` (${formData.city})` : ''}\n\nWrite a brief overview of your tour here. Mention the key highlights, duration, and what makes this experience special.\n\n## Pickup & Departure Details\n\nDescribe the pickup time, location, vehicle type, and the journey to the first stop. Include approximate travel times.\n\n## ${formData.itineraryItems?.[1]?.title || 'First Major Stop'}\n\nDescribe this stop in detail — its historical significance, what travelers will see and do, approximate time spent, and any insider tips.\n\n## ${formData.itineraryItems?.[2]?.title || 'Second Major Stop'}\n\nDescribe this stop in detail — its significance, the experience, and time spent here.\n\n## Lunch Break\n\nDescribe the meal arrangements — restaurant type, cuisine options, vegetarian/non-vegetarian availability, and whether the meal is included or at the traveller\'s own expense.\n\n## Optional Add-ons\n\nMention any optional stops, shopping opportunities, or additional experiences available upon request.\n\n## Return Journey\n\nDescribe the return trip — departure time, route, expected arrival time, and drop-off details.\n\n## Insider Tips\n\nShare practical tips — best time to visit, what to wear, what to carry, photography tips, and anything that will enhance the traveller\'s experience.`;
+                        handleInputChange('detailedItinerary', template);
+                      }}
+                      className="w-full mb-4 py-3 px-4 bg-[#10B981]/10 border-2 border-dashed border-[#10B981]/30 rounded-xl text-[#10B981] font-black text-[13px] hover:bg-[#10B981]/20 hover:border-[#10B981]/50 transition-all flex items-center justify-center gap-2"
+                    >
+                      <FileText size={16} />
+                      Auto-fill with guided template
+                    </button>
+                  )}
+
+                  <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 mb-4">
+                    <p className="text-[13px] font-bold text-blue-800 flex items-start gap-2">
+                      <Lightbulb size={15} className="text-blue-500 mt-0.5 shrink-0" /> <span><strong>Tips:</strong> Include pickup details, each stop with historical/cultural context, meal arrangements, travel times, what makes your tour special, insider tips, and return details. More detail = more bookings!</span>
+                    </p>
+                  </div>
+
+                  <div className="relative">
+                    {aiGenerating && (
+                      <div className="absolute top-4 right-4 z-20 bg-[#10B981] text-white px-3 py-1.5 rounded-full shadow-lg flex items-center gap-2 text-xs font-bold animate-pulse">
+                        <Sparkles size={14} /> AI Writing...
+                      </div>
+                    )}
+                    <textarea
+                      readOnly={aiGenerating}
+                      value={formData.detailedItinerary}
+                      onChange={(e) => handleInputChange('detailedItinerary', e.target.value)}
+                      placeholder={"Tour Overview\nWrite a brief overview of your tour — key highlights, duration, and what makes it special.\n\nPickup & Departure Details\nDescribe pickup time, location, vehicle type, and travel time to the first stop.\n\nTaj Mahal Visit\nDescribe this stop in detail — history, what travellers will see, time spent here.\n\nAgra Fort Exploration\nDescribe the experience, architecture, and cultural significance.\n\nLunch Break\nMeal arrangements — restaurant type, cuisine options, inclusions.\n\nReturn Journey\nReturn trip details — departure time, route, arrival time.\n\nInsider Tips\nPractical tips — best time to visit, what to wear, what to carry."}
+                      rows={16}
+                      className={`w-full bg-gray-50 border-2 border-gray-200 rounded-2xl py-5 px-6 font-semibold text-gray-700 text-[15px] focus:ring-2 focus:ring-[#10B981] focus:border-[#10B981] outline-none resize-y leading-relaxed ${aiGenerating ? 'cursor-not-allowed opacity-80' : ''}`}
+                    />
+                  </div>
+
+                  {/* Re-generate with AI button */}
+                  {formData.detailedItinerary && (
+                    <button
+                      type="button"
+                      onClick={() => { handleInputChange('detailedItinerary', ''); setItineraryMode('choose'); setAiAnswers({}); setAiCurrentQuestion(0); }}
+                      className="mt-3 text-[12px] font-bold text-gray-400 hover:text-[#10B981] transition-colors flex items-center gap-1"
+                    >
+                      <Sparkles size={12} /> Start over / Use AI to rewrite
+                    </button>
+                  )}
+
+                  {(() => {
+                    const words = formData.detailedItinerary.trim().split(/\s+/).filter((w: string) => w.length > 0).length;
+                    const isValid = words >= 500;
+                    const headings = formData.detailedItinerary.split('\n').filter((line: string) => line.trim().startsWith('##'));
+                    const hasHeadings = headings.length >= 3;
+                    return (
+                      <div className="mt-3 px-2 space-y-2">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            {isValid ? <CheckCircle2 className="text-[#10B981]" size={16} /> : <AlertCircle className="text-[#FF6B35]" size={16} />}
+                            <span className={`text-[13px] font-bold ${isValid ? 'text-[#10B981]' : 'text-[#FF6B35]'}`}>
+                              {words} / 500 words {isValid ? '✓' : `(${500 - words} more needed)`}
+                            </span>
+                          </div>
+                          <div className="w-32 h-2 bg-gray-200 rounded-full overflow-hidden">
+                            <div className={`h-full rounded-full transition-all ${isValid ? 'bg-[#10B981]' : 'bg-[#FF6B35]'}`} style={{ width: `${Math.min(100, (words / 500) * 100)}%` }} />
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          {hasHeadings ? <CheckCircle2 className="text-[#10B981]" size={16} /> : <AlertCircle className="text-amber-500" size={16} />}
+                          <span className={`text-[13px] font-bold ${hasHeadings ? 'text-[#10B981]' : 'text-amber-500'}`}>
+                            {headings.length} section heading{headings.length !== 1 ? 's' : ''} found {hasHeadings ? '✓' : '(minimum 3 recommended for SEO)'}
+                          </span>
+                        </div>
+                        {headings.length > 0 && (
+                          <div className="flex flex-wrap gap-1.5 mt-1">
+                            {headings.map((h: string, i: number) => (
+                              <span key={i} className="text-[11px] font-bold bg-emerald-50 text-emerald-700 px-2 py-1 rounded-lg border border-emerald-200">
+                                {h.replace(/^#+\s*/, '')}
+                              </span>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })()}
+                </>
               )}
             </div>
           </div>
@@ -2665,6 +3218,42 @@ const TourCreationForm: React.FC<TourCreationFormProps> = ({
                   <div className="text-[16px] font-black text-[#001A33]">{formData.duration}</div>
                 </div>
 
+                {/* Itinerary Preview */}
+                {formData.itineraryItems.length > 0 && (
+                  <div>
+                    <div className="text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-3">ITINERARY</div>
+                    <div className="bg-[#10B981]/5 border border-[#10B981]/20 rounded-xl p-4 mb-3">
+                      <div className="flex items-center gap-2 mb-1">
+                        <Info size={14} className="text-[#10B981]" />
+                        <span className="text-[13px] font-bold text-[#10B981]">Itineraries are customisable as per your request</span>
+                      </div>
+                      <p className="text-[12px] text-gray-500 font-semibold ml-5">The schedule below is a suggested plan and can be adjusted to suit your preferences.</p>
+                    </div>
+                    <div className="relative pl-10">
+                      <div className="absolute left-[10px] top-2 bottom-2 w-[3px] bg-[#10B981]/30 rounded-full" />
+                      <div className="space-y-3">
+                        {formData.itineraryItems.map((item, index) => (
+                          <div key={index} className="relative flex items-start gap-3">
+                            <div className="absolute left-[-28px] top-1 w-[20px] h-[20px] rounded-full bg-[#10B981] flex items-center justify-center z-10">
+                              <span className="text-white text-[10px] font-black">{index + 1}</span>
+                            </div>
+                            <div>
+                              <div className="text-[14px] font-black text-[#001A33]">
+                                {item.title}
+                                {item.time && <span className="text-[12px] text-gray-400 font-bold ml-2">
+                                  {(() => { const [h, m] = item.time.split(':'); const hr = parseInt(h); const period = hr < 12 ? 'AM' : 'PM'; const hr12 = hr === 0 ? 12 : hr > 12 ? hr - 12 : hr; return `${hr12}:${m} ${period}`; })()}
+                                </span>}
+                                {item.duration && <span className="text-[12px] text-gray-400 font-bold ml-1">· {item.duration}</span>}
+                              </div>
+                              {item.description && <div className="text-[12px] text-gray-500 font-semibold">{item.description}</div>}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                )}
+
                 {/* Highlights */}
                 {formData.highlights.filter(h => h.trim()).length > 0 && (
                   <div>
@@ -2827,14 +3416,7 @@ const TourCreationForm: React.FC<TourCreationFormProps> = ({
         <div className="flex items-center justify-between mt-8">
           {(step === totalSteps) ? (
             <>
-              {/* Debug info - remove after fixing */}
-              {process.env.NODE_ENV === 'development' && (
-                <div className="absolute bottom-20 left-4 bg-black text-white text-xs p-2 rounded z-50">
-                  Debug: canProceed={canProceed() ? 'true' : 'false'},
-                  hasContact={hasRequiredContactInfo ? 'true' : 'false'},
-                  isSubmitting={isSubmitting ? 'true' : 'false'}
-                </div>
-              )}
+
               <button
                 onClick={() => setStep(prev => Math.max(1, prev - 1))}
                 disabled={step === 1 || isSubmitting}
@@ -2943,6 +3525,7 @@ const TourCreationForm: React.FC<TourCreationFormProps> = ({
                 onClick={() => {
                   if (step === 4 && !formData.duration) {
                     setShowDurationError(true);
+                    document.getElementById('duration-select')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
                     return;
                   }
                   if (canProceed()) {

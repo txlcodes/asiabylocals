@@ -19,7 +19,7 @@ const AdminDashboard: React.FC = () => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [showLicenseModal, setShowLicenseModal] = useState(false);
   const [licenseUrl, setLicenseUrl] = useState<string | null>(null);
-  
+
   // Payment Details State
   const [suppliersWithPayments, setSuppliersWithPayments] = useState<any[]>([]);
   const [loadingPayments, setLoadingPayments] = useState(false);
@@ -76,13 +76,13 @@ const AdminDashboard: React.FC = () => {
         url = `${API_URL}/api/admin/tours${tourFilter !== 'all' ? `?status=${tourFilter}` : ''}`;
       }
       console.log('Admin Dashboard - Fetching tours from:', url);
-      
+
       // Simple fetch without AbortController to avoid cancellation issues
       const response = await fetch(url, {
         headers: getAuthHeaders()
       });
       console.log('Admin Dashboard - Response status:', response.status);
-      
+
       if (!response.ok) {
         if (response.status === 401 || response.status === 403) {
           // Authentication failed
@@ -92,7 +92,7 @@ const AdminDashboard: React.FC = () => {
         }
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-      
+
       const data = await response.json();
       console.log('Admin Dashboard - API Response:', data);
       console.log('Admin Dashboard - Response success:', data.success);
@@ -100,7 +100,7 @@ const AdminDashboard: React.FC = () => {
       console.log('Admin Dashboard - Tours count:', data.tours?.length);
       console.log('Admin Dashboard - Is tours an array?', Array.isArray(data.tours));
       console.log('Admin Dashboard - Filter:', tourFilter);
-      
+
       if (data.success && Array.isArray(data.tours)) {
         console.log('✅ Admin Dashboard - Setting tours:', data.tours.length);
         setPendingTours(data.tours);
@@ -123,7 +123,7 @@ const AdminDashboard: React.FC = () => {
       console.error('   Error type:', error.name);
       console.error('   Error stack:', error.stack);
       console.error('   Current filter:', tourFilter);
-      
+
       let errorMessage = 'Failed to load pending tours.';
       if (error.name === 'AbortError') {
         errorMessage = 'Request timed out. Please check your connection and try again.';
@@ -136,7 +136,7 @@ const AdminDashboard: React.FC = () => {
       } else if (error.message?.includes('500') || error.message?.includes('Internal server error')) {
         errorMessage = 'Server error. Please try again in a few moments.';
       }
-      
+
       // Don't show alert for every error - just log it
       console.error('❌ Fetch error (not showing alert):', errorMessage);
       // Only clear tours if it's a critical error
@@ -183,13 +183,13 @@ const AdminDashboard: React.FC = () => {
       const API_URL = import.meta.env.VITE_API_URL || (typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3001');
       const url = `${API_URL}/api/admin/suppliers/pending`;
       console.log('Admin Dashboard - Fetching suppliers from:', url);
-      
+
       // Simple fetch without AbortController to avoid cancellation issues
       const response = await fetch(url, {
         headers: getAuthHeaders()
       });
       console.log('Admin Dashboard - Response status:', response.status);
-      
+
       if (!response.ok) {
         if (response.status === 401 || response.status === 403) {
           // Authentication failed
@@ -199,12 +199,12 @@ const AdminDashboard: React.FC = () => {
         }
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-      
+
       const data = await response.json();
       console.log('Admin Dashboard - API Response:', data);
       console.log('Admin Dashboard - Suppliers array:', data.suppliers);
       console.log('Admin Dashboard - Suppliers count:', data.suppliers?.length);
-      
+
       if (data.success && Array.isArray(data.suppliers)) {
         console.log('Admin Dashboard - Setting suppliers:', data.suppliers.length);
         setPendingSuppliers(data.suppliers);
@@ -216,7 +216,7 @@ const AdminDashboard: React.FC = () => {
       console.error('❌ Error fetching pending suppliers:', error);
       console.error('   Error message:', error.message);
       console.error('   Error type:', error.name);
-      
+
       // Show more helpful error message
       let errorMessage = 'Failed to load pending suppliers.';
       if (error.name === 'AbortError') {
@@ -231,7 +231,7 @@ const AdminDashboard: React.FC = () => {
       } else if (error.message?.includes('500') || error.message?.includes('Internal server error')) {
         errorMessage = 'Server error. Please try again in a few moments.';
       }
-      
+
       alert(errorMessage);
       setPendingSuppliers([]);
     } finally {
@@ -245,12 +245,12 @@ const AdminDashboard: React.FC = () => {
       const API_URL = import.meta.env.VITE_API_URL || (typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3001');
       const url = `${API_URL}/api/suppliers?status=approved`;
       console.log('Admin Dashboard - Fetching approved suppliers from:', url);
-      
+
       const response = await fetch(url, {
         headers: getAuthHeaders()
       });
       console.log('Admin Dashboard - Response status:', response.status);
-      
+
       if (!response.ok) {
         if (response.status === 401 || response.status === 403) {
           localStorage.removeItem('admin');
@@ -259,10 +259,10 @@ const AdminDashboard: React.FC = () => {
         }
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-      
+
       const data = await response.json();
       console.log('Admin Dashboard - Approved Suppliers Response:', data);
-      
+
       if (data.suppliers && Array.isArray(data.suppliers)) {
         console.log('Admin Dashboard - Setting approved suppliers:', data.suppliers.length);
         setApprovedSuppliers(data.suppliers);
@@ -295,11 +295,11 @@ const AdminDashboard: React.FC = () => {
       const API_URL = import.meta.env.VITE_API_URL || (typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3001');
       const url = `${API_URL}/api/suppliers`;
       console.log('Admin Dashboard - Fetching all suppliers from:', url);
-      
+
       const response = await fetch(url, {
         headers: getAuthHeaders()
       });
-      
+
       if (!response.ok) {
         if (response.status === 401 || response.status === 403) {
           localStorage.removeItem('admin');
@@ -308,9 +308,9 @@ const AdminDashboard: React.FC = () => {
         }
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-      
+
       const data = await response.json();
-      
+
       if (data.suppliers && Array.isArray(data.suppliers)) {
         setPendingSuppliers(data.suppliers.filter((s: any) => s.status === 'pending'));
         setApprovedSuppliers(data.suppliers.filter((s: any) => s.status === 'approved'));
@@ -336,7 +336,7 @@ const AdminDashboard: React.FC = () => {
       const response = await fetch(`${API_URL}/api/admin/suppliers/payment-details`, {
         headers: getAuthHeaders()
       });
-      
+
       if (!response.ok) {
         if (response.status === 401 || response.status === 403) {
           localStorage.removeItem('admin');
@@ -345,7 +345,7 @@ const AdminDashboard: React.FC = () => {
         }
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-      
+
       const data = await response.json();
       if (data.success) {
         setSuppliersWithPayments(data.suppliers || []);
@@ -365,7 +365,7 @@ const AdminDashboard: React.FC = () => {
     if (!confirm('Are you sure you want to verify this supplier\'s payment details?')) {
       return;
     }
-    
+
     setIsProcessing(true);
     try {
       const API_URL = import.meta.env.VITE_API_URL || (typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3001');
@@ -373,11 +373,11 @@ const AdminDashboard: React.FC = () => {
         method: 'POST',
         headers: getAuthHeaders()
       });
-      
+
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-      
+
       const data = await response.json();
       if (data.success) {
         alert('Payment details verified successfully!');
@@ -421,21 +421,54 @@ const AdminDashboard: React.FC = () => {
     return <AdminLogin onLoginSuccess={() => setIsAuthenticated(true)} />;
   }
 
+  // Custom notification helper to replace native alerts
+  const showNotification = (message: string, type: 'success' | 'error' = 'success') => {
+    const notification = document.createElement('div');
+    notification.className = `fixed top-4 right-4 px-6 py-4 rounded-xl shadow-lg z-50 font-bold text-[14px] flex items-center gap-2 transform transition-all duration-300 translate-y-0 opacity-100 ${type === 'success' ? 'bg-[#10B981] text-white' : 'bg-red-500 text-white'
+      }`;
+    notification.innerHTML = `
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        ${type === 'success'
+        ? '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>'
+        : '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>'}
+      </svg>
+      <span>${message}</span>
+    `;
+    document.body.appendChild(notification);
+
+    // Animate in
+    requestAnimationFrame(() => {
+      notification.style.transform = 'translateY(10px)';
+    });
+
+    // Remove after 5 seconds
+    setTimeout(() => {
+      notification.style.opacity = '0';
+      notification.style.transform = 'translateY(-20px)';
+      setTimeout(() => {
+        if (document.body.contains(notification)) {
+          document.body.removeChild(notification);
+        }
+      }, 300);
+    }, 5000);
+  };
+
   const handleApprove = async (tourId: string) => {
     if (!tourId) {
-      alert('Error: Tour ID is missing. Please select a tour again.');
+      showNotification('Error: Tour ID is missing. Please select a tour again.', 'error');
       return;
     }
 
-    if (!confirm('Are you sure you want to approve this tour? It will go live on the site.')) {
-      return;
-    }
+    // Confirm dialog removed temporarily due to instant-close issue reported by user
+    // if (!confirm('Are you sure you want to approve this tour? It will go live on the site.')) {
+    //   return;
+    // }
 
     setIsProcessing(true);
     try {
       const API_URL = import.meta.env.VITE_API_URL || (typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3001');
       console.log('Approving tour with ID:', tourId, 'API URL:', API_URL);
-      
+
       const response = await fetch(`${API_URL}/api/admin/tours/${tourId}/approve`, {
         method: 'POST',
         headers: getAuthHeaders()
@@ -443,17 +476,17 @@ const AdminDashboard: React.FC = () => {
 
       const data = await response.json();
       console.log('Approve tour response:', data);
-      
+
       if (data.success) {
-        alert('Tour approved successfully! It is now live on the site.');
+        showNotification('Tour approved successfully! It is now live on the site.', 'success');
         fetchPendingTours(); // Refresh list
         setSelectedTour(null);
       } else {
-        alert(data.message || data.error || 'Failed to approve tour');
+        showNotification(data.message || data.error || 'Failed to approve tour', 'error');
       }
     } catch (error: any) {
       console.error('Error approving tour:', error);
-      alert(`Failed to approve tour: ${error.message || 'Please try again.'}`);
+      showNotification(`Failed to approve tour: ${error.message || 'Please try again.'}`, 'error');
     } finally {
       setIsProcessing(false);
     }
@@ -473,7 +506,7 @@ const AdminDashboard: React.FC = () => {
     try {
       const API_URL = import.meta.env.VITE_API_URL || (typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3001');
       console.log('Approving supplier with ID:', supplierId, 'API URL:', API_URL);
-      
+
       const response = await fetch(`${API_URL}/api/admin/suppliers/${supplierId}/approve`, {
         method: 'POST',
         headers: getAuthHeaders()
@@ -481,7 +514,7 @@ const AdminDashboard: React.FC = () => {
 
       const data = await response.json();
       console.log('Approve supplier response:', data);
-      
+
       if (data.success) {
         alert('Supplier approved successfully! They can now create tours.');
         // Refresh both lists
@@ -523,7 +556,7 @@ const AdminDashboard: React.FC = () => {
     try {
       const API_URL = import.meta.env.VITE_API_URL || (typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3001');
       console.log('Rejecting supplier with ID:', supplierId, 'API URL:', API_URL);
-      
+
       const response = await fetch(`${API_URL}/api/admin/suppliers/${supplierId}/reject`, {
         method: 'POST',
         headers: getAuthHeaders(),
@@ -532,7 +565,7 @@ const AdminDashboard: React.FC = () => {
 
       const data = await response.json();
       console.log('Reject supplier response:', data);
-      
+
       if (data.success) {
         alert('Supplier rejected successfully.');
         // Refresh the appropriate list based on current filter
@@ -575,7 +608,7 @@ const AdminDashboard: React.FC = () => {
     try {
       const API_URL = import.meta.env.VITE_API_URL || (typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3001');
       console.log('Rejecting tour with ID:', tourId, 'API URL:', API_URL);
-      
+
       const response = await fetch(`${API_URL}/api/admin/tours/${tourId}/reject`, {
         method: 'POST',
         headers: getAuthHeaders(),
@@ -584,7 +617,7 @@ const AdminDashboard: React.FC = () => {
 
       const data = await response.json();
       console.log('Reject tour response:', data);
-      
+
       if (data.success) {
         alert('Tour rejected successfully. The guide will be notified.');
         fetchPendingTours(); // Refresh list
@@ -615,7 +648,7 @@ const AdminDashboard: React.FC = () => {
     try {
       const API_URL = import.meta.env.VITE_API_URL || (typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3001');
       console.log('Deleting tour with ID:', tourId, 'API URL:', API_URL);
-      
+
       const response = await fetch(`${API_URL}/api/admin/tours/${tourId}`, {
         method: 'DELETE',
         headers: getAuthHeaders()
@@ -623,7 +656,7 @@ const AdminDashboard: React.FC = () => {
 
       const data = await response.json();
       console.log('Delete tour response:', data);
-      
+
       if (data.success) {
         alert('Tour deleted successfully.');
         fetchPendingTours(); // Refresh list
@@ -680,7 +713,7 @@ const AdminDashboard: React.FC = () => {
               </a>
             </div>
           </div>
-          
+
           {/* Tabs */}
           <div className="flex gap-2 border-b border-gray-200">
             <button
@@ -689,11 +722,10 @@ const AdminDashboard: React.FC = () => {
                 setSelectedTour(null);
                 setSelectedSupplier(null);
               }}
-              className={`px-6 py-3 font-black text-[14px] border-b-2 transition-colors ${
-                activeTab === 'suppliers'
-                  ? 'border-[#10B981] text-[#10B981]'
-                  : 'border-transparent text-gray-500 hover:text-[#001A33]'
-              }`}
+              className={`px-6 py-3 font-black text-[14px] border-b-2 transition-colors ${activeTab === 'suppliers'
+                ? 'border-[#10B981] text-[#10B981]'
+                : 'border-transparent text-gray-500 hover:text-[#001A33]'
+                }`}
             >
               Suppliers ({pendingSuppliers.length})
             </button>
@@ -703,11 +735,10 @@ const AdminDashboard: React.FC = () => {
                 setSelectedTour(null);
                 setSelectedSupplier(null);
               }}
-              className={`px-6 py-3 font-black text-[14px] border-b-2 transition-colors ${
-                activeTab === 'tours'
-                  ? 'border-[#10B981] text-[#10B981]'
-                  : 'border-transparent text-gray-500 hover:text-[#001A33]'
-              }`}
+              className={`px-6 py-3 font-black text-[14px] border-b-2 transition-colors ${activeTab === 'tours'
+                ? 'border-[#10B981] text-[#10B981]'
+                : 'border-transparent text-gray-500 hover:text-[#001A33]'
+                }`}
             >
               Tours ({pendingTours.length})
             </button>
@@ -717,11 +748,10 @@ const AdminDashboard: React.FC = () => {
                 setSelectedTour(null);
                 setSelectedSupplier(null);
               }}
-              className={`px-6 py-3 font-black text-[14px] border-b-2 transition-colors ${
-                activeTab === 'bookings'
-                  ? 'border-[#10B981] text-[#10B981]'
-                  : 'border-transparent text-gray-500 hover:text-[#001A33]'
-              }`}
+              className={`px-6 py-3 font-black text-[14px] border-b-2 transition-colors ${activeTab === 'bookings'
+                ? 'border-[#10B981] text-[#10B981]'
+                : 'border-transparent text-gray-500 hover:text-[#001A33]'
+                }`}
             >
               Bookings ({bookings.filter(b => b.paymentStatus === 'paid').length})
             </button>
@@ -731,11 +761,10 @@ const AdminDashboard: React.FC = () => {
                 setSelectedTour(null);
                 setSelectedSupplier(null);
               }}
-              className={`px-6 py-3 font-black text-[14px] border-b-2 transition-colors ${
-                activeTab === 'payments'
-                  ? 'border-[#10B981] text-[#10B981]'
-                  : 'border-transparent text-gray-500 hover:text-[#001A33]'
-              }`}
+              className={`px-6 py-3 font-black text-[14px] border-b-2 transition-colors ${activeTab === 'payments'
+                ? 'border-[#10B981] text-[#10B981]'
+                : 'border-transparent text-gray-500 hover:text-[#001A33]'
+                }`}
             >
               Payment Details ({suppliersWithPayments.filter(s => s.paymentDetailsVerified).length}/{suppliersWithPayments.length})
             </button>
@@ -754,11 +783,10 @@ const AdminDashboard: React.FC = () => {
                   setSupplierFilter('pending');
                   setSelectedSupplier(null);
                 }}
-                className={`flex-1 px-4 py-3 font-black text-[14px] rounded-xl transition-colors ${
-                  supplierFilter === 'pending'
-                    ? 'bg-[#10B981] text-white'
-                    : 'bg-transparent text-gray-500 hover:text-[#001A33]'
-                }`}
+                className={`flex-1 px-4 py-3 font-black text-[14px] rounded-xl transition-colors ${supplierFilter === 'pending'
+                  ? 'bg-[#10B981] text-white'
+                  : 'bg-transparent text-gray-500 hover:text-[#001A33]'
+                  }`}
               >
                 Pending ({pendingSuppliers.length})
               </button>
@@ -767,11 +795,10 @@ const AdminDashboard: React.FC = () => {
                   setSupplierFilter('approved');
                   setSelectedSupplier(null);
                 }}
-                className={`flex-1 px-4 py-3 font-black text-[14px] rounded-xl transition-colors ${
-                  supplierFilter === 'approved'
-                    ? 'bg-[#10B981] text-white'
-                    : 'bg-transparent text-gray-500 hover:text-[#001A33]'
-                }`}
+                className={`flex-1 px-4 py-3 font-black text-[14px] rounded-xl transition-colors ${supplierFilter === 'approved'
+                  ? 'bg-[#10B981] text-white'
+                  : 'bg-transparent text-gray-500 hover:text-[#001A33]'
+                  }`}
               >
                 Approved ({approvedSuppliers.length})
               </button>
@@ -780,11 +807,10 @@ const AdminDashboard: React.FC = () => {
                   setSupplierFilter('all');
                   setSelectedSupplier(null);
                 }}
-                className={`flex-1 px-4 py-3 font-black text-[14px] rounded-xl transition-colors ${
-                  supplierFilter === 'all'
-                    ? 'bg-[#10B981] text-white'
-                    : 'bg-transparent text-gray-500 hover:text-[#001A33]'
-                }`}
+                className={`flex-1 px-4 py-3 font-black text-[14px] rounded-xl transition-colors ${supplierFilter === 'all'
+                  ? 'bg-[#10B981] text-white'
+                  : 'bg-transparent text-gray-500 hover:text-[#001A33]'
+                  }`}
               >
                 All ({pendingSuppliers.length + approvedSuppliers.length})
               </button>
@@ -792,12 +818,12 @@ const AdminDashboard: React.FC = () => {
 
             {/* Suppliers List */}
             {(() => {
-              const suppliersToShow = supplierFilter === 'pending' 
-                ? pendingSuppliers 
-                : supplierFilter === 'approved' 
-                ? approvedSuppliers 
-                : [...pendingSuppliers, ...approvedSuppliers];
-              
+              const suppliersToShow = supplierFilter === 'pending'
+                ? pendingSuppliers
+                : supplierFilter === 'approved'
+                  ? approvedSuppliers
+                  : [...pendingSuppliers, ...approvedSuppliers];
+
               if (suppliersToShow.length === 0) {
                 return (
                   <div className="bg-white rounded-2xl p-12 text-center border border-gray-200">
@@ -806,11 +832,11 @@ const AdminDashboard: React.FC = () => {
                       {supplierFilter === 'pending' ? 'All caught up!' : supplierFilter === 'approved' ? 'No approved suppliers' : 'No suppliers found'}
                     </h2>
                     <p className="text-[14px] text-gray-500 font-semibold">
-                      {supplierFilter === 'pending' 
+                      {supplierFilter === 'pending'
                         ? 'No suppliers pending review at the moment.'
                         : supplierFilter === 'approved'
-                        ? 'No suppliers have been approved yet.'
-                        : 'No suppliers found in the system.'}
+                          ? 'No suppliers have been approved yet.'
+                          : 'No suppliers found in the system.'}
                     </p>
                   </div>
                 );
@@ -821,20 +847,19 @@ const AdminDashboard: React.FC = () => {
                   {/* Suppliers List */}
                   <div className="lg:col-span-2 space-y-4">
                     <h2 className="text-xl font-black text-[#001A33] mb-4">
-                      {supplierFilter === 'pending' 
+                      {supplierFilter === 'pending'
                         ? `Pending Suppliers (${pendingSuppliers.length})`
                         : supplierFilter === 'approved'
-                        ? `Approved Suppliers (${approvedSuppliers.length})`
-                        : `All Suppliers (${suppliersToShow.length})`}
+                          ? `Approved Suppliers (${approvedSuppliers.length})`
+                          : `All Suppliers (${suppliersToShow.length})`}
                     </h2>
                     {suppliersToShow.map((supplier) => (
                       <div
                         key={supplier.id}
-                        className={`bg-white rounded-2xl p-6 border-2 cursor-pointer transition-all ${
-                          selectedSupplier?.id === supplier.id
-                            ? 'border-[#10B981] shadow-lg ring-2 ring-[#10B981]/20'
-                            : 'border-gray-200 hover:border-[#10B981]/30'
-                        }`}
+                        className={`bg-white rounded-2xl p-6 border-2 cursor-pointer transition-all ${selectedSupplier?.id === supplier.id
+                          ? 'border-[#10B981] shadow-lg ring-2 ring-[#10B981]/20'
+                          : 'border-gray-200 hover:border-[#10B981]/30'
+                          }`}
                         onClick={() => setSelectedSupplier(supplier)}
                       >
                         <div className="flex items-start gap-4">
@@ -886,11 +911,10 @@ const AdminDashboard: React.FC = () => {
                               </div>
                             )}
                           </div>
-                          <div className={`flex items-center gap-2 px-3 py-2 rounded-full ${
-                            supplier.status === 'approved' 
-                              ? 'bg-[#10B981]/10' 
-                              : 'bg-yellow-50'
-                          }`}>
+                          <div className={`flex items-center gap-2 px-3 py-2 rounded-full ${supplier.status === 'approved'
+                            ? 'bg-[#10B981]/10'
+                            : 'bg-yellow-50'
+                            }`}>
                             {supplier.status === 'approved' ? (
                               <>
                                 <CheckCircle2 className="text-[#10B981]" size={18} />
@@ -913,7 +937,7 @@ const AdminDashboard: React.FC = () => {
                     {selectedSupplier ? (
                       <div className="bg-white rounded-2xl p-6 border border-gray-200 sticky top-24">
                         <h3 className="text-xl font-black text-[#001A33] mb-4">Supplier Details</h3>
-                        
+
                         <div className="space-y-3 mb-6">
                           <div>
                             <div className="text-[11px] font-bold text-gray-500 uppercase mb-1">Supplier ID</div>
@@ -1012,8 +1036,8 @@ const AdminDashboard: React.FC = () => {
                             {selectedSupplier.certificates ? (
                               (() => {
                                 try {
-                                  const certs = typeof selectedSupplier.certificates === 'string' 
-                                    ? JSON.parse(selectedSupplier.certificates) 
+                                  const certs = typeof selectedSupplier.certificates === 'string'
+                                    ? JSON.parse(selectedSupplier.certificates)
                                     : selectedSupplier.certificates;
                                   if (Array.isArray(certs) && certs.length > 0) {
                                     return (
@@ -1128,111 +1152,246 @@ const AdminDashboard: React.FC = () => {
         ) : activeTab === 'tours' ? (
           // Tours Tab
           pendingTours.length === 0 && !loading ? (
-          <div className="bg-white rounded-2xl p-12 text-center border border-gray-200">
-            <CheckCircle2 className="mx-auto text-gray-300 mb-4" size={64} />
-            <h2 className="text-2xl font-black text-[#001A33] mb-2">All caught up!</h2>
-            <p className="text-[14px] text-gray-500 font-semibold">
-              {tourFilter === 'pending' 
-                ? 'No tours pending review at the moment.'
-                : tourFilter === 'approved'
-                ? 'No approved tours found.'
-                : 'No tours found.'}
-            </p>
-            <div className="mt-4 text-[12px] text-gray-400">
-              Filter: {tourFilter} | Check console for API response details
+            <div className="bg-white rounded-2xl p-12 text-center border border-gray-200">
+              <CheckCircle2 className="mx-auto text-gray-300 mb-4" size={64} />
+              <h2 className="text-2xl font-black text-[#001A33] mb-2">All caught up!</h2>
+              <p className="text-[14px] text-gray-500 font-semibold">
+                {tourFilter === 'pending'
+                  ? 'No tours pending review at the moment.'
+                  : tourFilter === 'approved'
+                    ? 'No approved tours found.'
+                    : 'No tours found.'}
+              </p>
+              <div className="mt-4 text-[12px] text-gray-400">
+                Filter: {tourFilter} | Check console for API response details
+              </div>
             </div>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* Tours List */}
-            <div className="lg:col-span-2 space-y-4">
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-xl font-black text-[#001A33]">
-                  Tours ({pendingTours.length})
-                </h2>
-                <div className="flex gap-2">
-                  <button
-                    onClick={() => setTourFilter('pending')}
-                    className={`px-4 py-2 rounded-full text-[12px] font-black transition-all ${
-                      tourFilter === 'pending'
+          ) : (
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              {/* Tours List */}
+              <div className="lg:col-span-2 space-y-4">
+                <div className="flex items-center justify-between mb-4">
+                  <h2 className="text-xl font-black text-[#001A33]">
+                    Tours ({pendingTours.length})
+                  </h2>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => setTourFilter('pending')}
+                      className={`px-4 py-2 rounded-full text-[12px] font-black transition-all ${tourFilter === 'pending'
                         ? 'bg-yellow-500 text-white'
                         : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                    }`}
-                  >
-                    Pending
-                  </button>
-                  <button
-                    onClick={() => setTourFilter('approved')}
-                    className={`px-4 py-2 rounded-full text-[12px] font-black transition-all ${
-                      tourFilter === 'approved'
+                        }`}
+                    >
+                      Pending
+                    </button>
+                    <button
+                      onClick={() => setTourFilter('approved')}
+                      className={`px-4 py-2 rounded-full text-[12px] font-black transition-all ${tourFilter === 'approved'
                         ? 'bg-[#10B981] text-white'
                         : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                    }`}
-                  >
-                    Approved
-                  </button>
-                  <button
-                    onClick={() => setTourFilter('all')}
-                    className={`px-4 py-2 rounded-full text-[12px] font-black transition-all ${
-                      tourFilter === 'all'
+                        }`}
+                    >
+                      Approved
+                    </button>
+                    <button
+                      onClick={() => setTourFilter('all')}
+                      className={`px-4 py-2 rounded-full text-[12px] font-black transition-all ${tourFilter === 'all'
                         ? 'bg-[#001A33] text-white'
                         : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                    }`}
-                  >
-                    All
-                  </button>
+                        }`}
+                    >
+                      All
+                    </button>
+                  </div>
                 </div>
-              </div>
-              {pendingTours.map((tour) => (
-                <div
-                  key={tour.id}
-                  className={`bg-white rounded-2xl p-6 border-2 cursor-pointer transition-all ${
-                    selectedTour?.id === tour.id
+                {pendingTours.map((tour) => (
+                  <div
+                    key={tour.id}
+                    className={`bg-white rounded-2xl p-6 border-2 cursor-pointer transition-all ${selectedTour?.id === tour.id
                       ? 'border-[#10B981] shadow-lg ring-2 ring-[#10B981]/20'
                       : 'border-gray-200 hover:border-[#10B981]/30'
-                  }`}
-                  onClick={() => setSelectedTour(tour)}
-                >
-                  <div className="flex items-start gap-4">
-                    {tour.images && tour.images.length > 0 && (
-                      <img
-                        src={tour.images[0]}
-                        alt={tour.title}
-                        className="w-24 h-24 object-cover rounded-xl"
-                      />
+                      }`}
+                    onClick={() => setSelectedTour(tour)}
+                  >
+                    <div className="flex items-start gap-4">
+                      {tour.images && tour.images.length > 0 && (
+                        <img
+                          src={tour.images[0]}
+                          alt={tour.title}
+                          className="w-24 h-24 object-cover rounded-xl"
+                        />
+                      )}
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-1">
+                          <h3 className="text-lg font-black text-[#001A33]">{tour.title}</h3>
+                          <span className="text-[10px] font-mono text-gray-400 bg-gray-100 px-2 py-0.5 rounded">
+                            ID: {tour.id}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-4 text-[12px] text-gray-500 font-semibold mb-2">
+                          <div className="flex items-center gap-1">
+                            <MapPin size={14} />
+                            <span>{tour.city}, {tour.country}</span>
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <Calendar size={14} />
+                            <span>{new Date(tour.createdAt).toLocaleDateString()}</span>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2 mb-2">
+                          <span className="px-3 py-1 bg-[#10B981]/10 text-[#10B981] text-[11px] font-black rounded-full border border-[#10B981]/20">
+                            {tour.category}
+                          </span>
+                          <span className="px-3 py-1 bg-[#001A33] text-white text-[11px] font-black rounded-full">
+                            {(() => {
+                              // Get price from first tier of groupPricingTiers (price for 1 person)
+                              let displayPrice = tour.pricePerPerson || 0;
+
+                              // PRIORITY 1: Check tour.groupPricingTiers directly
+                              if (tour.groupPricingTiers) {
+                                try {
+                                  const tiers = typeof tour.groupPricingTiers === 'string'
+                                    ? JSON.parse(tour.groupPricingTiers)
+                                    : tour.groupPricingTiers;
+                                  if (Array.isArray(tiers) && tiers.length > 0 && tiers[0]?.price) {
+                                    displayPrice = parseFloat(tiers[0].price) || 0;
+                                  }
+                                } catch (e) {
+                                  console.error('Error parsing tour groupPricingTiers:', e);
+                                }
+                              }
+
+                              // PRIORITY 2: Check tour options for groupPricingTiers
+                              if (displayPrice === 0 && tour.options && Array.isArray(tour.options) && tour.options.length > 0) {
+                                for (const opt of tour.options) {
+                                  if (opt.groupPricingTiers) {
+                                    try {
+                                      const tiers = typeof opt.groupPricingTiers === 'string'
+                                        ? JSON.parse(opt.groupPricingTiers)
+                                        : opt.groupPricingTiers;
+                                      if (Array.isArray(tiers) && tiers.length > 0 && tiers[0]?.price) {
+                                        const firstTierPrice = parseFloat(tiers[0].price) || 0;
+                                        if (firstTierPrice > 0) {
+                                          displayPrice = displayPrice === 0 ? firstTierPrice : Math.min(displayPrice, firstTierPrice);
+                                        }
+                                      }
+                                    } catch (e) {
+                                      console.error('Error parsing option groupPricingTiers:', e);
+                                    }
+                                  }
+                                }
+                              }
+
+                              return `${tour.currency} ${displayPrice.toLocaleString()}`;
+                            })()}
+                          </span>
+                        </div>
+                        <div className="text-[12px] text-gray-500 font-semibold">
+                          By: {tour.supplier?.fullName || tour.supplier?.companyName || 'Unknown'}
+                        </div>
+                      </div>
+                      {tour.status === 'pending' ? (
+                        <div className="flex items-center gap-2 bg-yellow-50 px-3 py-2 rounded-full">
+                          <Clock className="text-yellow-600" size={18} />
+                          <span className="text-[12px] font-black text-yellow-700">Pending</span>
+                        </div>
+                      ) : tour.status === 'draft' ? (
+                        <div className="flex items-center gap-2 bg-blue-50 px-3 py-2 rounded-full">
+                          <Info className="text-blue-600" size={18} />
+                          <span className="text-[12px] font-black text-blue-700">Draft</span>
+                        </div>
+                      ) : tour.status === 'approved' ? (
+                        <div className="flex items-center gap-2 bg-[#10B981]/10 px-3 py-2 rounded-full border border-[#10B981]/20">
+                          <CheckCircle2 className="text-[#10B981]" size={18} />
+                          <span className="text-[12px] font-black text-[#10B981]">Approved</span>
+                        </div>
+                      ) : tour.status === 'rejected' ? (
+                        <div className="flex items-center gap-2 bg-red-50 px-3 py-2 rounded-full">
+                          <XCircle className="text-red-600" size={18} />
+                          <span className="text-[12px] font-black text-red-700">Rejected</span>
+                        </div>
+                      ) : (
+                        <div className="flex items-center gap-2 bg-gray-50 px-3 py-2 rounded-full">
+                          <Info className="text-gray-600" size={18} />
+                          <span className="text-[12px] font-black text-gray-700 capitalize">{tour.status || 'Draft'}</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Tour Details & Actions */}
+              <div className="lg:col-span-1">
+                {selectedTour ? (
+                  <div className="bg-white rounded-2xl p-6 border border-gray-200 sticky top-24">
+                    <h3 className="text-xl font-black text-[#001A33] mb-4">Tour Details</h3>
+
+                    {/* Images Gallery */}
+                    {selectedTour.images && selectedTour.images.length > 0 && (
+                      <div className="mb-6">
+                        <div className="text-[11px] font-bold text-gray-500 uppercase mb-3">
+                          Images ({selectedTour.images.length})
+                        </div>
+                        <div className="grid grid-cols-2 gap-3">
+                          {selectedTour.images.map((image: string, index: number) => (
+                            <div key={index} className="relative group">
+                              <img
+                                src={image}
+                                alt={`${selectedTour.title} ${index + 1}`}
+                                className="w-full h-32 object-cover rounded-xl border-2 border-gray-200 hover:border-[#10B981] transition-colors cursor-pointer"
+                                onClick={() => window.open(image, '_blank')}
+                              />
+                              {index === 0 && (
+                                <span className="absolute top-2 left-2 bg-[#10B981] text-white text-[10px] font-black px-2 py-1 rounded">
+                                  COVER
+                                </span>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
                     )}
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-1">
-                        <h3 className="text-lg font-black text-[#001A33]">{tour.title}</h3>
-                        <span className="text-[10px] font-mono text-gray-400 bg-gray-100 px-2 py-0.5 rounded">
-                          ID: {tour.id}
-                        </span>
-                      </div>
-                      <div className="flex items-center gap-4 text-[12px] text-gray-500 font-semibold mb-2">
-                        <div className="flex items-center gap-1">
-                          <MapPin size={14} />
-                          <span>{tour.city}, {tour.country}</span>
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <Calendar size={14} />
-                          <span>{new Date(tour.createdAt).toLocaleDateString()}</span>
+
+                    {/* Details */}
+                    <div className="space-y-3 mb-6">
+                      <div>
+                        <div className="text-[11px] font-bold text-gray-500 uppercase mb-1">Tour ID</div>
+                        <div className="text-[14px] font-mono font-bold text-[#001A33] bg-gray-100 px-3 py-1.5 rounded-lg inline-block">
+                          {selectedTour.id}
                         </div>
                       </div>
-                      <div className="flex items-center gap-2 mb-2">
-                        <span className="px-3 py-1 bg-[#10B981]/10 text-[#10B981] text-[11px] font-black rounded-full border border-[#10B981]/20">
-                          {tour.category}
-                        </span>
-                        <span className="px-3 py-1 bg-[#001A33] text-white text-[11px] font-black rounded-full">
+                      <div>
+                        <div className="text-[11px] font-bold text-gray-500 uppercase mb-1">Title</div>
+                        <div className="text-[16px] font-black text-[#001A33]">{selectedTour.title}</div>
+                      </div>
+                      <div className="grid grid-cols-2 gap-3">
+                        <div>
+                          <div className="text-[11px] font-bold text-gray-500 uppercase mb-1">City</div>
+                          <div className="text-[14px] font-bold text-[#001A33]">{selectedTour.city}</div>
+                        </div>
+                        <div>
+                          <div className="text-[11px] font-bold text-gray-500 uppercase mb-1">Country</div>
+                          <div className="text-[14px] font-bold text-[#001A33]">{selectedTour.country}</div>
+                        </div>
+                      </div>
+                      <div>
+                        <div className="text-[11px] font-bold text-gray-500 uppercase mb-1">Category</div>
+                        <div className="text-[14px] font-bold text-[#001A33]">{selectedTour.category}</div>
+                      </div>
+                      <div>
+                        <div className="text-[11px] font-bold text-gray-500 uppercase mb-1">Price</div>
+                        <div className="text-[14px] font-bold text-[#001A33]">
                           {(() => {
                             // Get price from first tier of groupPricingTiers (price for 1 person)
-                            let displayPrice = tour.pricePerPerson || 0;
-                            
+                            let displayPrice = selectedTour.pricePerPerson || 0;
+
                             // PRIORITY 1: Check tour.groupPricingTiers directly
-                            if (tour.groupPricingTiers) {
+                            if (selectedTour.groupPricingTiers) {
                               try {
-                                const tiers = typeof tour.groupPricingTiers === 'string' 
-                                  ? JSON.parse(tour.groupPricingTiers) 
-                                  : tour.groupPricingTiers;
+                                const tiers = typeof selectedTour.groupPricingTiers === 'string'
+                                  ? JSON.parse(selectedTour.groupPricingTiers)
+                                  : selectedTour.groupPricingTiers;
                                 if (Array.isArray(tiers) && tiers.length > 0 && tiers[0]?.price) {
                                   displayPrice = parseFloat(tiers[0].price) || 0;
                                 }
@@ -1240,14 +1399,14 @@ const AdminDashboard: React.FC = () => {
                                 console.error('Error parsing tour groupPricingTiers:', e);
                               }
                             }
-                            
+
                             // PRIORITY 2: Check tour options for groupPricingTiers
-                            if (displayPrice === 0 && tour.options && Array.isArray(tour.options) && tour.options.length > 0) {
-                              for (const opt of tour.options) {
+                            if (displayPrice === 0 && selectedTour.options && Array.isArray(selectedTour.options) && selectedTour.options.length > 0) {
+                              for (const opt of selectedTour.options) {
                                 if (opt.groupPricingTiers) {
                                   try {
-                                    const tiers = typeof opt.groupPricingTiers === 'string' 
-                                      ? JSON.parse(opt.groupPricingTiers) 
+                                    const tiers = typeof opt.groupPricingTiers === 'string'
+                                      ? JSON.parse(opt.groupPricingTiers)
                                       : opt.groupPricingTiers;
                                     if (Array.isArray(tiers) && tiers.length > 0 && tiers[0]?.price) {
                                       const firstTierPrice = parseFloat(tiers[0].price) || 0;
@@ -1261,312 +1420,173 @@ const AdminDashboard: React.FC = () => {
                                 }
                               }
                             }
-                            
-                            return `${tour.currency} ${displayPrice.toLocaleString()}`;
+
+                            return `Starting from ${selectedTour.currency} ${displayPrice.toLocaleString()}`;
                           })()}
-                        </span>
+                        </div>
                       </div>
-                      <div className="text-[12px] text-gray-500 font-semibold">
-                        By: {tour.supplier?.fullName || tour.supplier?.companyName || 'Unknown'}
+                      <div>
+                        <div className="text-[11px] font-bold text-gray-500 uppercase mb-1">Duration</div>
+                        <div className="text-[14px] font-bold text-[#001A33]">{selectedTour.duration}</div>
                       </div>
-                    </div>
-                    {tour.status === 'pending' ? (
-                      <div className="flex items-center gap-2 bg-yellow-50 px-3 py-2 rounded-full">
-                        <Clock className="text-yellow-600" size={18} />
-                        <span className="text-[12px] font-black text-yellow-700">Pending</span>
-                      </div>
-                    ) : tour.status === 'draft' ? (
-                      <div className="flex items-center gap-2 bg-blue-50 px-3 py-2 rounded-full">
-                        <Info className="text-blue-600" size={18} />
-                        <span className="text-[12px] font-black text-blue-700">Draft</span>
-                      </div>
-                    ) : tour.status === 'approved' ? (
-                      <div className="flex items-center gap-2 bg-[#10B981]/10 px-3 py-2 rounded-full border border-[#10B981]/20">
-                        <CheckCircle2 className="text-[#10B981]" size={18} />
-                        <span className="text-[12px] font-black text-[#10B981]">Approved</span>
-                      </div>
-                    ) : tour.status === 'rejected' ? (
-                      <div className="flex items-center gap-2 bg-red-50 px-3 py-2 rounded-full">
-                        <XCircle className="text-red-600" size={18} />
-                        <span className="text-[12px] font-black text-red-700">Rejected</span>
-                      </div>
-                    ) : (
-                      <div className="flex items-center gap-2 bg-gray-50 px-3 py-2 rounded-full">
-                        <Info className="text-gray-600" size={18} />
-                        <span className="text-[12px] font-black text-gray-700 capitalize">{tour.status || 'Draft'}</span>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            {/* Tour Details & Actions */}
-            <div className="lg:col-span-1">
-              {selectedTour ? (
-                <div className="bg-white rounded-2xl p-6 border border-gray-200 sticky top-24">
-                  <h3 className="text-xl font-black text-[#001A33] mb-4">Tour Details</h3>
-                  
-                  {/* Images Gallery */}
-                  {selectedTour.images && selectedTour.images.length > 0 && (
-                    <div className="mb-6">
-                      <div className="text-[11px] font-bold text-gray-500 uppercase mb-3">
-                        Images ({selectedTour.images.length})
-                      </div>
-                      <div className="grid grid-cols-2 gap-3">
-                        {selectedTour.images.map((image: string, index: number) => (
-                          <div key={index} className="relative group">
-                            <img
-                              src={image}
-                              alt={`${selectedTour.title} ${index + 1}`}
-                              className="w-full h-32 object-cover rounded-xl border-2 border-gray-200 hover:border-[#10B981] transition-colors cursor-pointer"
-                              onClick={() => window.open(image, '_blank')}
-                            />
-                            {index === 0 && (
-                              <span className="absolute top-2 left-2 bg-[#10B981] text-white text-[10px] font-black px-2 py-1 rounded">
-                                COVER
-                              </span>
-                            )}
+                      {selectedTour.locations && selectedTour.locations.length > 0 && (
+                        <div>
+                          <div className="text-[11px] font-bold text-gray-500 uppercase mb-1">Locations</div>
+                          <div className="text-[14px] font-semibold text-[#001A33]">
+                            {selectedTour.locations.join(', ')}
                           </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Details */}
-                  <div className="space-y-3 mb-6">
-                    <div>
-                      <div className="text-[11px] font-bold text-gray-500 uppercase mb-1">Tour ID</div>
-                      <div className="text-[14px] font-mono font-bold text-[#001A33] bg-gray-100 px-3 py-1.5 rounded-lg inline-block">
-                        {selectedTour.id}
-                      </div>
-                    </div>
-                    <div>
-                      <div className="text-[11px] font-bold text-gray-500 uppercase mb-1">Title</div>
-                      <div className="text-[16px] font-black text-[#001A33]">{selectedTour.title}</div>
-                    </div>
-                    <div className="grid grid-cols-2 gap-3">
-                      <div>
-                        <div className="text-[11px] font-bold text-gray-500 uppercase mb-1">City</div>
-                        <div className="text-[14px] font-bold text-[#001A33]">{selectedTour.city}</div>
-                      </div>
-                      <div>
-                        <div className="text-[11px] font-bold text-gray-500 uppercase mb-1">Country</div>
-                        <div className="text-[14px] font-bold text-[#001A33]">{selectedTour.country}</div>
-                      </div>
-                    </div>
-                    <div>
-                      <div className="text-[11px] font-bold text-gray-500 uppercase mb-1">Category</div>
-                      <div className="text-[14px] font-bold text-[#001A33]">{selectedTour.category}</div>
-                    </div>
-                    <div>
-                      <div className="text-[11px] font-bold text-gray-500 uppercase mb-1">Price</div>
-                      <div className="text-[14px] font-bold text-[#001A33]">
-                        {(() => {
-                          // Get price from first tier of groupPricingTiers (price for 1 person)
-                          let displayPrice = selectedTour.pricePerPerson || 0;
-                          
-                          // PRIORITY 1: Check tour.groupPricingTiers directly
-                          if (selectedTour.groupPricingTiers) {
-                            try {
-                              const tiers = typeof selectedTour.groupPricingTiers === 'string' 
-                                ? JSON.parse(selectedTour.groupPricingTiers) 
-                                : selectedTour.groupPricingTiers;
-                              if (Array.isArray(tiers) && tiers.length > 0 && tiers[0]?.price) {
-                                displayPrice = parseFloat(tiers[0].price) || 0;
-                              }
-                            } catch (e) {
-                              console.error('Error parsing tour groupPricingTiers:', e);
-                            }
-                          }
-                          
-                          // PRIORITY 2: Check tour options for groupPricingTiers
-                          if (displayPrice === 0 && selectedTour.options && Array.isArray(selectedTour.options) && selectedTour.options.length > 0) {
-                            for (const opt of selectedTour.options) {
-                              if (opt.groupPricingTiers) {
-                                try {
-                                  const tiers = typeof opt.groupPricingTiers === 'string' 
-                                    ? JSON.parse(opt.groupPricingTiers) 
-                                    : opt.groupPricingTiers;
-                                  if (Array.isArray(tiers) && tiers.length > 0 && tiers[0]?.price) {
-                                    const firstTierPrice = parseFloat(tiers[0].price) || 0;
-                                    if (firstTierPrice > 0) {
-                                      displayPrice = displayPrice === 0 ? firstTierPrice : Math.min(displayPrice, firstTierPrice);
-                                    }
-                                  }
-                                } catch (e) {
-                                  console.error('Error parsing option groupPricingTiers:', e);
-                                }
-                              }
-                            }
-                          }
-                          
-                          return `Starting from ${selectedTour.currency} ${displayPrice.toLocaleString()}`;
-                        })()}
-                      </div>
-                    </div>
-                    <div>
-                      <div className="text-[11px] font-bold text-gray-500 uppercase mb-1">Duration</div>
-                      <div className="text-[14px] font-bold text-[#001A33]">{selectedTour.duration}</div>
-                    </div>
-                    {selectedTour.locations && selectedTour.locations.length > 0 && (
-                      <div>
-                        <div className="text-[11px] font-bold text-gray-500 uppercase mb-1">Locations</div>
-                        <div className="text-[14px] font-semibold text-[#001A33]">
-                          {selectedTour.locations.join(', ')}
                         </div>
-                      </div>
-                    )}
-                    {selectedTour.languages && selectedTour.languages.length > 0 && (
-                      <div>
-                        <div className="text-[11px] font-bold text-gray-500 uppercase mb-1">Languages</div>
-                        <div className="text-[14px] font-semibold text-[#001A33]">
-                          {selectedTour.languages.join(', ')}
+                      )}
+                      {selectedTour.languages && selectedTour.languages.length > 0 && (
+                        <div>
+                          <div className="text-[11px] font-bold text-gray-500 uppercase mb-1">Languages</div>
+                          <div className="text-[14px] font-semibold text-[#001A33]">
+                            {selectedTour.languages.join(', ')}
+                          </div>
                         </div>
-                      </div>
-                    )}
-                    {selectedTour.highlights && (
-                      <div>
-                        <div className="text-[11px] font-bold text-gray-500 uppercase mb-2">Highlights</div>
-                        <ul className="space-y-2">
-                          {(typeof selectedTour.highlights === 'string' 
-                            ? JSON.parse(selectedTour.highlights) 
-                            : selectedTour.highlights
-                          ).map((highlight: string, index: number) => (
-                            <li key={index} className="flex items-start gap-2">
-                              <span className="text-[#10B981] font-black mt-1">•</span>
-                              <span className="text-[14px] font-semibold text-[#001A33]">{highlight}</span>
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                    )}
-                    {selectedTour.shortDescription && (
-                      <div>
-                        <div className="text-[11px] font-bold text-gray-500 uppercase mb-1">Description</div>
-                        <div className="text-[14px] text-gray-700 font-semibold">
-                          {selectedTour.shortDescription}
+                      )}
+                      {selectedTour.highlights && (
+                        <div>
+                          <div className="text-[11px] font-bold text-gray-500 uppercase mb-2">Highlights</div>
+                          <ul className="space-y-2">
+                            {(typeof selectedTour.highlights === 'string'
+                              ? JSON.parse(selectedTour.highlights)
+                              : selectedTour.highlights
+                            ).map((highlight: string, index: number) => (
+                              <li key={index} className="flex items-start gap-2">
+                                <span className="text-[#10B981] font-black mt-1">•</span>
+                                <span className="text-[14px] font-semibold text-[#001A33]">{highlight}</span>
+                              </li>
+                            ))}
+                          </ul>
                         </div>
-                      </div>
-                    )}
-                    {selectedTour.fullDescription && (
+                      )}
+                      {selectedTour.shortDescription && (
+                        <div>
+                          <div className="text-[11px] font-bold text-gray-500 uppercase mb-1">Description</div>
+                          <div className="text-[14px] text-gray-700 font-semibold">
+                            {selectedTour.shortDescription}
+                          </div>
+                        </div>
+                      )}
+                      {selectedTour.fullDescription && (
+                        <div>
+                          <div className="text-[11px] font-bold text-gray-500 uppercase mb-1">Full Description</div>
+                          <div className="text-[14px] text-gray-700 font-semibold leading-relaxed">
+                            {selectedTour.fullDescription}
+                          </div>
+                        </div>
+                      )}
                       <div>
-                        <div className="text-[11px] font-bold text-gray-500 uppercase mb-1">Full Description</div>
-                        <div className="text-[14px] text-gray-700 font-semibold leading-relaxed">
-                          {selectedTour.fullDescription}
-                        </div>
-                      </div>
-                    )}
-                    <div>
-                      <div className="text-[11px] font-bold text-gray-500 uppercase mb-1">Supplier Information</div>
-                      <div className="space-y-2">
-                        <div className="text-[14px] font-semibold text-[#001A33]">
-                          {selectedTour.supplier?.fullName || selectedTour.supplier?.companyName || 'Unknown'}
-                        </div>
-                        {selectedTour.supplier?.id && (
+                        <div className="text-[11px] font-bold text-gray-500 uppercase mb-1">Supplier Information</div>
+                        <div className="space-y-2">
+                          <div className="text-[14px] font-semibold text-[#001A33]">
+                            {selectedTour.supplier?.fullName || selectedTour.supplier?.companyName || 'Unknown'}
+                          </div>
+                          {selectedTour.supplier?.id && (
+                            <div className="text-[12px] text-gray-600 font-semibold">
+                              <span className="font-bold">Supplier ID:</span>
+                              <span className="font-mono ml-2 bg-gray-100 px-2 py-0.5 rounded">{selectedTour.supplier.id}</span>
+                            </div>
+                          )}
                           <div className="text-[12px] text-gray-600 font-semibold">
-                            <span className="font-bold">Supplier ID:</span> 
-                            <span className="font-mono ml-2 bg-gray-100 px-2 py-0.5 rounded">{selectedTour.supplier.id}</span>
+                            <span className="font-bold">Email:</span> {selectedTour.supplier?.email || 'Not provided'}
                           </div>
-                        )}
-                        <div className="text-[12px] text-gray-600 font-semibold">
-                          <span className="font-bold">Email:</span> {selectedTour.supplier?.email || 'Not provided'}
+                          {selectedTour.supplier?.phone && (
+                            <div className="text-[12px] text-gray-600 font-semibold">
+                              <span className="font-bold">Phone:</span> {selectedTour.supplier.phone}
+                            </div>
+                          )}
+                          {selectedTour.supplier?.whatsapp && (
+                            <div className="text-[12px] text-gray-600 font-semibold">
+                              <span className="font-bold">WhatsApp:</span> {selectedTour.supplier.whatsapp}
+                            </div>
+                          )}
+                          {!selectedTour.supplier?.phone && !selectedTour.supplier?.whatsapp && (
+                            <div className="text-[12px] text-yellow-600 font-semibold">
+                              ⚠️ No phone/WhatsApp provided
+                            </div>
+                          )}
+                          <div className="text-[12px] text-gray-600 font-semibold">
+                            <span className="font-bold">Email Verified:</span> {selectedTour.supplier?.emailVerified ? '✅ Yes' : '❌ No'}
+                          </div>
+                          {selectedTour.supplier?.verificationDocumentUrl && (
+                            <div className="text-[12px] text-gray-600 font-semibold">
+                              <span className="font-bold">License:</span>
+                              <button
+                                onClick={() => {
+                                  setLicenseUrl(selectedTour.supplier.verificationDocumentUrl);
+                                  setShowLicenseModal(true);
+                                }}
+                                className="text-[#0071EB] ml-2 hover:underline cursor-pointer"
+                              >
+                                View Document
+                              </button>
+                            </div>
+                          )}
+                          {!selectedTour.supplier?.verificationDocumentUrl && (
+                            <div className="text-[12px] text-yellow-600 font-semibold">
+                              ⚠️ No license/document uploaded
+                            </div>
+                          )}
                         </div>
-                        {selectedTour.supplier?.phone && (
-                          <div className="text-[12px] text-gray-600 font-semibold">
-                            <span className="font-bold">Phone:</span> {selectedTour.supplier.phone}
-                          </div>
-                        )}
-                        {selectedTour.supplier?.whatsapp && (
-                          <div className="text-[12px] text-gray-600 font-semibold">
-                            <span className="font-bold">WhatsApp:</span> {selectedTour.supplier.whatsapp}
-                          </div>
-                        )}
-                        {!selectedTour.supplier?.phone && !selectedTour.supplier?.whatsapp && (
-                          <div className="text-[12px] text-yellow-600 font-semibold">
-                            ⚠️ No phone/WhatsApp provided
-                          </div>
-                        )}
-                        <div className="text-[12px] text-gray-600 font-semibold">
-                          <span className="font-bold">Email Verified:</span> {selectedTour.supplier?.emailVerified ? '✅ Yes' : '❌ No'}
-                        </div>
-                        {selectedTour.supplier?.verificationDocumentUrl && (
-                          <div className="text-[12px] text-gray-600 font-semibold">
-                            <span className="font-bold">License:</span> 
-                            <button
-                              onClick={() => {
-                                setLicenseUrl(selectedTour.supplier.verificationDocumentUrl);
-                                setShowLicenseModal(true);
-                              }}
-                              className="text-[#0071EB] ml-2 hover:underline cursor-pointer"
-                            >
-                              View Document
-                            </button>
-                          </div>
-                        )}
-                        {!selectedTour.supplier?.verificationDocumentUrl && (
-                          <div className="text-[12px] text-yellow-600 font-semibold">
-                            ⚠️ No license/document uploaded
-                          </div>
-                        )}
                       </div>
                     </div>
-                  </div>
 
-                  {/* Actions */}
-                  <div className="space-y-4">
-                    <button
-                      onClick={() => handleApprove(selectedTour.id)}
-                      disabled={isProcessing}
-                      className="w-full bg-[#10B981] hover:bg-[#059669] text-white font-black py-5 rounded-full text-[16px] disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2 shadow-lg"
-                    >
-                      <CheckCircle2 size={20} />
-                      Approve Tour
-                    </button>
-
-                    <div className="border-t border-gray-200 pt-4">
-                      <label className="block text-[14px] font-bold text-[#001A33] mb-2">
-                        Rejection Reason (if rejecting)
-                      </label>
-                      <textarea
-                        value={rejectionReason}
-                        onChange={(e) => setRejectionReason(e.target.value)}
-                        placeholder="Enter reason for rejection..."
-                        className="w-full bg-gray-50 border-2 border-gray-200 rounded-xl p-3 text-[14px] font-semibold text-[#001A33] focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none resize-none mb-3"
-                        rows={3}
-                      />
+                    {/* Actions */}
+                    <div className="space-y-4">
                       <button
-                        onClick={() => handleReject(selectedTour.id)}
-                        disabled={isProcessing || !rejectionReason.trim()}
-                        className="w-full bg-red-500 hover:bg-red-600 text-white font-black py-5 rounded-full text-[16px] disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2 shadow-lg"
-                      >
-                        <XCircle size={20} />
-                        Reject Tour
-                      </button>
-                    </div>
-
-                    <div className="border-t border-gray-200 pt-4">
-                      <button
-                        onClick={() => handleDeleteTour(selectedTour.id)}
+                        onClick={() => handleApprove(selectedTour.id)}
                         disabled={isProcessing}
-                        className="w-full bg-gray-800 hover:bg-gray-900 text-white font-black py-5 rounded-full text-[16px] disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2 shadow-lg"
+                        className="w-full bg-[#10B981] hover:bg-[#059669] text-white font-black py-5 rounded-full text-[16px] disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2 shadow-lg"
                       >
-                        <Trash2 size={20} />
-                        Delete Tour Permanently
+                        <CheckCircle2 size={20} />
+                        Approve Tour
                       </button>
+
+                      <div className="border-t border-gray-200 pt-4">
+                        <label className="block text-[14px] font-bold text-[#001A33] mb-2">
+                          Rejection Reason (if rejecting)
+                        </label>
+                        <textarea
+                          value={rejectionReason}
+                          onChange={(e) => setRejectionReason(e.target.value)}
+                          placeholder="Enter reason for rejection..."
+                          className="w-full bg-gray-50 border-2 border-gray-200 rounded-xl p-3 text-[14px] font-semibold text-[#001A33] focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none resize-none mb-3"
+                          rows={3}
+                        />
+                        <button
+                          onClick={() => handleReject(selectedTour.id)}
+                          disabled={isProcessing || !rejectionReason.trim()}
+                          className="w-full bg-red-500 hover:bg-red-600 text-white font-black py-5 rounded-full text-[16px] disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2 shadow-lg"
+                        >
+                          <XCircle size={20} />
+                          Reject Tour
+                        </button>
+                      </div>
+
+                      <div className="border-t border-gray-200 pt-4">
+                        <button
+                          onClick={() => handleDeleteTour(selectedTour.id)}
+                          disabled={isProcessing}
+                          className="w-full bg-gray-800 hover:bg-gray-900 text-white font-black py-5 rounded-full text-[16px] disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2 shadow-lg"
+                        >
+                          <Trash2 size={20} />
+                          Delete Tour Permanently
+                        </button>
+                      </div>
                     </div>
                   </div>
-                </div>
-              ) : (
-                <div className="bg-white rounded-2xl p-6 border border-gray-200 text-center">
-                  <Eye className="mx-auto text-gray-300 mb-4" size={48} />
-                  <p className="text-[14px] text-gray-500 font-semibold">
-                    Select a tour to review
-                  </p>
-                </div>
-              )}
+                ) : (
+                  <div className="bg-white rounded-2xl p-6 border border-gray-200 text-center">
+                    <Eye className="mx-auto text-gray-300 mb-4" size={48} />
+                    <p className="text-[14px] text-gray-500 font-semibold">
+                      Select a tour to review
+                    </p>
+                  </div>
+                )}
+              </div>
             </div>
-          </div>
           )
         ) : activeTab === 'payments' ? (
           // Payment Details Tab
@@ -1605,9 +1625,9 @@ const AdminDashboard: React.FC = () => {
                     placeholder="Search by name, email, or ID..."
                     value={paymentSearchQuery}
                     onChange={(e) => {
-                    setPaymentSearchQuery(e.target.value);
-                    setCurrentPage(1); // Reset to first page on search
-                  }}
+                      setPaymentSearchQuery(e.target.value);
+                      setCurrentPage(1); // Reset to first page on search
+                    }}
                     className="w-full pl-10 pr-4 py-2.5 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-[#10B981] focus:border-[#10B981] outline-none text-[14px] font-semibold"
                   />
                 </div>
@@ -1669,7 +1689,7 @@ const AdminDashboard: React.FC = () => {
                           // Search filter
                           if (paymentSearchQuery) {
                             const query = paymentSearchQuery.toLowerCase();
-                            const matchesSearch = 
+                            const matchesSearch =
                               supplier.fullName?.toLowerCase().includes(query) ||
                               supplier.email?.toLowerCase().includes(query) ||
                               supplier.id?.toString().includes(query) ||
@@ -1713,287 +1733,287 @@ const AdminDashboard: React.FC = () => {
                         return (
                           <>
                             {paginatedSuppliers.map((supplier) => {
-                          const paymentMethodLabels: Record<string, string> = {
-                            'bank_transfer': 'Bank Transfer',
-                            'paypal': 'PayPal',
-                            'credit_card': 'Credit/Debit Card',
-                            'upi': 'UPI (India)',
-                            'wise': 'Wise (formerly TransferWise)'
-                          };
+                              const paymentMethodLabels: Record<string, string> = {
+                                'bank_transfer': 'Bank Transfer',
+                                'paypal': 'PayPal',
+                                'credit_card': 'Credit/Debit Card',
+                                'upi': 'UPI (India)',
+                                'wise': 'Wise (formerly TransferWise)'
+                              };
 
-                          const getPaymentMethodIcon = (method: string) => {
-                            switch (method) {
-                              case 'bank_transfer':
-                                return <Building size={18} className="text-blue-600" />;
-                              case 'paypal':
-                                return <Wallet size={18} className="text-blue-500" />;
-                              case 'credit_card':
-                                return <CreditCard size={18} className="text-purple-600" />;
-                              case 'upi':
-                                return <Wallet size={18} className="text-green-600" />;
-                              case 'wise':
-                                return <Wallet size={18} className="text-teal-600" />;
-                              default:
-                                return <DollarSign size={18} className="text-gray-400" />;
-                            }
-                          };
+                              const getPaymentMethodIcon = (method: string) => {
+                                switch (method) {
+                                  case 'bank_transfer':
+                                    return <Building size={18} className="text-blue-600" />;
+                                  case 'paypal':
+                                    return <Wallet size={18} className="text-blue-500" />;
+                                  case 'credit_card':
+                                    return <CreditCard size={18} className="text-purple-600" />;
+                                  case 'upi':
+                                    return <Wallet size={18} className="text-green-600" />;
+                                  case 'wise':
+                                    return <Wallet size={18} className="text-teal-600" />;
+                                  default:
+                                    return <DollarSign size={18} className="text-gray-400" />;
+                                }
+                              };
 
-                          const paymentDetails = supplier.paymentMethodDetails ? 
-                            (typeof supplier.paymentMethodDetails === 'string' 
-                              ? JSON.parse(supplier.paymentMethodDetails) 
-                              : supplier.paymentMethodDetails) 
-                            : {};
+                              const paymentDetails = supplier.paymentMethodDetails ?
+                                (typeof supplier.paymentMethodDetails === 'string'
+                                  ? JSON.parse(supplier.paymentMethodDetails)
+                                  : supplier.paymentMethodDetails)
+                                : {};
 
-                          const isExpanded = expandedRows.has(supplier.id);
+                              const isExpanded = expandedRows.has(supplier.id);
 
-                          return (
-                            <React.Fragment key={supplier.id}>
-                              <tr className={`hover:bg-gray-50 transition-colors ${isExpanded ? 'bg-gray-50' : ''}`}>
-                                <td className="px-6 py-4">
-                                  <div className="flex items-center gap-3">
-                                    <div className="w-10 h-10 bg-[#10B981]/10 rounded-lg flex items-center justify-center">
-                                      {supplier.businessType === 'company' ? (
-                                        <Building2 size={18} className="text-[#10B981]" />
+                              return (
+                                <React.Fragment key={supplier.id}>
+                                  <tr className={`hover:bg-gray-50 transition-colors ${isExpanded ? 'bg-gray-50' : ''}`}>
+                                    <td className="px-6 py-4">
+                                      <div className="flex items-center gap-3">
+                                        <div className="w-10 h-10 bg-[#10B981]/10 rounded-lg flex items-center justify-center">
+                                          {supplier.businessType === 'company' ? (
+                                            <Building2 size={18} className="text-[#10B981]" />
+                                          ) : (
+                                            <User size={18} className="text-[#10B981]" />
+                                          )}
+                                        </div>
+                                        <div>
+                                          <div className="text-[14px] font-black text-[#001A33]">
+                                            {supplier.fullName}
+                                            {supplier.companyName && ` - ${supplier.companyName}`}
+                                          </div>
+                                          <div className="text-[12px] text-gray-500 font-semibold">{supplier.email}</div>
+                                          <div className="text-[10px] font-mono text-gray-400">ID: {supplier.id}</div>
+                                        </div>
+                                      </div>
+                                    </td>
+                                    <td className="px-6 py-4">
+                                      {supplier.paymentMethod ? (
+                                        <div className="flex items-center gap-2">
+                                          {getPaymentMethodIcon(supplier.paymentMethod)}
+                                          <span className="text-[14px] font-bold text-[#001A33]">
+                                            {paymentMethodLabels[supplier.paymentMethod] || supplier.paymentMethod}
+                                          </span>
+                                        </div>
                                       ) : (
-                                        <User size={18} className="text-[#10B981]" />
+                                        <span className="text-[13px] text-gray-400 font-semibold">Not set</span>
                                       )}
-                                    </div>
-                                    <div>
-                                      <div className="text-[14px] font-black text-[#001A33]">
-                                        {supplier.fullName}
-                                        {supplier.companyName && ` - ${supplier.companyName}`}
-                                      </div>
-                                      <div className="text-[12px] text-gray-500 font-semibold">{supplier.email}</div>
-                                      <div className="text-[10px] font-mono text-gray-400">ID: {supplier.id}</div>
-                                    </div>
-                                  </div>
-                                </td>
-                                <td className="px-6 py-4">
-                                  {supplier.paymentMethod ? (
-                                    <div className="flex items-center gap-2">
-                                      {getPaymentMethodIcon(supplier.paymentMethod)}
+                                    </td>
+                                    <td className="px-6 py-4">
                                       <span className="text-[14px] font-bold text-[#001A33]">
-                                        {paymentMethodLabels[supplier.paymentMethod] || supplier.paymentMethod}
+                                        {supplier.paymentCurrency || 'N/A'}
                                       </span>
-                                    </div>
-                                  ) : (
-                                    <span className="text-[13px] text-gray-400 font-semibold">Not set</span>
-                                  )}
-                                </td>
-                                <td className="px-6 py-4">
-                                  <span className="text-[14px] font-bold text-[#001A33]">
-                                    {supplier.paymentCurrency || 'N/A'}
-                                  </span>
-                                </td>
-                                <td className="px-6 py-4">
-                                  {supplier.paymentDetailsVerified ? (
-                                    <span className="inline-flex items-center gap-1 px-3 py-1 bg-[#10B981]/10 text-[#10B981] rounded-full text-[12px] font-black">
-                                      <CheckCircle2 size={14} />
-                                      Verified
-                                    </span>
-                                  ) : supplier.paymentMethod ? (
-                                    <span className="inline-flex items-center gap-1 px-3 py-1 bg-yellow-50 text-yellow-700 rounded-full text-[12px] font-black">
-                                      <Clock size={14} />
-                                      Pending
-                                    </span>
-                                  ) : (
-                                    <span className="inline-flex items-center gap-1 px-3 py-1 bg-gray-100 text-gray-600 rounded-full text-[12px] font-black">
-                                      <XCircle size={14} />
-                                      Not Set
-                                    </span>
-                                  )}
-                                </td>
-                                <td className="px-6 py-4">
-                                  <div className="space-y-1">
-                                    <div className="text-[14px] font-black text-[#001A33]">
-                                      Net: {supplier.netEarnings !== undefined ? `${supplier.paymentCurrency || '₹'}${supplier.netEarnings.toLocaleString('en-IN', { minimumFractionDigits: 2 })}` : (supplier.totalEarnings ? `${supplier.paymentCurrency || '₹'}${supplier.totalEarnings.toLocaleString('en-IN', { minimumFractionDigits: 2 })}` : '₹0.00')}
-                                    </div>
-                                    {supplier.grossEarnings !== undefined && supplier.grossEarnings > 0 && (
-                                      <div className="text-[11px] text-gray-500 font-semibold">
-                                        Gross: {supplier.paymentCurrency || '₹'}{supplier.grossEarnings.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
-                                      </div>
-                                    )}
-                                    {supplier.tdsDeducted !== undefined && supplier.tdsDeducted > 0 && (
-                                      <div className="text-[11px] text-orange-600 font-semibold">
-                                        TDS: {supplier.paymentCurrency || '₹'}{supplier.tdsDeducted.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
-                                      </div>
-                                    )}
-                                    {supplier.pendingEarnings > 0 && (
-                                      <div className="text-[12px] text-yellow-600 font-semibold mt-1">
-                                        Pending: {supplier.paymentCurrency || '₹'}{supplier.pendingEarnings.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
-                                      </div>
-                                    )}
-                                  </div>
-                                </td>
-                                <td className="px-6 py-4">
-                                  <div className="flex items-center gap-2">
-                                    <button
-                                      onClick={() => {
-                                        const newExpanded = new Set(expandedRows);
-                                        if (isExpanded) {
-                                          newExpanded.delete(supplier.id);
-                                        } else {
-                                          newExpanded.add(supplier.id);
-                                        }
-                                        setExpandedRows(newExpanded);
-                                      }}
-                                      className="px-3 py-1.5 bg-gray-100 hover:bg-gray-200 text-[#001A33] rounded-lg text-[12px] font-bold transition-colors flex items-center gap-1"
-                                    >
-                                      {isExpanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
-                                      {isExpanded ? 'Hide' : 'View'}
-                                    </button>
-                                    {supplier.paymentMethod && !supplier.paymentDetailsVerified && (
-                                      <button
-                                        onClick={() => handleVerifyPaymentDetails(supplier.id)}
-                                        disabled={isProcessing}
-                                        className="px-3 py-1.5 bg-[#10B981] hover:bg-[#059669] text-white rounded-lg text-[12px] font-bold transition-colors flex items-center gap-1 disabled:opacity-50"
-                                      >
-                                        <ShieldCheck size={14} />
-                                        Verify
-                                      </button>
-                                    )}
-                                  </div>
-                                </td>
-                              </tr>
-                              {isExpanded && (
-                                <tr>
-                                  <td colSpan={6} className="px-6 py-4 bg-gray-50">
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                      {/* Payment Details */}
-                                      <div className="space-y-4">
-                                        <h4 className="text-[16px] font-black text-[#001A33] border-b border-gray-200 pb-2">
-                                          Payment Details
-                                        </h4>
-                                        {supplier.paymentMethod === 'bank_transfer' && (
-                                          <div className="space-y-2 text-[13px]">
-                                            {paymentDetails.bankName && (
-                                              <div className="flex justify-between">
-                                                <span className="font-bold text-gray-600">Bank Name:</span>
-                                                <span className="text-[#001A33]">{paymentDetails.bankName}</span>
-                                              </div>
-                                            )}
-                                            {paymentDetails.accountNumber && (
-                                              <div className="flex justify-between">
-                                                <span className="font-bold text-gray-600">Account Number:</span>
-                                                <span className="text-[#001A33] font-mono">{paymentDetails.accountNumber}</span>
-                                              </div>
-                                            )}
-                                            {paymentDetails.ifscCode && (
-                                              <div className="flex justify-between">
-                                                <span className="font-bold text-gray-600">IFSC Code:</span>
-                                                <span className="text-[#001A33] font-mono">{paymentDetails.ifscCode}</span>
-                                              </div>
-                                            )}
-                                            {paymentDetails.swiftCode && (
-                                              <div className="flex justify-between">
-                                                <span className="font-bold text-gray-600">SWIFT/BIC:</span>
-                                                <span className="text-[#001A33] font-mono">{paymentDetails.swiftCode}</span>
-                                              </div>
-                                            )}
-                                            {paymentDetails.beneficiaryName && (
-                                              <div className="flex justify-between">
-                                                <span className="font-bold text-gray-600">Beneficiary:</span>
-                                                <span className="text-[#001A33]">{paymentDetails.beneficiaryName}</span>
-                                              </div>
-                                            )}
+                                    </td>
+                                    <td className="px-6 py-4">
+                                      {supplier.paymentDetailsVerified ? (
+                                        <span className="inline-flex items-center gap-1 px-3 py-1 bg-[#10B981]/10 text-[#10B981] rounded-full text-[12px] font-black">
+                                          <CheckCircle2 size={14} />
+                                          Verified
+                                        </span>
+                                      ) : supplier.paymentMethod ? (
+                                        <span className="inline-flex items-center gap-1 px-3 py-1 bg-yellow-50 text-yellow-700 rounded-full text-[12px] font-black">
+                                          <Clock size={14} />
+                                          Pending
+                                        </span>
+                                      ) : (
+                                        <span className="inline-flex items-center gap-1 px-3 py-1 bg-gray-100 text-gray-600 rounded-full text-[12px] font-black">
+                                          <XCircle size={14} />
+                                          Not Set
+                                        </span>
+                                      )}
+                                    </td>
+                                    <td className="px-6 py-4">
+                                      <div className="space-y-1">
+                                        <div className="text-[14px] font-black text-[#001A33]">
+                                          Net: {supplier.netEarnings !== undefined ? `${supplier.paymentCurrency || '₹'}${supplier.netEarnings.toLocaleString('en-IN', { minimumFractionDigits: 2 })}` : (supplier.totalEarnings ? `${supplier.paymentCurrency || '₹'}${supplier.totalEarnings.toLocaleString('en-IN', { minimumFractionDigits: 2 })}` : '₹0.00')}
+                                        </div>
+                                        {supplier.grossEarnings !== undefined && supplier.grossEarnings > 0 && (
+                                          <div className="text-[11px] text-gray-500 font-semibold">
+                                            Gross: {supplier.paymentCurrency || '₹'}{supplier.grossEarnings.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
                                           </div>
                                         )}
-                                        {supplier.paymentMethod === 'paypal' && paymentDetails.paypalEmail && (
-                                          <div className="space-y-2 text-[13px]">
-                                            <div className="flex justify-between">
-                                              <span className="font-bold text-gray-600">PayPal Email:</span>
-                                              <span className="text-[#001A33]">{paymentDetails.paypalEmail}</span>
-                                            </div>
-                                            {paymentDetails.accountType && (
-                                              <div className="flex justify-between">
-                                                <span className="font-bold text-gray-600">Account Type:</span>
-                                                <span className="text-[#001A33]">{paymentDetails.accountType}</span>
-                                              </div>
-                                            )}
+                                        {supplier.tdsDeducted !== undefined && supplier.tdsDeducted > 0 && (
+                                          <div className="text-[11px] text-orange-600 font-semibold">
+                                            TDS: {supplier.paymentCurrency || '₹'}{supplier.tdsDeducted.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
                                           </div>
                                         )}
-                                        {supplier.paymentMethod === 'credit_card' && paymentDetails.cardHolderName && (
-                                          <div className="space-y-2 text-[13px]">
-                                            <div className="flex justify-between">
-                                              <span className="font-bold text-gray-600">Card Holder:</span>
-                                              <span className="text-[#001A33]">{paymentDetails.cardHolderName}</span>
-                                            </div>
-                                            {paymentDetails.last4Digits && (
-                                              <div className="flex justify-between">
-                                                <span className="font-bold text-gray-600">Card Number:</span>
-                                                <span className="text-[#001A33] font-mono">****{paymentDetails.last4Digits}</span>
-                                              </div>
-                                            )}
+                                        {supplier.pendingEarnings > 0 && (
+                                          <div className="text-[12px] text-yellow-600 font-semibold mt-1">
+                                            Pending: {supplier.paymentCurrency || '₹'}{supplier.pendingEarnings.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
                                           </div>
-                                        )}
-                                        {supplier.paymentMethod === 'upi' && paymentDetails.upiId && (
-                                          <div className="space-y-2 text-[13px]">
-                                            <div className="flex justify-between">
-                                              <span className="font-bold text-gray-600">UPI ID:</span>
-                                              <span className="text-[#001A33]">{paymentDetails.upiId}</span>
-                                            </div>
-                                          </div>
-                                        )}
-                                        {supplier.paymentMethod === 'wise' && paymentDetails.wiseEmail && (
-                                          <div className="space-y-2 text-[13px]">
-                                            <div className="flex justify-between">
-                                              <span className="font-bold text-gray-600">Wise Email:</span>
-                                              <span className="text-[#001A33]">{paymentDetails.wiseEmail}</span>
-                                            </div>
-                                            {paymentDetails.accountHolderName && (
-                                              <div className="flex justify-between">
-                                                <span className="font-bold text-gray-600">Account Holder:</span>
-                                                <span className="text-[#001A33]">{paymentDetails.accountHolderName}</span>
-                                              </div>
-                                            )}
-                                          </div>
-                                        )}
-                                        {!supplier.paymentMethod && (
-                                          <p className="text-[13px] text-gray-500 font-semibold">No payment details added yet.</p>
                                         )}
                                       </div>
+                                    </td>
+                                    <td className="px-6 py-4">
+                                      <div className="flex items-center gap-2">
+                                        <button
+                                          onClick={() => {
+                                            const newExpanded = new Set(expandedRows);
+                                            if (isExpanded) {
+                                              newExpanded.delete(supplier.id);
+                                            } else {
+                                              newExpanded.add(supplier.id);
+                                            }
+                                            setExpandedRows(newExpanded);
+                                          }}
+                                          className="px-3 py-1.5 bg-gray-100 hover:bg-gray-200 text-[#001A33] rounded-lg text-[12px] font-bold transition-colors flex items-center gap-1"
+                                        >
+                                          {isExpanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+                                          {isExpanded ? 'Hide' : 'View'}
+                                        </button>
+                                        {supplier.paymentMethod && !supplier.paymentDetailsVerified && (
+                                          <button
+                                            onClick={() => handleVerifyPaymentDetails(supplier.id)}
+                                            disabled={isProcessing}
+                                            className="px-3 py-1.5 bg-[#10B981] hover:bg-[#059669] text-white rounded-lg text-[12px] font-bold transition-colors flex items-center gap-1 disabled:opacity-50"
+                                          >
+                                            <ShieldCheck size={14} />
+                                            Verify
+                                          </button>
+                                        )}
+                                      </div>
+                                    </td>
+                                  </tr>
+                                  {isExpanded && (
+                                    <tr>
+                                      <td colSpan={6} className="px-6 py-4 bg-gray-50">
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                          {/* Payment Details */}
+                                          <div className="space-y-4">
+                                            <h4 className="text-[16px] font-black text-[#001A33] border-b border-gray-200 pb-2">
+                                              Payment Details
+                                            </h4>
+                                            {supplier.paymentMethod === 'bank_transfer' && (
+                                              <div className="space-y-2 text-[13px]">
+                                                {paymentDetails.bankName && (
+                                                  <div className="flex justify-between">
+                                                    <span className="font-bold text-gray-600">Bank Name:</span>
+                                                    <span className="text-[#001A33]">{paymentDetails.bankName}</span>
+                                                  </div>
+                                                )}
+                                                {paymentDetails.accountNumber && (
+                                                  <div className="flex justify-between">
+                                                    <span className="font-bold text-gray-600">Account Number:</span>
+                                                    <span className="text-[#001A33] font-mono">{paymentDetails.accountNumber}</span>
+                                                  </div>
+                                                )}
+                                                {paymentDetails.ifscCode && (
+                                                  <div className="flex justify-between">
+                                                    <span className="font-bold text-gray-600">IFSC Code:</span>
+                                                    <span className="text-[#001A33] font-mono">{paymentDetails.ifscCode}</span>
+                                                  </div>
+                                                )}
+                                                {paymentDetails.swiftCode && (
+                                                  <div className="flex justify-between">
+                                                    <span className="font-bold text-gray-600">SWIFT/BIC:</span>
+                                                    <span className="text-[#001A33] font-mono">{paymentDetails.swiftCode}</span>
+                                                  </div>
+                                                )}
+                                                {paymentDetails.beneficiaryName && (
+                                                  <div className="flex justify-between">
+                                                    <span className="font-bold text-gray-600">Beneficiary:</span>
+                                                    <span className="text-[#001A33]">{paymentDetails.beneficiaryName}</span>
+                                                  </div>
+                                                )}
+                                              </div>
+                                            )}
+                                            {supplier.paymentMethod === 'paypal' && paymentDetails.paypalEmail && (
+                                              <div className="space-y-2 text-[13px]">
+                                                <div className="flex justify-between">
+                                                  <span className="font-bold text-gray-600">PayPal Email:</span>
+                                                  <span className="text-[#001A33]">{paymentDetails.paypalEmail}</span>
+                                                </div>
+                                                {paymentDetails.accountType && (
+                                                  <div className="flex justify-between">
+                                                    <span className="font-bold text-gray-600">Account Type:</span>
+                                                    <span className="text-[#001A33]">{paymentDetails.accountType}</span>
+                                                  </div>
+                                                )}
+                                              </div>
+                                            )}
+                                            {supplier.paymentMethod === 'credit_card' && paymentDetails.cardHolderName && (
+                                              <div className="space-y-2 text-[13px]">
+                                                <div className="flex justify-between">
+                                                  <span className="font-bold text-gray-600">Card Holder:</span>
+                                                  <span className="text-[#001A33]">{paymentDetails.cardHolderName}</span>
+                                                </div>
+                                                {paymentDetails.last4Digits && (
+                                                  <div className="flex justify-between">
+                                                    <span className="font-bold text-gray-600">Card Number:</span>
+                                                    <span className="text-[#001A33] font-mono">****{paymentDetails.last4Digits}</span>
+                                                  </div>
+                                                )}
+                                              </div>
+                                            )}
+                                            {supplier.paymentMethod === 'upi' && paymentDetails.upiId && (
+                                              <div className="space-y-2 text-[13px]">
+                                                <div className="flex justify-between">
+                                                  <span className="font-bold text-gray-600">UPI ID:</span>
+                                                  <span className="text-[#001A33]">{paymentDetails.upiId}</span>
+                                                </div>
+                                              </div>
+                                            )}
+                                            {supplier.paymentMethod === 'wise' && paymentDetails.wiseEmail && (
+                                              <div className="space-y-2 text-[13px]">
+                                                <div className="flex justify-between">
+                                                  <span className="font-bold text-gray-600">Wise Email:</span>
+                                                  <span className="text-[#001A33]">{paymentDetails.wiseEmail}</span>
+                                                </div>
+                                                {paymentDetails.accountHolderName && (
+                                                  <div className="flex justify-between">
+                                                    <span className="font-bold text-gray-600">Account Holder:</span>
+                                                    <span className="text-[#001A33]">{paymentDetails.accountHolderName}</span>
+                                                  </div>
+                                                )}
+                                              </div>
+                                            )}
+                                            {!supplier.paymentMethod && (
+                                              <p className="text-[13px] text-gray-500 font-semibold">No payment details added yet.</p>
+                                            )}
+                                          </div>
 
-                                      {/* Tax Details */}
-                                      <div className="space-y-4">
-                                        <h4 className="text-[16px] font-black text-[#001A33] border-b border-gray-200 pb-2">
-                                          Tax Details
-                                        </h4>
-                                        {supplier.taxId ? (
-                                          <div className="space-y-2 text-[13px]">
-                                            {supplier.taxIdType && (
-                                              <div className="flex justify-between">
-                                                <span className="font-bold text-gray-600">Tax ID Type:</span>
-                                                <span className="text-[#001A33]">{supplier.taxIdType}</span>
+                                          {/* Tax Details */}
+                                          <div className="space-y-4">
+                                            <h4 className="text-[16px] font-black text-[#001A33] border-b border-gray-200 pb-2">
+                                              Tax Details
+                                            </h4>
+                                            {supplier.taxId ? (
+                                              <div className="space-y-2 text-[13px]">
+                                                {supplier.taxIdType && (
+                                                  <div className="flex justify-between">
+                                                    <span className="font-bold text-gray-600">Tax ID Type:</span>
+                                                    <span className="text-[#001A33]">{supplier.taxIdType}</span>
+                                                  </div>
+                                                )}
+                                                <div className="flex justify-between">
+                                                  <span className="font-bold text-gray-600">Tax ID:</span>
+                                                  <span className="text-[#001A33] font-mono">{supplier.taxId}</span>
+                                                </div>
+                                                {supplier.taxCountry && (
+                                                  <div className="flex justify-between">
+                                                    <span className="font-bold text-gray-600">Country:</span>
+                                                    <span className="text-[#001A33]">{supplier.taxCountry}</span>
+                                                  </div>
+                                                )}
+                                                {supplier.taxVerified && (
+                                                  <div className="flex justify-between">
+                                                    <span className="font-bold text-gray-600">Status:</span>
+                                                    <span className="text-[#10B981] font-bold">✓ Verified</span>
+                                                  </div>
+                                                )}
                                               </div>
-                                            )}
-                                            <div className="flex justify-between">
-                                              <span className="font-bold text-gray-600">Tax ID:</span>
-                                              <span className="text-[#001A33] font-mono">{supplier.taxId}</span>
-                                            </div>
-                                            {supplier.taxCountry && (
-                                              <div className="flex justify-between">
-                                                <span className="font-bold text-gray-600">Country:</span>
-                                                <span className="text-[#001A33]">{supplier.taxCountry}</span>
-                                              </div>
-                                            )}
-                                            {supplier.taxVerified && (
-                                              <div className="flex justify-between">
-                                                <span className="font-bold text-gray-600">Status:</span>
-                                                <span className="text-[#10B981] font-bold">✓ Verified</span>
-                                              </div>
+                                            ) : (
+                                              <p className="text-[13px] text-gray-500 font-semibold">No tax details provided.</p>
                                             )}
                                           </div>
-                                        ) : (
-                                          <p className="text-[13px] text-gray-500 font-semibold">No tax details provided.</p>
-                                        )}
-                                      </div>
-                                    </div>
-                                  </td>
-                                </tr>
-                              )}
-                            </React.Fragment>
-                          );
-                        })}
+                                        </div>
+                                      </td>
+                                    </tr>
+                                  )}
+                                </React.Fragment>
+                              );
+                            })}
                             {/* Pagination Controls */}
                             {filtered.length > itemsPerPage && (
                               <tr>
@@ -2098,35 +2118,32 @@ const AdminDashboard: React.FC = () => {
                 <div className="space-y-4">
                   {bookings.map((booking) => {
                     const bookingDate = new Date(booking.bookingDate);
-                    const formattedDate = bookingDate.toLocaleDateString('en-US', { 
-                      weekday: 'long', 
-                      year: 'numeric', 
-                      month: 'long', 
-                      day: 'numeric' 
+                    const formattedDate = bookingDate.toLocaleDateString('en-US', {
+                      weekday: 'long',
+                      year: 'numeric',
+                      month: 'long',
+                      day: 'numeric'
                     });
-                    
+
                     return (
-                      <div key={booking.id} className={`border-2 rounded-xl p-5 transition-all ${
-                        booking.paymentStatus === 'paid' 
-                          ? 'border-[#10B981] bg-[#10B981]/5' 
-                          : 'border-yellow-200 bg-yellow-50'
-                      }`}>
+                      <div key={booking.id} className={`border-2 rounded-xl p-5 transition-all ${booking.paymentStatus === 'paid'
+                        ? 'border-[#10B981] bg-[#10B981]/5'
+                        : 'border-yellow-200 bg-yellow-50'
+                        }`}>
                         <div className="flex items-start justify-between mb-4">
                           <div className="flex-1">
                             <div className="flex items-center gap-3 mb-2">
                               <h3 className="text-lg font-black text-[#001A33]">{booking.tour?.title || 'Tour'}</h3>
-                              <span className={`px-3 py-1 rounded-full text-[11px] font-black ${
-                                booking.paymentStatus === 'paid' 
-                                  ? 'bg-[#10B981] text-white' 
-                                  : 'bg-yellow-500 text-white'
-                              }`}>
+                              <span className={`px-3 py-1 rounded-full text-[11px] font-black ${booking.paymentStatus === 'paid'
+                                ? 'bg-[#10B981] text-white'
+                                : 'bg-yellow-500 text-white'
+                                }`}>
                                 {booking.paymentStatus === 'paid' ? '✅ PAID' : '⏳ PENDING'}
                               </span>
-                              <span className={`px-3 py-1 rounded-full text-[11px] font-black ${
-                                booking.status === 'confirmed' ? 'bg-blue-500/10 text-blue-700 border border-blue-500/20' :
+                              <span className={`px-3 py-1 rounded-full text-[11px] font-black ${booking.status === 'confirmed' ? 'bg-blue-500/10 text-blue-700 border border-blue-500/20' :
                                 booking.status === 'completed' ? 'bg-green-500/10 text-green-700 border border-green-500/20' :
-                                'bg-gray-500/10 text-gray-700 border border-gray-500/20'
-                              }`}>
+                                  'bg-gray-500/10 text-gray-700 border border-gray-500/20'
+                                }`}>
                                 {booking.status?.toUpperCase() || 'PENDING'}
                               </span>
                             </div>
@@ -2151,9 +2168,8 @@ const AdminDashboard: React.FC = () => {
                               </div>
                               <div>
                                 <p className="text-gray-500 font-semibold mb-1">Amount</p>
-                                <p className={`font-black text-lg ${
-                                  booking.paymentStatus === 'paid' ? 'text-[#10B981]' : 'text-[#001A33]'
-                                }`}>
+                                <p className={`font-black text-lg ${booking.paymentStatus === 'paid' ? 'text-[#10B981]' : 'text-[#001A33]'
+                                  }`}>
                                   {booking.currency === 'INR' ? '₹' : '$'}{booking.totalAmount.toLocaleString()}
                                 </p>
                               </div>
@@ -2209,7 +2225,7 @@ const AdminDashboard: React.FC = () => {
                 <X size={24} className="text-gray-600" />
               </button>
             </div>
-            
+
             <div className="mt-4">
               {licenseUrl.startsWith('data:image/') ? (
                 <img

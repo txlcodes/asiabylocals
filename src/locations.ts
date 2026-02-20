@@ -17,18 +17,7 @@ export const COUNTRIES = [
     { name: 'Cambodia', code: 'KH' },
     { name: 'Myanmar', code: 'MM' },
     { name: 'Laos', code: 'LA' },
-    { name: 'Bangladesh', code: 'BD' },
-    // Western Countries
-    { name: 'United States', code: 'US' },
-    { name: 'United Kingdom', code: 'UK' },
-    { name: 'France', code: 'FR' },
-    { name: 'Italy', code: 'IT' },
-    { name: 'Spain', code: 'ES' },
-    { name: 'Germany', code: 'DE' },
-    { name: 'Australia', code: 'AU' },
-    { name: 'United Arab Emirates', code: 'AE' },
-    { name: 'Turkey', code: 'TR' },
-    { name: 'Egypt', code: 'EG' }
+    { name: 'Bangladesh', code: 'BD' }
 ];
 
 export const COUNTRY_CITIES: Record<string, string[]> = {
@@ -85,37 +74,5 @@ export const COUNTRY_CITIES: Record<string, string[]> = {
     ],
     'Bangladesh': [
         'Dhaka', 'Chittagong', "Cox's Bazar", 'Sylhet', 'Rajshahi'
-    ],
-    // New Western Countries
-    'United States': [
-        'New York', 'Los Angeles', 'San Francisco', 'Chicago', 'Las Vegas',
-        'Miami', 'Orlando', 'Washington D.C.', 'Boston', 'Seattle', 'Hawaii', 'New Orleans'
-    ],
-    'United Kingdom': [
-        'London', 'Edinburgh', 'Manchester', 'Bath', 'Liverpool', 'Oxford', 'Cambridge', 'York', 'Glasgow'
-    ],
-    'France': [
-        'Paris', 'Nice', 'Lyon', 'Bordeaux', 'Marseille', 'Strasbourg', 'Avignon', 'Versailles'
-    ],
-    'Italy': [
-        'Rome', 'Florence', 'Venice', 'Milan', 'Naples', 'Cinque Terre', 'Amalfi Coast', 'Pompeii', 'Verona'
-    ],
-    'Spain': [
-        'Barcelona', 'Madrid', 'Seville', 'Granada', 'Valencia', 'Mallorca', 'Ibiza', 'Bilbao'
-    ],
-    'Germany': [
-        'Berlin', 'Munich', 'Hamburg', 'Frankfurt', 'Cologne', 'Heidelberg', 'Dresden'
-    ],
-    'Australia': [
-        'Sydney', 'Melbourne', 'Brisbane', 'Cairns', 'Gold Coast', 'Perth', 'Adelaide'
-    ],
-    'United Arab Emirates': [
-        'Dubai', 'Abu Dhabi', 'Sharjah'
-    ],
-    'Turkey': [
-        'Istanbul', 'Cappadocia', 'Antalya', 'Bodrum', 'Ephesus', 'Pamukkale'
-    ],
-    'Egypt': [
-        'Cairo', 'Luxor', 'Aswan', 'Giza', 'Hurghada', 'Sharm El Sheikh', 'Alexandria'
     ]
 };

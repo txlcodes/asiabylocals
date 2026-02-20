@@ -912,11 +912,11 @@ export const sendBookingConfirmationEmail = async (customerEmail, customerName, 
                       
                       <!-- Guide Contact Information -->
                       <div style="background-color: #f8f9fa; border-radius: 8px; padding: 24px; margin: 30px 0;">
-                        <h2 style="margin: 0 0 20px 0; font-size: 20px; font-weight: 700; color: #001A33;">Your Guide Contact</h2>
+                        <h2 style="margin: 0 0 20px 0; font-size: 20px; font-weight: 700; color: #001A33;">Your Supplier Contact</h2>
                         
                         <table style="width: 100%; border-collapse: collapse;">
                           <tr>
-                            <td style="padding: 8px 0; font-weight: 600; color: #666; width: 40%;">Guide Name:</td>
+                            <td style="padding: 8px 0; font-weight: 600; color: #666; width: 40%;">Supplier Name:</td>
                             <td style="padding: 8px 0; color: #001A33; font-weight: 600;">${supplierName}</td>
                           </tr>
                           ${supplierEmail ? `
@@ -952,7 +952,7 @@ export const sendBookingConfirmationEmail = async (customerEmail, customerName, 
                         <strong>Important Information:</strong>
                       </p>
                       <ul style="margin: 0 0 30px 0; padding-left: 20px; font-size: 16px; line-height: 1.8; color: #001A33;">
-                        <li style="margin-bottom: 10px;">Your guide will contact you soon to confirm meeting details</li>
+                        <li style="margin-bottom: 10px;">Your supplier will contact you soon to confirm meeting details</li>
                         <li style="margin-bottom: 10px;">Please save this confirmation email for your records</li>
                         <li style="margin-bottom: 10px;">In case of any disputes, please contact us with your booking reference: <strong>${bookingReference}</strong></li>
                         <li style="margin-bottom: 10px;">Keep this email as proof of your booking</li>
@@ -972,7 +972,7 @@ export const sendBookingConfirmationEmail = async (customerEmail, customerName, 
                             ` : ''}
                             ${whatsappContactLink ? `
                             <a href="${whatsappContactLink}" style="display: inline-block; background-color: #25D366; color: #ffffff; text-decoration: none; padding: 16px 40px; border-radius: 6px; font-size: 16px; font-weight: 600; text-align: center; margin: 0 10px 10px 10px;">
-                              💬 Contact Guide via WhatsApp
+                              💬 Contact Supplier via WhatsApp
                             </a>
                             ` : ''}
                           </td>
@@ -1027,7 +1027,7 @@ export const sendBookingConfirmationEmail = async (customerEmail, customerName, 
       - Total Amount: ${currency === 'INR' ? '₹' : '$'}${totalAmount.toLocaleString()}
       - Payment Status: ${paymentStatus || 'Pending'}
       
-      Your Guide Contact:
+      Your Supplier Contact:
       - Name: ${supplierName}
       ${supplierEmail ? `- Email: ${supplierEmail}` : ''}
       ${supplierPhone ? `- Phone: ${supplierPhone}` : ''}
