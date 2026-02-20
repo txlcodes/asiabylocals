@@ -229,10 +229,25 @@ const App: React.FC = () => {
     }));
   }, []);
 
-  // Filter suggestions based on search query
-  const filteredSuggestions = focusCities.filter(city =>
-    city.name.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  // Filter suggestions based on search query - Prioritize startsWith over includes
+  const filteredSuggestions = useMemo(() => {
+    if (!searchQuery) return [];
+
+    const query = searchQuery.toLowerCase();
+
+    return focusCities
+      .filter(city => city.name.toLowerCase().includes(query))
+      .sort((a, b) => {
+        const aName = a.name.toLowerCase();
+        const bName = b.name.toLowerCase();
+        const aStarts = aName.startsWith(query);
+        const bStarts = bName.startsWith(query);
+
+        if (aStarts && !bStarts) return -1;
+        if (!aStarts && bStarts) return 1;
+        return aName.localeCompare(bName);
+      });
+  }, [searchQuery, focusCities]);
 
   // Handle search - redirects to city page
   const handleSearch = (cityName?: string) => {
