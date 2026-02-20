@@ -1779,7 +1779,7 @@ ${a(9)}`;
                       }}
                       placeholder="e.g., 10"
                       min="1"
-                      className="w-full bg-gray-50 border-none rounded-2xl py-4 px-4 font-bold text-[#001A33] text-[14px] focus:ring-2 focus:ring-[#10B981] outline-none"
+                      className="w-full bg-gray-50 border-none rounded-2xl py-4 px-4 font-bold text-[#001A33] text-[14px] focus:ring-2 focus:ring-[#10B981] outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                     />
                     <p className="text-[11px] text-gray-400 mt-1">
                       Maximum number of people you can guide in a day
@@ -1873,7 +1873,7 @@ ${a(9)}`;
                                     });
                                   }}
                                   placeholder={suggestedPrice ? `Suggested: ${suggestedPrice}` : "Enter price"}
-                                  className="w-full bg-white border border-gray-300 rounded-xl py-3 px-4 font-bold text-[#001A33] text-[14px] focus:ring-2 focus:ring-[#10B981] outline-none"
+                                  className="w-full bg-white border border-gray-300 rounded-xl py-3 px-4 font-bold text-[#001A33] text-[14px] focus:ring-2 focus:ring-[#10B981] outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                                 />
                               </div>
                               {suggestedPrice && !price && (
@@ -2731,7 +2731,7 @@ ${a(9)}`;
                             placeholder="e.g., 4"
                             min="0.5"
                             step="0.5"
-                            className="w-full bg-gray-50 border-none rounded-xl py-3 px-4 font-semibold text-[#001A33] text-[14px] focus:ring-2 focus:ring-[#10B981] outline-none"
+                            className="w-full bg-gray-50 border-none rounded-xl py-3 px-4 font-semibold text-[#001A33] text-[14px] focus:ring-2 focus:ring-[#10B981] outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                           />
                         </div>
                       </div>
@@ -2773,7 +2773,7 @@ ${a(9)}`;
                               }}
                               placeholder="e.g., 10"
                               min="1"
-                              className="w-full bg-white border-none rounded-xl py-3 px-4 font-semibold text-[#001A33] text-[14px] focus:ring-2 focus:ring-[#10B981] outline-none"
+                              className="w-full bg-white border-none rounded-xl py-3 px-4 font-semibold text-[#001A33] text-[14px] focus:ring-2 focus:ring-[#10B981] outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                             />
                             <p className="text-[11px] text-gray-400 mt-1">
                               Maximum number of people you can guide in a day
@@ -2872,7 +2872,7 @@ ${a(9)}`;
                                             setFormData(prev => ({ ...prev, tourOptions: newOptions }));
                                           }}
                                           placeholder={suggestedPrice ? `Suggested: ${suggestedPrice}` : "Enter price"}
-                                          className="w-full bg-gray-50 border border-gray-300 rounded-xl py-2 px-3 font-bold text-[#001A33] text-[13px] focus:ring-2 focus:ring-[#10B981] outline-none"
+                                          className="w-full bg-gray-50 border border-gray-300 rounded-xl py-2 px-3 font-bold text-[#001A33] text-[13px] focus:ring-2 focus:ring-[#10B981] outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                                         />
                                       </div>
                                       {suggestedPrice && !price && (
