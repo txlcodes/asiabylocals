@@ -1152,9 +1152,13 @@ const SupplierDashboard: React.FC<SupplierDashboardProps> = ({ supplier, onLogou
             const certs = supplierData.certificates
               ? (typeof supplierData.certificates === 'string' ? JSON.parse(supplierData.certificates) : supplierData.certificates)
               : [];
-            setDocuments({
-              license: supplierData.verificationDocumentUrl || null,
-              certificates: Array.isArray(certs) ? certs : []
+            const newLicense = supplierData.verificationDocumentUrl || null;
+            const newCerts = Array.isArray(certs) ? certs : [];
+            setDocuments(prev => {
+              if (prev.license === newLicense && JSON.stringify(prev.certificates) === JSON.stringify(newCerts)) {
+                return prev;
+              }
+              return { license: newLicense, certificates: newCerts };
             });
           } catch (e) {
             console.error('Error parsing certificates:', e);
@@ -1235,15 +1239,24 @@ const SupplierDashboard: React.FC<SupplierDashboardProps> = ({ supplier, onLogou
         const certs = supplier.certificates
           ? (typeof supplier.certificates === 'string' ? JSON.parse(supplier.certificates) : supplier.certificates)
           : [];
-        setDocuments({
-          license: supplier.verificationDocumentUrl || null,
-          certificates: Array.isArray(certs) ? certs : []
+        const newLicense = supplier.verificationDocumentUrl || null;
+        const newCerts = Array.isArray(certs) ? certs : [];
+        setDocuments(prev => {
+          if (prev.license === newLicense && JSON.stringify(prev.certificates) === JSON.stringify(newCerts)) {
+            return prev;
+          }
+          return { license: newLicense, certificates: newCerts };
         });
       } catch (e) {
         console.error('Error parsing certificates:', e);
-        setDocuments({
-          license: supplier.verificationDocumentUrl || null,
-          certificates: []
+        setDocuments(prev => {
+          if (prev.license === (supplier.verificationDocumentUrl || null) && prev.certificates.length === 0) {
+            return prev;
+          }
+          return {
+            license: supplier.verificationDocumentUrl || null,
+            certificates: []
+          };
         });
       }
     }

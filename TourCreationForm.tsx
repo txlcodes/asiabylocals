@@ -178,7 +178,7 @@ const TourCreationForm: React.FC<TourCreationFormProps> = ({
       groupPricingTiers: [] as Array<{ minPeople: number; maxPeople: number; price: string }>,
       unavailableDates: [] as string[], // Legacy - dates guide is not available
       unavailableDaysOfWeek: [] as number[], // Days of week guide is not available (0=Sunday, 1=Monday, ..., 6=Saturday)
-      currency: 'INR',
+      currency: 'USD',
       shortDescription: '',
       fullDescription: '',
       highlights: ['', '', ''] as string[], // 3-5 highlights, each max 80 chars
@@ -255,60 +255,103 @@ const TourCreationForm: React.FC<TourCreationFormProps> = ({
 
   const [stop1, stop2] = getMajorStops();
 
+  // Itinerary examples by country
+  const ITINERARY_EXAMPLES: Record<string, { label: string; items: any[] }> = {
+    'India': {
+      label: 'Agra Day Trip',
+      items: [
+        { title: 'Pickup location', time: '06:00', duration: '30 minutes', description: 'Pickup from your hotel or airport', type: 'pickup' as const, optional: false },
+        { title: 'Car', time: '06:30', duration: '3.5 hours', description: 'Drive to Agra in private AC car', type: 'transport' as const, optional: false },
+        { title: 'Taj Mahal', time: '10:00', duration: '3 hours', description: 'Visit and guided tour of the iconic Taj Mahal', type: 'visit' as const, optional: false },
+        { title: 'Lunch at 5-star Hotel', time: '13:00', duration: '45 minutes', description: 'Enjoy a delicious meal at a premium restaurant', type: 'meal' as const, optional: false },
+        { title: 'Agra Fort', time: '14:00', duration: '1 hour', description: 'Visit and guided tour of the historic Agra Fort', type: 'visit' as const, optional: false },
+        { title: 'Baby Taj', time: '15:30', duration: '30 minutes', description: 'Visit the beautiful Tomb of Itmad-ud-Daulah', type: 'visit' as const, optional: true },
+        { title: 'Car', time: '16:00', duration: '3.5 hours', description: 'Return drive to Delhi', type: 'transport' as const, optional: false },
+        { title: 'Arrive back', time: '19:30', duration: '', description: 'Drop-off at your hotel or airport', type: 'return' as const, optional: false }
+      ]
+    },
+    'Thailand': {
+      label: 'Bangkok Highlights',
+      items: [
+        { title: 'Hotel Pickup', time: '08:30', duration: '30 minutes', description: 'Meeting at your hotel lobby in Bangkok', type: 'pickup' as const, optional: false },
+        { title: 'Grand Palace', time: '09:00', duration: '2 hours', description: 'Explore the spectacular Grand Palace and Emerald Buddha', type: 'visit' as const, optional: false },
+        { title: 'Wat Pho', time: '11:30', duration: '1 hour', description: 'See the famous Reclining Buddha', type: 'visit' as const, optional: false },
+        { title: 'Local Thai Lunch', time: '12:30', duration: '1 hour', description: 'Authentic Thai meal near the river', type: 'meal' as const, optional: false },
+        { title: 'Canal Boat Tour', time: '14:00', duration: '1.5 hours', description: 'Explore the "Venice of the East" by traditional long-tail boat', type: 'transport' as const, optional: false },
+        { title: 'Wat Arun', time: '15:30', duration: '1 hour', description: 'Visit the stunning Temple of Dawn', type: 'visit' as const, optional: false },
+        { title: 'Return Drop-off', time: '17:00', duration: '', description: 'Return to your hotel with memories of Bangkok', type: 'return' as const, optional: false }
+      ]
+    },
+    'Japan': {
+      label: 'Kyoto Cultural Day',
+      items: [
+        { title: 'Meeting at Station', time: '09:00', duration: '15 minutes', description: 'Meet your guide at Kyoto Station', type: 'pickup' as const, optional: false },
+        { title: 'Fushimi Inari Shrine', time: '09:30', duration: '2 hours', description: 'Walk through the thousands of Torii gates', type: 'visit' as const, optional: false },
+        { title: 'Kiyomizu-dera Temple', time: '12:00', duration: '1.5 hours', description: 'Iconic wooden temple with panoramic city views', type: 'visit' as const, optional: false },
+        { title: 'Japanese Kaiseki Lunch', time: '13:30', duration: '1 hour', description: 'Traditional multi-course lunch in Gion', type: 'meal' as const, optional: false },
+        { title: 'Gion District Walk', time: '14:30', duration: '1.5 hours', description: 'Explore the historic geisha district', type: 'activity' as const, optional: false },
+        { title: 'Kinkaku-ji', time: '16:30', duration: '1 hour', description: 'Visit the spectacular Golden Pavilion', type: 'visit' as const, optional: false },
+        { title: 'Tour Ends', time: '18:00', duration: '', description: 'Tour concludes in central Kyoto', type: 'return' as const, optional: false }
+      ]
+    }
+  };
+
+  const currentExample = ITINERARY_EXAMPLES[formData.country] || ITINERARY_EXAMPLES['India'];
+
   const aiQuestions = [
     {
       id: 0,
       question: 'What is the main title/heading for this itinerary?',
-      placeholder: `e.g. ${formData.title || 'Agra Same Day Tour'} Itinerary (From ${formData.city || 'Delhi'})`,
-      defaultValue: `${formData.title || 'Agra Same Day Tour'} Itinerary (From ${formData.city || 'Delhi'})`,
+      placeholder: `e.g. ${formData.title || (formData.country === 'Thailand' ? 'Bangkok City Tour' : 'Agra Same Day Tour')} Itinerary (From ${formData.city || (formData.country === 'Thailand' ? 'Bangkok' : 'Delhi')})`,
+      defaultValue: `${formData.title || (formData.country === 'Thailand' ? 'Bangkok City Tour' : 'Agra Same Day Tour')} Itinerary (From ${formData.city || (formData.country === 'Thailand' ? 'Bangkok' : 'Delhi')})`,
       hint: 'This becomes the H2 heading for SEO'
     },
     {
       id: 1,
       question: 'Describe the pickup — time, location, and vehicle type?',
-      placeholder: 'e.g. Early morning pickup at 6:00 AM from your hotel in Delhi/NCR in a comfortable AC sedan',
-      defaultValue: 'Early morning pickup at 6:00 AM from your hotel in Delhi/NCR in a comfortable AC sedan',
+      placeholder: formData.country === 'Thailand' ? 'e.g. 8:30 AM pickup from your hotel in Bangkok in a private AC SUV' : 'e.g. Early morning pickup at 6:00 AM from your hotel in Delhi/NCR in a comfortable AC sedan',
+      defaultValue: formData.country === 'Thailand' ? '8:30 AM pickup from your hotel in Bangkok in a private AC SUV' : 'Early morning pickup at 6:00 AM from your hotel in Delhi/NCR in a comfortable AC sedan',
       hint: 'Include time, pickup point, and vehicle details'
     },
     {
       id: 2,
       question: 'What route do you take and how long is the drive?',
-      placeholder: 'e.g. 3.5 hour drive via Yamuna Expressway, scenic countryside views along the way',
-      defaultValue: '3.5 hour drive via Yamuna Expressway, scenic countryside views along the way',
+      placeholder: formData.country === 'Thailand' ? 'e.g. Direct drive to the city center, approximately 30-45 minutes depending on traffic' : 'e.g. 3.5 hour drive via Yamuna Expressway, scenic countryside views along the way',
+      defaultValue: formData.country === 'Thailand' ? 'Direct drive to the city center, approximately 30-45 minutes depending on traffic' : '3.5 hour drive via Yamuna Expressway, scenic countryside views along the way',
       hint: 'Mention expressway/highway, duration, and scenery'
     },
     {
       id: 3,
-      question: `Describe the first major stop — ${stop1 ? `${stop1.title} (${stop1.type})` : 'Main Attraction'}?`,
-      placeholder: `e.g. Visit ${stop1?.title || 'the main attraction'} — history, key highlights, time spent here`,
-      defaultValue: `Visit ${stop1?.title || 'the main attraction'} and explore its history and key highlights.`,
+      question: `Describe the first major stop — ${stop1 ? `${stop1.title} (${stop1.type})` : (formData.country === 'Thailand' ? 'Grand Palace' : 'Main Attraction')}?`,
+      placeholder: `e.g. Visit ${stop1?.title || (formData.country === 'Thailand' ? 'the Grand Palace' : 'the main attraction')} — history, key highlights, time spent here`,
+      defaultValue: `Visit ${stop1?.title || (formData.country === 'Thailand' ? 'the Grand Palace' : 'the main attraction')} and explore its history and key highlights.`,
       hint: 'Include history, what they\'ll see, time spent, and insider tips'
     },
     {
       id: 4,
-      question: `Describe the second major stop — ${stop2 ? `${stop2.title} (${stop2.type})` : 'Second Attraction'}?`,
-      placeholder: `e.g. Explore ${stop2?.title || 'the next site'} — architecture, cultural significance, views`,
-      defaultValue: `Explore ${stop2?.title || 'the next site'} and discover its cultural significance.`,
+      question: `Describe the second major stop — ${stop2 ? `${stop2.title} (${stop2.type})` : (formData.country === 'Thailand' ? 'Wat Pho' : 'Second Attraction')}?`,
+      placeholder: `e.g. Explore ${stop2?.title || (formData.country === 'Thailand' ? 'Wat Pho' : 'the next site')} — architecture, cultural significance, views`,
+      defaultValue: `Explore ${stop2?.title || (formData.country === 'Thailand' ? 'Wat Pho' : 'the next site')} and discover its cultural significance.`,
       hint: 'Historical significance, key highlights, approximate time'
     },
     {
       id: 5,
       question: 'What are the meal/lunch arrangements?',
-      placeholder: 'e.g. Lunch at a local restaurant serving authentic Mughlai cuisine — both veg and non-veg options available (at traveller\'s own expense)',
-      defaultValue: 'Lunch at a local restaurant serving authentic Mughlai cuisine.',
+      placeholder: formData.country === 'Thailand' ? 'e.g. Lunch at a riverside restaurant serving authentic Thai cuisine like Pad Thai and Green Curry' : 'e.g. Lunch at a local restaurant serving authentic Mughlai cuisine — both veg and non-veg options available (at traveller\'s own expense)',
+      defaultValue: formData.country === 'Thailand' ? 'Lunch at a riverside restaurant serving authentic Thai cuisine.' : 'Lunch at a local restaurant serving authentic Mughlai cuisine.',
       hint: 'Restaurant type, cuisine, veg/non-veg, included or extra cost'
     },
     {
       id: 6,
       question: 'Any optional stops or add-ons available?',
-      placeholder: 'e.g. Optional visit to Mehtab Bagh for sunset views, local marble handicraft workshop, or Fatehpur Sikri (additional charge)',
+      placeholder: formData.country === 'Thailand' ? 'e.g. Optional canal tour by long-tail boat, flower market visit, or Thai massage session' : 'e.g. Optional visit to Mehtab Bagh for sunset views, local marble handicraft workshop, or Fatehpur Sikri (additional charge)',
       defaultValue: 'Optional visits can be arranged upon request.',
       hint: 'Shopping, extra sightseeing, upgrades'
     },
     {
       id: 7,
       question: 'Describe the return journey?',
-      placeholder: 'e.g. Depart around 5:00 PM, comfortable drive back, drop-off at hotel by 8:30 PM',
+      placeholder: formData.country === 'Thailand' ? 'e.g. Depart at 5:00 PM, return to your hotel by 6:00 PM depending on traffic' : 'e.g. Depart around 5:00 PM, comfortable drive back, drop-off at hotel by 8:30 PM',
       defaultValue: 'Depart around 5:00 PM for a comfortable drive back, with drop-off at your hotel.',
       hint: 'Departure time, route, expected arrival'
     },
@@ -322,7 +365,7 @@ const TourCreationForm: React.FC<TourCreationFormProps> = ({
     {
       id: 9,
       question: 'Share insider tips for travellers?',
-      placeholder: 'e.g. Wear comfortable shoes, carry sunscreen, best photos at sunrise',
+      placeholder: formData.country === 'Thailand' ? 'e.g. Dress modestly for temples (knees and shoulders covered), carry water, wear slip-on shoes' : 'e.g. Wear comfortable shoes, carry sunscreen, best photos at sunrise',
       defaultValue: 'Wear comfortable shoes and carry sunscreen.',
       hint: 'Practical tips — clothing, weather, photography, dos & don\'ts'
     }
@@ -1120,6 +1163,16 @@ ${a(9)}`;
     }
   };
 
+  const getCurrencySymbol = (currencyCode: string) => {
+    switch (currencyCode) {
+      case 'INR': return '₹';
+      case 'THB': return '฿';
+      case 'USD': return '$';
+      case 'EUR': return '€';
+      default: return currencyCode;
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
@@ -1257,8 +1310,18 @@ ${a(9)}`;
                   <select
                     value={formData.country}
                     onChange={(e) => {
-                      handleInputChange('country', e.target.value);
-                      handleInputChange('city', '');
+                      const newCountry = e.target.value;
+                      const newCurrency = newCountry === 'Thailand' ? 'THB' : 'USD';
+                      setFormData(prev => ({
+                        ...prev,
+                        country: newCountry,
+                        city: '',
+                        currency: newCurrency,
+                        tourOptions: prev.tourOptions.map(opt => ({
+                          ...opt,
+                          currency: newCurrency
+                        }))
+                      }));
                     }}
                     className="w-full bg-white border-2 border-gray-100 rounded-xl py-4 px-4 pr-10 font-bold text-[#001A33] text-[14px] focus:ring-2 focus:ring-[#10B981] focus:border-[#10B981] outline-none appearance-none shadow-sm transition-all hover:border-gray-200"
                   >
@@ -1794,8 +1857,18 @@ ${a(9)}`;
                       onChange={(e) => handleInputChange('currency', e.target.value)}
                       className="w-full bg-gray-50 border-none rounded-2xl py-4 px-4 font-bold text-[#001A33] text-[14px] focus:ring-2 focus:ring-[#10B981] outline-none"
                     >
-                      <option value="INR">INR (₹)</option>
-                      <option value="USD">USD ($)</option>
+                      {formData.country === 'Thailand' ? (
+                        <>
+                          <option value="THB">{getCurrencySymbol('THB')} THB</option>
+                          <option value="USD">{getCurrencySymbol('USD')} USD</option>
+                        </>
+                      ) : (
+                        <>
+                          <option value="INR">{getCurrencySymbol('INR')} INR</option>
+                          <option value="USD">{getCurrencySymbol('USD')} USD</option>
+                          <option value="EUR">{getCurrencySymbol('EUR')} EUR</option>
+                        </>
+                      )}
                     </select>
                   </div>
                 </div>
@@ -2202,19 +2275,10 @@ ${a(9)}`;
                     </p>
                     <button
                       type="button"
-                      onClick={() => handleInputChange('itineraryItems', [
-                        { title: 'Pickup location', time: '06:00', duration: '30 minutes', description: 'Pickup from your hotel or airport', type: 'pickup' as const, optional: false },
-                        { title: 'Car', time: '06:30', duration: '3.5 hours', description: 'Drive to Agra in private AC car', type: 'transport' as const, optional: false },
-                        { title: 'Taj Mahal', time: '10:00', duration: '3 hours', description: 'Visit and guided tour of the iconic Taj Mahal', type: 'visit' as const, optional: false },
-                        { title: 'Lunch at 5-star Hotel', time: '13:00', duration: '45 minutes', description: 'Enjoy a delicious meal at a premium restaurant', type: 'meal' as const, optional: false },
-                        { title: 'Agra Fort', time: '14:00', duration: '1 hour', description: 'Visit and guided tour of the historic Agra Fort', type: 'visit' as const, optional: false },
-                        { title: 'Baby Taj', time: '15:30', duration: '30 minutes', description: 'Visit the beautiful Tomb of Itmad-ud-Daulah', type: 'visit' as const, optional: true },
-                        { title: 'Car', time: '16:00', duration: '3.5 hours', description: 'Return drive to Delhi', type: 'transport' as const, optional: false },
-                        { title: 'Arrive back', time: '19:30', duration: '', description: 'Drop-off at your hotel or airport', type: 'return' as const, optional: false }
-                      ])}
+                      onClick={() => handleInputChange('itineraryItems', currentExample.items)}
                       className="text-[#10B981] font-bold hover:underline py-2 px-4"
                     >
-                      + Start with an example (Agra Day Trip)
+                      + Start with an example ({currentExample.label})
                     </button>
                   </div>
                 ) : (
@@ -2354,7 +2418,7 @@ ${a(9)}`;
                   className={`flex-1 py-3 rounded-lg text-[14px] font-bold transition-all flex items-center justify-center gap-2 ${itineraryMode === 'ai' ? 'bg-white shadow-sm text-[#10B981] ring-1 ring-black/5' : 'text-gray-500 hover:text-gray-700 hover:bg-gray-200/50'}`}
                 >
                   <Sparkles size={16} className={itineraryMode === 'ai' ? 'text-[#10B981]' : 'text-gray-400'} />
-                  AI Writer
+                  AI Writer (Recommended)
                 </button>
               </div>
 
@@ -2365,7 +2429,7 @@ ${a(9)}`;
                   <div className="flex items-center justify-between mb-4">
                     <div className="flex items-center gap-2">
                       <Sparkles size={16} className="text-[#10B981]" />
-                      <span className="text-[13px] font-black text-[#10B981]">AsiaByLocals AI Writer</span>
+                      <span className="text-[13px] font-black text-[#10B981]">AsiaByLocals AI Writer (Recommended)</span>
                     </div>
                     <div className="flex items-center gap-2">
                       <span className="text-[12px] font-bold text-gray-400">{answeredCount}/{totalQuestions} steps</span>
@@ -2518,7 +2582,13 @@ ${a(9)}`;
                       readOnly={aiGenerating}
                       value={formData.detailedItinerary}
                       onChange={(e) => handleInputChange('detailedItinerary', e.target.value)}
-                      placeholder={"Tour Overview\nWrite a brief overview of your tour — key highlights, duration, and what makes it special.\n\nPickup & Departure Details\nDescribe pickup time, location, vehicle type, and travel time to the first stop.\n\nTaj Mahal Visit\nDescribe this stop in detail — history, what travellers will see, time spent here.\n\nAgra Fort Exploration\nDescribe the experience, architecture, and cultural significance.\n\nLunch Break\nMeal arrangements — restaurant type, cuisine options, inclusions.\n\nReturn Journey\nReturn trip details — departure time, route, arrival time.\n\nInsider Tips\nPractical tips — best time to visit, what to wear, what to carry."}
+                      placeholder={
+                        formData.country === 'Thailand'
+                          ? "Tour Overview\nWrite a brief overview of your tour — key highlights, duration, and what makes it special.\n\nPickup & Departure Details\nDescribe pickup time, location, vehicle type, and travel time to the first stop.\n\nGrand Palace Visit\nDescribe this stop in detail — history, what travellers will see, time spent here.\n\nWat Pho Exploration\nDescribe the experience, architecture, and cultural significance.\n\nLunch Break\nMeal arrangements — restaurant type, cuisine options, inclusions.\n\nReturn Journey\nReturn trip details — departure time, route, arrival time.\n\nInsider Tips\nPractical tips — best time to visit, what to wear, what to carry."
+                          : formData.country === 'Japan'
+                            ? "Tour Overview\nWrite a brief overview of your tour — key highlights, duration, and what makes it special.\n\nPickup & Departure Details\nDescribe pickup time, location, vehicle type, and travel time to the first stop.\n\nFushimi Inari Shrine Visit\nDescribe this stop in detail — history, what travellers will see, time spent here.\n\nKiyomizu-dera Temple Exploration\nDescribe the experience, architecture, and cultural significance.\n\nLunch Break\nMeal arrangements — restaurant type, cuisine options, exclusions.\n\nReturn Journey\nReturn trip details — departure time, route, arrival time.\n\nInsider Tips\nPractical tips — best time to visit, what to wear, what to carry."
+                            : "Tour Overview\nWrite a brief overview of your tour — key highlights, duration, and what makes it special.\n\nPickup & Departure Details\nDescribe pickup time, location, vehicle type, and travel time to the first stop.\n\nTaj Mahal Visit\nDescribe this stop in detail — history, what travellers will see, time spent here.\n\nAgra Fort Exploration\nDescribe the experience, architecture, and cultural significance.\n\nLunch Break\nMeal arrangements — restaurant type, cuisine options, inclusions.\n\nReturn Journey\nReturn trip details — departure time, route, arrival time.\n\nInsider Tips\nPractical tips — best time to visit, what to wear, what to carry."
+                      }
                       rows={16}
                       className={`w-full bg-gray-50 border-2 border-gray-200 rounded-2xl py-5 px-6 font-semibold text-gray-700 text-[15px] focus:ring-2 focus:ring-[#10B981] focus:border-[#10B981] outline-none resize-y leading-relaxed ${aiGenerating ? 'cursor-not-allowed opacity-80' : ''}`}
                     />
@@ -2792,8 +2862,10 @@ ${a(9)}`;
                               }}
                               className="w-full bg-white border-none rounded-xl py-3 px-4 font-semibold text-[#001A33] text-[14px] focus:ring-2 focus:ring-[#10B981] outline-none"
                             >
-                              <option value="INR">INR (₹)</option>
                               <option value="USD">USD ($)</option>
+                              <option value="THB">THB (฿)</option>
+                              <option value="INR">INR (₹)</option>
+                              <option value="EUR">EUR (€)</option>
                             </select>
                           </div>
                         </div>
@@ -2853,7 +2925,7 @@ ${a(9)}`;
                                       <span className="text-[13px] font-bold text-[#001A33]">{numPeople} {numPeople === 1 ? 'person' : 'people'}</span>
                                     </div>
                                     <div className="flex-1 flex items-center gap-2">
-                                      <span className="text-[14px] font-bold text-[#001A33]">{option.currency === 'INR' ? '₹' : '$'}</span>
+                                      <span className="text-[14px] font-bold text-[#001A33]">{getCurrencySymbol(option.currency)}</span>
                                       <div className="flex-1 relative">
                                         <input
                                           type="number"
@@ -2902,7 +2974,7 @@ ${a(9)}`;
                             </div>
                             {option.groupPricingTiers && option.groupPricingTiers.length > 0 && option.groupPricingTiers[0]?.price && (
                               <p className="text-[12px] text-[#10B981] font-semibold mt-3">
-                                ✓ This option will show: "Starting from {option.currency === 'INR' ? '₹' : '$'}{parseFloat(option.groupPricingTiers[0].price).toLocaleString()}"
+                                ✓ This option will show: "Starting from {getCurrencySymbol(option.currency)}{parseFloat(option.groupPricingTiers[0].price).toLocaleString()}"
                               </p>
                             )}
                           </div>
@@ -2923,8 +2995,9 @@ ${a(9)}`;
                             }}
                             className="w-full bg-gray-50 border-none rounded-xl py-3 px-4 font-bold text-[#001A33] text-[14px] focus:ring-2 focus:ring-[#10B981] outline-none"
                           >
-                            <option value="INR">INR (₹)</option>
                             <option value="USD">USD ($)</option>
+                            <option value="THB">THB (฿)</option>
+                            <option value="INR">INR (₹)</option>
                             <option value="EUR">EUR (€)</option>
                           </select>
                         </div>
@@ -3338,7 +3411,7 @@ ${a(9)}`;
                       return (
                         <div className="space-y-3">
                           <div className="text-[16px] font-black text-[#001A33] mb-3">
-                            Group Tour Pricing ({formData.currency === 'INR' ? '₹' : '$'})
+                            Group Tour Pricing ({getCurrencySymbol(formData.currency)})
                           </div>
                           {hasGroupPricingTiers ? (
                             <div className="space-y-2">
@@ -3348,7 +3421,7 @@ ${a(9)}`;
                                     {tier.minPeople}-{tier.maxPeople} {tier.maxPeople === 1 ? 'person' : 'people'}
                                   </span>
                                   <span className="text-[16px] font-black text-[#10B981]">
-                                    {formData.currency === 'INR' ? '₹' : '$'}{tier.price ? parseFloat(tier.price).toLocaleString() : '0'}
+                                    {getCurrencySymbol(formData.currency)}{tier.price ? parseFloat(tier.price).toLocaleString() : '0'}
                                   </span>
                                 </div>
                               ))}
@@ -3359,7 +3432,7 @@ ${a(9)}`;
                                 Up to {formData.maxGroupSize} people:
                               </span>
                               <span className="text-[16px] font-black text-[#10B981] ml-2">
-                                {formData.currency === 'INR' ? '₹' : '$'}{parseFloat(formData.groupPrice || '0').toLocaleString()}
+                                {getCurrencySymbol(formData.currency)}{parseFloat(formData.groupPrice || '0').toLocaleString()}
                               </span>
                             </div>
                           ) : null}
@@ -3371,7 +3444,7 @@ ${a(9)}`;
                     if (isPerPerson && hasPerPersonPricing) {
                       return (
                         <div className="text-[16px] font-black text-[#001A33]">
-                          {formData.currency === 'INR' ? '₹' : '$'}{formData.pricePerPerson || '0'} per person
+                          {getCurrencySymbol(formData.currency)}{formData.pricePerPerson || '0'} per person
                         </div>
                       );
                     }
