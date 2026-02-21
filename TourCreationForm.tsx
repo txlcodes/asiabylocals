@@ -2650,7 +2650,7 @@ ${a(9)}`;
         {/* Step 7: Tour Options */}
         {step === 7 && (
           <div className="bg-white rounded-2xl p-8 border border-gray-200">
-            <h2 className="text-xl font-black text-[#001A33] mb-2">Add Pricing Options</h2>
+            <h2 className="text-xl font-black text-[#001A33] mb-2">Add Pricing Options <span className="text-gray-400 font-semibold">(Optional)</span></h2>
             <p className="text-[14px] text-gray-600 font-semibold mb-4">
               Create multiple pricing options for <span className="font-black text-[#001A33]">"{formData.title || 'this tour'}"</span>. All options belong to the same tour - customers will see one tour page and choose which option they prefer.
             </p>
