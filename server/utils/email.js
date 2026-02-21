@@ -1099,7 +1099,7 @@ export const sendBookingConfirmationEmail = async (customerEmail, customerName, 
  * @returns {Promise<Object>}
  */
 export const sendAdminPaymentNotificationEmail = async (bookingDetails) => {
-  const adminEmail = process.env.ADMIN_EMAIL || process.env.EMAIL_USER || 'admin@asiabylocals.com';
+  const adminEmail = process.env.ADMIN_EMAIL || 'info@asiabylocals.com';
 
   if (!adminEmail || typeof adminEmail !== 'string' || !adminEmail.includes('@')) {
     console.error('❌ Invalid admin email address:', adminEmail);
