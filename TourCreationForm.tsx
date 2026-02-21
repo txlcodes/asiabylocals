@@ -624,7 +624,7 @@ ${a(9)}`;
         return wordCount >= 500;
       case 7:
         // Step 7: Tour Options
-        return formData.tourOptions.length > 0 && formData.tourOptions.every(opt => {
+        return formData.tourOptions.every(opt => {
           const hasBasicFields = opt.optionTitle.trim() && opt.optionDescription.trim() && opt.durationHours;
           if (!hasBasicFields) return false;
           if (!opt.maxGroupSize || opt.maxGroupSize < 1) return false;
@@ -2663,7 +2663,7 @@ ${a(9)}`;
             {formData.tourOptions.length === 0 ? (
               <div className="bg-blue-50 border border-blue-200 rounded-xl p-6 text-center">
                 <p className="text-[14px] text-blue-800 font-semibold mb-4">
-                  Add at least one pricing option for this tour. You can add multiple options with different prices and features.
+                  (Optional) You can add extra pricing options for this tour (e.g. "Tour with Pickup", "Premium Tour"). If you don't add any, customers will only see the basic price.
                 </p>
                 <button
                   type="button"
