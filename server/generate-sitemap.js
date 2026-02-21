@@ -8,18 +8,103 @@ const __dirname = path.dirname(__filename);
 
 const prisma = new PrismaClient();
 
-// Focus cities for MVP
-const FOCUS_CITIES = [
-  { country: 'India', city: 'Agra' },
-  { country: 'India', city: 'Delhi' },
-  { country: 'India', city: 'Jaipur' },
-  { country: 'India', city: 'Udaipur' },
-  { country: 'India', city: 'Jaisalmer' }
+// Country name to slug mapping (special cases)
+const countrySlugs = {
+  'United Arab Emirates': 'uae',
+  'South Korea': 'south-korea',
+  'Hong Kong': 'hong-kong',
+  'Macau': 'macau',
+  'Sri Lanka': 'sri-lanka',
+  'United States': 'usa',
+  'Saudi Arabia': 'saudi-arabia',
+  'Czech Republic': 'czech-republic'
+};
+
+// Comprehensive city database for Layer 3 landing pages
+const CITY_DATABASE = [
+  // Japan
+  { name: 'Tokyo', country: 'Japan' },
+  { name: 'Kyoto', country: 'Japan' },
+  { name: 'Osaka', country: 'Japan' },
+  { name: 'Yokohama', country: 'Japan' },
+  { name: 'Sapporo', country: 'Japan' },
+  { name: 'Nara', country: 'Japan' },
+  { name: 'Hiroshima', country: 'Japan' },
+
+  // Thailand
+  { name: 'Bangkok', country: 'Thailand' },
+  { name: 'Chiang Mai', country: 'Thailand' },
+  { name: 'Phuket', country: 'Thailand' },
+  { name: 'Krabi', country: 'Thailand' },
+  { name: 'Ko Samui', country: 'Thailand' },
+  { name: 'Pattaya', country: 'Thailand' },
+  { name: 'Ayutthaya', country: 'Thailand' },
+  { name: 'Phi Phi Islands', country: 'Thailand' },
+  { name: 'Ko Lanta', country: 'Thailand' },
+  { name: 'Hua Hin', country: 'Thailand' },
+
+  // India
+  { name: 'Delhi', country: 'India' },
+  { name: 'Agra', country: 'India' },
+  { name: 'Jaipur', country: 'India' },
+  { name: 'Udaipur', country: 'India' },
+  { name: 'Varanasi', country: 'India' },
+  { name: 'Mumbai', country: 'India' },
+  { name: 'Goa', country: 'India' },
+  { name: 'Jaisalmer', country: 'India' },
+  { name: 'Jodhpur', country: 'India' },
+  { name: 'Bangalore', country: 'India' },
+  { name: 'Amritsar', country: 'India' },
+  { name: 'Rishikesh', country: 'India' },
+  { name: 'Kochi', country: 'India' },
+
+  // China
+  { name: 'Beijing', country: 'China' },
+  { name: 'Shanghai', country: 'China' },
+  { name: 'Hong Kong', country: 'Hong Kong' },
+  { name: 'Macau', country: 'Macau' },
+  { name: 'Xi\'an', country: 'China' },
+
+  // Vietnam
+  { name: 'Hanoi', country: 'Vietnam' },
+  { name: 'Ho Chi Minh City', country: 'Vietnam' },
+  { name: 'Hoi An', country: 'Vietnam' },
+  { name: 'Da Nang', country: 'Vietnam' },
+
+  // Others
+  { name: 'Seoul', country: 'South Korea' },
+  { name: 'Singapore', country: 'Singapore' },
+  { name: 'Dubai', country: 'United Arab Emirates' },
+  { name: 'Kuala Lumpur', country: 'Malaysia' },
+  { name: 'Taipei', country: 'Taiwan' },
+  { name: 'Siem Reap', country: 'Cambodia' },
+  { name: 'Kathmandu', country: 'Nepal' },
+  { name: 'Bali', country: 'Indonesia' },
+  { name: 'Ubud', country: 'Indonesia' }
 ];
+
+// Helper to convert name to URL slug
+function toSlug(name) {
+  if (!name) return '';
+  return name
+    .toLowerCase()
+    .trim()
+    .replace(/\s+/g, '-')
+    .replace(/[^\w\-]+/g, '')
+    .replace(/\-\-+/g, '-')
+    .replace(/^-+/, '')
+    .replace(/-+$/, '');
+}
+
+function getCountrySlug(country) {
+  return countrySlugs[country] || toSlug(country);
+}
 
 async function generateSitemap() {
   try {
-    // Get all approved tours
+    const today = new Date().toISOString().split('T')[0];
+
+    // 1. Get all approved tours
     const tours = await prisma.tour.findMany({
       where: { status: 'approved' },
       select: {
@@ -31,11 +116,29 @@ async function generateSitemap() {
       }
     });
 
+    // 2. Discover cities from approved tours to ensure Layer 3 coverage
+    const discoveredCities = tours.map(t => ({
+      name: t.city,
+      country: t.country
+    }));
 
-    const today = new Date().toISOString().split('T')[0];
+    // 3. Merge databases and discovered cities
+    const cityMap = new Map();
+    [...CITY_DATABASE, ...discoveredCities].forEach(c => {
+      if (!c.name || !c.country) return;
+      const key = `${c.country.toLowerCase()}|${c.name.toLowerCase()}`;
+      if (!cityMap.has(key)) {
+        cityMap.set(key, { name: c.name, country: c.country });
+      }
+    });
+    const uniqueCities = Array.from(cityMap.values());
 
     let xml = `<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1"
+        xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9
+        http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
 
   <!-- Layer 1: Homepage -->
   <url>
@@ -55,50 +158,39 @@ async function generateSitemap() {
 
 `;
 
-    // Helper function to create slug
-    const createSlug = (text) => {
-      return text.toLowerCase().replace(/\s+/g, '-');
-    };
+    // 4. Layer 3: City Pages
+    uniqueCities.forEach(({ country, name: city }) => {
+      const countrySlug = getCountrySlug(country);
+      const citySlug = toSlug(city);
 
-    // Layer 3: City Pages (Focus Cities)
-    FOCUS_CITIES.forEach(({ country, city }) => {
-      const countrySlug = createSlug(country);
-      const citySlug = createSlug(city);
-      const lastmod = today;
+      // Check if this city has approved tours (higher priority if it does)
+      const hasTours = tours.some(t =>
+        t.city && city && t.city.toLowerCase() === city.toLowerCase() &&
+        t.country && country && t.country.toLowerCase() === country.toLowerCase()
+      );
 
       xml += `  <!-- Layer 3: ${city}, ${country} -->
   <url>
     <loc>https://www.asiabylocals.com/${countrySlug}/${citySlug}</loc>
-    <lastmod>${lastmod}</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.9</priority>
+    <lastmod>${today}</lastmod>
+    <changefreq>${hasTours ? 'daily' : 'weekly'}</changefreq>
+    <priority>${hasTours ? '0.9' : '0.7'}</priority>
   </url>
 
 `;
     });
 
-    // Layer 4: Tour Pages (Only approved tours)
-    // Sort tours by updatedAt (newest first) for better indexing priority
-    const sortedTours = tours.sort((a, b) => {
-      const dateA = a.updatedAt ? new Date(a.updatedAt).getTime() : 0;
-      const dateB = b.updatedAt ? new Date(b.updatedAt).getTime() : 0;
-      return dateB - dateA; // Newest first
-    });
+    // 5. Layer 4: Tour Pages (Approved only)
+    tours.forEach(tour => {
+      if (!tour.slug) return;
 
-    sortedTours.forEach(tour => {
-      if (!tour.slug) {
-        console.warn(`⚠️  Skipping tour ${tour.id} - missing slug`);
-        return;
-      }
-
-      const countrySlug = createSlug(tour.country);
-      const citySlug = createSlug(tour.city);
-      const tourSlug = tour.slug;
+      const countrySlug = getCountrySlug(tour.country);
+      const citySlug = toSlug(tour.city);
       const lastmod = tour.updatedAt ? new Date(tour.updatedAt).toISOString().split('T')[0] : today;
 
-      xml += `  <!-- Layer 4: Tour ${tour.id} - ${tourSlug} -->
+      xml += `  <!-- Layer 4: Tour ${tour.id} - ${tour.slug} -->
   <url>
-    <loc>https://www.asiabylocals.com/${countrySlug}/${citySlug}/${tourSlug}</loc>
+    <loc>https://www.asiabylocals.com/${countrySlug}/${citySlug}/${tour.slug}</loc>
     <lastmod>${lastmod}</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
@@ -107,54 +199,38 @@ async function generateSitemap() {
 `;
     });
 
-
     xml += `</urlset>`;
 
-    // Write to both public and dist directories
+    // Write output
     const publicPath = path.join(__dirname, '..', 'public', 'sitemap.xml');
     const distPath = path.join(__dirname, '..', 'dist', 'sitemap.xml');
 
     fs.writeFileSync(publicPath, xml, 'utf8');
     console.log(`✅ Written to: ${publicPath}`);
 
-    // Also write to dist if it exists
-    try {
-      const distDir = path.join(__dirname, '..', 'dist');
-      if (fs.existsSync(distDir)) {
-        fs.writeFileSync(distPath, xml, 'utf8');
-        console.log(`✅ Written to: ${distPath}`);
-      }
-    } catch (distError) {
-      console.warn('⚠️  Could not write to dist folder (non-critical):', distError.message);
+    if (fs.existsSync(path.join(__dirname, '..', 'dist'))) {
+      fs.writeFileSync(distPath, xml, 'utf8');
+      console.log(`✅ Written to: ${distPath}`);
     }
 
-    console.log(`✅ Sitemap generated successfully!`);
-    console.log(`   Total URLs: ${1 + 1 + FOCUS_CITIES.length + tours.length}`);
-    console.log(`   - Homepage: 1`);
-    console.log(`   - Supplier page: 1`);
-    console.log(`   - City pages: ${FOCUS_CITIES.length}`);
-    console.log(`   - Tour pages: ${tours.length}`);
-    console.log(`   Output: ${publicPath}`);
+    console.log(`✅ Sitemap generation complete! Total URLs: ${1 + 1 + uniqueCities.length + tours.length}`);
+    return xml;
 
   } catch (error) {
-    console.error('Error generating sitemap:', error);
-    process.exit(1);
+    console.error('❌ Sitemap generation error:', error);
+    throw error;
   } finally {
     await prisma.$disconnect();
   }
 }
 
-// Export for use in server.js
 export { generateSitemap };
 
-// Run if called directly
+// Run if direct
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
-  generateSitemap()
-    .catch(console.error)
-    .finally(async () => {
-      await prisma.$disconnect();
-    });
+  generateSitemap().catch(console.error);
 }
+
 
 
 
