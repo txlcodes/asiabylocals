@@ -77,6 +77,12 @@ export const ASIAN_CITIES_DATABASE: CityInfo[] = [
   { name: 'Jodhpur', country: 'India', region: 'South Asia', type: 'City' },
   { name: 'Amritsar', country: 'India', region: 'South Asia', type: 'City' },
   { name: 'Leh Ladakh', country: 'India', region: 'South Asia', type: 'Region' },
+  { name: 'Bikaner', country: 'India', region: 'South Asia', type: 'City' },
+  { name: 'Mathura', country: 'India', region: 'South Asia', type: 'City' },
+  { name: 'Khajuraho', country: 'India', region: 'South Asia', type: 'City' },
+  { name: 'Gwalior', country: 'India', region: 'South Asia', type: 'City' },
+  { name: 'Aurangabad', country: 'India', region: 'South Asia', type: 'City' },
+  { name: 'Kerala', country: 'India', region: 'South Asia', type: 'Region' },
 
   // Indonesia
   { name: 'Bali', country: 'Indonesia', region: 'Southeast Asia', type: 'Region' },
@@ -106,6 +112,7 @@ export const ASIAN_CITIES_DATABASE: CityInfo[] = [
   { name: 'Langkawi', country: 'Malaysia', region: 'Southeast Asia', type: 'Island' },
   { name: 'Malacca', country: 'Malaysia', region: 'Southeast Asia', type: 'City' },
   { name: 'Cameron Highlands', country: 'Malaysia', region: 'Southeast Asia', type: 'Region' },
+  { name: 'Kota Kinabalu', country: 'Malaysia', region: 'Southeast Asia', type: 'City' },
   { name: 'Borneo', country: 'Malaysia', region: 'Southeast Asia', type: 'Region' },
 
   // Singapore
@@ -119,6 +126,8 @@ export const ASIAN_CITIES_DATABASE: CityInfo[] = [
   { name: 'El Nido', country: 'Philippines', region: 'Southeast Asia', type: 'City' },
   { name: 'Coron', country: 'Philippines', region: 'Southeast Asia', type: 'City' },
   { name: 'Bohol', country: 'Philippines', region: 'Southeast Asia', type: 'Island' },
+  { name: 'Davao', country: 'Philippines', region: 'Southeast Asia', type: 'City' },
+  { name: 'Baguio', country: 'Philippines', region: 'Southeast Asia', type: 'City' },
 
   // Taiwan
   { name: 'Taipei', country: 'Taiwan', region: 'East Asia', type: 'City' },
@@ -137,26 +146,43 @@ export const ASIAN_CITIES_DATABASE: CityInfo[] = [
   { name: 'Kandy', country: 'Sri Lanka', region: 'South Asia', type: 'City' },
   { name: 'Galle', country: 'Sri Lanka', region: 'South Asia', type: 'City' },
   { name: 'Sigiriya', country: 'Sri Lanka', region: 'South Asia', type: 'City' },
+  { name: 'Anuradhapura', country: 'Sri Lanka', region: 'South Asia', type: 'City' },
+  { name: 'Ella', country: 'Sri Lanka', region: 'South Asia', type: 'City' },
 
   // Nepal
   { name: 'Kathmandu', country: 'Nepal', region: 'South Asia', type: 'City' },
   { name: 'Pokhara', country: 'Nepal', region: 'South Asia', type: 'City' },
+  { name: 'Chitwan', country: 'Nepal', region: 'South Asia', type: 'City' },
+  { name: 'Lumbini', country: 'Nepal', region: 'South Asia', type: 'City' },
+  { name: 'Nagarkot', country: 'Nepal', region: 'South Asia', type: 'City' },
 
   // Bangladesh
   { name: 'Dhaka', country: 'Bangladesh', region: 'South Asia', type: 'City' },
+  { name: 'Chittagong', country: 'Bangladesh', region: 'South Asia', type: 'City' },
+  { name: 'Cox\'s Bazar', country: 'Bangladesh', region: 'South Asia', type: 'City' },
+  { name: 'Sylhet', country: 'Bangladesh', region: 'South Asia', type: 'City' },
+  { name: 'Rajshahi', country: 'Bangladesh', region: 'South Asia', type: 'City' },
 
   // Myanmar
   { name: 'Yangon', country: 'Myanmar', region: 'Southeast Asia', type: 'City' },
   { name: 'Bagan', country: 'Myanmar', region: 'Southeast Asia', type: 'City' },
   { name: 'Mandalay', country: 'Myanmar', region: 'Southeast Asia', type: 'City' },
+  { name: 'Inle Lake', country: 'Myanmar', region: 'Southeast Asia', type: 'Region' },
+  { name: 'Mawlamyine', country: 'Myanmar', region: 'Southeast Asia', type: 'City' },
 
   // Cambodia
   { name: 'Siem Reap', country: 'Cambodia', region: 'Southeast Asia', type: 'City' },
   { name: 'Phnom Penh', country: 'Cambodia', region: 'Southeast Asia', type: 'City' },
+  { name: 'Battambang', country: 'Cambodia', region: 'Southeast Asia', type: 'City' },
+  { name: 'Kampot', country: 'Cambodia', region: 'Southeast Asia', type: 'City' },
+  { name: 'Kep', country: 'Cambodia', region: 'Southeast Asia', type: 'City' },
 
   // Laos
-  { name: 'Luang Prabang', country: 'Laos', region: 'Southeast Asia', type: 'City' },
   { name: 'Vientiane', country: 'Laos', region: 'Southeast Asia', type: 'City' },
+  { name: 'Luang Prabang', country: 'Laos', region: 'Southeast Asia', type: 'City' },
+  { name: 'Vang Vieng', country: 'Laos', region: 'Southeast Asia', type: 'City' },
+  { name: 'Pakse', country: 'Laos', region: 'Southeast Asia', type: 'City' },
+  { name: 'Phonsavan', country: 'Laos', region: 'Southeast Asia', type: 'City' },
 
   // Mongolia
   { name: 'Ulaanbaatar', country: 'Mongolia', region: 'East Asia', type: 'City' },

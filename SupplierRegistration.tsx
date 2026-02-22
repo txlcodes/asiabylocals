@@ -21,6 +21,8 @@ import {
   RefreshCw
 } from 'lucide-react';
 import { API_URL } from '@/src/config';
+import { ASIAN_CITIES_DATABASE } from './citiesDatabase';
+import { COUNTRIES } from './src/locations';
 import { getTranslation, Language, translations } from './src/translations/supplier';
 
 interface SupplierRegistrationProps {
@@ -29,7 +31,7 @@ interface SupplierRegistrationProps {
 }
 
 const SupplierRegistration: React.FC<SupplierRegistrationProps> = ({ language = 'en', onClose }) => {
-  const t = (key: keyof typeof translations.en) => getTranslation(language, key);
+  const t = (key: keyof typeof translations.en) => getTranslation(language as Language, key);
 
   const BUSINESS_TYPES = [
     {
@@ -74,6 +76,7 @@ const SupplierRegistration: React.FC<SupplierRegistrationProps> = ({ language = 
   const [companyName, setCompanyName] = useState<string>('');
   const [mainHub, setMainHub] = useState<string>('');
   const [city, setCity] = useState<string>('');
+  const [isOtherCity, setIsOtherCity] = useState<boolean>(false);
   const [tourLanguages, setTourLanguages] = useState<string>('');
   const [phone, setPhone] = useState<string>('');
   const [whatsapp, setWhatsapp] = useState<string>('');
@@ -862,7 +865,7 @@ const SupplierRegistration: React.FC<SupplierRegistrationProps> = ({ language = 
                       value={companyName}
                       onChange={(e) => setCompanyName(e.target.value)}
                       placeholder={selectedBusinessType === 'individual' ? (language === 'ja' ? 'ビジネス名（任意）' : 'Business Name (Optional)') : t('companyNamePlaceholder')}
-                      className="w-full bg-gray-50 border-none rounded-2xl py-4 pl-12 pr-4 font-bold text-[#001A33] text-[14px] focus:ring-2 focus:ring-[#10B981] transition-all outline-none"
+                      className="w-full bg-gray-50 border-none rounded-2xl py-4 pl-12 pr-4 font-bold text-[#001A33] text-[14px] focus:ring-2 focus:ring-[#10B981] transition-colors"
                     />
                   </div>
                   <div className="grid grid-cols-2 gap-4">
@@ -871,71 +874,59 @@ const SupplierRegistration: React.FC<SupplierRegistrationProps> = ({ language = 
                       onChange={(e) => {
                         setMainHub(e.target.value);
                         setCity(''); // Reset city when country changes
+                        setIsOtherCity(false);
                       }}
                       required
                       className="bg-gray-50 border-none rounded-2xl py-4 px-4 font-bold text-[#001A33] text-[14px] focus:ring-2 focus:ring-[#10B981] outline-none cursor-pointer"
                     >
                       <option value="">{language === 'ja' ? '国を選択' : 'Select Country'}</option>
-                      <option value="India">India</option>
-                      <option value="Japan">Japan</option>
-                      <option value="Thailand">Thailand</option>
-                      <option value="Vietnam">Vietnam</option>
-                      <option value="Indonesia">Indonesia</option>
-                      <option value="Singapore">Singapore</option>
-                      <option value="Malaysia">Malaysia</option>
-                      <option value="South Korea">South Korea</option>
-                      <option value="Philippines">Philippines</option>
-                      <option value="China">China</option>
-                      <option value="Taiwan">Taiwan</option>
-                      <option value="Hong Kong">Hong Kong</option>
+                      {COUNTRIES.map(country => (
+                        <option key={country.name} value={country.name}>{country.name}</option>
+                      ))}
                     </select>
-                    {mainHub === 'India' ? (
+                    {ASIAN_CITIES_DATABASE.some(c => c.country === mainHub) && !isOtherCity ? (
                       <select
                         value={city}
-                        onChange={(e) => setCity(e.target.value)}
+                        onChange={(e) => {
+                          if (e.target.value === 'Other') {
+                            setIsOtherCity(true);
+                            setCity('');
+                          } else {
+                            setCity(e.target.value);
+                          }
+                        }}
                         required
                         className="bg-gray-50 border-none rounded-2xl py-4 px-4 font-bold text-[#001A33] text-[14px] focus:ring-2 focus:ring-[#10B981] outline-none cursor-pointer"
                       >
                         <option value="">{t('city')}</option>
-                        <option value="Agra">Agra</option>
-                        <option value="Jaipur">Jaipur</option>
-                        <option value="Udaipur">Udaipur</option>
-                        <option value="Varanasi">Varanasi</option>
-                        <option value="Goa">Goa</option>
-                        <option value="Kochi">Kochi</option>
-                        <option value="Darjeeling">Darjeeling</option>
-                        <option value="Rishikesh">Rishikesh</option>
-                        <option value="Mysore">Mysore</option>
-                        <option value="Amritsar">Amritsar</option>
-                      </select>
-                    ) : mainHub === 'Japan' ? (
-                      <select
-                        value={city}
-                        onChange={(e) => setCity(e.target.value)}
-                        required
-                        className="bg-gray-50 border-none rounded-2xl py-4 px-4 font-bold text-[#001A33] text-[14px] focus:ring-2 focus:ring-[#10B981] outline-none cursor-pointer"
-                      >
-                        <option value="">{t('city')}</option>
-                        <option value="Tokyo">Tokyo</option>
-                        <option value="Kyoto">Kyoto</option>
-                        <option value="Osaka">Osaka</option>
-                        <option value="Hiroshima">Hiroshima</option>
-                        <option value="Nara">Nara</option>
-                        <option value="Sapporo">Sapporo</option>
-                        <option value="Yokohama">Yokohama</option>
-                        <option value="Fukuoka">Fukuoka</option>
-                        <option value="Nagoya">Nagoya</option>
-                        <option value="Okinawa">Okinawa</option>
+                        {ASIAN_CITIES_DATABASE.filter(c => c.country === mainHub).sort((a, b) => a.name.localeCompare(b.name)).map(c => (
+                          <option key={c.name} value={c.name}>{c.name}</option>
+                        ))}
+                        <option value="Other">Other (Type city)</option>
                       </select>
                     ) : (
-                      <input
-                        type="text"
-                        required
-                        value={city}
-                        onChange={(e) => setCity(e.target.value)}
-                        placeholder={t('cityPlaceholder')}
-                        className="bg-gray-50 border-none rounded-2xl py-4 px-4 font-bold text-[#001A33] text-[14px] focus:ring-2 focus:ring-[#10B981] outline-none"
-                      />
+                      <div className="relative flex-1">
+                        <input
+                          type="text"
+                          required
+                          value={city}
+                          onChange={(e) => setCity(e.target.value)}
+                          placeholder={t('cityPlaceholder')}
+                          className="w-full bg-gray-50 border-none rounded-2xl py-4 px-4 font-bold text-[#001A33] text-[14px] focus:ring-2 focus:ring-[#10B981] outline-none"
+                        />
+                        {isOtherCity && (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setIsOtherCity(false);
+                              setCity('');
+                            }}
+                            className="absolute right-4 top-1/2 -translate-y-1/2 text-[11px] font-bold text-[#10B981] hover:underline"
+                          >
+                            Back to list
+                          </button>
+                        )}
+                      </div>
                     )}
                   </div>
                   <input
@@ -1211,18 +1202,9 @@ const SupplierRegistration: React.FC<SupplierRegistrationProps> = ({ language = 
                         className="w-full bg-gray-50 border-none rounded-2xl py-4 px-4 font-bold text-[#001A33] text-[14px] focus:ring-2 focus:ring-[#10B981] outline-none cursor-pointer"
                       >
                         <option value="">Country</option>
-                        <option value="India">India</option>
-                        <option value="Japan">Japan</option>
-                        <option value="Thailand">Thailand</option>
-                        <option value="Vietnam">Vietnam</option>
-                        <option value="Indonesia">Indonesia</option>
-                        <option value="Singapore">Singapore</option>
-                        <option value="Malaysia">Malaysia</option>
-                        <option value="South Korea">South Korea</option>
-                        <option value="Philippines">Philippines</option>
-                        <option value="China">China</option>
-                        <option value="Taiwan">Taiwan</option>
-                        <option value="Hong Kong">Hong Kong</option>
+                        {COUNTRIES.map(country => (
+                          <option key={country.name} value={country.name}>{country.name}</option>
+                        ))}
                         <option value="United Arab Emirates">United Arab Emirates</option>
                         <option value="Other">Other</option>
                       </select>

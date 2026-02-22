@@ -1,0 +1,121 @@
+[
+  {
+    "id": 10,
+    "slug": "india-gate-india-guided-tour",
+    "city": "Delhi",
+    "country": "India",
+    "updatedAt": "2026-01-16T16:27:42.758Z"
+  },
+  {
+    "id": 190,
+    "slug": "kashi-vishwanath-temple-full-day-tour",
+    "city": "Varanasi",
+    "country": "India",
+    "updatedAt": "2026-02-15T09:48:23.271Z"
+  },
+  {
+    "id": 201,
+    "slug": "city-palace-full-day-tour",
+    "city": "Udaipur",
+    "country": "India",
+    "updatedAt": "2026-02-22T10:32:21.188Z"
+  },
+  {
+    "id": 17,
+    "slug": "hawa-mahal-private-tour",
+    "city": "Jaipur",
+    "country": "India",
+    "updatedAt": "2026-01-17T13:21:31.711Z"
+  },
+  {
+    "id": 183,
+    "slug": "taj-mahal-sunrise-sunrise-tour",
+    "city": "Agra",
+    "country": "India",
+    "updatedAt": "2026-02-17T13:34:40.761Z"
+  },
+  {
+    "id": 179,
+    "slug": "taj-mahal-official-guided-tour",
+    "city": "Agra",
+    "country": "India",
+    "updatedAt": "2026-02-17T14:01:31.838Z"
+  },
+  {
+    "id": 186,
+    "slug": "taj-mahal-delhi-guided-tour",
+    "city": "Agra",
+    "country": "India",
+    "updatedAt": "2026-02-13T15:00:59.728Z"
+  },
+  {
+    "id": 182,
+    "slug": "india-gate-full-day-tour",
+    "city": "Delhi",
+    "country": "India",
+    "updatedAt": "2026-02-20T06:31:01.351Z"
+  },
+  {
+    "id": 180,
+    "slug": "taj-mahal-entry-ticket",
+    "city": "Agra",
+    "country": "India",
+    "updatedAt": "2026-02-17T14:01:30.652Z"
+  },
+  {
+    "id": 185,
+    "slug": "taj-mahal-guided-tour",
+    "city": "Agra",
+    "country": "India",
+    "updatedAt": "2026-02-14T06:50:14.817Z"
+  },
+  {
+    "id": 181,
+    "slug": "taj-mahal-full-day-tour",
+    "city": "Agra",
+    "country": "India",
+    "updatedAt": "2026-02-02T06:33:13.709Z"
+  },
+  {
+    "id": 188,
+    "slug": "amber-fort-guided-tour",
+    "city": "Jaipur",
+    "country": "India",
+    "updatedAt": "2026-02-15T06:13:29.276Z"
+  },
+  {
+    "id": 189,
+    "slug": "lake-pichola-full-day-tour",
+    "city": "Udaipur",
+    "country": "India",
+    "updatedAt": "2026-02-15T09:13:03.844Z"
+  },
+  {
+    "id": 197,
+    "slug": "agra-same-guided-tour",
+    "city": "Agra",
+    "country": "India",
+    "updatedAt": "2026-02-20T10:39:40.387Z"
+  },
+  {
+    "id": 198,
+    "slug": "fatehpur-sikri-guided-tour",
+    "city": "Agra",
+    "country": "India",
+    "updatedAt": "2026-02-21T14:01:23.109Z"
+  },
+  {
+    "id": 200,
+    "slug": "agra-mahal-sunrise-tour",
+    "city": "Agra",
+    "country": "India",
+    "updatedAt": "2026-02-21T19:18:13.715Z"
+  },
+  {
+    "id": 202,
+    "slug": "hawa-mahal-guided-tour",
+    "city": "Jaipur",
+    "country": "India",
+    "updatedAt": "2026-02-22T14:36:00.772Z"
+  }
+]
