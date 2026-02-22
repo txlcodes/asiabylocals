@@ -25,7 +25,19 @@ import EmailVerificationWaiting from './EmailVerificationWaiting';
 import TourDetailPage from './TourDetailPage';
 import CityPage from './CityPage';
 import AdminDashboard from './AdminDashboard';
+import CityInfoPage from './CityInfoPage';
 import BookingPage from './BookingPage';
+
+// List of Agra Authority Page Slugs for Interception
+const AGRA_INFO_SLUGS = [
+  'things-to-do-in-agra',
+  'places-to-visit-in-agra',
+  '1-day-agra-itinerary',
+  'taj-mahal-ticket-price-2026',
+  'taj-mahal-opening-time',
+  'is-taj-mahal-closed-on-friday',
+  'agra-travel-guide-2026'
+];
 import BookingConfirmation from './BookingConfirmation';
 import PaymentCallback from './PaymentCallback';
 import SafetyGuidelines from './SafetyGuidelines';
@@ -655,6 +667,19 @@ const App: React.FC = () => {
 
   // Show tour detail page (SEO-friendly URL: /country/city/slug)
   if (tourPageMatch && tourSlug) {
+    // INTERCEPT: If it's an Agra Authority Page
+    if (tourCitySlug?.toLowerCase() === 'agra' && AGRA_INFO_SLUGS.includes(tourSlug)) {
+      return (
+        <ErrorBoundary>
+          <CityInfoPage
+            country={slugToTitle(tourCountrySlug || 'India')}
+            city={slugToTitle(tourCitySlug || 'Agra')}
+            slug={tourSlug}
+          />
+        </ErrorBoundary>
+      );
+    }
+
     console.log('App.tsx - Routing to TourDetailPage', {
       pathname: window.location.pathname,
       tourPageMatch: !!tourPageMatch,

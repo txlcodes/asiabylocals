@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { MapPin, Star, Clock, Users, Search, Filter, Heart, User, Globe, ChevronDown, Calendar, ChevronUp, Mail, ArrowLeft } from 'lucide-react';
+import { MapPin, Star, Clock, Users, Search, Filter, Heart, User, Globe, ChevronDown, Calendar, ChevronUp, Mail, ArrowLeft, Ticket, Info, ChevronRight } from 'lucide-react';
 import { CITY_LOCATIONS } from './constants';
 import { Helmet } from 'react-helmet-async';
 
@@ -1781,6 +1781,40 @@ const CityPage: React.FC<CityPageProps> = ({ country, city }) => {
             {cityInfo.bestTime}
           </p>
         </section>
+
+        {/* Agra Essential Guides Section */}
+        {city.toLowerCase() === 'agra' && (
+          <section className="mb-16">
+            <h2 className="text-3xl font-black text-[#001A33] mb-8">
+              Everything You Need to Know Before Visiting Agra
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {[
+                { title: 'Things to Do in Agra', slug: 'things-to-do-in-agra', icon: <Star className="text-[#10B981]" size={20} /> },
+                { title: 'Places to Visit in Agra', slug: 'places-to-visit-in-agra', icon: <MapPin className="text-[#10B981]" size={20} /> },
+                { title: '1-Day Agra Itinerary', slug: '1-day-agra-itinerary', icon: <Calendar className="text-[#10B981]" size={20} /> },
+                { title: 'Taj Mahal Ticket Price 2026', slug: 'taj-mahal-ticket-price-2026', icon: <Ticket className="text-[#10B981]" size={20} /> },
+                { title: 'Taj Mahal Opening Time', slug: 'taj-mahal-opening-time', icon: <Clock className="text-[#10B981]" size={20} /> },
+                { title: 'Is Taj Mahal Closed on Friday?', slug: 'is-taj-mahal-closed-on-friday', icon: <Info className="text-[#10B981]" size={20} /> },
+                { title: 'Agra Travel Guide 2026', slug: 'agra-travel-guide-2026', icon: <Globe className="text-[#10B981]" size={20} /> },
+              ].map((guide, idx) => (
+                <a
+                  key={idx}
+                  href={`/india/agra/${guide.slug}`}
+                  className="flex items-center justify-between p-6 bg-white border border-gray-200 rounded-2xl hover:border-[#10B981] hover:shadow-md transition-all group"
+                >
+                  <div className="flex items-center gap-4">
+                    <div className="w-10 h-10 bg-[#10B981]/10 rounded-xl flex items-center justify-center group-hover:bg-[#10B981] group-hover:text-white transition-colors">
+                      {guide.icon}
+                    </div>
+                    <span className="font-bold text-[#001A33] group-hover:text-[#10B981]">{guide.title}</span>
+                  </div>
+                  <ChevronRight size={18} className="text-gray-300 group-hover:text-[#10B981] transition-transform group-hover:translate-x-1" />
+                </a>
+              ))}
+            </div>
+          </section>
+        )}
 
         {/* Email Signup Box - Only show for cities with itineraries */}
         <EmailSignupBox city={city} country={country} />
