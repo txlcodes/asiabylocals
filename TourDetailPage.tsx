@@ -1906,9 +1906,82 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
             <div className="mb-8">
               <h2 className="text-2xl font-black text-[#001A33] mb-4">Full description</h2>
               <div className="bg-gray-50 rounded-2xl p-6 border border-gray-100">
-                <p className="text-[16px] text-gray-700 font-semibold leading-[1.8] whitespace-pre-wrap break-words">
-                  {tour.fullDescription}
-                </p>
+                <div className="text-[16px] text-gray-700 font-semibold leading-[1.8] whitespace-pre-wrap break-words">
+                  {(() => {
+                    if (!tour.fullDescription) return null;
+
+                    // Helper to render inline markdown (bold and italics)
+                    const renderMarkdownText = (text: string) => {
+                      // First handle bold (**text**)
+                      const boldParts = text.split(/(\*\*.*?\*\*)/g);
+
+                      return boldParts.map((part, i) => {
+                        if (part.startsWith('**') && part.endsWith('**')) {
+                          return <span key={`b-${i}`} className="font-black text-[#001A33]">{part.slice(2, -2)}</span>;
+                        }
+
+                        // Then handle italics (*text*) within non-bold parts
+                        const italicParts = part.split(/(\*.*?\*)/g);
+                        return italicParts.map((iPart, j) => {
+                          if (iPart.startsWith('*') && iPart.endsWith('*')) {
+                            return <i key={`i-${i}-${j}`} className="font-semibold text-gray-800 italic">{iPart.slice(1, -1)}</i>;
+                          }
+                          return iPart;
+                        });
+                      });
+                    };
+
+                    return tour.fullDescription.split('\n').map((line: string, i: number) => {
+                      const trimmed = line.trim();
+
+                      // Handle Headings
+                      if (trimmed.startsWith('# ')) {
+                        return <h1 key={i} className="text-3xl font-black text-[#001A33] mb-6 mt-8 border-b pb-2">{trimmed.replace('# ', '')}</h1>;
+                      }
+                      if (trimmed.startsWith('## ')) {
+                        return <h2 key={i} className="text-2xl font-black text-[#001A33] mb-4 mt-8">{trimmed.replace('## ', '')}</h2>;
+                      }
+                      if (trimmed.startsWith('### ')) {
+                        return <h3 key={i} className="text-xl font-black text-[#001A33] mb-3 mt-6">{trimmed.replace('### ', '')}</h3>;
+                      }
+
+                      // Handle Separators
+                      if (trimmed === '---') {
+                        return <hr key={i} className="my-8 border-gray-200" />;
+                      }
+
+                      // Handle Bullets
+                      if (trimmed.startsWith('* ') || trimmed.startsWith('- ')) {
+                        const content = trimmed.startsWith('* ') ? trimmed.replace('* ', '') : trimmed.replace('- ', '');
+                        return (
+                          <div key={i} className="flex gap-2 mb-2 ml-4">
+                            <span className="text-[#10B981] font-black">•</span>
+                            <span className="text-gray-700">{renderMarkdownText(content)}</span>
+                          </div>
+                        );
+                      }
+
+                      // Handle Numbered Lists (like 1. 2. 3. inside paragraphs)
+                      if (/^\d+\.\s/.test(trimmed)) {
+                        const index = trimmed.split('. ')[0];
+                        const content = trimmed.split('. ').slice(1).join('. ');
+                        return (
+                          <div key={i} className="flex gap-2 mb-2 ml-4">
+                            <span className="text-[#10B981] font-black">{index}.</span>
+                            <span className="text-gray-700">{renderMarkdownText(content)}</span>
+                          </div>
+                        );
+                      }
+
+                      // Handle Paragraphs
+                      return (
+                        <p key={i} className="mb-4 last:mb-0 text-gray-700">
+                          {renderMarkdownText(line)}
+                        </p>
+                      );
+                    });
+                  })()}
+                </div>
               </div>
             </div>
 
