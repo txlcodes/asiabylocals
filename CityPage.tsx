@@ -1419,6 +1419,7 @@ const CityPage: React.FC<CityPageProps> = ({ country, city }) => {
       <Helmet>
         <title>{cityInfo.title}</title>
         <meta name="description" content={cityInfo.description} />
+        <meta name="language" content="en" />
         <meta name="keywords" content={`${city} tours, ${city} experiences, ${country} tours, local guides ${city}, ${city} travel guide, things to do in ${city}, ${city} activities`} />
         <link rel="canonical" href={`https://www.asiabylocals.com/${countrySlug}/${citySlug}`} />
         <meta property="og:title" content={cityInfo.title} />

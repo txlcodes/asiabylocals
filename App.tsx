@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo, Component } from 'react';
+import { Helmet, HelmetProvider } from 'react-helmet-async';
 import {
   Globe,
   Search,
@@ -53,6 +54,8 @@ class ErrorBoundary extends React.Component<
   { children: React.ReactNode },
   { hasError: boolean; error: Error | null }
 > {
+  state: { hasError: boolean; error: Error | null } = { hasError: false, error: null };
+
   constructor(props: { children: React.ReactNode }) {
     super(props);
     this.state = { hasError: false, error: null };
@@ -754,6 +757,16 @@ const App: React.FC = () => {
 
   return (
     <div className="flex flex-col min-h-screen">
+      <Helmet>
+        <title>AsiaByLocals - Authentic Local Tours & Cultural Experiences Across Asia</title>
+        <meta name="description" content="Discover authentic local tours and cultural experiences across Asia. Book tours with verified local guides in India, Japan, Thailand, Vietnam, Indonesia, and more." />
+        <link rel="canonical" href="https://www.asiabylocals.com/" />
+        <meta name="language" content="en" />
+        <meta property="og:title" content="AsiaByLocals - Authentic Local Tours & Cultural Experiences Across Asia" />
+        <meta property="og:description" content="Discover authentic local tours and cultural experiences across Asia. Book tours with verified local guides in India, Japan, Thailand, Vietnam, Indonesia, and more." />
+        <meta property="og:url" content="https://www.asiabylocals.com/" />
+        <meta property="og:type" content="website" />
+      </Helmet>
       {/* Header Navigation */}
       <header className="sticky top-0 z-50 bg-white border-b border-gray-100 shadow-sm">
         <div className="w-full h-16 sm:h-20 md:h-24 flex items-center justify-between px-3 sm:px-4 md:px-6">

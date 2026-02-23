@@ -17,11 +17,11 @@
         content="Asia tours, local guides Asia, cultural experiences Asia, authentic travel Asia, Asia travel, local tours Asia, India tours, Japan tours, Thailand tours, Vietnam tours, Indonesia tours, Singapore tours, Malaysia tours, Philippines tours, Cambodia tours, Myanmar tours, Sri Lanka tours, Nepal tours, Bangladesh tours, cultural tours Asia, food tours Asia, heritage tours Asia, immersive travel Asia, expert local guides Asia">
     <meta name="author" content="AsiaByLocals">
     <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
-    <meta name="language" content="English">
+    <meta name="language" content="en">
     <meta name="revisit-after" content="7 days">
     <meta name="distribution" content="global">
     <meta name="rating" content="general">
-    <link rel="canonical" href="https://www.asiabylocals.com/">
+    <!-- Canonical links are handled dynamically by React Helmet -->
 
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website">
@@ -503,7 +503,15 @@
 </head>
 
 <body class="antialiased">
-    <div id="root"></div>
+    <div id="root">
+        <!-- Fallback SEO shell for bots/slow connections -->
+        <div style="padding: 2rem; max-width: 800px; margin: 0 auto; display: none;" class="seo-shell">
+            <h1>AsiaByLocals - Authentic Local Tours & Cultural Experiences</h1>
+            <p>Discover authentic local tours and cultural experiences across Asia. Book tours with verified local
+                guides in India, Japan, Thailand, Vietnam, Indonesia, and more.</p>
+            <p>Loading the best local experiences for you...</p>
+        </div>
+    </div>
     <script type="module" src="/index.tsx"></script>
 </body>
 
