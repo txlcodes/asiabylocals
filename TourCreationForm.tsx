@@ -1840,6 +1840,7 @@ ${a(9)}`;
                     </label>
                     <input
                       type="number"
+                      onWheel={(e) => (e.target as HTMLInputElement).blur()}
                       value={formData.maxGroupSize || ''}
                       onChange={(e) => {
                         const maxSize = e.target.value ? parseInt(e.target.value) : undefined;
@@ -1936,6 +1937,7 @@ ${a(9)}`;
                               <div className="flex-1 relative">
                                 <input
                                   type="number"
+                                  onWheel={(e) => (e.target as HTMLInputElement).blur()}
                                   value={price}
                                   onChange={(e) => {
                                     const newPrice = e.target.value;
@@ -2797,6 +2799,7 @@ ${a(9)}`;
                           </label>
                           <input
                             type="number"
+                            onWheel={(e) => (e.target as HTMLInputElement).blur()}
                             value={option.durationHours}
                             onChange={(e) => {
                               const newOptions = [...formData.tourOptions];
@@ -2841,6 +2844,7 @@ ${a(9)}`;
                             </label>
                             <input
                               type="number"
+                              onWheel={(e) => (e.target as HTMLInputElement).blur()}
                               value={option.maxGroupSize || ''}
                               onChange={(e) => {
                                 const newOptions = [...formData.tourOptions];
@@ -2939,6 +2943,7 @@ ${a(9)}`;
                                       <div className="flex-1 relative">
                                         <input
                                           type="number"
+                                          onWheel={(e) => (e.target as HTMLInputElement).blur()}
                                           value={price}
                                           onChange={(e) => {
                                             const newPrice = e.target.value;
