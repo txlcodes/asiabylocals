@@ -1,0 +1,608 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1"
+        xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9
+        http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
+
+  <!-- Layer 1: Homepage -->
+  <url>
+    <loc>https://www.asiabylocals.com/</loc>
+    <lastmod>2026-02-23</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>1.0</priority>
+  </url>
+  
+  <!-- Supplier Registration -->
+  <url>
+    <loc>https://www.asiabylocals.com/supplier</loc>
+    <lastmod>2026-02-23</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Layer 3: Tokyo, Japan -->
+  <url>
+    <loc>https://www.asiabylocals.com/japan/tokyo</loc>
+    <lastmod>2026-02-23</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- Layer 3: Kyoto, Japan -->
+  <url>
+    <loc>https://www.asiabylocals.com/japan/kyoto</loc>
+    <lastmod>2026-02-23</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- Layer 3: Osaka, Japan -->
+  <url>
+    <loc>https://www.asiabylocals.com/japan/osaka</loc>
+    <lastmod>2026-02-23</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- Layer 3: Yokohama, Japan -->
+  <url>
+    <loc>https://www.asiabylocals.com/japan/yokohama</loc>
+    <lastmod>2026-02-23</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- Layer 3: Sapporo, Japan -->
+  <url>
+    <loc>https://www.asiabylocals.com/japan/sapporo</loc>
+    <lastmod>2026-02-23</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- Layer 3: Nara, Japan -->
+  <url>
+    <loc>https://www.asiabylocals.com/japan/nara</loc>
+    <lastmod>2026-02-23</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- Layer 3: Hiroshima, Japan -->
+  <url>
+    <loc>https://www.asiabylocals.com/japan/hiroshima</loc>
+    <lastmod>2026-02-23</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- Layer 3: Bangkok, Thailand -->
+  <url>
+    <loc>https://www.asiabylocals.com/thailand/bangkok</loc>
+    <lastmod>2026-02-23</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- Layer 3: Chiang Mai, Thailand -->
+  <url>
+    <loc>https://www.asiabylocals.com/thailand/chiang-mai</loc>
+    <lastmod>2026-02-23</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- Layer 3: Phuket, Thailand -->
+  <url>
+    <loc>https://www.asiabylocals.com/thailand/phuket</loc>
+    <lastmod>2026-02-23</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- Layer 3: Krabi, Thailand -->
+  <url>
+    <loc>https://www.asiabylocals.com/thailand/krabi</loc>
+    <lastmod>2026-02-23</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- Layer 3: Ko Samui, Thailand -->
+  <url>
+    <loc>https://www.asiabylocals.com/thailand/ko-samui</loc>
+    <lastmod>2026-02-23</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- Layer 3: Pattaya, Thailand -->
+  <url>
+    <loc>https://www.asiabylocals.com/thailand/pattaya</loc>
+    <lastmod>2026-02-23</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- Layer 3: Ayutthaya, Thailand -->
+  <url>
+    <loc>https://www.asiabylocals.com/thailand/ayutthaya</loc>
+    <lastmod>2026-02-23</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- Layer 3: Phi Phi Islands, Thailand -->
+  <url>
+    <loc>https://www.asiabylocals.com/thailand/phi-phi-islands</loc>
+    <lastmod>2026-02-23</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- Layer 3: Ko Lanta, Thailand -->
+  <url>
+    <loc>https://www.asiabylocals.com/thailand/ko-lanta</loc>
+    <lastmod>2026-02-23</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- Layer 3: Hua Hin, Thailand -->
+  <url>
+    <loc>https://www.asiabylocals.com/thailand/hua-hin</loc>
+    <lastmod>2026-02-23</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- Layer 3: Delhi, India -->
+  <url>
+    <loc>https://www.asiabylocals.com/india/delhi</loc>
+    <lastmod>2026-02-23</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <!-- Layer 3: Agra, India -->
+  <url>
+    <loc>https://www.asiabylocals.com/india/agra</loc>
+    <lastmod>2026-02-23</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <!-- Layer 3: Jaipur, India -->
+  <url>
+    <loc>https://www.asiabylocals.com/india/jaipur</loc>
+    <lastmod>2026-02-23</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <!-- Layer 3: Udaipur, India -->
+  <url>
+    <loc>https://www.asiabylocals.com/india/udaipur</loc>
+    <lastmod>2026-02-23</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <!-- Layer 3: Varanasi, India -->
+  <url>
+    <loc>https://www.asiabylocals.com/india/varanasi</loc>
+    <lastmod>2026-02-23</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <!-- Layer 3: Mumbai, India -->
+  <url>
+    <loc>https://www.asiabylocals.com/india/mumbai</loc>
+    <lastmod>2026-02-23</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- Layer 3: Goa, India -->
+  <url>
+    <loc>https://www.asiabylocals.com/india/goa</loc>
+    <lastmod>2026-02-23</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- Layer 3: Jaisalmer, India -->
+  <url>
+    <loc>https://www.asiabylocals.com/india/jaisalmer</loc>
+    <lastmod>2026-02-23</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- Layer 3: Jodhpur, India -->
+  <url>
+    <loc>https://www.asiabylocals.com/india/jodhpur</loc>
+    <lastmod>2026-02-23</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- Layer 3: Bangalore, India -->
+  <url>
+    <loc>https://www.asiabylocals.com/india/bangalore</loc>
+    <lastmod>2026-02-23</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- Layer 3: Amritsar, India -->
+  <url>
+    <loc>https://www.asiabylocals.com/india/amritsar</loc>
+    <lastmod>2026-02-23</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- Layer 3: Rishikesh, India -->
+  <url>
+    <loc>https://www.asiabylocals.com/india/rishikesh</loc>
+    <lastmod>2026-02-23</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- Layer 3: Kochi, India -->
+  <url>
+    <loc>https://www.asiabylocals.com/india/kochi</loc>
+    <lastmod>2026-02-23</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- Layer 3: Beijing, China -->
+  <url>
+    <loc>https://www.asiabylocals.com/china/beijing</loc>
+    <lastmod>2026-02-23</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- Layer 3: Shanghai, China -->
+  <url>
+    <loc>https://www.asiabylocals.com/china/shanghai</loc>
+    <lastmod>2026-02-23</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- Layer 3: Hong Kong, Hong Kong -->
+  <url>
+    <loc>https://www.asiabylocals.com/hong-kong/hong-kong</loc>
+    <lastmod>2026-02-23</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- Layer 3: Macau, Macau -->
+  <url>
+    <loc>https://www.asiabylocals.com/macau/macau</loc>
+    <lastmod>2026-02-23</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- Layer 3: Xi'an, China -->
+  <url>
+    <loc>https://www.asiabylocals.com/china/xian</loc>
+    <lastmod>2026-02-23</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- Layer 3: Hanoi, Vietnam -->
+  <url>
+    <loc>https://www.asiabylocals.com/vietnam/hanoi</loc>
+    <lastmod>2026-02-23</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- Layer 3: Ho Chi Minh City, Vietnam -->
+  <url>
+    <loc>https://www.asiabylocals.com/vietnam/ho-chi-minh-city</loc>
+    <lastmod>2026-02-23</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- Layer 3: Hoi An, Vietnam -->
+  <url>
+    <loc>https://www.asiabylocals.com/vietnam/hoi-an</loc>
+    <lastmod>2026-02-23</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- Layer 3: Da Nang, Vietnam -->
+  <url>
+    <loc>https://www.asiabylocals.com/vietnam/da-nang</loc>
+    <lastmod>2026-02-23</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- Layer 3: Seoul, South Korea -->
+  <url>
+    <loc>https://www.asiabylocals.com/south-korea/seoul</loc>
+    <lastmod>2026-02-23</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- Layer 3: Singapore, Singapore -->
+  <url>
+    <loc>https://www.asiabylocals.com/singapore/singapore</loc>
+    <lastmod>2026-02-23</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- Layer 3: Dubai, United Arab Emirates -->
+  <url>
+    <loc>https://www.asiabylocals.com/uae/dubai</loc>
+    <lastmod>2026-02-23</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- Layer 3: Kuala Lumpur, Malaysia -->
+  <url>
+    <loc>https://www.asiabylocals.com/malaysia/kuala-lumpur</loc>
+    <lastmod>2026-02-23</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- Layer 3: Taipei, Taiwan -->
+  <url>
+    <loc>https://www.asiabylocals.com/taiwan/taipei</loc>
+    <lastmod>2026-02-23</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- Layer 3: Siem Reap, Cambodia -->
+  <url>
+    <loc>https://www.asiabylocals.com/cambodia/siem-reap</loc>
+    <lastmod>2026-02-23</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- Layer 3: Kathmandu, Nepal -->
+  <url>
+    <loc>https://www.asiabylocals.com/nepal/kathmandu</loc>
+    <lastmod>2026-02-23</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- Layer 3: Bali, Indonesia -->
+  <url>
+    <loc>https://www.asiabylocals.com/indonesia/bali</loc>
+    <lastmod>2026-02-23</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- Layer 3: Ubud, Indonesia -->
+  <url>
+    <loc>https://www.asiabylocals.com/indonesia/ubud</loc>
+    <lastmod>2026-02-23</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- Layer 4: Tour 10 - india-gate-india-guided-tour -->
+  <url>
+    <loc>https://www.asiabylocals.com/india/delhi/india-gate-india-guided-tour</loc>
+    <lastmod>2026-01-16</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Layer 4: Tour 190 - kashi-vishwanath-temple-full-day-tour -->
+  <url>
+    <loc>https://www.asiabylocals.com/india/varanasi/kashi-vishwanath-temple-full-day-tour</loc>
+    <lastmod>2026-02-15</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Layer 4: Tour 201 - city-palace-full-day-tour -->
+  <url>
+    <loc>https://www.asiabylocals.com/india/udaipur/city-palace-full-day-tour</loc>
+    <lastmod>2026-02-22</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Layer 4: Tour 180 - taj-mahal-entry-ticket -->
+  <url>
+    <loc>https://www.asiabylocals.com/india/agra/taj-mahal-entry-ticket</loc>
+    <lastmod>2026-02-22</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Layer 4: Tour 17 - hawa-mahal-private-tour -->
+  <url>
+    <loc>https://www.asiabylocals.com/india/jaipur/hawa-mahal-private-tour</loc>
+    <lastmod>2026-02-23</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Layer 4: Tour 203 - taj-mahal-agra-fort-guided-tour -->
+  <url>
+    <loc>https://www.asiabylocals.com/india/agra/taj-mahal-agra-fort-guided-tour</loc>
+    <lastmod>2026-02-23</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Layer 4: Tour 183 - taj-mahal-sunrise-sunrise-tour -->
+  <url>
+    <loc>https://www.asiabylocals.com/india/agra/taj-mahal-sunrise-sunrise-tour</loc>
+    <lastmod>2026-02-17</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Layer 4: Tour 179 - taj-mahal-official-guided-tour -->
+  <url>
+    <loc>https://www.asiabylocals.com/india/agra/taj-mahal-official-guided-tour</loc>
+    <lastmod>2026-02-17</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Layer 4: Tour 186 - taj-mahal-delhi-guided-tour -->
+  <url>
+    <loc>https://www.asiabylocals.com/india/agra/taj-mahal-delhi-guided-tour</loc>
+    <lastmod>2026-02-13</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Layer 4: Tour 182 - india-gate-full-day-tour -->
+  <url>
+    <loc>https://www.asiabylocals.com/india/delhi/india-gate-full-day-tour</loc>
+    <lastmod>2026-02-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Layer 4: Tour 185 - taj-mahal-guided-tour -->
+  <url>
+    <loc>https://www.asiabylocals.com/india/agra/taj-mahal-guided-tour</loc>
+    <lastmod>2026-02-14</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Layer 4: Tour 181 - taj-mahal-full-day-tour -->
+  <url>
+    <loc>https://www.asiabylocals.com/india/agra/taj-mahal-full-day-tour</loc>
+    <lastmod>2026-02-02</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Layer 4: Tour 188 - amber-fort-guided-tour -->
+  <url>
+    <loc>https://www.asiabylocals.com/india/jaipur/amber-fort-guided-tour</loc>
+    <lastmod>2026-02-15</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Layer 4: Tour 189 - lake-pichola-full-day-tour -->
+  <url>
+    <loc>https://www.asiabylocals.com/india/udaipur/lake-pichola-full-day-tour</loc>
+    <lastmod>2026-02-15</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Layer 4: Tour 197 - agra-same-guided-tour -->
+  <url>
+    <loc>https://www.asiabylocals.com/india/agra/agra-same-guided-tour</loc>
+    <lastmod>2026-02-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Layer 4: Tour 198 - fatehpur-sikri-guided-tour -->
+  <url>
+    <loc>https://www.asiabylocals.com/india/agra/fatehpur-sikri-guided-tour</loc>
+    <lastmod>2026-02-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Layer 4: Tour 200 - agra-mahal-sunrise-tour -->
+  <url>
+    <loc>https://www.asiabylocals.com/india/agra/agra-mahal-sunrise-tour</loc>
+    <lastmod>2026-02-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Layer 4: Tour 202 - jaipur-city-highlights-tour-with-amber-fort-hawa-mahal -->
+  <url>
+    <loc>https://www.asiabylocals.com/india/jaipur/jaipur-city-highlights-tour-with-amber-fort-hawa-mahal</loc>
+    <lastmod>2026-02-23</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Agra Authority: things-to-do-in-agra -->
+  <url>
+    <loc>https://www.asiabylocals.com/india/agra/things-to-do-in-agra</loc>
+    <lastmod>2026-02-23</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Agra Authority: places-to-visit-in-agra -->
+  <url>
+    <loc>https://www.asiabylocals.com/india/agra/places-to-visit-in-agra</loc>
+    <lastmod>2026-02-23</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Agra Authority: 1-day-agra-itinerary -->
+  <url>
+    <loc>https://www.asiabylocals.com/india/agra/1-day-agra-itinerary</loc>
+    <lastmod>2026-02-23</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Agra Authority: taj-mahal-ticket-price-2026 -->
+  <url>
+    <loc>https://www.asiabylocals.com/india/agra/taj-mahal-ticket-price-2026</loc>
+    <lastmod>2026-02-23</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Agra Authority: taj-mahal-opening-time -->
+  <url>
+    <loc>https://www.asiabylocals.com/india/agra/taj-mahal-opening-time</loc>
+    <lastmod>2026-02-23</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Agra Authority: is-taj-mahal-closed-on-friday -->
+  <url>
+    <loc>https://www.asiabylocals.com/india/agra/is-taj-mahal-closed-on-friday</loc>
+    <lastmod>2026-02-23</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Agra Authority: agra-travel-guide-2026 -->
+  <url>
+    <loc>https://www.asiabylocals.com/india/agra/agra-travel-guide-2026</loc>
+    <lastmod>2026-02-23</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+</urlset>
