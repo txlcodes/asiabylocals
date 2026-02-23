@@ -21,11 +21,25 @@
     "updatedAt": "2026-02-22T10:32:21.188Z"
   },
   {
+    "id": 180,
+    "slug": "taj-mahal-entry-ticket",
+    "city": "Agra",
+    "country": "India",
+    "updatedAt": "2026-02-22T20:10:21.495Z"
+  },
+  {
     "id": 17,
     "slug": "hawa-mahal-private-tour",
     "city": "Jaipur",
     "country": "India",
-    "updatedAt": "2026-01-17T13:21:31.711Z"
+    "updatedAt": "2026-02-23T09:01:47.477Z"
+  },
+  {
+    "id": 203,
+    "slug": "taj-mahal-agra-fort-guided-tour",
+    "city": "Agra",
+    "country": "India",
+    "updatedAt": "2026-02-23T08:29:57.788Z"
   },
   {
     "id": 183,
@@ -54,13 +68,6 @@
     "city": "Delhi",
     "country": "India",
     "updatedAt": "2026-02-20T06:31:01.351Z"
-  },
-  {
-    "id": 180,
-    "slug": "taj-mahal-entry-ticket",
-    "city": "Agra",
-    "country": "India",
-    "updatedAt": "2026-02-17T14:01:30.652Z"
   },
   {
     "id": 185,
@@ -113,9 +120,9 @@
   },
   {
     "id": 202,
-    "slug": "hawa-mahal-guided-tour",
+    "slug": "jaipur-city-highlights-tour-with-amber-fort-hawa-mahal",
     "city": "Jaipur",
     "country": "India",
-    "updatedAt": "2026-02-22T14:36:00.772Z"
+    "updatedAt": "2026-02-23T08:57:07.379Z"
   }
 ]
