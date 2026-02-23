@@ -1,5 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { MapPin, Star, Clock, Users, Search, Filter, Heart, User, Globe, ChevronDown, Calendar, ChevronUp, Mail, ArrowLeft, Ticket, Info, ChevronRight } from 'lucide-react';
+import {
+  MapPin, Star, Clock, Users, Search, Filter, Heart, User, Globe, ChevronDown, Calendar, ChevronUp, Mail,
+  HelpCircle,
+  HelpCircle as HelpIcon, ArrowLeft, Ticket, Info, ChevronRight
+} from 'lucide-react';
 import { CITY_LOCATIONS } from './constants';
 import { Helmet } from 'react-helmet-async';
 
@@ -23,7 +27,7 @@ const CITY_DESCRIPTIONS: Record<string, {
     description: 'Discover the best tours in Agra with licensed local guides. Taj Mahal sunrise tours, heritage walks, food tours & day trips.',
     intro: [
       'Agra is one of India\'s most visited cities, famous worldwide for the Taj Mahal and its rich Mughal heritage. Beyond the iconic monument, Agra offers a deep cultural experience through historic forts, bustling bazaars, traditional crafts, and local cuisine.',
-      'At AsiaByLocals, discover expert-led tours in Agra hosted by licensed local guides and historians. From Taj Mahal sunrise visits to heritage walks, food tours, and day trips to Fatehpur Sikri, explore Agra through authentic, locally curated experiences.'
+      'At AsiaByLocals, discover expert-led [tours in Agra](/india/agra/things-to-do-in-agra) hosted by licensed local guides and historians. From Taj Mahal sunrise visits to [1-day itineraries](/india/agra/1-day-agra-itinerary), explore Agra through authentic, locally curated experiences.'
     ],
     whyBook: [
       'Licensed & experienced local experts',
@@ -45,42 +49,105 @@ const CITY_DESCRIPTIONS: Record<string, {
     ],
     bestTime: 'The best time to visit Agra is from October to March when the weather is pleasant. Early mornings are highly recommended, especially for sunrise Taj Mahal tours when the monument glows in golden light and crowds are minimal.',
     faqs: [
-
       {
-        question: 'How long does a Taj Mahal tour take?',
-        answer: 'A typical Taj Mahal tour takes 2-3 hours, including entry, guided exploration, and photography time. Combined tours with Agra Fort usually take 5-6 hours.'
+        question: "How long does a Taj Mahal visit take?",
+        answer: "A visit to the [Taj Mahal](/india/agra/agra-travel-guide-2026) typically takes 2–3 hours. This includes security entry, guided storytelling, marble inlay viewing, photography time, and exploring the main mausoleum platform. If you combine it with [Agra Fort](/india/agra/agra-travel-guide-2026), plan for 5–6 hours total. During peak season (October–March), entry queues may add extra time, while sunrise visits are usually faster and less crowded."
       },
       {
-        question: 'Are Agra tours suitable for families?',
-        answer: 'Yes, most Agra tours are family-friendly. Our guides adapt the pace and content for children, making history engaging and accessible for all ages.'
+        question: "Is Taj Mahal closed on Friday?",
+        answer: "Yes. The [Taj Mahal is strictly closed](/india/agra/is-taj-mahal-closed-on-friday) every Friday for prayers. It is open from sunrise to sunset on all other days, including public holidays. If you are in Agra on a Friday, consider visiting Agra Fort, Mehtab Bagh, or exploring the old city markets instead."
       },
       {
-        question: 'Do I need a licensed guide in Agra?',
-        answer: 'While not mandatory, a licensed local guide enhances your experience significantly by providing historical context, cultural insights, and helping navigate the sites efficiently.'
+        question: "Can I visit the Taj Mahal at night?",
+        answer: "Yes, limited night viewing is allowed on select dates around the full moon (except Fridays and during Ramadan). Tickets are capped and must be booked in advance. See our [guide on night viewing](/india/agra/taj-mahal-opening-time) for the best strategy. Night visits offer a serene, less crowded atmosphere, but access is restricted to specific time slots and viewing areas."
       },
       {
-        question: 'Are sunrise tours worth it?',
-        answer: 'Absolutely. Sunrise tours offer the best lighting for photography, cooler temperatures, fewer crowds, and a magical experience as the Taj Mahal glows in the morning light.'
+        question: "Is tripod allowed inside the Taj Mahal?",
+        answer: "No, tripods are generally not allowed inside the Taj Mahal complex without special permission. Professional photography equipment is restricted for security reasons. For structured photography sessions, [sunrise tours](/india/agra/things-to-do-in-agra) or private photography permits are recommended."
       },
       {
-        question: 'Is the Taj Mahal closed on Friday?',
-        answer: 'Yes, the Taj Mahal is closed every Friday for prayers. It is open on all other days of the week, including all other public holidays.'
+        question: "Is a passport required for entry?",
+        answer: "Foreign visitors must carry their original passport or a clear digital copy for verification at entry gates. Indian citizens can present a government-issued ID. Security checks are strict, and certain items like drones, large bags, and tripods are prohibited. Be sure to check our [ticket booking guide](/india/agra/taj-mahal-ticket-price-2026) for the latest ID update."
       },
       {
-        question: 'Is a passport required for entry to the Taj Mahal?',
-        answer: 'Yes, original passports or a clear digital copy/photo are required for all foreign tourists at the entry gates for security and identification purposes.'
+        question: "Are sunrise tours worth it?",
+        answer: "Yes — sunrise is widely considered the best time to visit the Taj Mahal. See our [detailed timing guide](/india/agra/taj-mahal-opening-time) for the best strategy. The marble glows softly in golden morning light, temperatures are cooler, and crowd levels are significantly lower. Photographers especially prefer sunrise for better symmetry shots and mist effects in winter."
       },
       {
-        question: 'Why choose a female guide in Agra?',
-        answer: 'Choosing a female guide provides a unique perspective on Mughal history, especially regarding the lives of royal women. It also offers an extra layer of comfort and safety for solo female travelers and families.'
+        question: "How crowded is the Taj Mahal in winter?",
+        answer: "Winter (November–February) is peak season. The monument can get crowded after 9:30 AM, especially on weekends. Early morning visits help avoid congestion. Fog is common in December and January mornings, sometimes delaying visibility but also creating atmospheric photography conditions. Plan with our [winter travel guide](/india/agra/1-day-agra-itinerary) for more tips."
       },
       {
-        question: 'Are the female-guided tours in Agra private or group?',
-        answer: 'Our female-guided experiences are typically private tours. This ensures a personalized experience, a flexible pace, and the freedom to customize the itinerary to your interests.'
+        question: "Is Agra Fort included in most tours?",
+        answer: "Most half-day and full-day [Agra tours](/india/agra/things-to-do-in-agra) include both the Taj Mahal and Agra Fort. Agra Fort offers important historical context about the Mughal Empire and provides one of the best distant views of the Taj Mahal from its balconies."
       },
       {
-        question: 'Can I customize the itinerary for my Agra tour?',
-        answer: 'Yes, all our private tours are fully customizable. You can discuss with your guide to include additional sites like the Baby Taj, Mehtab Bagh, or local craft workshops.'
+        question: "Safety & Practical Tips: Is Agra safe for solo travelers?",
+        answer: "Agra is generally safe for tourists, including solo and female travelers, especially within monument and hotel zones. Like any major tourist city, awareness is important. Booking [verified guides](/india/agra/things-to-do-in-agra), avoiding isolated areas at night, and using trusted transport ensures a comfortable experience."
+      },
+      {
+        question: "How can I avoid scams in Agra?",
+        answer: "Purchase tickets only from official counters or verified online platforms like our [digital ticket service](/india/agra/taj-mahal-ticket-price-2026). Avoid strangers claiming monuments are “closed today” or offering special discounted access. Use [licensed guides](/india/agra/things-to-do-in-agra) and pre-arranged transportation. Most issues arise from unsolicited street offers, which are easy to avoid by politely declining."
+      },
+      {
+        question: "What are “lapka” touts?",
+        answer: "“Lapka” is a local term used for aggressive touts who approach tourists offering unofficial guide services or discounted tickets. They are common near major attractions. It is best to ignore unsolicited offers and rely only on [licensed professionals](/india/agra/things-to-do-in-agra)."
+      },
+      {
+        question: "Is tap water safe in Agra?",
+        answer: "No, tap water is not recommended for drinking. Bottled mineral water is widely available and inexpensive. Hotels typically provide filtered water. Travelers should also avoid ice in unknown establishments. See our [local survival tips](/india/agra/agra-travel-guide-2026) for more health advice."
+      },
+      {
+        question: "Do I need cash in Agra?",
+        answer: "While many hotels and larger restaurants accept cards, small shops, street vendors, and local markets often prefer cash. Carry small denominations of Indian Rupees for convenience. Note that [entry tickets](/india/agra/taj-mahal-ticket-price-2026) are now digital only and cannot be bought with cash at the gates."
+      },
+      {
+        question: "Are cows common on the streets?",
+        answer: "Yes, cows are occasionally seen walking freely in certain parts of Agra, especially older neighborhoods. They are generally calm and traffic naturally adjusts around them. Visitors should not feed or disturb them."
+      },
+      {
+        question: "Food & Local Experience: What local food should I try in Agra?",
+        answer: "Agra is known for Mughlai cuisine, rich gravies, and traditional sweets. Try petha (a famous local sweet), bedai with aloo sabzi for breakfast, and kebabs influenced by Mughal heritage. The old city area offers authentic flavors."
+      },
+      {
+        question: "Where can I try Keeme ki Kachori?",
+        answer: "Keeme ki Kachori is a local delicacy consisting of crispy fried puffs stuffed with spiced minced buff meat—it’s a must-try for any visitor. The best spot for this is open early in the morning and is located right next to **Joney's Place** in Tajganj. Arrive early (between 6:00 AM and 9:00 AM) to ensure you get them fresh before they sell out."
+      },
+      {
+        question: "Is street food safe in Agra?",
+        answer: "Street food is generally safe if you choose popular, busy vendors. Freshly cooked items served hot are safer options. Avoid raw salads and cut fruits from unknown stalls. Many travelers enjoy street snacks without issues when taking basic precautions."
+      },
+      {
+        question: "Are vegetarian options widely available?",
+        answer: "Yes. Agra has abundant vegetarian options due to cultural and religious influences. Most restaurants clearly mark vegetarian dishes, and many are fully vegetarian establishments."
+      },
+      {
+        question: "What is Agra famous for besides the Taj Mahal?",
+        answer: "Beyond the Taj Mahal, Agra is known for Agra Fort, Mehtab Bagh sunset views, marble inlay craftsmanship, leather goods, and Mughlai cuisine. The city holds deep historical importance from the Mughal period."
+      },
+      {
+        question: "Weather & Planning: What is the best month to visit Agra?",
+        answer: "October to March is the most comfortable period, with pleasant temperatures and clearer skies. Winter mornings can be foggy, especially in December and January."
+      },
+      {
+        question: "How hot does Agra get in summer?",
+        answer: "From April to June, temperatures can exceed 40°C (104°F). Morning tours are strongly recommended during summer months. Light cotton clothing, sunglasses, sunscreen, and hydration are essential."
+      },
+      {
+        question: "Does it fog in winter?",
+        answer: "Yes, dense fog is common in December and January mornings. Visibility can sometimes delay sunrise photography but usually clears by mid-morning."
+      },
+      {
+        question: "How is traffic in Agra?",
+        answer: "Traffic can be moderate to heavy near major monuments during peak season. The Taj Mahal area uses designated parking zones and electric shuttle vehicles to reduce pollution."
+      },
+      {
+        question: "How many days are enough for Agra?",
+        answer: "One full day is enough to see the Taj Mahal and Agra Fort. Check out our [1-day precision itinerary](/india/agra/1-day-agra-itinerary) to maximize your time. Two days allow for Mehtab Bagh, Itmad-ud-Daulah (Baby Taj), and a relaxed exploration of local markets and cuisine."
+      },
+      {
+        question: "What are the travel options from Delhi to Agra?",
+        answer: "Travelers can reach Agra from Delhi by train (Gatimaan Express is fastest), private car (3–4 hours via Yamuna Expressway), or guided day tour. See our [pricing guide](/india/agra/taj-mahal-ticket-price-2026) for transport and entry fees. Private transport offers flexibility, while trains are efficient for short visits."
       }
     ]
   },
@@ -88,8 +155,8 @@ const CITY_DESCRIPTIONS: Record<string, {
     title: 'Delhi Tours & Things to Do | Guided Experiences by Locals',
     description: 'Discover the best tours in Delhi with licensed local guides. Red Fort tours, Old Delhi heritage walks, street food tours & cultural experiences.',
     intro: [
-      'Delhi, India\'s capital, is a vibrant blend of ancient history and modern energy. From the historic Red Fort and Jama Masjid to the bustling markets of Old Delhi and the modern architecture of New Delhi, the city offers endless exploration opportunities.',
-      'At AsiaByLocals, explore Delhi through expert-led tours with licensed local guides. Discover authentic street food, hidden neighborhoods, and the real stories that make Delhi special. Experience the contrast between Old Delhi\'s narrow lanes and New Delhi\'s wide boulevards with knowledgeable local experts.'
+      'Delhi, India\'s capital, is a vibrant blend of ancient history and modern energy. From the historic **Red Fort** and **Jama Masjid** to the bustling markets of [Old Delhi](/india/delhi) and the modern architecture of New Delhi, the city offers endless exploration opportunities.',
+      'At AsiaByLocals, explore the capital through expert-led [tours in Delhi](/india/delhi) with licensed local guides. Discover authentic street food, hidden neighborhoods, and the real stories that make Delhi special. Experience the contrast between the narrow lanes and wide boulevards with knowledgeable local experts.'
     ],
     whyBook: [
       'Licensed & experienced local experts',
@@ -109,19 +176,19 @@ const CITY_DESCRIPTIONS: Record<string, {
     faqs: [
       {
         question: 'How long does a Delhi heritage tour take?',
-        answer: 'A typical Old Delhi heritage walk takes 3-4 hours, while combined tours covering multiple monuments can take 6-8 hours.'
+        answer: 'A typical [Old Delhi heritage walk](/india/delhi) takes 3-4 hours, while combined tours covering multiple monuments like the Red Fort and Qutub Minar can take 6-8 hours. If you are starting your [Golden Triangle tour](/india/agra), we recommend at least 2 full days in Delhi before heading to Agra.'
       },
       {
         question: 'Are Delhi tours suitable for families?',
-        answer: 'Yes, Delhi tours are family-friendly. Our guides adapt the experience for children and ensure comfortable pacing for all ages.'
+        answer: 'Yes, Delhi tours are very family-friendly. Our [licensed local guides](/india/delhi) adapt the experience for children, focusing on interactive stories and ensuring comfortable pacing for all ages. We also recommend private vehicles for family comfort between sites.'
       },
       {
         question: 'Do I need a licensed guide in Delhi?',
-        answer: 'While not mandatory, a licensed local guide helps navigate Delhi\'s complex history, diverse neighborhoods, and provides valuable cultural insights.'
+        answer: 'While not mandatory, a government-licensed guide is highly recommended to navigate Delhi\'s complex history and diverse neighborhoods. They ensure you receive verified historical context and help you avoid [common city scams](/india/delhi).'
       },
       {
         question: 'Are street food tours safe?',
-        answer: 'Yes, our guides take you to trusted vendors with high hygiene standards. We ensure safe, authentic food experiences while respecting dietary restrictions.'
+        answer: 'Yes, our guides selectively take you to trusted vendors in Old Delhi with high hygiene standards. We ensure safe, authentic food experiences that showcase the real flavors of the capital. Check our [food safety guide](/india/delhi) for more tips.'
       }
     ]
   },
@@ -129,8 +196,8 @@ const CITY_DESCRIPTIONS: Record<string, {
     title: 'Jaipur Tours & Things to Do | Guided Experiences by Locals',
     description: 'Discover the best tours in Jaipur with licensed local guides. City Palace tours, Hawa Mahal visits, heritage walks & authentic Rajasthan experiences.',
     intro: [
-      'Jaipur, known as the Pink City, is the vibrant capital of Rajasthan. Famous for its stunning palaces, colorful markets, and rich cultural heritage, Jaipur offers visitors a glimpse into royal India.',
-      'At AsiaByLocals, explore Jaipur through expert-led tours with licensed local guides. Discover the magnificent City Palace, the unique Hawa Mahal (Palace of Winds), and the ancient Jantar Mantar observatory. Our guides share the stories behind these architectural marvels and take you to authentic markets, traditional workshops, and hidden gems that showcase Jaipur\'s true character.'
+      'Jaipur, known as the **Pink City**, is the vibrant capital of Rajasthan. Famous for its stunning palaces, colorful markets, and rich cultural heritage, Jaipur offers visitors a glimpse into royal India.',
+      'At AsiaByLocals, explore the royal capital through expert-led [tours in Jaipur](/india/jaipur) with licensed local guides. Discover the magnificent **City Palace**, the unique **Hawa Mahal** (Palace of Winds), and the ancient **Jantar Mantar** observatory. Our guides share the stories behind these architectural marvels and take you to authentic markets and hidden gems that showcase Jaipur\'s true character.'
     ],
     whyBook: [
       'Licensed & experienced local experts',
@@ -150,19 +217,19 @@ const CITY_DESCRIPTIONS: Record<string, {
     faqs: [
       {
         question: 'How long does a Jaipur palace tour take?',
-        answer: 'A typical City Palace and Hawa Mahal tour takes 3-4 hours. Combined tours with Amber Fort can take 6-8 hours including travel time.'
+        answer: 'A typical City Palace and Hawa Mahal tour takes 3-4 hours. Combined tours with Amber Fort can take 6-8 hours. For those on a [Delhi-Agra-Jaipur circuit](/india/agra), we recommend spending at least 2 nights in the Pink City.'
       },
       {
         question: 'Are Jaipur tours suitable for families?',
-        answer: 'Yes, Jaipur tours are very family-friendly. The palaces and markets are engaging for children, and our guides make history come alive for all ages.'
+        answer: 'Yes, Jaipur tours are exceptionally family-friendly. The majestic palaces and colorful bazaars of the [Pink City](/india/jaipur) are engaging for children, and our guides specialize in making history come alive through royal legends.'
       },
       {
         question: 'Do I need a licensed guide in Jaipur?',
-        answer: 'While not mandatory, a licensed local guide enhances your experience by explaining the rich history, architecture, and cultural significance of Jaipur\'s royal heritage.'
+        answer: 'A [licensed local guide](/india/jaipur) is essential to truly understand the architectural genius behind the Jantar Mantar observatory and the hidden history of the royal family. They also help navigate the bustling local markets safely.'
       },
       {
         question: 'Are heritage walks worth it?',
-        answer: 'Absolutely. Heritage walks in Jaipur\'s old city reveal hidden gems, traditional crafts, local stories, and authentic experiences you won\'t find on your own.'
+        answer: 'Absolutely. A [Jaipur heritage walk](/india/jaipur) reveals the city\'s unique urban planning, traditional jewelry workshops, and local storytelling that you simply cannot find on a standard bus tour.'
       }
     ]
   },
@@ -607,57 +674,176 @@ const ThingsToDoSection: React.FC<ThingsToDoSectionProps> = ({ city }) => {
     setExpandedCards(newExpanded);
   };
 
-  // Things to do data for all cities (SEO-optimized) - Based on actual tour offerings
   const thingsToDoData: Record<string, Array<{
     title: string;
     image: string;
     shortDescription: string;
     fullDescription: string;
     seoKeywords: string[];
+    faqs?: Array<{ q: string; a: string }>;
   }>> = {
     'Agra': [
       {
         title: 'From Delhi: Taj Mahal & Agra Private Day Trip with Transfers',
         image: '/things-to-do/agra-taj-mahal-sunset.jpg',
-        shortDescription: 'Begins your tour with the pickup from your hotel/airport in Delhi/Noida/Gurugram and depart to Agra. Meet your private guide when you arrive in Agra and proceed to the Taj Mahal, a UNESCO World Heritage Site and a living monument, which silently whispers the love of legendary Mughal emperor Shah Jahan for his beloved wife Mumtaz Mahal.',
-        fullDescription: 'Begins your tour with the pickup from your hotel/airport in Delhi/Noida/Gurugram and depart to Agra. Meet your private guide when you arrive in Agra and proceed to the Taj Mahal, a UNESCO World Heritage Site and a living monument, which silently whispers the love of legendary Mughal emperor Shah Jahan for his beloved wife Mumtaz Mahal. Continue onto the second UNESCO World Heritage Site Agra Fort. The imposing red sandstone fort was built by Emperor Akbar in 1565 AD, it combines both Hindu and Central Asian architectural styles. Then take a break for lunch at a 5-star Hotel and enjoy a mouth-watering meal of local and international flavor. After lunch, head towards the marvelous Tomb of Itmad-Ud-Daulah also known as Baby Taj. This pure marble structure was constructed by Noor Jahan for her father. Your tour ends with a return journey back to your hotel/airport or desired location in Delhi/Noida/Gurugram.',
-        seoKeywords: ['Taj Mahal', 'Agra Fort', 'Delhi to Agra', 'private day trip', 'Baby Taj']
+        shortDescription: 'Begins your tour with the pickup from your hotel/airport in Delhi/Noida/Gurugram and depart to Agra. Meet your private guide when you arrive in Agra and proceed to the [Taj Mahal](/india/agra/agra-travel-guide-2026), a UNESCO World Heritage Site and a living monument, which silently whispers the love of legendary Mughal emperor Shah Jahan for his beloved wife Mumtaz Mahal.',
+        fullDescription: 'Begins your tour with the pickup from your hotel/airport in Delhi/Noida/Gurugram and depart to Agra. Meet your private guide when you arrive in Agra and proceed to the Taj Mahal, a UNESCO World Heritage Site and a living monument, which silently whispers the love of legendary Mughal emperor Shah Jahan for his beloved wife Mumtaz Mahal. Continue onto the second UNESCO World Heritage Site **Agra Fort**. The imposing red sandstone fort was built by Emperor Akbar in 1565 AD, it combines both Hindu and Central Asian architectural styles. Then take a break for lunch at a 5-star Hotel and enjoy a mouth-watering meal of local and international flavor. After lunch, head towards the marvelous **Tomb of Itmad-Ud-Daulah** also known as **Baby Taj**. This pure marble structure was constructed by Noor Jahan for her father. Your tour ends with a return journey back to your hotel/airport or desired location in Delhi/Noida/Gurugram. Check our [1-day travel guide](/india/agra/1-day-agra-itinerary) for more planning tips.',
+        seoKeywords: ['Taj Mahal', 'Agra Fort', 'Delhi to Agra', 'private day trip', 'Baby Taj'],
+        faqs: [
+          {
+            q: "What time do we leave Delhi for a Taj Mahal day tour?",
+            a: "To maximize your day and experience the Taj Mahal at its most tranquil, we typically recommend a **3:00 AM or 4:00 AM departure** from Delhi. This early start allows you to reach Agra just as the gates open for sunrise, avoiding the heavy morning traffic on the Yamuna Expressway. However, we can arrange departures as late as 8:00 AM if you prefer a more relaxed schedule. Your private vehicle will pick you up directly from your hotel or the airport in Delhi, Noida, or Gurugram for a seamless start to your [Agra itinerary](/india/agra/1-day-agra-itinerary)."
+          },
+          {
+            q: "How long is the Delhi to Agra drive and is the expressway safe?",
+            a: "The drive from Delhi to Agra via the **Yamuna Expressway** typically takes between **3 to 3.5 hours**. This modern, 6-lane toll road is one of India's best highways, offering a smooth and safe journey. Our professional drivers are well-versed in the route and prioritize your safety. We include all toll taxes, parking, and fuel in your tour package, so there are no hidden costs. For those arriving from long-haul flights, this private transfer is the most comfortable way to transition from the capital to the heart of the Mughal Empire."
+          },
+          {
+            q: "Is a same-day Taj Mahal tour from Delhi actually worth it?",
+            a: "Absolutely—thanks to the ultra-fast Yamuna Expressway, a **same-day trip is the most popular way** to visit Agra. While an overnight stay has its charms, a well-structured [1-day itinerary](/india/agra/1-day-agra-itinerary) easily covers the Taj Mahal, Agra Fort, and a relaxed lunch. It is a highly efficient way to see India's most iconic monuments without the logistical overhead of switching hotels. By departing early, you can witness the sunrise, explore with your [licensed guide](/india/agra/things-to-do-in-agra), and be back in Delhi by late evening."
+          },
+          {
+            q: "Do we travel in a fully private vehicle throughout the day?",
+            a: "Yes, this is a **100% private door-to-door service**. Your dedicated air-conditioned vehicle and professional driver stay with you from the moment of pickup in Delhi until your return. You won't be sharing the car with independent travelers, allowing you total flexibility to stop for photos, coffee breaks, or to adjust your pace as needed. This privacy is essential for maintaining control over your schedule, especially when coordinating between the [strict monument timings](/india/agra/taj-mahal-opening-time) and your return travel plans."
+          },
+          {
+            q: "Is it possible to customize the monument list or add stops?",
+            a: "One of the key benefits of our private tours is **complete customizability**. While the standard route includes the Taj Mahal and Agra Fort, you can easily add stops at the **Baby Taj** or the **Mehtab Bagh** sunset gardens. If you have specific interests, such as visiting a local marble inlay workshop or exploring the old city's food scene, just let your guide know. We aim to provide a high-authority experience that matches your personal interests while ensuring you see the essential [must-visit attractions in Agra](/india/agra/agra-travel-guide-2026)."
+          }
+        ]
       },
       {
         title: 'From Delhi: Private Taj Mahal and Agra Day Tour with 5* Meal',
         image: '/things-to-do/agra-fort-gate.jpg',
         shortDescription: 'Experience a premium Private Taj Mahal and Agra Day Tour from Delhi, thoughtfully designed for comfort, flexibility, and unforgettable experiences. Includes a private chauffeur pick-up from Delhi in an air-conditioned car.',
-        fullDescription: 'Experience a premium Private Taj Mahal and Agra Day Tour from Delhi, thoughtfully designed for comfort, flexibility, and unforgettable experiences. Includes a private chauffeur pick-up from Delhi in an air-conditioned car. Visit the world-famous Taj Mahal, one of the Seven Wonders of the World. For early risers, an optional sunrise visit offers fewer crowds, and exceptional photo opportunities. Explore the majestic Agra Fort (a UNESCO World Heritage Site), this site used to be the home to Mughal emperors before Delhi became the capital of India. If time permits, visit Itimad-ud-Daulah, often called the Baby Taj, known for its intricate marble inlay work. Enjoy a delicious 5-star breakfast or lunch at a premium restaurant. Experience personalized service, flexible timing, expert guidance, and a stress-free return to Delhi the same day.',
+        fullDescription: 'Experience a premium Private Taj Mahal and Agra Day Tour from Delhi, thoughtfully designed for comfort, flexibility, and unforgettable experiences. Includes a private chauffeur pick-up from Delhi in an air-conditioned car. Visit the world-famous Taj Mahal, one of the Seven Wonders of the World. For early risers, an optional [sunrise visit](/india/agra/taj-mahal-opening-time) offers fewer crowds, and exceptional photo opportunities. Explore the majestic **Agra Fort** (a UNESCO World Heritage Site), this site used to be the home to Mughal emperors before Delhi became the capital of India. If time permits, visit **Itimad-ud-Daulah**, often called the **Baby Taj**, known for its intricate marble inlay work. Enjoy a delicious 5-star breakfast or lunch at a premium restaurant. Experience personalized service, flexible timing, expert guidance, and a stress-free return to Delhi the same day.',
         seoKeywords: ['Taj Mahal sunrise', 'Agra Fort', '5-star meal', 'premium tour', 'private tour']
       },
       {
-        title: 'From Delhi: Private Taj Mahal & Agra Tour with 5* Lunch',
-        image: '/things-to-do/agra-taj-mahal-mosque.jpg',
-        shortDescription: 'Start your journey with an early pickup from your hotel in Delhi, Gurgaon, Noida, or the airport. Sit back in a private, air-conditioned car for a 3-hour drive to Agra. Upon arrival, meet your expert guide and proceed to the Taj Mahal to explore its beauty at sunrise for 2-3 hours.',
-        fullDescription: 'Start your journey with an early pickup from your hotel in Delhi, Gurgaon, Noida, or the airport. Sit back in a private, air-conditioned car for a 3-hour drive to Agra. Upon arrival, meet your expert guide and proceed to the Taj Mahal to explore its beauty at sunrise for 2-3 hours. Continue to the Agra Fort, an impressive red sandstone fortress built by Emperor Akbar in 1565 AD, it combines both Hindu and Central Asian architectural styles. After the fort visit, enjoy a breakfast or lunch at a 5-star hotel (if included in the package). Next, explore the elegant Baby Taj (Itmad-ud-Daulah), a pure marble structure constructed by Noor Jahan for her father. Your tour concludes with a comfortable return drive to Delhi in a private car, with drop-off at your chosen location.',
-        seoKeywords: ['Taj Mahal sunrise', 'Agra Fort', 'Baby Taj', '5-star lunch', 'private transfer']
+        title: 'Book Official Tour Guide for Taj Mahal (ASI Licensed)',
+        image: 'https://images.unsplash.com/photo-1592635196078-9fdc793937da?auto=format&fit=crop&q=80&w=800',
+        shortDescription: 'Secure a professional, Ministry of Tourism licensed guide for your Taj Mahal visit. Deep dive into Mughal history, architecture, and the hidden stories of the Taj.',
+        fullDescription: 'Don\'t leave your Taj Mahal experience to chance. Book a verified, **ASI-licensed historian** who can navigate the crowds, explain the optical illusions in the calligraphy, and provide the deep cultural context of the Mughal Empire. Our official guides are government-vetted professionals who ensure you skip the unsolicited \'lapka\' touts and receive 100% accurate historical data. The tour includes personalized storytelling, photography assistance, and a flexible pace tailored to your interests. Check our [guide verification tips](/india/agra/agra-travel-guide-2026) for more.',
+        seoKeywords: ['official guide Taj Mahal', 'ASI licensed guide', 'hiring guide Agra', 'historian tour Taj', 'verified guide'],
+        faqs: [
+          {
+            q: "What makes a guide 'official' at the Taj Mahal?",
+            a: "An **'official' guide** is a professional who has been rigorously vetted and licensed by the **Ministry of Tourism, Government of India (ASI)**. These experts are the only individuals legally authorized to conduct tours inside the Taj Mahal complex. Unlike unofficial 'street guides' or commission-based touts, official guides have a deep, academic understanding of Mughal history and architecture. When you book an official guide, you are guaranteed an experience supported by historical accuracy and cultural sensitivity."
+          },
+          {
+            q: "How long does the guided portion of the visit last?",
+            a: "A standard high-authority tour of the Taj Mahal typically lasts between **2 to 2.5 hours**. This allows your guide enough time to explain the [gate architecture](/india/agra/taj-mahal-opening-time), the symmetrical gardens, and the intricate marble inlay work of the main mausoleum. If you choose a combined tour with the **Agra Fort**, the total guided time extends to approximately 5 hours. Our guides are flexible and can adjust the depth of storytelling based on your interest level and schedule."
+          },
+          {
+            q: "Is the guide fee separate from the entry ticket?",
+            a: "Yes, in the 'Guide Only' booking category, the fee covers the professional services of the historian. You must either have your [pre-booked digital tickets](/india/agra/taj-mahal-ticket-price-2026) ready or we can assist you in purchasing them at the gate (though we strongly recommend booking online 48 hours in advance to avoid queues). For a fully hassle-free experience, we recommend our 'All-Inclusive' tours which cover the guide, transport, and all monument entry fees in a single price."
+          }
+        ]
       },
       {
-        title: 'Agra: Skip-the-Line Taj Mahal & Agra Fort Private Tour',
+        title: 'Skip-The-Line Taj Mahal Sunrise Tour With Guide',
         image: '/things-to-do/agra-taj-mahal-garden.jpg',
-        shortDescription: 'Tour begins with a pick up from hotel/airport or any requested location in Agra city, meet with tour guide and proceed to visit Taj Mahal with an express entry ticket and discover the marble mausoleum of the Taj Mahal in Agra at your own pace.',
-        fullDescription: 'Tour begins with a pick up from hotel/airport or any requested location in Agra city, meet with tour guide and proceed to visit Taj Mahal with an express entry ticket and discover the marble mausoleum of the Taj Mahal in Agra at your own pace. After visiting Taj Mahal, take a break for breakfast at a multi cuisine restaurant (pay by your own). Later, visit the historic Agra Fort, another UNESCO World Heritage Site, this site used to be the home to Mughal emperors before Delhi became the capital of India. Be transferred back to your hotel/airport or any desired location in Agra after the tour ends.',
-        seoKeywords: ['Skip the line', 'Taj Mahal express entry', 'Agra Fort', 'private tour', 'Agra city tour']
+        shortDescription: 'Tour begins with a pick up from hotel/airport or any requested location in Agra city, meet with tour guide and proceed to visit Taj Mahal with an [express entry ticket](/india/agra/taj-mahal-ticket-price-2026) and discover the marble mausoleum of the Taj Mahal in Agra at your own pace.',
+        fullDescription: 'Tour begins with a pick up from hotel/airport or any requested location in Agra city, meet with tour guide and proceed to visit Taj Mahal with an express entry ticket and discover the marble mausoleum of the Taj Mahal in Agra at your own pace. After visiting Taj Mahal, take a break for breakfast at a multi cuisine restaurant (pay by your own). Later, visit the historic **Agra Fort**, another UNESCO World Heritage Site, this site used to be the home to Mughal emperors before Delhi became the capital of India. Be transferred back to your hotel/airport or any desired location in Agra after the tour ends. Note: The [Taj is strictly closed on Fridays](/india/agra/is-taj-mahal-closed-on-friday).',
+        seoKeywords: ['Skip the line', 'Taj Mahal express entry', 'Agra Fort', 'private tour', 'Agra city tour'],
+        faqs: [
+          {
+            q: "What time is hotel pickup for the sunrise tour in Agra?",
+            a: "For a true Taj Mahal sunrise experience, your day begins while the city is still asleep. Typically, hotel pickup in Agra occurs between **5:15 AM and 5:45 AM**, depending on the specific month and official [sunrise timing](/india/agra/taj-mahal-opening-time). In the summer (April to July), the sun rises earlier, requiring a 5:15 AM start. In winter (December to February), fog can delay visibility, but we still pick you up by 5:45 AM to ensure we are among the first in the security queue. Entering early is the only way to witness the marble transition from soft grey to a brilliant golden pink before the mid-morning heat and crowds arrive."
+          },
+          {
+            q: "Does skip-the-line mean skipping security too?",
+            a: "It is important to understand that 'Skip-The-Line' applies specifically to the **official ASI ticket window**, which often has queues exceeding 45–60 minutes. It does **NOT** allow you to bypass the mandatory security screening. Every visitor, regardless of ticket type, must pass through the metal detectors and baggage checks conducted by the CISF. Our 'High-Value' tickets include priority positioning, but security remains a standard government protocol. To ensure the fastest throughput, we recommend bringing only your phone, camera, and water; avoid large bags, tripods, or prohibited items which cause delays at the scanners."
+          },
+          {
+            q: "Is this an official licensed guide?",
+            a: "Yes, all guides provided for this tour are strictly **government-approved and licensed by the Ministry of Tourism (ASI)**. This is a critical distinction, as only licensed guides are legally permitted to guide inside the Taj Mahal and Agra Fort complexes. Beyond their legal status, these guides are local historians who offer deep intellectual context into Mughal architecture, calligraphy illusions, and the political significance of the 'Zenana' quarters. Using a licensed professional protects you from [local scams](/india/agra/agra-travel-guide-2026) and ensures you receive accurate, verified historical storytelling rather than common street myths."
+          },
+          {
+            q: "What if it is foggy during sunrise in winter?",
+            a: "During the months of **December and January**, heavy morning fog is a common occurrence in the Yamuna River basin. While fog can obscure the monument's first light, it creates a unique, ethereal atmosphere that many professional photographers actually prefer. If visibility is extremely low at 6:00 AM, our guides will adjust the storytelling pace, focusing first on the external gate architecture and historical narratives, moving toward the mausoleum once the sun burns off the mist. Visibility usually improves significantly by 10:00 AM. Check our [timing guide](/india/agra/taj-mahal-opening-time) for monthly fog patterns."
+          },
+          {
+            q: "Is this sunrise tour worth it?",
+            a: "Absolutely. A sunrise visit is widely considered the **platinum standard** for visiting the Taj Mahal. Beyond the cooler temperatures, which are essential from March to June, the 'Blue Hour' and 'Golden Hour' provide lighting conditions that simply cannot be replicated at sunset. Furthermore, the crowd density at 6:00 AM is 70% lower than at noon, allowing for unobstructed views of the reflecting pools. For those on a [1-day itinerary](/india/agra/1-day-agra-itinerary), starting at sunrise is the only way to complete the Taj, Agra Fort, and a relaxed lunch before departing back to Delhi or Jaipur comfortably."
+          }
+        ]
       },
       {
-        title: 'Delhi/Jaipur/Agra: Private One-Way Transfer',
-        image: '/things-to-do/agra-transfer-car.jpg',
-        shortDescription: 'Enjoy a private transfer from Delhi, Agra, or Jaipur with driver in a private air-conditioned car. Be picked up from your preferred location and taken to your destination hassle-free.',
-        fullDescription: 'Enjoy a private transfer from Delhi, Agra, or Jaipur with driver in a private air-conditioned car. Be picked up from your preferred location, whether it\'s the airport or your hotel, and be taken to your hotel or the airport in Delhi, Jaipur, or Agra. Don\'t waste your time trying to find a taxi and haggling over prices, pre-book your convenient transfer and have a more relaxing vacation. Sit back and relax knowing you\'re in safe hands and will end up exactly where you want to be. Sip on free water during the drive. The vehicle used depends on the number of people being transported: 1 to 3 people - AC Sedan, Toyota Etios, or Maruti Swift Dzire; 4 to 6 people - A/C Kia Carens or Innova; 12 to 26 people - Tempo Traveller or Mini Bus. Professional drivers ensure safe and comfortable journeys between these major tourist destinations.',
-        seoKeywords: ['private transfer', 'Delhi Jaipur Agra', 'airport transfer', 'private car', 'Golden Triangle transfer']
+        title: 'Taj Mahal Entry Ticket 2026 – Skip the Line',
+        image: 'https://images.unsplash.com/photo-1548013146-72479768bbaa?auto=format&fit=crop&q=80&w=800',
+        shortDescription: 'Official digital entry tickets for the Taj Mahal and Agra Fort. Skip the long ticket-window queues and enter directly through the security gates.',
+        fullDescription: 'The Archaeological Survey of India (ASI) has transitioned to a 100% digital ticketing system. Avoid the frustration of the physical ticket counters, which can have wait times of over an hour during peak [October to March season](/india/agra/taj-mahal-opening-time). Our pre-booked QR-code tickets allow you to proceed straight to the security screening. All tickets include the mandatory main mausoleum supplement for access to the interior tomb area. Ensure you have your passport or ID ready for verification at the gate alongside your digital ticket. Check our [price breakdown](/india/agra/taj-mahal-ticket-price-2026) for details.',
+        seoKeywords: ['Taj Mahal ticket', 'skip the line ticket', 'official ASI ticket', 'Taj Mahal entry fee', 'digital ticket Agra'],
+        faqs: [
+          {
+            q: "Is the mausoleum access included in this ticket?",
+            a: "Yes. Our 'Premium' entry tickets automatically include the **mandatory main mausoleum supplement**. As of 2026, the [official price structure](/india/agra/taj-mahal-ticket-price-2026) requires this extra fee (₹200) to climb the marble platform and enter the cenotaph chamber. Standard entry-only tickets do not allow access to the interior marble screens, so we always provide the comprehensive ticket to ensure you don't miss the heart of the Taj Mahal."
+          },
+          {
+            q: "Do I skip the security line with this ticket?",
+            a: "While this ticket allows you to **bypass the 60-minute ticket-window queue**, all visitors must still undergo the mandatory security screening by the CISF. No ticket type allows you to skip security. However, having your digital QR code ready significantly speeds up the process. We recommend reaching the gates by **5:30 AM** for a [sunrise visit](/india/agra/taj-mahal-opening-time) to be among the first in the security line before the mass-market tour buses arrive."
+          },
+          {
+            q: "Is a printed copy of the ticket required?",
+            a: "No, a **digital copy on your smartphone** is perfectly acceptable for the 2026 season. Simply show the QR code to the gate attendants for scanning. However, we recommend taking a screenshot of your ticket in case of poor mobile reception near the monument gates. You must also carry a valid government-issued ID or passport to match the name on the ticket, as security checks are increasing to prevent black-marketing of entry slots."
+          }
+        ]
       },
       {
         title: 'Agra: Taj Mahal & Agra Fort Private Tour with Female Guide',
         image: '/things-to-do/agra-female-guide-tour.jpg',
         shortDescription: 'Experience the Taj Mahal and Agra Fort with a licensed local female guide. Perfect for families and solo female travelers seeking a unique perspective on India\'s history and culture.',
-        fullDescription: 'Discover the iconic Taj Mahal and the majestic Agra Fort through the eyes of a professional female guide. This private tour is specially designed to provide a safe, comfortable, and deeply insightful experience. Your guide will share fascinating stories about the Mughal Empire, focusing on the influential roles of women in that era, while ensuring you see the best of Agra\'s heritage sites. The tour includes skip-the-line entry, personalized storytelling, and a flexible itinerary that can be tailored to your interests, including visits to local handicraft workshops or the beautiful Mehtab Bagh garden.',
-        seoKeywords: ['female guide Agra', 'solo female travel India', 'Taj Mahal private tour', 'Agra local expert', 'licensed female guide']
-      }
+        fullDescription: 'Discover the iconic Taj Mahal and the majestic **Agra Fort** through the eyes of a professional female guide. This private tour is specially designed to provide a safe, comfortable, and deeply insightful experience. Your guide will share fascinating stories about the Mughal Empire, focusing on the influential roles of women in that era, while ensuring you see the best of Agra\'s heritage sites. The tour includes skip-the-line entry, personalized storytelling, and a flexible itinerary that can be tailored to your interests, including visits to local handicraft workshops or the beautiful **Mehtab Bagh** garden. Check our [complete Agra guide](/india/agra/agra-travel-guide-2026) for the ultimate context on the Mughal Zenana.',
+        seoKeywords: ['female guide Agra', 'solo female travel India', 'Taj Mahal private tour', 'Agra local expert', 'licensed female guide'],
+        faqs: [
+          {
+            q: "Are the female guides licensed by the government?",
+            a: "Every female guide we partner with is officially **licensed by the Ministry of Tourism, Government of India (ASI)**. This means they have undergone rigorous historical training, passed national level examinations, and are verified professionals legally authorized to guide in all national monuments. At AsiaByLocals, we prioritize licensed experts to ensure that you receive not only a safe and culturally sensitive experience but also a high-authority historical narrative that respects the [academic and architectural significance](/india/agra/agra-travel-guide-2026) of the Taj Mahal."
+          },
+          {
+            q: "Is this tour suitable for solo female travelers?",
+            a: "This tour is specifically engineered for **solo female travelers** seeking the highest level of comfort and security in Agra. Navigating monument crowds as a lone woman can sometimes feel overwhelming due to unsolicited attention from unofficial touts. A professional female guide acts as a 'cultural bridge' and a protective presence, allowing you to focus entirely on the beauty of the monuments. Our guides are also experts at recommending safe cafes and secure transportation, ensuring your [Agra itinerary](/india/agra/1-day-agra-itinerary) is both enriching and stress-free."
+          },
+          {
+            q: "Can the guide assist with saree draping and photography?",
+            a: "Yes, our female guides are experts in the traditional art of **saree draping** and can assist you with your outfit for that perfect cultural immersion. Furthermore, they are deeply familiar with the Taj Mahal's 'symmetry points'—the specific locations where you can capture iconic reflection shots without the crowds. They understand the aesthetic nuances that make for great travel memories and are happy to help you pose for professional-looking photos. This is part of the personalized service that makes our [female-led experiences](/india/agra/things-to-do-in-agra) so unique."
+          },
+          {
+            q: "Can a female guide handle larger family groups?",
+            a: "Absolutely. Our female guides are highly skilled in managing diverse groups, including families with young children or elderly travelers. They bring a patient, empathetic approach to storytelling that keeps children engaged with fun historical facts while addressing the logistical needs of older family members. Whether it's finding a shaded spot for a break or explaining the Mughal history in an accessible way, they ensure that everyone in the family has a meaningful and comfortable [visit to the Taj Mahal](/india/agra/taj-mahal-opening-time)."
+          },
+          {
+            q: "Is it worth booking a female guide over a standard tour?",
+            a: "Booking a female guide offers a unique **'Zenana' perspective**—a focus on the powerful influence of Mughal empresses like Mumtaz Mahal and Nur Jahan that is often glossed over in standard tours. This narrative depth, combined with the added layer of safety and cultural comfort for women and families, makes it an exceptionally worthwhile investment. It provides a more intimate, conversational, and historically nuanced understanding of Agra's heritage that goes beyond just architectural dates and figures."
+          }
+        ]
+      },
+      {
+        title: 'Book Tour Guide for Fatehpur Sikri Visit',
+        image: '/things-to-do/agra-fatehpur-sikri.jpg',
+        shortDescription: 'Explore the 16th-century "Ghost City" of Fatehpur Sikri with a professional local guide. Discover the architecture and legends of Emperor Akbar\'s former capital.',
+        fullDescription: 'Located 40km from Agra, **Fatehpur Sikri** is a UNESCO World Heritage Site that served as the capital of the Mughal Empire for 14 years. Often overlooked by day-trippers, this sprawling complex of red sandstone palaces and mosques offers some of India\'s best-preserved Mughal architecture. Your professional guide will walk you through the Panch Mahal, the Diwan-i-Khas, and the magnificent Jama Masjid, sharing stories of Akbar\'s court and the Sufi saint Salim Chishti. This tour is perfect for those seeking a more tranquil, yet historically dense experience outside the bustling city center. Combine it with our [1-day itinerary](/india/agra/1-day-agra-itinerary) for the ultimate Agra experience.',
+        seoKeywords: ['Fatehpur Sikri guide', 'Ghost City Agra', 'Akbar capital tour', 'Buland Darwaza', 'Mughal architecture tour'],
+        faqs: [
+          {
+            q: "How far is Fatehpur Sikri from Agra and how do we get there?",
+            a: "Fatehpur Sikri is located approximately **37 kilometers (23 miles)** west of Agra. The drive typically takes 1 to 1.5 hours depending on traffic. Most travelers visit Fatehpur Sikri either as a half-day trip from Agra or as a half-way stop while traveling between [Agra and Jaipur](/india/agra/1-day-agra-itinerary). We provide private air-conditioned vehicles for this journey, ensuring you can comfortably explore the rural landscapes before reaching the majestic gates of the city."
+          },
+          {
+            q: "Is it worth the extra time compared to more time at the Taj?",
+            a: "For anyone staying in Agra for more than 24 hours, Fatehpur Sikri is **essential**. It offers a completely different architectural language than the Taj Mahal. While the Taj is a marble monument of love, Fatehpur Sikri is a massive, red-sandstone testament to political power and urban living. It is far less crowded, allowing for a contemplative experience. Many who visit find it more evocative than the Taj due to the sheer scale of the palaces and the atmospheric presence of the 'Ghost City' ruins."
+          },
+          {
+            q: "How much walking is involved in a Fatehpur Sikri tour?",
+            a: "Fatehpur Sikri is a vast complex, and you should expect to walk approximately **2 to 3 kilometers** to see the main palace area and the congregational mosque. The terrain is relatively flat but involves stone pathways and several steps. We recommend wearing comfortable walking shoes and carrying a hat, as there is limited shade in the larger courtyards. Our guides pace the tour according to your comfort level, ensuring plenty of time for rest and photography in the cooler arcade areas."
+          },
+          {
+            q: "Are guides required for Fatehpur Sikri?",
+            a: "While you can explore on your own, a [licensed guide](/india/agra/things-to-do-in-agra) is highly recommended because the site is physically enormous and lacks descriptive signage. Without a guide, it is easy to miss the architectural significance of buildings like the 'Iron-Free' pillars or the intricate symbolism of the shared Hindu-Islamic design elements. Furthermore, a guide helps manage the aggressive local vendors and unauthorized touts at the entrance, ensuring you have a focused and accurate historical experience."
+          }
+        ]
+      },
     ],
     'Delhi': [
       {
@@ -965,7 +1151,7 @@ const ThingsToDoSection: React.FC<ThingsToDoSectionProps> = ({ city }) => {
                 <div className="md:w-1/4 lg:w-1/5 shrink-0 self-start">
                   <img
                     src={item.image}
-                    alt={`${item.title} in ${city}`}
+                    alt={`${item.title} in ${city} `}
                     className="w-full h-40 md:h-40 object-cover"
                     style={{ objectFit: 'cover', objectPosition: 'center' }}
                     onError={(e) => {
@@ -975,7 +1161,7 @@ const ThingsToDoSection: React.FC<ThingsToDoSectionProps> = ({ city }) => {
                       if (target.src.endsWith('.jpg')) {
                         target.src = target.src.replace('.jpg', '.avif');
                       } else {
-                        target.src = 'https://via.placeholder.com/600x400?text=' + encodeURIComponent(item.title);
+                        target.src = 'https://images.unsplash.com/photo-1488646953014-85cb44e25828?auto=format&fit=crop&q=80&w=800';
                       }
                     }}
                   />
@@ -988,14 +1174,55 @@ const ThingsToDoSection: React.FC<ThingsToDoSectionProps> = ({ city }) => {
                   </h3>
 
                   <div className="text-[16px] text-gray-700 font-semibold leading-relaxed mb-4">
-                    {isExpanded ? (
-                      <div>
-                        <p className="mb-3">{item.shortDescription}</p>
-                        <p className="text-gray-600">{item.fullDescription}</p>
-                      </div>
-                    ) : (
-                      <p>{item.shortDescription}</p>
-                    )}
+                    {/* Helper to render text with markdown-style links and bolding */}
+                    {(() => {
+                      const renderWithLinks = (text: string) => {
+                        return text.split(/(\*\*.*?\*\*|\[.*?\]\(.*?\))/g).map((part, i) => {
+                          if (part.startsWith('**') && part.endsWith('**')) {
+                            return <strong key={i} className="font-black text-[#001A33]">{part.slice(2, -2)}</strong>;
+                          }
+                          if (part.startsWith('[') && part.includes('](')) {
+                            const match = part.match(/\[(.*?)\]\((.*?)\)/);
+                            if (match) {
+                              return (
+                                <a key={i} href={match[2]} className="text-[#10B981] font-black border-b border-[#10B981]/30 hover:border-[#10B981] transition-all">
+                                  {match[1]}
+                                </a>
+                              );
+                            }
+                          }
+                          return part;
+                        });
+                      };
+
+                      return isExpanded ? (
+                        <div className="space-y-4">
+                          <p className="text-gray-800">{renderWithLinks(item.shortDescription)}</p>
+                          <p className="text-gray-600 border-l-4 border-[#10B981]/20 pl-4 italic">{renderWithLinks(item.fullDescription)}</p>
+
+                          {item.faqs && item.faqs.length > 0 && (
+                            <div className="mt-6 pt-6 border-t border-gray-100">
+                              <h4 className="text-lg font-black text-[#001A33] mb-4 flex items-center gap-2">
+                                <HelpCircle size={20} className="text-[#10B981]" />
+                                Tactical Tour Intelligence (FAQs)
+                              </h4>
+                              <div className="space-y-4">
+                                {item.faqs.map((faq, fIdx) => (
+                                  <div key={fIdx} className="bg-gray-50 rounded-xl p-4 border border-gray-100">
+                                    <p className="font-black text-[#001A33] mb-2">Q: {faq.q}</p>
+                                    <div className="text-gray-700 font-medium text-[15px] leading-relaxed">
+                                      {renderWithLinks(faq.a)}
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      ) : (
+                        <p>{renderWithLinks(item.shortDescription)}</p>
+                      );
+                    })()}
                   </div>
 
                   {/* See More/Less Button */}
@@ -1223,7 +1450,7 @@ const CityPage: React.FC<CityPageProps> = ({ country, city }) => {
       console.log('CityPage - Response status:', response.status);
 
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        throw new Error(`HTTP error! status: ${response.status} `);
       }
 
       const data = await response.json();
@@ -1253,7 +1480,7 @@ const CityPage: React.FC<CityPageProps> = ({ country, city }) => {
           // Ensure all tours have slugs
           const toursWithSlugs = toursArray.map((tour: any) => ({
             ...tour,
-            slug: tour.slug || `tour-${tour.id}` // Fallback slug if missing
+            slug: tour.slug || `tour - ${tour.id} ` // Fallback slug if missing
           }));
           console.log('CityPage - ✅ Setting tours:', toursWithSlugs.length);
           console.log('CityPage - Tour titles:', toursWithSlugs.map((t: any) => t.title));
@@ -1302,10 +1529,10 @@ const CityPage: React.FC<CityPageProps> = ({ country, city }) => {
   // Get city info with defaults
   const cityInfo = CITY_DESCRIPTIONS[city] || {
     title: `${city} Tours & Things to Do | Guided Experiences by Locals`,
-    description: `Discover the best tours in ${city} with licensed local guides. Book authentic experiences and cultural tours.`,
+    description: `Discover the best tours in ${city} with licensed local guides.Book authentic experiences and cultural tours.`,
     intro: [
       `${city} offers rich cultural experiences and historical sites waiting to be explored.`,
-      `At AsiaByLocals, discover expert-led tours in ${city} hosted by licensed local guides. Explore authentic, locally curated experiences that showcase the best of ${city}.`
+      `At AsiaByLocals, discover expert - led tours in ${city} hosted by licensed local guides.Explore authentic, locally curated experiences that showcase the best of ${city}.`
     ],
     whyBook: [
       'Licensed & experienced local experts',
@@ -1522,7 +1749,24 @@ const CityPage: React.FC<CityPageProps> = ({ country, city }) => {
         {/* Intro Content - 2-3 Paragraphs (Mandatory for SEO) */}
         <div className="mb-10 space-y-4 text-[16px] text-gray-700 font-semibold leading-relaxed max-w-4xl">
           {cityInfo.intro.map((paragraph, index) => (
-            <p key={index}>{paragraph}</p>
+            <p key={index}>
+              {paragraph.split(/(\*\*.*?\*\*|\[.*?\]\(.*?\))/g).map((part, i) => {
+                if (part.startsWith('**') && part.endsWith('**')) {
+                  return <strong key={i} className="font-black text-[#001A33]">{part.slice(2, -2)}</strong>;
+                }
+                if (part.startsWith('[') && part.includes('](')) {
+                  const match = part.match(/\[(.*?)\]\((.*?)\)/);
+                  if (match) {
+                    return (
+                      <a key={i} href={match[2]} className="text-[#10B981] font-black border-b border-[#10B981]/30 hover:border-[#10B981] transition-all">
+                        {match[1]}
+                      </a>
+                    );
+                  }
+                }
+                return part;
+              })}
+            </p>
           ))}
         </div>
 
@@ -1837,9 +2081,28 @@ const CityPage: React.FC<CityPageProps> = ({ country, city }) => {
                   <h3 className="text-[18px] font-black text-[#001A33] mb-2">
                     {faq.question}
                   </h3>
-                  <p className="text-[16px] text-gray-700 font-semibold leading-relaxed">
-                    {faq.answer}
-                  </p>
+                  <div className="text-[16px] text-gray-700 font-semibold leading-relaxed space-y-2">
+                    {faq.answer.split('\n').map((line, lIdx) => (
+                      <p key={lIdx}>
+                        {line.split(/(\*\*.*?\*\*|\[.*?\]\(.*?\))/g).map((part, pIdx) => {
+                          if (part.startsWith('**') && part.endsWith('**')) {
+                            return <strong key={pIdx} className="text-[#001A33] font-black">{part.slice(2, -2)}</strong>;
+                          }
+                          if (part.startsWith('[') && part.includes('](')) {
+                            const match = part.match(/\[(.*?)\]\((.*?)\)/);
+                            if (match) {
+                              return (
+                                <a key={pIdx} href={match[2]} className="text-[#10B981] font-black border-b border-[#10B981]/30 hover:border-[#10B981] transition-all">
+                                  {match[1]}
+                                </a>
+                              );
+                            }
+                          }
+                          return part;
+                        })}
+                      </p>
+                    ))}
+                  </div>
                 </div>
               ))}
             </div>

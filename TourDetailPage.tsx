@@ -77,6 +77,7 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
   });
   const [bookingError, setBookingError] = useState<string | null>(null);
   const [expandedOptions, setExpandedOptions] = useState<Set<number>>(new Set());
+  const [expandedFAQs, setExpandedFAQs] = useState<Set<number>>(new Set([0, 1, 2])); // First 3 open by default
 
 
   const toggleOptionExpand = (optionId: number) => {
@@ -86,6 +87,18 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
         newSet.delete(optionId);
       } else {
         newSet.add(optionId);
+      }
+      return newSet;
+    });
+  };
+
+  const toggleFAQExpand = (idx: number) => {
+    setExpandedFAQs(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(idx)) {
+        newSet.delete(idx);
+      } else {
+        newSet.add(idx);
       }
       return newSet;
     });
@@ -1915,17 +1928,28 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
                   {(() => {
                     if (!tour.fullDescription) return null;
 
-                    // Helper to render inline markdown (bold and italics)
+                    // Helper to render inline markdown (bold, italics, and links)
                     const renderMarkdownText = (text: string) => {
-                      // First handle bold (**text**)
-                      const boldParts = text.split(/(\*\*.*?\*\*)/g);
+                      // First handle links [label](url) and bold (**text**)
+                      const regex = /(\*\*.*?\*\*|\[.*?\]\(.*?\))/g;
+                      const parts = text.split(regex);
 
-                      return boldParts.map((part, i) => {
+                      return parts.map((part, i) => {
                         if (part.startsWith('**') && part.endsWith('**')) {
                           return <span key={`b-${i}`} className="font-black text-[#001A33]">{part.slice(2, -2)}</span>;
                         }
+                        if (part.startsWith('[') && part.includes('](')) {
+                          const match = part.match(/\[(.*?)\]\((.*?)\)/);
+                          if (match) {
+                            return (
+                              <a key={`l-${i}`} href={match[2]} className="text-[#10B981] font-black border-b border-[#10B981]/30 hover:border-[#10B981] transition-all">
+                                {match[1]}
+                              </a>
+                            );
+                          }
+                        }
 
-                        // Then handle italics (*text*) within non-bold parts
+                        // Then handle italics (*text*) within remaining parts
                         const italicParts = part.split(/(\*.*?\*)/g);
                         return italicParts.map((iPart, j) => {
                           if (iPart.startsWith('*') && iPart.endsWith('*')) {
@@ -2702,8 +2726,166 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
               </div>
               <div className="space-y-8 max-w-4xl">
                 {(() => {
+                  // Check for tour-specific intelligence from our high-authority Agra data
+                  const getTourSpecificFAQs = (title: string, slug?: string) => {
+                    const t = title.toLowerCase();
+
+                    // Specific handling for the high-intent Sunrise Tour slug
+                    if (slug === 'taj-mahal-sunrise-sunrise-tour') {
+                      return [
+                        {
+                          question: "What time is hotel pickup for sunrise tour in Agra?",
+                          answer: "Typically, hotel pickup in Agra for our sunrise tour occurs between **5:15 AM and 5:45 AM**, calculated specifically to ensure you reach the monument gates approximately 15 minutes before the first light touches the white marble. During the peak summer months of April to June, the sun rises significantly earlier, necessitating the 5:15 AM start. Conversely, in the winter months of December and January, we might adjust this slightly later based on visibility protocols. We prioritize being among the first in the security queue because the atmosphere of the 'Blue Hour'—the period just before technical sunrise—offers a unique, ethereal stillness that mid-day visitors never experience. Your guide will coordinate the exact timing with you the evening before based on real-time weather forecasts."
+                        },
+                        {
+                          question: "Which Taj Mahal gate do we enter for sunrise?",
+                          answer: "We almost exclusively utilize the **East Gate** for our sunrise expeditions. Logistically, the East Gate is positioned closest to the majority of high-end hotel clusters and offers a more streamlined queueing experience compared to the busier West Gate, which serves the dense local market areas. For travelers on a focused [1-day itinerary](/india/agra/1-day-agra-itinerary), efficiency is essential. The East Gate features dedicated security lanes for high-value pre-booked digital tickets, which our guides use to expedite your entrance. Additionally, the parking area for the East Gate is well-connected by electric battery buses, which provide a pleasant 5-minute ride to the main entrance, saving you from a long walk in the early morning humidity."
+                        },
+                        {
+                          question: "How much time do we spend inside Taj Mahal?",
+                          answer: "A high-quality guided experience typically lasts between **2 to 2.5 hours**, which allows for deep historical storytelling and plenty of time for professional-grade photography without rushing. This duration covers the entrance through the Great Gate (Darwaza-i-rauza), a detailed walkthrough of the Charbagh gardens, and a thorough exploration of the main mausoleum platform. Your guide will explain the intricate pietra dura marble inlay, the optical illusions of the calligraphy, and the symmetrical architecture of the flanking mosque and guesthouse. If you find yourself captivated by the morning light, our guides are happy to adjust the pace, ensuring you have enough time to soak in the atmosphere before the mid-morning crowds start to saturate the complex."
+                        },
+                        {
+                          question: "Does skip-the-line mean skipping security too?",
+                          answer: "It is critical to understand that 'Skip-The-Line' applies specifically to the **official ASI ticket window**, which can often have queues exceeding 60 minutes during peak season. It does **NOT** allow any visitor to bypass the mandatory security screening conducted by the Central Industrial Security Force (CISF). Every visitor, regardless of ticket status, must pass through metal detectors and physical baggage checks as per national [safety guidelines](/safety-guidelines). To ensure the fastest possible throughput, we recommend bringing only your phone, camera, and a bottle of water; avoid bringing large bags, electronics other than your camera, or prohibited items like tobacco or sharp objects, as these will cause significant delays at the security scanners."
+                        },
+                        {
+                          question: "Is this an official licensed guide?",
+                          answer: "Yes, all our experts are strictly **ASI-licensed historians** who have passed rigorous examinations conducted by the Ministry of Tourism, Government of India. Unlike unauthorized street guides or 'lapkas' who often provide inaccurate myths, our guides are verified professionals legally authorized to guide in all national monuments. This licensing ensures you receive historically accurate data regarding the Mughal Empire, the political significance of the tomb, and the technical marvels of 17th-century engineering. Using a licensed professional also protects you from aggressive commission-based shopping tactics, as our guides are committed to a service-first experience that prioritizes your education and comfort over commercial diversions."
+                        },
+                        {
+                          question: "Are monument tickets included in the price?",
+                          answer: "Depending on the specific package you select during checkout, monument entry tickets are either bundled into the all-inclusive price or left as an 'add-on' for travelers who prefer flexibility. For a completely hassle-free morning, we strongly recommend the **All-Inclusive option**, which covers the guide, the private vehicle, and the high-value 'mausoleum supplement' tickets. Having us pre-purchase these digital QR codes is the only way to avoid the physical ticket counters. If you choose a 'Guide Only' service, please ensure you have your tickets ready on your phone before the pickup time, as the [Taj Mahal ticket price 2026](/india/agra/taj-mahal-ticket-price-2026) reflects a complex tiered system for domestic and international visitors that is difficult to navigate at 5:30 AM."
+                        },
+                        {
+                          question: "Can I pay entrance fees in cash?",
+                          answer: "No, as of the 2026 season, the Archaeological Survey of India (ASI) has transitioned to a 100% digital ticketing ecosystem. Cash is no longer accepted at any of the physical monument gates in Agra. All entry tickets must be purchased online through the official government portal or authorized travel partners. This move was implemented to reduce black-marketing and to streamline the entry process for international tourists. Our tours typically include pre-booked tickets to ensure you don't have to struggle with international credit card processing issues on the slow government website. If you are traveling independently, you must scan a QR code at the gate to book via your mobile device, which can be unreliable due to network congestion near the monument."
+                        },
+                        {
+                          question: "Is sunrise actually better than sunset?",
+                          answer: "Sunrise is widely considered the **platinum standard** for visiting the Taj Mahal for several tactical reasons. Firstly, the crowd density at 6:00 AM is roughly 70% lower than at sunset, allowing for those iconic unobstructed views of the reflecting pools. Secondly, the ambient temperature in Agra can exceed 40°C by mid-afternoon, making a sunset visit physically exhausting, whereas the sunrise air is crisp and comfortable. From an aesthetic perspective, the marble transitions through a unique palette of soft greys, lavenders, and golden pinks that only occurs during the 'Golden Hour' of the morning. Most photographers prefer this light as it minimizes the harsh shadows found later in the day during a standard [agra travel guide 2026](/india/agra/agra-travel-guide-2026) exploration."
+                        },
+                        {
+                          question: "What if it’s foggy during sunrise?",
+                          answer: "During the peak winter months of December and January, morning fog is a common occurrence in the Yamuna River basin. While heavy fog can obscure the monument's first light, it creates a unique, hauntingly beautiful atmosphere that many professional landscape photographers actually prefer. If visibility is exceptionally low at the 6:00 AM opening, our guides will adjust the narrative pace of the tour. They will focus first on the historical gateways, the red sandstone mosque, and the architectural narratives of the outer complex buildings. As the sun burns off the mist around 8:30 AM, the Taj Mahal slowly reveals itself through the white shroud—a dramatic and unforgettable reveal that provides a more emotional experience than a clear-day visit."
+                        },
+                        {
+                          question: "Is this tour suitable for elderly travelers?",
+                          answer: "Absolutely. The early morning tour is significantly better for senior travelers because it avoids the physical strain of the intense Indian afternoon heat. The pathways at the Taj Mahal are relatively flat, though the walk from the battery bus drop-off point to the main gate is approximately 200 meters. For the main mausoleum, there are several wide steps to navigate, but our guides are trained to move at a comfortable, leisurely pace that respects your stamina. We also prioritize the East Gate entrance, which has the most reliable golf-cart shuttle system. If mobility is a major concern, please let us know in advance, and we can pre-arrange for the closest possible vehicle drop-off to minimize walking distance during your [visit to the Taj](/india/agra/taj-mahal-opening-time)."
+                        },
+                        {
+                          question: "What happens if sunrise is cloudy or foggy?",
+                          answer: "If the sky is overcast or fog is present, the 'Golden Hour' glow might be muted, but the historical and academic depth of the tour remains fully intact. Clouds actually provide soft, even lighting that is excellent for capturing the intricate details of the marble inlay and calligraphy without the high-contrast glare of direct sunlight. Our licensed guides are experts at pivoting the experience; instead of focusing solely on the 'sunrise moment,' they will dive deeper into the architectural symbolism of the Charbagh garden or the tales of the Mughal court. We ensure that even without a clear sun, your intellectual and visual appreciation of the world's most famous monument is not compromised by the erratic weather of the North Indian plains."
+                        },
+                        {
+                          question: "Is there refund if visibility is zero?",
+                          answer: "In accordance with our [terms and conditions](/terms-and-conditions), we do not offer refunds due to weather-related visibility issues. The monument remains open, and the significant costs associated with private transportation, ASI-licensed guide services, and entry tickets are non-recoverable once the tour has commenced. However, zero visibility is extremely rare; even in heavy fog, the Taj Mahal is visible from the main platform. The value of our tour lies in the expert historical narrative and the seamless logistics that get you inside the gates efficiently. A foggy day often results in a more intimate and less crowded visit, which many of our previous guests have rated as one of their most atmospheric and memorable travel experiences."
+                        },
+                        {
+                          question: "What months have heavy fog in Agra?",
+                          answer: "Heavy fog is primarily a winter phenomenon in Northern India, occurring most frequently between **mid-December and late January**. During these six weeks, the cold air from the Himalayas meets the moisture of the Yamuna River, creating thick morning mists. If you are highly sensitive to visibility for photography, we recommend planning your visit for late February through November. However, the fog usually begins to dissipate by 9:00 AM or 10:00 AM. Our guides monitor the local visibility alerts daily and will keep you informed if a slight delay in the start time would yield a better visual result while still avoiding the peak midday crowds that appear after the morning mist clears."
+                        },
+                        {
+                          question: "Can I bring tripod or drone?",
+                          answer: "Drones are strictly prohibited in the entire Agra region, especially near the Taj Mahal, which is a protected 'No-Fly Zone' for security reasons. Attempting to fly a drone will lead to immediate confiscation and potential legal action by the CISF. Similarly, professional tripods are not permitted inside the Taj Mahal complex without heavily restricted (and expensive) government permits. Even 'Vlogging' tripods or large monopods are often rejected at the security scanners. To ensure a smooth entry, we recommend relying on handheld photography. Our guides are experts at finding 'symmetry points' and steady ledges where you can rest your camera for long-exposure shots, or they can assist you in capturing high-quality photos using your smartphone’s stabilized lenses."
+                        },
+                        {
+                          question: "Are professional photos included?",
+                          answer: "While this is a sophisticated historical and cultural tour rather than a dedicated commercial photoshoot, our guides have assisted thousands of travelers and know exactly where the 'Golden Points' are located. They will help you capture the classic shots—like the Diana Bench view and the marble reflections—using your own equipment. If you require a professional photographer with a DSLR and post-processing services, we can arrange this as a specialized 'add-on' to your booking. However, most guests find that the combination of our guide's local knowledge of angles and modern smartphone capabilities results in an exceptional gallery of memories. This allows you to stay focused on the history while still coming away with professional-looking social media content from your [places to visit in Agra](/india/agra/places-to-visit-in-agra)."
+                        },
+                        {
+                          question: "Can the guide take Instagram-style photos?",
+                          answer: "Yes, our guides are well-versed in modern social media aesthetics and are happy to assist in capturing high-impact shots at the Taj Mahal's most iconic locations. They understand the nuances of 'symmetry points'—specific spots along the reflecting pools and the flanking guest houses where the architecture perfectly frames the subject. While their primary role is as a licensed historian, they recognize that travel memories are visual. They can help with posing, finding the right lighting during the Golden Hour, and avoiding the background crowds. This personalized assistance ensures that your personal gallery reflects the true majesty of the Taj Mahal while allowing you to remain fully immersed in the stories of Emperor Shah Jahan and Mumtaz Mahal."
+                        },
+                        {
+                          question: "How crowded is Taj Mahal at sunrise?",
+                          answer: "At the 6:00 AM opening, the crowd density is at its daily minimum. You will primarily be sharing the complex with other dedicated sunrise enthusiasts and professional photographers. This is the only time of day when you can experience the monument in relative silence, before the noise of thousands of day-trippers from Delhi begins to fill the space. However, it is important to note that 'not crowded' is relative; as one of the Seven Wonders, there will always be other visitors. By 8:30 AM, the first wave of mass-market tour buses arrives, and the energy changes significantly. This is why our strategic 5:15 AM start is non-negotiable for those seeking the premium, peaceful experience that defines our high-authority [things to do in Agra](/india/agra/things-to-do-in-agra) ranking."
+                        },
+                        {
+                          question: "Is winter sunrise too cold for kids?",
+                          answer: "Winter mornings in Agra (December to February) can be surprisingly chilly, with temperatures often dropping to 5°C or 8°C (40°F-45°F) before sunrise. For families traveling with children, we recommend a robust layering strategy: a warm jacket, a scarf, and comfortable walking shoes are essential. However, the biting cold is short-lived. Once the sun breaks the horizon around 7:00 AM, the temperature rises rapidly, often reaching a perfect 20°C (68°F) by the end of the tour. Children usually find the early morning golf-cart ride and the vast gardens of the Taj Mahal quite exciting. The absence of the oppressive midday heat makes them much less irritable than they would be during a standard afternoon visit, provided they have a light snack before the early start."
+                        },
+                        {
+                          question: "Can I re-enter Taj Mahal later in the day?",
+                          answer: "No, the Taj Mahal entry ticket is strictly **single-entry only**. The digital QR code on your ticket is scanned upon entry and then 'marked' as used in the ASI system. Once you pass through the exit turnstiles at the East or West gates, you cannot re-enter the complex using the same ticket. If you wish to witness the monument again at sunset from within the gardens, you would be required to purchase a completely new ticket at the standard [taj mahal ticket price 2026](/india/agra/taj-mahal-ticket-price-2026). This is why we focus on maximizing your 2-hour morning window; it provides the best lighting and crowd conditions, ensuring you don't feel the need to return during the hot, crowded afternoon hours."
+                        },
+                        {
+                          question: "What is the difference between East and West gate entry?",
+                          answer: "The East Gate is generally preferred by international travelers and those staying in the 'Taj Ganj' luxury hotel district. It tends to have a more orderly security process and is further away from the city's chaotic central markets, making for a calmer start to the day. The West Gate is the primary entrance for the local population and budget travelers staying near the Agra Fort railway station. While both gates lead to the same entrance courtyard, the West Gate often suffers from longer queues as it handles a higher volume of last-minute ticketed visitors. For our sunrise tours, the East Gate is our strategic default choice because it ensures our guests spend less time in line and more time witnessing the light transition on the Taj Mahal's domes."
+                        },
+                        {
+                          question: "Is shoe cover included?",
+                          answer: "Yes, when you book a tour with us that includes the 'Main Mausoleum' access, high-quality shoe covers are provided as part of the monument supplement fee. These covers allow you to walk directly onto the elevated white marble platform and enter the interior cenotaph chamber without having to remove your footwear. This is a significant convenience, as the marble can be quite cold in winter or incredibly hot in summer. Without covers, you would be required to leave your shoes at an unsupervised rack or a paid counter. By using the provided covers, you maintain your comfort and hygiene while fully respecting the religious and historical sanctity of the tomb area, as outlined in our comprehensive [agra travel guide 2026](/india/agra/agra-travel-guide-2026)."
+                        },
+                        {
+                          question: "Are washrooms available inside the complex?",
+                          answer: "Clean, government-managed washroom facilities are located within the Taj Mahal complex, typically situated near the ticket checking areas and the entry paths to the main gardens. There are also pay-per-use 'Western-style' restrooms just outside the East and West gate security checkpoints. While these facilities are maintained regularly by the ASI, they can become quite busy as the morning progresses. We recommend using the facilities at your hotel before the 5:30 AM pickup to ensure your focus remains entirely on the monument's beauty. If you do need a break during the tour, simply inform your guide, and they will coordinate the best time to visit the internal facilities, ideally during a transition between the garden exploration and the mausoleum walkthrough."
+                        },
+                        {
+                          question: "Is breakfast included after the tour?",
+                          answer: "Standard guide-only morning tours do not include breakfast, but the timing is designed to get you back to your hotel or a local restaurant just as the morning meal service begins. If you have booked an 'All-Inclusive' package with us, we can often include a refined breakfast at one of Agra's most respected multi-cuisine restaurants or even a 5-star hotel buffet near the East Gate. Many guests prefer to return to their own hotel for breakfast around 9:00 AM to freshen up before continuing with the rest of their [1-day itinerary](/india/agra/1-day-agra-itinerary). If you would like us to pre-reserve a table at a local 'Agra Special' breakfast spot for Jalebi and Bedai, please request this at the time of booking."
+                        },
+                        {
+                          question: "Can I customize timing if I’m staying outside city center?",
+                          answer: "Absolutely. Since all our tours are 100% private, we offer full flexibility for customization. If your accommodation is located on the outskirts of Agra or if you are arriving early morning via the Yamuna Expressway from Delhi, we will calibrate the pickup time accordingly. The goal is always to synchronize your arrival at the gates with the official [taj mahal opening time](/india/agra/taj-mahal-opening-time). Please provide your exact location during the booking process so our logistics team can calculate the optimal transit time. We can also adjust the tour's end-point; for example, we can drop you off at a specific cafe, the Agra Fort, or even the railway station if you are departing shortly after your morning visit."
+                        },
+                        {
+                          question: "Is wheelchair assistance available at sunrise?",
+                          answer: "Yes, wheelchair assistance is available at the Taj Mahal, and it is a service we frequently coordinate for our guests. The Archaeological Survey of India provides basic manual wheelchairs at the main entry gates on a first-come, first-served basis. However, to ensure a seamless experience, we recommend informing us at least 48 hours in advance so our guide can prioritize securing a chair the moment the gates open. Most of the main paths in the Taj Mahal gardens are wheelchair accessible via ramps. While wheelchairs cannot go onto the very top marble platform of the mausoleum due to historical preservation of the steps, our guides will ensure you get the best possible views from the lowered platform and the surrounding reflecting pool areas."
+                        }
+                      ];
+                    }
+
+
+                    if (t.includes('delhi') && t.includes('agra') && t.includes('day trip')) {
+                      return [
+                        { question: "What time do we leave Delhi for a Taj Mahal day tour?", answer: "To maximize your day and experience the Taj Mahal at its most tranquil, we typically recommend a **3:00 AM or 4:00 AM departure** from Delhi. This early start allows you to reach Agra just as the gates open for sunrise, avoiding the heavy morning traffic on the Yamuna Expressway." },
+                        { question: "How long is the Delhi to Agra drive and is the expressway safe?", answer: "The drive from Delhi to Agra via the **Yamuna Expressway** typically takes between **3 to 3.5 hours**. This modern, 6-lane toll road is one of India's best highways, offering a smooth and safe journey. We include all toll taxes, parking, and fuel in your tour package." },
+                        { question: "Is a same-day Taj Mahal tour from Delhi actually worth it?", answer: "Absolutely—thanks to the ultra-fast Yamuna Expressway, a **same-day trip is the most popular way** to visit Agra. A well-structured itinerary easily covers the Taj Mahal, Agra Fort, and a relaxed 5-star lunch." }
+                      ];
+                    }
+                    if (t.includes('official') && t.includes('guide') && t.includes('licensed')) {
+                      return [
+                        { question: "What makes a guide 'official' at the Taj Mahal?", answer: "An **'official' guide** is a professional who has been rigorously vetted and licensed by the **Ministry of Tourism, Government of India (ASI)**. These experts are the only individuals legally authorized to conduct tours inside the Taj Mahal complex." },
+                        { question: "How long does the guided portion of the visit last?", answer: "A standard high-authority tour of the Taj Mahal typically lasts between **2 to 2.5 hours**. This allows your guide enough time to explain the gate architecture, the symmetrical gardens, and the intricate marble inlay work." },
+                        { question: "Is the guide fee separate from the entry ticket?", answer: "Yes, in the 'Guide Only' booking category, the fee covers the professional services of the historian. You must either have your [pre-booked digital tickets](/india/agra/taj-mahal-ticket-price-2026) ready or we can assist you in purchasing them online." }
+                      ];
+                    }
+                    if (t.includes('sunrise') && t.includes('skip') && t.includes('line')) {
+                      return [
+                        { question: "What time is hotel pickup for the sunrise tour in Agra?", answer: "For a true Taj Mahal sunrise experience, hotel pickup in Agra occurs between **5:15 AM and 5:45 AM**, depending on the season and official [sunrise timing](/india/agra/taj-mahal-opening-time). Entering early is the only way to witness the marble transition from soft grey to golden pink." },
+                        { question: "Does skip-the-line mean skipping security too?", answer: "It is important to understand that 'Skip-The-Line' applies specifically to the **official ASI ticket window**. It does **NOT** allow you to bypass the mandatory security screening conducted by the CISF. Every visitor must pass through the metal detectors." },
+                        { question: "What if it is foggy during sunrise in winter?", answer: "During December and January, morning fog is common. While it can obscure the first light, it creates a unique, ethereal atmosphere favored by photographers. Our guides adjust the pace, focusing on gate architecture until the sun burns off the mist." }
+                      ];
+                    }
+                    if (t.includes('female') && t.includes('guide')) {
+                      return [
+                        { question: "Are the female guides licensed by the government?", answer: "Every female guide we partner with is officially **licensed by the Ministry of Tourism, Government of India (ASI)**. They are verified professionals legally authorized to guide in all national monuments, providing both safety and historical accuracy." },
+                        { question: "Is this tour suitable for solo female travelers?", answer: "This tour is specifically engineered for **solo female travelers** seeking the highest level of comfort and security. A professional female guide acts as a 'cultural bridge' and a protective presence, allowing you to focus entirely on the beauty of the monuments." },
+                        { question: "Can the guide assist with saree draping and photography?", answer: "Yes, our female guides are experts in **saree draping** and can assist you with your outfit. They are also familiar with the Taj Mahal's 'symmetry points' for capturing iconic shots without the crowds." }
+                      ];
+                    }
+                    if (t.includes('fatehpur') && t.includes('sikri')) {
+                      return [
+                        { question: "How far is Fatehpur Sikri from Agra and how do we get there?", answer: "Fatehpur Sikri is located approximately **37 kilometers (23 miles)** west of Agra. The drive typically takes 1 to 1.5 hours. Most travelers visit it as a half-day trip or a stop while traveling between [Agra and Jaipur](/india/agra/1-day-agra-itinerary)." },
+                        { question: "Is it worth the extra time compared to more time at the Taj?", answer: "For anyone staying in Agra for more than 24 hours, Fatehpur Sikri is **essential**. It offers a completely different architectural language—a massive, red-sandstone testament to political power and urban living, far less crowded than the Taj." },
+                        { question: "Are guides required for Fatehpur Sikri?", answer: "A [licensed guide](/india/agra/things-to-do-in-agra) is highly recommended because the site is enormous and lacks signage. Without a guide, it is easy to miss the architectural significance of buildings like the 'Iron-Free' pillars." }
+                      ];
+                    }
+                    if (t.includes('ticket') && t.includes('skip')) {
+                      return [
+                        { question: "Is the mausoleum access included in this ticket?", answer: "Yes. Our 'Premium' entry tickets automatically include the **mandatory main mausoleum supplement**. The official price structure requires this extra fee (₹200) to enter the cenotaph chamber where the main marble screens are located." },
+                        { question: "Do I skip the security line with this ticket?", answer: "While this ticket allows you to **bypass the 60-minute ticket-window queue**, all visitors must still undergo the mandatory security screening. No ticket type allows you to skip security, but having your QR code ready significantly speeds up the process." },
+                        { question: "Is a printed copy of the ticket required?", answer: "No, a **digital copy on your smartphone** is perfectly acceptable for the 2026 season. Simply show the QR code to the gate attendants for scanning. We recommend taking a screenshot in case of poor mobile reception near the gates." }
+                      ];
+                    }
+                    return null;
+                  };
+
                   const tourTitle = tour.title || 'this tour';
-                  const tourFAQs = [
+                  const specificFAQs = getTourSpecificFAQs(tourTitle, tourSlug);
+
+                  const tourFAQs = specificFAQs || [
                     {
                       question: `What is specifically included in the ${tourTitle}?`,
                       answer: tour.included || `The ${tourTitle} includes a professional licensed guide, entry tickets to major monuments as per your selection, and a fully customizable itinerary.`
@@ -2718,7 +2900,7 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
                     }
                   ];
 
-                  if (tour.city?.toLowerCase() === 'agra' || tourTitle.toLowerCase().includes('taj mahal')) {
+                  if ((tour.city?.toLowerCase() === 'agra' || tourTitle.toLowerCase().includes('taj mahal')) && !specificFAQs) {
                     tourFAQs.push({
                       question: "Is the Taj Mahal closed on Friday?",
                       answer: "Yes, the Taj Mahal is closed every Friday for religious reasons. Please ensure your tour date for the Taj Mahal does not fall on a Friday."
@@ -2729,17 +2911,60 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
                     });
                   }
 
-                  tourFAQs.push({
-                    question: `Will I receive confirmation after booking the ${tourTitle}?`,
-                    answer: "Yes, once your booking is completed via our secure gateway, you will receive an instant confirmation email with your tour details and guide contact information."
-                  });
+                  if (!specificFAQs) {
+                    tourFAQs.push({
+                      question: `Will I receive confirmation after booking the ${tourTitle}?`,
+                      answer: "Yes, once your booking is completed via our secure gateway, you will receive an instant confirmation email with your tour details and guide contact information."
+                    });
+                  }
 
-                  return tourFAQs.map((faq, idx) => (
-                    <div key={idx} className="border-b border-gray-100 pb-8 last:border-0">
-                      <h3 className="text-[18px] font-black text-[#001A33] mb-3">{faq.question}</h3>
-                      <p className="text-[16px] text-gray-600 font-semibold leading-relaxed">{faq.answer}</p>
-                    </div>
-                  ));
+                  // Helper to render text with markdown-style links and bolding
+                  const renderWithLinks = (text: string) => {
+                    return text.split(/(\*\*.*?\*\*|\[.*?\]\(.*?\))/g).map((part, i) => {
+                      if (part.startsWith('**') && part.endsWith('**')) {
+                        return <strong key={i} className="font-black text-[#001A33]">{part.slice(2, -2)}</strong>;
+                      }
+                      if (part.startsWith('[') && part.includes('](')) {
+                        const match = part.match(/\[(.*?)\]\((.*?)\)/);
+                        if (match) {
+                          return (
+                            <a key={i} href={match[2]} className="text-[#10B981] font-black border-b border-[#10B981]/30 hover:border-[#10B981] transition-all">
+                              {match[1]}
+                            </a>
+                          );
+                        }
+                      }
+                      return part;
+                    });
+                  };
+
+                  return tourFAQs.map((faq, idx) => {
+                    const isExpanded = expandedFAQs.has(idx);
+                    return (
+                      <div key={idx} className="border-b border-gray-100 last:border-0 overflow-hidden">
+                        <button
+                          onClick={() => toggleFAQExpand(idx)}
+                          className="w-full py-6 flex items-center justify-between text-left group"
+                        >
+                          <h3 className="text-[18px] font-black text-[#001A33] group-hover:text-[#10B981] transition-colors pr-8">
+                            {faq.question}
+                          </h3>
+                          <div className={`shrink-0 transition-transform duration-300 ${isExpanded ? 'rotate-180' : ''}`}>
+                            <ChevronDown size={24} className="text-gray-400 group-hover:text-[#10B981]" />
+                          </div>
+                        </button>
+                        <div
+                          className={`grid transition-all duration-300 ease-in-out ${isExpanded ? 'grid-rows-[1fr] opacity-100 mb-8' : 'grid-rows-[0fr] opacity-0'}`}
+                        >
+                          <div className="overflow-hidden">
+                            <div className="text-[16px] text-gray-600 font-semibold leading-relaxed">
+                              {renderWithLinks(faq.answer)}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  });
                 })()}
               </div>
             </section>

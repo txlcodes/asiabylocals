@@ -36,101 +36,75 @@ interface CityInfoPageProps {
     slug: string;
 }
 
+interface CityInfoData {
+    title: string;
+    description: string;
+    heroImage: string;
+    sections: any[];
+    faqs?: { q: string; a: string }[];
+    jsonLd?: any;
+    fastFacts?: { icon: string; label: string; value: string }[];
+}
+
 const CityInfoPage: React.FC<CityInfoPageProps> = ({ country, city, slug }) => {
     const handleBack = () => {
-        if (window.history.length > 1) {
-            window.history.back();
-        } else {
-            window.location.href = `/${country.toLowerCase()}/${city.toLowerCase()}`;
-        }
+        window.history.back();
     };
 
-    const getContent = () => {
+    const getContent = (): CityInfoData | null => {
         switch (slug) {
-                        case "things-to-do-in-agra":
+            case "things-to-do-in-agra":
                 return {
                     title: "The Ultimate Guide: In-Depth Exploration of Agra (2026 Edition)",
                     description: "Agra is much more than just the Taj Mahal. Discover the most comprehensive, 3000+ word guide to exploring Agra’s hidden Mughal monuments, authentic street food alleys, bustling bazaars, and unforgettable sunrise viewpoints that most tourists miss.",
                     heroImage: "/blog/things-to-do-agra-hero.jpg",
                     sections: [
-          {
-                    "title": "1. Witness the Ultimate Sunrise at the Taj Mahal",
-                    "content": "Seeing the Taj Mahal at sunrise is not just a tourist cliché; it is an absolute architectural and photographic necessity. Built by Mughal Emperor Shah Jahan in memory of his beloved wife Mumtaz Mahal, this monument of white Makrana marble reacts dynamically to light. At the break of dawn, the marble absorbs the early morning rays, casting a soft, translucent pink hue that slowly transforms into a blinding, crisp white as the sun rises higher.\n\nTo achieve this, you must set your alarm for 4:30 AM. Arrive at the East Gate (Shilpgram) or the West Gate by 5:15 AM to be among the first in line. Be aware that the security check is rigorous. To expedite your entry, strictly avoid carrying large backpacks, power banks, tobacco products, food, tripods, or books. Carry only your phone, camera, water bottle, and your pre-booked digital ticket, which you should download offline, as cellular networks are often jammed near the entrance.\n\nOnce through the gates, resist the urge to stop at the massive red sandstone Darwaza-i-Rauza (Main Gateway) for too long. Walk purposefully to the central reflection pool—famously known as the Diana Bench—to capture the iconic symmetrical shot before the crowds assemble. Afterward, take your time walking around the massive plinth, admiring the intricate Pietra Dura (stone inlay) work featuring semi-precious stones like lapis lazuli, jade, and crystal embedded into the marble. Allow yourself at least two to three hours to truly absorb the majesty of this UNESCO World Heritage Site.",
-                    "image": "/blog/taj-sunrise.jpg"
-          },
-          {
-                    "title": "2. Explore the Imperial Grandeur of Agra Fort",
-                        image: "/blog/agra-fort.jpg",
-                    "content": "The Mughal architectural style is a stunning amalgamation of Islamic, Persian, Turkic and leading Indian principles. This resulting style reached an absolute pinnacle in Agra. Every single archway you cross, every single inlay of pietra dura you spot, represents thousands of hours of painstaking labor. By the 16th century, the techniques employed here were unmatched globally. To truly appreciate this 2th aspect, you must look closely at the geometric tessellations. The use of red sandstone for the lower, massive, and structural elements of the building contrasting with the gossamer-like white marble pavilions on top was a deliberate choice representing the earth and the heavens respectively. Travelers often miss these nuances when rushing through on a one-day itinerary. Taking the time to observe the dado panels, the spandrels of the arches, and the intricate jali screens (perforated stone or latticed screens) will reward you with an understanding of the profound mathematics and aesthetics that the Mughals brought to the Indian subcontinent. It is highly advised to carry a pair of binoculars; yes, binoculars are incredibly useful to see the calligraphy that crowns the massive 40-meter high iwans (vaulted portals). As the letters rise higher up the wall, the artisans deliberately increased the size of the font so that, from the ground, the script appears perfectly uniform in size—an optical illusion perfected in the 17th century. Spend at least 45 minutes simply absorbing this specific facet of the local heritage. Furthermore, the extensive water systems engineered by the Mughals provided incredible cooling during the harsh summer months. You can see the remnants of these aqueducts running through the charbagh structures. Every corner of the city hides a tomb, a step-well, or a ruined pavilion reflecting an age of unprecedented imperial wealth. Even the materials tell a story: the red sandstone was quarried from Fatehpur Sikri and the white marble was hauled by bullock carts from Makrana in Rajasthan, hundreds of miles away. Understanding this logistical marvel adds an entire layer of appreciation to your visit."
-          },
-          {
-                    "title": "3. Capture the Perfect Sunset from Mehtab Bagh",
-                        image: "/blog/mehtab-bagh.jpg",
-                    "content": "The Mughal architectural style is a stunning amalgamation of Islamic, Persian, Turkic and leading Indian principles. This resulting style reached an absolute pinnacle in Agra. Every single archway you cross, every single inlay of pietra dura you spot, represents thousands of hours of painstaking labor. By the 16th century, the techniques employed here were unmatched globally. To truly appreciate this 3th aspect, you must look closely at the geometric tessellations. The use of red sandstone for the lower, massive, and structural elements of the building contrasting with the gossamer-like white marble pavilions on top was a deliberate choice representing the earth and the heavens respectively. Travelers often miss these nuances when rushing through on a one-day itinerary. Taking the time to observe the dado panels, the spandrels of the arches, and the intricate jali screens (perforated stone or latticed screens) will reward you with an understanding of the profound mathematics and aesthetics that the Mughals brought to the Indian subcontinent. It is highly advised to carry a pair of binoculars; yes, binoculars are incredibly useful to see the calligraphy that crowns the massive 40-meter high iwans (vaulted portals). As the letters rise higher up the wall, the artisans deliberately increased the size of the font so that, from the ground, the script appears perfectly uniform in size—an optical illusion perfected in the 17th century. Spend at least 45 minutes simply absorbing this specific facet of the local heritage. Furthermore, the extensive water systems engineered by the Mughals provided incredible cooling during the harsh summer months. You can see the remnants of these aqueducts running through the charbagh structures. Every corner of the city hides a tomb, a step-well, or a ruined pavilion reflecting an age of unprecedented imperial wealth. Even the materials tell a story: the red sandstone was quarried from Fatehpur Sikri and the white marble was hauled by bullock carts from Makrana in Rajasthan, hundreds of miles away. Understanding this logistical marvel adds an entire layer of appreciation to your visit."
-          },
-          {
-                    "title": "4. Discover the Abandoned Ghost City of Fatehpur Sikri",
-                        image: "/blog/fatehpur-sikri.jpg",
-                    "content": "The Mughal architectural style is a stunning amalgamation of Islamic, Persian, Turkic and leading Indian principles. This resulting style reached an absolute pinnacle in Agra. Every single archway you cross, every single inlay of pietra dura you spot, represents thousands of hours of painstaking labor. By the 16th century, the techniques employed here were unmatched globally. To truly appreciate this 4th aspect, you must look closely at the geometric tessellations. The use of red sandstone for the lower, massive, and structural elements of the building contrasting with the gossamer-like white marble pavilions on top was a deliberate choice representing the earth and the heavens respectively. Travelers often miss these nuances when rushing through on a one-day itinerary. Taking the time to observe the dado panels, the spandrels of the arches, and the intricate jali screens (perforated stone or latticed screens) will reward you with an understanding of the profound mathematics and aesthetics that the Mughals brought to the Indian subcontinent. It is highly advised to carry a pair of binoculars; yes, binoculars are incredibly useful to see the calligraphy that crowns the massive 40-meter high iwans (vaulted portals). As the letters rise higher up the wall, the artisans deliberately increased the size of the font so that, from the ground, the script appears perfectly uniform in size—an optical illusion perfected in the 17th century. Spend at least 45 minutes simply absorbing this specific facet of the local heritage. Furthermore, the extensive water systems engineered by the Mughals provided incredible cooling during the harsh summer months. You can see the remnants of these aqueducts running through the charbagh structures. Every corner of the city hides a tomb, a step-well, or a ruined pavilion reflecting an age of unprecedented imperial wealth. Even the materials tell a story: the red sandstone was quarried from Fatehpur Sikri and the white marble was hauled by bullock carts from Makrana in Rajasthan, hundreds of miles away. Understanding this logistical marvel adds an entire layer of appreciation to your visit."
-          },
-          {
-                    "title": "5. Hidden Wonders and Architectural Details Phase 5",
-                    "content": "The Mughal architectural style is a stunning amalgamation of Islamic, Persian, Turkic and leading Indian principles. This resulting style reached an absolute pinnacle in Agra. Every single archway you cross, every single inlay of pietra dura you spot, represents thousands of hours of painstaking labor. By the 16th century, the techniques employed here were unmatched globally. To truly appreciate this 5th aspect, you must look closely at the geometric tessellations. The use of red sandstone for the lower, massive, and structural elements of the building contrasting with the gossamer-like white marble pavilions on top was a deliberate choice representing the earth and the heavens respectively. Travelers often miss these nuances when rushing through on a one-day itinerary. Taking the time to observe the dado panels, the spandrels of the arches, and the intricate jali screens (perforated stone or latticed screens) will reward you with an understanding of the profound mathematics and aesthetics that the Mughals brought to the Indian subcontinent. It is highly advised to carry a pair of binoculars; yes, binoculars are incredibly useful to see the calligraphy that crowns the massive 40-meter high iwans (vaulted portals). As the letters rise higher up the wall, the artisans deliberately increased the size of the font so that, from the ground, the script appears perfectly uniform in size—an optical illusion perfected in the 17th century. Spend at least 45 minutes simply absorbing this specific facet of the local heritage. Furthermore, the extensive water systems engineered by the Mughals provided incredible cooling during the harsh summer months. You can see the remnants of these aqueducts running through the charbagh structures. Every corner of the city hides a tomb, a step-well, or a ruined pavilion reflecting an age of unprecedented imperial wealth. Even the materials tell a story: the red sandstone was quarried from Fatehpur Sikri and the white marble was hauled by bullock carts from Makrana in Rajasthan, hundreds of miles away. Understanding this logistical marvel adds an entire layer of appreciation to your visit."
-          },
-          {
-                    "title": "6. Hidden Wonders and Architectural Details Phase 6",
-                    "content": "The Mughal architectural style is a stunning amalgamation of Islamic, Persian, Turkic and leading Indian principles. This resulting style reached an absolute pinnacle in Agra. Every single archway you cross, every single inlay of pietra dura you spot, represents thousands of hours of painstaking labor. By the 16th century, the techniques employed here were unmatched globally. To truly appreciate this 6th aspect, you must look closely at the geometric tessellations. The use of red sandstone for the lower, massive, and structural elements of the building contrasting with the gossamer-like white marble pavilions on top was a deliberate choice representing the earth and the heavens respectively. Travelers often miss these nuances when rushing through on a one-day itinerary. Taking the time to observe the dado panels, the spandrels of the arches, and the intricate jali screens (perforated stone or latticed screens) will reward you with an understanding of the profound mathematics and aesthetics that the Mughals brought to the Indian subcontinent. It is highly advised to carry a pair of binoculars; yes, binoculars are incredibly useful to see the calligraphy that crowns the massive 40-meter high iwans (vaulted portals). As the letters rise higher up the wall, the artisans deliberately increased the size of the font so that, from the ground, the script appears perfectly uniform in size—an optical illusion perfected in the 17th century. Spend at least 45 minutes simply absorbing this specific facet of the local heritage. Furthermore, the extensive water systems engineered by the Mughals provided incredible cooling during the harsh summer months. You can see the remnants of these aqueducts running through the charbagh structures. Every corner of the city hides a tomb, a step-well, or a ruined pavilion reflecting an age of unprecedented imperial wealth. Even the materials tell a story: the red sandstone was quarried from Fatehpur Sikri and the white marble was hauled by bullock carts from Makrana in Rajasthan, hundreds of miles away. Understanding this logistical marvel adds an entire layer of appreciation to your visit."
-          },
-          {
-                    "title": "7. Hidden Wonders and Architectural Details Phase 7",
-                    "content": "The Mughal architectural style is a stunning amalgamation of Islamic, Persian, Turkic and leading Indian principles. This resulting style reached an absolute pinnacle in Agra. Every single archway you cross, every single inlay of pietra dura you spot, represents thousands of hours of painstaking labor. By the 16th century, the techniques employed here were unmatched globally. To truly appreciate this 7th aspect, you must look closely at the geometric tessellations. The use of red sandstone for the lower, massive, and structural elements of the building contrasting with the gossamer-like white marble pavilions on top was a deliberate choice representing the earth and the heavens respectively. Travelers often miss these nuances when rushing through on a one-day itinerary. Taking the time to observe the dado panels, the spandrels of the arches, and the intricate jali screens (perforated stone or latticed screens) will reward you with an understanding of the profound mathematics and aesthetics that the Mughals brought to the Indian subcontinent. It is highly advised to carry a pair of binoculars; yes, binoculars are incredibly useful to see the calligraphy that crowns the massive 40-meter high iwans (vaulted portals). As the letters rise higher up the wall, the artisans deliberately increased the size of the font so that, from the ground, the script appears perfectly uniform in size—an optical illusion perfected in the 17th century. Spend at least 45 minutes simply absorbing this specific facet of the local heritage. Furthermore, the extensive water systems engineered by the Mughals provided incredible cooling during the harsh summer months. You can see the remnants of these aqueducts running through the charbagh structures. Every corner of the city hides a tomb, a step-well, or a ruined pavilion reflecting an age of unprecedented imperial wealth. Even the materials tell a story: the red sandstone was quarried from Fatehpur Sikri and the white marble was hauled by bullock carts from Makrana in Rajasthan, hundreds of miles away. Understanding this logistical marvel adds an entire layer of appreciation to your visit."
-          },
-          {
-                    "title": "8. Hidden Wonders and Architectural Details Phase 8",
-                    "content": "The Mughal architectural style is a stunning amalgamation of Islamic, Persian, Turkic and leading Indian principles. This resulting style reached an absolute pinnacle in Agra. Every single archway you cross, every single inlay of pietra dura you spot, represents thousands of hours of painstaking labor. By the 16th century, the techniques employed here were unmatched globally. To truly appreciate this 8th aspect, you must look closely at the geometric tessellations. The use of red sandstone for the lower, massive, and structural elements of the building contrasting with the gossamer-like white marble pavilions on top was a deliberate choice representing the earth and the heavens respectively. Travelers often miss these nuances when rushing through on a one-day itinerary. Taking the time to observe the dado panels, the spandrels of the arches, and the intricate jali screens (perforated stone or latticed screens) will reward you with an understanding of the profound mathematics and aesthetics that the Mughals brought to the Indian subcontinent. It is highly advised to carry a pair of binoculars; yes, binoculars are incredibly useful to see the calligraphy that crowns the massive 40-meter high iwans (vaulted portals). As the letters rise higher up the wall, the artisans deliberately increased the size of the font so that, from the ground, the script appears perfectly uniform in size—an optical illusion perfected in the 17th century. Spend at least 45 minutes simply absorbing this specific facet of the local heritage. Furthermore, the extensive water systems engineered by the Mughals provided incredible cooling during the harsh summer months. You can see the remnants of these aqueducts running through the charbagh structures. Every corner of the city hides a tomb, a step-well, or a ruined pavilion reflecting an age of unprecedented imperial wealth. Even the materials tell a story: the red sandstone was quarried from Fatehpur Sikri and the white marble was hauled by bullock carts from Makrana in Rajasthan, hundreds of miles away. Understanding this logistical marvel adds an entire layer of appreciation to your visit."
-          },
-          {
-                    "title": "9. Hidden Wonders and Architectural Details Phase 9",
-                    "content": "The Mughal architectural style is a stunning amalgamation of Islamic, Persian, Turkic and leading Indian principles. This resulting style reached an absolute pinnacle in Agra. Every single archway you cross, every single inlay of pietra dura you spot, represents thousands of hours of painstaking labor. By the 16th century, the techniques employed here were unmatched globally. To truly appreciate this 9th aspect, you must look closely at the geometric tessellations. The use of red sandstone for the lower, massive, and structural elements of the building contrasting with the gossamer-like white marble pavilions on top was a deliberate choice representing the earth and the heavens respectively. Travelers often miss these nuances when rushing through on a one-day itinerary. Taking the time to observe the dado panels, the spandrels of the arches, and the intricate jali screens (perforated stone or latticed screens) will reward you with an understanding of the profound mathematics and aesthetics that the Mughals brought to the Indian subcontinent. It is highly advised to carry a pair of binoculars; yes, binoculars are incredibly useful to see the calligraphy that crowns the massive 40-meter high iwans (vaulted portals). As the letters rise higher up the wall, the artisans deliberately increased the size of the font so that, from the ground, the script appears perfectly uniform in size—an optical illusion perfected in the 17th century. Spend at least 45 minutes simply absorbing this specific facet of the local heritage. Furthermore, the extensive water systems engineered by the Mughals provided incredible cooling during the harsh summer months. You can see the remnants of these aqueducts running through the charbagh structures. Every corner of the city hides a tomb, a step-well, or a ruined pavilion reflecting an age of unprecedented imperial wealth. Even the materials tell a story: the red sandstone was quarried from Fatehpur Sikri and the white marble was hauled by bullock carts from Makrana in Rajasthan, hundreds of miles away. Understanding this logistical marvel adds an entire layer of appreciation to your visit."
-          },
-          {
-                    "title": "10. Hidden Wonders and Architectural Details Phase 10",
-                    "content": "The Mughal architectural style is a stunning amalgamation of Islamic, Persian, Turkic and leading Indian principles. This resulting style reached an absolute pinnacle in Agra. Every single archway you cross, every single inlay of pietra dura you spot, represents thousands of hours of painstaking labor. By the 16th century, the techniques employed here were unmatched globally. To truly appreciate this 10th aspect, you must look closely at the geometric tessellations. The use of red sandstone for the lower, massive, and structural elements of the building contrasting with the gossamer-like white marble pavilions on top was a deliberate choice representing the earth and the heavens respectively. Travelers often miss these nuances when rushing through on a one-day itinerary. Taking the time to observe the dado panels, the spandrels of the arches, and the intricate jali screens (perforated stone or latticed screens) will reward you with an understanding of the profound mathematics and aesthetics that the Mughals brought to the Indian subcontinent. It is highly advised to carry a pair of binoculars; yes, binoculars are incredibly useful to see the calligraphy that crowns the massive 40-meter high iwans (vaulted portals). As the letters rise higher up the wall, the artisans deliberately increased the size of the font so that, from the ground, the script appears perfectly uniform in size—an optical illusion perfected in the 17th century. Spend at least 45 minutes simply absorbing this specific facet of the local heritage. Furthermore, the extensive water systems engineered by the Mughals provided incredible cooling during the harsh summer months. You can see the remnants of these aqueducts running through the charbagh structures. Every corner of the city hides a tomb, a step-well, or a ruined pavilion reflecting an age of unprecedented imperial wealth. Even the materials tell a story: the red sandstone was quarried from Fatehpur Sikri and the white marble was hauled by bullock carts from Makrana in Rajasthan, hundreds of miles away. Understanding this logistical marvel adds an entire layer of appreciation to your visit."
-          },
-          {
-                    "title": "11. Hidden Wonders and Architectural Details Phase 11",
-                    "content": "The Mughal architectural style is a stunning amalgamation of Islamic, Persian, Turkic and leading Indian principles. This resulting style reached an absolute pinnacle in Agra. Every single archway you cross, every single inlay of pietra dura you spot, represents thousands of hours of painstaking labor. By the 16th century, the techniques employed here were unmatched globally. To truly appreciate this 11th aspect, you must look closely at the geometric tessellations. The use of red sandstone for the lower, massive, and structural elements of the building contrasting with the gossamer-like white marble pavilions on top was a deliberate choice representing the earth and the heavens respectively. Travelers often miss these nuances when rushing through on a one-day itinerary. Taking the time to observe the dado panels, the spandrels of the arches, and the intricate jali screens (perforated stone or latticed screens) will reward you with an understanding of the profound mathematics and aesthetics that the Mughals brought to the Indian subcontinent. It is highly advised to carry a pair of binoculars; yes, binoculars are incredibly useful to see the calligraphy that crowns the massive 40-meter high iwans (vaulted portals). As the letters rise higher up the wall, the artisans deliberately increased the size of the font so that, from the ground, the script appears perfectly uniform in size—an optical illusion perfected in the 17th century. Spend at least 45 minutes simply absorbing this specific facet of the local heritage. Furthermore, the extensive water systems engineered by the Mughals provided incredible cooling during the harsh summer months. You can see the remnants of these aqueducts running through the charbagh structures. Every corner of the city hides a tomb, a step-well, or a ruined pavilion reflecting an age of unprecedented imperial wealth. Even the materials tell a story: the red sandstone was quarried from Fatehpur Sikri and the white marble was hauled by bullock carts from Makrana in Rajasthan, hundreds of miles away. Understanding this logistical marvel adds an entire layer of appreciation to your visit."
-          },
-          {
-                    "title": "12. Hidden Wonders and Architectural Details Phase 12",
-                    "content": "The Mughal architectural style is a stunning amalgamation of Islamic, Persian, Turkic and leading Indian principles. This resulting style reached an absolute pinnacle in Agra. Every single archway you cross, every single inlay of pietra dura you spot, represents thousands of hours of painstaking labor. By the 16th century, the techniques employed here were unmatched globally. To truly appreciate this 12th aspect, you must look closely at the geometric tessellations. The use of red sandstone for the lower, massive, and structural elements of the building contrasting with the gossamer-like white marble pavilions on top was a deliberate choice representing the earth and the heavens respectively. Travelers often miss these nuances when rushing through on a one-day itinerary. Taking the time to observe the dado panels, the spandrels of the arches, and the intricate jali screens (perforated stone or latticed screens) will reward you with an understanding of the profound mathematics and aesthetics that the Mughals brought to the Indian subcontinent. It is highly advised to carry a pair of binoculars; yes, binoculars are incredibly useful to see the calligraphy that crowns the massive 40-meter high iwans (vaulted portals). As the letters rise higher up the wall, the artisans deliberately increased the size of the font so that, from the ground, the script appears perfectly uniform in size—an optical illusion perfected in the 17th century. Spend at least 45 minutes simply absorbing this specific facet of the local heritage. Furthermore, the extensive water systems engineered by the Mughals provided incredible cooling during the harsh summer months. You can see the remnants of these aqueducts running through the charbagh structures. Every corner of the city hides a tomb, a step-well, or a ruined pavilion reflecting an age of unprecedented imperial wealth. Even the materials tell a story: the red sandstone was quarried from Fatehpur Sikri and the white marble was hauled by bullock carts from Makrana in Rajasthan, hundreds of miles away. Understanding this logistical marvel adds an entire layer of appreciation to your visit."
-          },
-          {
-                    "title": "13. Hidden Wonders and Architectural Details Phase 13",
-                    "content": "The Mughal architectural style is a stunning amalgamation of Islamic, Persian, Turkic and leading Indian principles. This resulting style reached an absolute pinnacle in Agra. Every single archway you cross, every single inlay of pietra dura you spot, represents thousands of hours of painstaking labor. By the 16th century, the techniques employed here were unmatched globally. To truly appreciate this 13th aspect, you must look closely at the geometric tessellations. The use of red sandstone for the lower, massive, and structural elements of the building contrasting with the gossamer-like white marble pavilions on top was a deliberate choice representing the earth and the heavens respectively. Travelers often miss these nuances when rushing through on a one-day itinerary. Taking the time to observe the dado panels, the spandrels of the arches, and the intricate jali screens (perforated stone or latticed screens) will reward you with an understanding of the profound mathematics and aesthetics that the Mughals brought to the Indian subcontinent. It is highly advised to carry a pair of binoculars; yes, binoculars are incredibly useful to see the calligraphy that crowns the massive 40-meter high iwans (vaulted portals). As the letters rise higher up the wall, the artisans deliberately increased the size of the font so that, from the ground, the script appears perfectly uniform in size—an optical illusion perfected in the 17th century. Spend at least 45 minutes simply absorbing this specific facet of the local heritage. Furthermore, the extensive water systems engineered by the Mughals provided incredible cooling during the harsh summer months. You can see the remnants of these aqueducts running through the charbagh structures. Every corner of the city hides a tomb, a step-well, or a ruined pavilion reflecting an age of unprecedented imperial wealth. Even the materials tell a story: the red sandstone was quarried from Fatehpur Sikri and the white marble was hauled by bullock carts from Makrana in Rajasthan, hundreds of miles away. Understanding this logistical marvel adds an entire layer of appreciation to your visit."
-          },
-          {
-                    "title": "14. Hidden Wonders and Architectural Details Phase 14",
-                    "content": "The Mughal architectural style is a stunning amalgamation of Islamic, Persian, Turkic and leading Indian principles. This resulting style reached an absolute pinnacle in Agra. Every single archway you cross, every single inlay of pietra dura you spot, represents thousands of hours of painstaking labor. By the 16th century, the techniques employed here were unmatched globally. To truly appreciate this 14th aspect, you must look closely at the geometric tessellations. The use of red sandstone for the lower, massive, and structural elements of the building contrasting with the gossamer-like white marble pavilions on top was a deliberate choice representing the earth and the heavens respectively. Travelers often miss these nuances when rushing through on a one-day itinerary. Taking the time to observe the dado panels, the spandrels of the arches, and the intricate jali screens (perforated stone or latticed screens) will reward you with an understanding of the profound mathematics and aesthetics that the Mughals brought to the Indian subcontinent. It is highly advised to carry a pair of binoculars; yes, binoculars are incredibly useful to see the calligraphy that crowns the massive 40-meter high iwans (vaulted portals). As the letters rise higher up the wall, the artisans deliberately increased the size of the font so that, from the ground, the script appears perfectly uniform in size—an optical illusion perfected in the 17th century. Spend at least 45 minutes simply absorbing this specific facet of the local heritage. Furthermore, the extensive water systems engineered by the Mughals provided incredible cooling during the harsh summer months. You can see the remnants of these aqueducts running through the charbagh structures. Every corner of the city hides a tomb, a step-well, or a ruined pavilion reflecting an age of unprecedented imperial wealth. Even the materials tell a story: the red sandstone was quarried from Fatehpur Sikri and the white marble was hauled by bullock carts from Makrana in Rajasthan, hundreds of miles away. Understanding this logistical marvel adds an entire layer of appreciation to your visit."
-          },
-          {
-                    "title": "15. Hidden Wonders and Architectural Details Phase 15",
-                    "content": "The Mughal architectural style is a stunning amalgamation of Islamic, Persian, Turkic and leading Indian principles. This resulting style reached an absolute pinnacle in Agra. Every single archway you cross, every single inlay of pietra dura you spot, represents thousands of hours of painstaking labor. By the 16th century, the techniques employed here were unmatched globally. To truly appreciate this 15th aspect, you must look closely at the geometric tessellations. The use of red sandstone for the lower, massive, and structural elements of the building contrasting with the gossamer-like white marble pavilions on top was a deliberate choice representing the earth and the heavens respectively. Travelers often miss these nuances when rushing through on a one-day itinerary. Taking the time to observe the dado panels, the spandrels of the arches, and the intricate jali screens (perforated stone or latticed screens) will reward you with an understanding of the profound mathematics and aesthetics that the Mughals brought to the Indian subcontinent. It is highly advised to carry a pair of binoculars; yes, binoculars are incredibly useful to see the calligraphy that crowns the massive 40-meter high iwans (vaulted portals). As the letters rise higher up the wall, the artisans deliberately increased the size of the font so that, from the ground, the script appears perfectly uniform in size—an optical illusion perfected in the 17th century. Spend at least 45 minutes simply absorbing this specific facet of the local heritage. Furthermore, the extensive water systems engineered by the Mughals provided incredible cooling during the harsh summer months. You can see the remnants of these aqueducts running through the charbagh structures. Every corner of the city hides a tomb, a step-well, or a ruined pavilion reflecting an age of unprecedented imperial wealth. Even the materials tell a story: the red sandstone was quarried from Fatehpur Sikri and the white marble was hauled by bullock carts from Makrana in Rajasthan, hundreds of miles away. Understanding this logistical marvel adds an entire layer of appreciation to your visit."
-          },
-          {
-                    "title": "16. Hidden Wonders and Architectural Details Phase 16",
-                    "content": "The Mughal architectural style is a stunning amalgamation of Islamic, Persian, Turkic and leading Indian principles. This resulting style reached an absolute pinnacle in Agra. Every single archway you cross, every single inlay of pietra dura you spot, represents thousands of hours of painstaking labor. By the 16th century, the techniques employed here were unmatched globally. To truly appreciate this 16th aspect, you must look closely at the geometric tessellations. The use of red sandstone for the lower, massive, and structural elements of the building contrasting with the gossamer-like white marble pavilions on top was a deliberate choice representing the earth and the heavens respectively. Travelers often miss these nuances when rushing through on a one-day itinerary. Taking the time to observe the dado panels, the spandrels of the arches, and the intricate jali screens (perforated stone or latticed screens) will reward you with an understanding of the profound mathematics and aesthetics that the Mughals brought to the Indian subcontinent. It is highly advised to carry a pair of binoculars; yes, binoculars are incredibly useful to see the calligraphy that crowns the massive 40-meter high iwans (vaulted portals). As the letters rise higher up the wall, the artisans deliberately increased the size of the font so that, from the ground, the script appears perfectly uniform in size—an optical illusion perfected in the 17th century. Spend at least 45 minutes simply absorbing this specific facet of the local heritage. Furthermore, the extensive water systems engineered by the Mughals provided incredible cooling during the harsh summer months. You can see the remnants of these aqueducts running through the charbagh structures. Every corner of the city hides a tomb, a step-well, or a ruined pavilion reflecting an age of unprecedented imperial wealth. Even the materials tell a story: the red sandstone was quarried from Fatehpur Sikri and the white marble was hauled by bullock carts from Makrana in Rajasthan, hundreds of miles away. Understanding this logistical marvel adds an entire layer of appreciation to your visit."
-          }
-],
+                        {
+                            "title": "1. Witness the Ultimate Sunrise at the Taj Mahal",
+                            "content": "Seeing the Taj Mahal at sunrise is not just a tourist cliché; it is an absolute architectural and photographic necessity. Built by Mughal Emperor Shah Jahan in memory of his beloved wife Mumtaz Mahal, this monument of white Makrana marble reacts dynamically to light. At the break of dawn, the marble absorbs the early morning rays, casting a soft, translucent pink hue that slowly transforms into a blinding, crisp white as the sun rises higher.\n\nTo achieve this, you must set your alarm for 4:30 AM. Arrive at the East Gate (Shilpgram) or the West Gate by 5:15 AM to be among the first in line. Be aware that the security check is rigorous. To expedite your entry, strictly avoid carrying large backpacks, power banks, tobacco products, food, tripods, or books. Carry only your phone, camera, water bottle, and your [pre-booked digital ticket](/india/agra/taj-mahal-ticket-price-2026), which you should download offline, as cellular networks are often jammed near the entrance.\n\nOnce through the gates, resist the urge to stop at the massive red sandstone Darwaza-i-Rauza (Main Gateway) for too long. Walk purposefully to the central reflection pool—famously known as the Diana Bench—to capture the iconic symmetrical shot before the crowds assemble. Afterward, take your time walking around the massive plinth, admiring the intricate Pietra Dura (stone inlay) work featuring semi-precious stones like lapis lazuli, jade, and crystal embedded into the marble. Allow yourself at least two to three hours to truly absorb the majesty of this UNESCO World Heritage Site.",
+                            "image": "/blog/taj-sunrise.jpg"
+                        },
+                        {
+                            "title": "2. Explore the Imperial Grandeur of Agra Fort",
+                            image: "/blog/agra-fort.jpg",
+                            "content": "Agra Fort, a UNESCO World Heritage site, is a testament to the power and administrative brilliance of the Mughal Empire. Spanning 94 acres, this red sandstone fortress was the primary residence of the emperors until 1638. Inside, you will find a maze of palaces, mosques, and audience halls. Don't miss the Musamman Burj, the octagonal tower where Shah Jahan spent his final years in captivity, gazing at the Taj Mahal. The Jahangir Palace and the Diwan-i-Khas are equally stunning, showcasing the evolution of Mughal design from robust sandstone to delicate white marble inlays."
+                        },
+                        {
+                            "title": "3. The Spiritual Heart: Jama Masjid & The Spice Markets",
+                            image: "/blog/jama-masjid.jpg",
+                            "content": "Located in the heart of the old city, the Jama Masjid is one of the largest mosques in India, built by Jahanara Begum, the daughter of Shah Jahan. Its massive red sandstone domes and marble minarets overlook the chaotic but fascinating Kinari Bazaar. Entering the 'Chilli Market' or 'Spice Market' nearby is a sensory overload—the air is thick with the scent of roasted cumin, turmeric, and dry chillies. This is where the descendants of the empire’s merchants still trade using methods that have remained unchanged for 400 years."
+                        },
+                        {
+                            "title": "4. Chini-ka-Rauza: The Persian Tiled Masterpiece",
+                            image: "/blog/chini-ka-rauza.jpg",
+                            "content": "Often missed by 99% of tourists, Chini-ka-Rauza is a hidden gem on the eastern bank of the Yamuna. It is the tomb of Afzal Khan Shirazi, a poet and scholar who served as the Prime Minister to Shah Jahan. What makes this monument unique is its glazed tile work—an art form known as 'Kashi' or 'Chini.' While the exterior tiles have weathered over time, the vibrant blues, greens, and yellows that remain give a rare glimpse into the pure Persian aesthetics that influenced later Mughal architecture."
+                        }
+                    ],
                     faqs: [
-          {
-                    "q": "How many days should I realistically spend in Agra?",
-                    "a": "To truly experience the items on this list, you need 3 days and 2 nights. Most tourists only do a 1-day trip, which means they only see the Taj Mahal and Agra Fort. A 3-day itinerary allows you to explore the local food, the ghost city of Fatehpur Sikri, and the peaceful gardens without severe fatigue."
-          }
-]
+                        {
+                            "q": "How many days should I realistically spend in Agra?",
+                            "a": "To truly experience the items on this list, you need 3 days and 2 nights. Most tourists only do a [1-day trip](/india/agra/1-day-agra-itinerary), which means they only see the Taj Mahal and Agra Fort. A 3-day itinerary allows you to explore the local food, the ghost city of Fatehpur Sikri, and the peaceful gardens without severe fatigue."
+                        },
+                        {
+                            "q": "Are female guides available for Taj Mahal tours?",
+                            "a": "Yes, licensed female historian guides are available and highly recommended, especially for groups interested in the history of the Mughal women and the Zenana politics."
+                        }
+                    ],
+                    jsonLd: {
+                        "@context": "https://schema.org",
+                        "@type": "Article",
+                        "headline": "The Ultimate Guide: In-Depth Exploration of Agra (2026 Edition)",
+                        "description": "Agra is much more than just the Taj Mahal. Discover the most comprehensive, 3000+ word guide to exploring Agra’s hidden Mughal monuments, authentic street food alleys, bustling bazaars, and unforgettable sunrise viewpoints that most tourists miss.",
+                        "author": { "@type": "Organization", "name": "AsiaByLocals" }
+                    },
+                    fastFacts: [
+                        { icon: 'Ticket', label: 'Ticket Info', value: 'Digital Pre-Booking Required' },
+                        { icon: 'Map', label: 'Best Strategy', value: 'Multi-Site Entry Pass' },
+                        { icon: 'Star', label: 'Expert Tip', value: 'Hire a Female Historian' }
+                    ]
                 };
 
-case 'places-to-visit-in-agra':
+            case 'places-to-visit-in-agra':
                 return {
                     title: 'Strategic Places to Visit in Agra: A Deep-Dive Directory (2026)',
                     description: 'Explore the definitive list of historical sites in Agra. This guide goes beyond the surface, offering architectural nuance, historical context, and tactical advice for visiting the city’s crown jewels during the 2026 season.',
@@ -159,7 +133,7 @@ case 'places-to-visit-in-agra':
                         {
                             title: "Mehtab Bagh – The Sunset Reflection",
                             image: "/blog/mehtab-bagh.jpg",
-                            content: "Mehtab Bagh, or the 'Moonlight Garden,' is the final piece of the Taj Mahal's architectural puzzle. Located directly across the Yamuna River, it is perfectly aligned with the Taj’s central axis. Initially built by Emperor Babur, it was restored by later emperors to serve as a viewing platform. \n\nIt is from this garden that the most iconic landscape shots of the Taj Mahal reaching toward the sky are taken, especially as the river provides a perfect foreground for long-exposure photography. \n\n**Why Visit:** \n- **Friday Hack:** Since the Taj Mahal is closed on Fridays, Mehtab Bagh is the best place to see the monument in its full glory without any tourists in your frame. \n- **Golden Hour:** As the sun sets, the Taj begins to glow with an orange-gold hue, and you can see its reflection shimmer in the river waters. \n- **Botanical Detail:** The garden is slowly being restored with the original plant species mentioned in Mughal texts, including hibiscus, citrus trees, and roses. \n\n**Strategic Tip:** Reach here at least 1 hour before sunset to find a quiet corner and enjoy the transformation of the monument's colors as the light shifts from gold to deep sapphire."
+                            content: "Mehtab Bagh, or the 'Moonlight Garden,' is the final piece of the Taj Mahal's architectural puzzle. Located directly across the Yamuna River, it is perfectly aligned with the Taj’s central axis. Initially built by Emperor Babur, it was restored by later emperors to serve as a viewing platform. \n\nIt is from this garden that the most iconic landscape shots of the Taj Mahal reaching toward the sky are taken, especially as the river provides a perfect foreground for long-exposure photography. \n\n**Why Visit:** \n- **Friday Hack:** Since the [Taj Mahal is closed on Fridays](/india/agra/is-taj-mahal-closed-on-friday), Mehtab Bagh is the best place to see the monument in its full glory without any tourists in your frame. \n- **Golden Hour:** As the sun sets, the Taj begins to glow with an orange-gold hue, and you can see its reflection shimmer in the river waters. \n- **Botanical Detail:** The garden is slowly being restored with the original plant species mentioned in Mughal texts, including hibiscus, citrus trees, and roses. \n\n**Strategic Tip:** Reach here at least 1 hour before sunset to find a quiet corner and enjoy the transformation of the monument's colors as the light shifts from gold to deep sapphire."
                         }
                     ],
                     faqs: [
@@ -167,6 +141,17 @@ case 'places-to-visit-in-agra':
                         { q: "Are these sites open every day?", a: "Most monuments are open from sunrise to sunset daily. However, the Taj Mahal is strictly CLOSED every Friday for regular tourists. No exceptions are made for national holidays or festivals." },
                         { q: "Can I walk between these places?", a: "Walking is not recommended for the main circuit. While the Taj and some markets are near each other, the distance between the Taj and Agra Fort is 2.5km, and the Baby Taj is on the opposite side of the river. Use app-based taxis (Uber) or e-rickshaws for efficiency." },
                         { q: "Do I need separate tickets for each site?", a: "Yes. Every monument requires its own entrance fee. As of 2026, most ticket sales have transitioned to digital-only formats. You can scan the ASI QR codes at each gate or pre-book through the official government portal." }
+                    ],
+                    jsonLd: {
+                        "@context": "https://schema.org",
+                        "@type": "Article",
+                        "headline": "Strategic Places to Visit in Agra: A Deep-Dive Directory (2026)",
+                        "author": { "@type": "Organization", "name": "AsiaByLocals" }
+                    },
+                    fastFacts: [
+                        { icon: 'Ticket', label: 'Ticket Plan', value: 'Book Taj & Fort Together' },
+                        { icon: 'Map', label: 'Pro Route', value: 'East Bank Secret Path' },
+                        { icon: 'Clock', label: 'Total Time', value: '48-72 Hours Core Path' }
                     ]
                 };
 
@@ -205,6 +190,21 @@ case 'places-to-visit-in-agra':
                         { q: "Is 1 day honestly enough for Agra?", a: "Yes, it is enough to see the 'Big Three' (Taj, Fort, Baby Taj) and catch a sunset at Mehtab Bagh. However, you will be on your feet for 10-12 hours. If you want a relaxed pace and a trip to Fatehpur Sikri, we highly recommend extending your stay to 2 days." },
                         { q: "What is the best order to visit Taj and Fort?", a: "Always Taj Mahal first at sunrise. The physical and emotional experience of the Taj at 06:00 AM compared to 11:00 AM is night and day. Once the heat kicks in, the shade of the Fort's massive stone corridors is more welcome." },
                         { q: "Is it possible to do a day trip from Delhi?", a: "Absolutely. Take the Gatimaan Express (08:10 AM departure) and return by evening. If you use the Yamuna Expressway by car, leave Delhi by 05:00 AM to maximize your time at the monuments." }
+                    ],
+                    jsonLd: {
+                        "@context": "https://schema.org",
+                        "@type": "HowTo",
+                        "name": "1-Day Agra Itinerary",
+                        "step": [
+                            { "@type": "HowToStep", "text": "Sunrise at Taj Mahal" },
+                            { "@type": "HowToStep", "text": "Morning at Agra Fort" },
+                            { "@type": "HowToStep", "text": "Sunset at Mehtab Bagh" }
+                        ]
+                    },
+                    fastFacts: [
+                        { icon: 'Clock', label: 'Wake Up Call', value: '05:15 AM Sunrise Entry' },
+                        { icon: 'Map', label: 'Must-See Hub', value: 'Agra Fort & Taj Hub' },
+                        { icon: 'AlertTriangle', label: 'Fog Alert', value: 'Visibility Check (Jan-Feb)' }
                     ]
                 };
 
@@ -216,7 +216,7 @@ case 'places-to-visit-in-agra':
                     sections: [
                         {
                             title: "Official 2026 Entry Fee Structure",
-                            content: "The Archaeological Survey of India (ASI) has streamlined pricing for the 2026 season to manage the massive influx of tourists while funding the ongoing conservation of the white marble. Tickets are strictly divided into entry categories based on nationality and age. \n\n**Foreign Tourists (Non-SAARC):** \n- ₹1,100 (Monument Entry) + ₹200 (Main Mausoleum Supplement) = **₹1,300 Total** \n- High-Value Ticket benefits include a separate, prioritized queue for entry and security screening, which is essential during peak hours. \n\n**SAARC & BIMSTEC Citizens:** \n- ₹540 (Entry) + ₹200 (Mausoleum) = **₹740 Total** \n- This applies to citizens of Afghanistan, Bangladesh, Bhutan, Maldives, Nepal, Pakistan, Sri Lanka, Thailand, and Myanmar. A valid national passport is required for verification. \n\n**Indian Citizens:** \n- ₹50 (Entry) + ₹200 (Mausoleum) = **₹250 Total** \n\n**Children (All Nationalities):** \n- Children under 15 years of age are permitted **FREE** entry. However, parents must still register them in the online booking portal to receive a zero-value QR code for security tracking at the gate."
+                            content: "**As of 2026, the official Taj Mahal ticket price is ₹1,300 for foreign tourists and ₹250 for Indian citizens, including the mandatory main mausoleum supplement.** \n\nThe Archaeological Survey of India (ASI) has streamlined pricing for the 2026 season to manage the massive influx of tourists while funding the ongoing conservation of the white marble. Tickets are strictly divided into entry categories based on nationality and age. If you are planning a [1-day itinerary](/india/agra/1-day-agra-itinerary), ensure you book your slots at least 48 hours in advance. \n\n**Foreign Tourists (Non-SAARC):** \n- ₹1,100 (Monument Entry) + ₹200 (Main Mausoleum Supplement) = **₹1,300 Total** \n- High-Value Ticket benefits include a separate, prioritized queue for entry and security screening, which is essential during peak hours. \n\n**SAARC & BIMSTEC Citizens:** \n- ₹540 (Entry) + ₹200 (Mausoleum) = **₹740 Total** \n- This applies to citizens of Afghanistan, Bangladesh, Bhutan, Maldives, Nepal, Pakistan, Sri Lanka, Thailand, and Myanmar. A valid national passport is required for verification. \n\n**Indian Citizens:** \n- ₹50 (Entry) + ₹200 (Mausoleum) = **₹250 Total** \n\n**Children (All Nationalities):** \n- Children under 15 years of age are permitted **FREE** entry. However, parents must still register them in the online booking portal to receive a zero-value QR code for security tracking at the gate."
                         },
                         {
                             title: "The Main Mausoleum Supplement (₹200 Explained)",
@@ -240,6 +240,18 @@ case 'places-to-visit-in-agra':
                         { q: "Is the main tomb entry included in the standard foreigner ticket?", a: "Not automatically. You must specifically select the 'Mausoleum' add-on (₹200) during the checkout process if you wish to climb the marble platform and see the royal cenotaphs." },
                         { q: "Are children under 15 years old really free?", a: "Yes, for all nationalities. However, they must still have a valid zero-value ticket booked through the online portal, and you may be asked to show a passport copy if the child appears to be near the age limit." },
                         { q: "Do SAARC citizens need to show their passport?", a: "Yes. To avail of the discounted SAARC rate (₹540 + supplement), you must present an original passport from a member nation at the security check. National IDs or drivers' licenses are often rejected." }
+                    ],
+                    jsonLd: {
+                        "@context": "https://schema.org",
+                        "@type": "PriceSpecification",
+                        "price": "1300",
+                        "priceCurrency": "INR",
+                        "description": "Official Taj Mahal entry fee for foreign tourists 2026"
+                    },
+                    fastFacts: [
+                        { icon: 'Wallet', label: 'Total Fee', value: '₹1,300 (Foreigners)' },
+                        { icon: 'Ticket', label: 'Main Tomb', value: '₹200 Supplement' },
+                        { icon: 'CheckCircle2', label: 'Payment Method', value: 'UPI & Card Only' }
                     ]
                 };
 
@@ -280,65 +292,18 @@ case 'places-to-visit-in-agra':
                         { q: "Is the Taj Mahal open on public holidays?", a: "Yes, the monument remains open on all national and public holidays, unless the holiday falls on a Friday." },
                         { q: "How long can I stay inside the Taj Mahal?", a: "A standard entry ticket is valid for 3 hours from the time of entry. This is monitored via the QR code exit scan." },
                         { q: "What is the best time of year to visit?", a: "The 'Shoulder Season' of October-November and February-March offers the best balance of clear skies, comfortable temperatures, and good visibility." }
-                    ]
-                };
-
-            case 'is-taj-mahal-closed-on-friday':
-                return {
-                    title: 'Is the Taj Mahal Closed on Friday? Complete 2026 Visiting Guide',
-                    description: 'The Taj Mahal is one of the most visited monuments in the world. Every year millions of tourists plan trips specifically around seeing this iconic symbol of love. But unlike most days, the Taj Mahal remains completely closed on Fridays — and this affects how you plan your itinerary.',
-                    heroImage: '/blog/friday-closure-hero.jpg',
-                    sections: [
-                        {
-                            title: "Definitive Answer: Yes, It is Closed",
-                            content: "The Taj Mahal is **always closed on Fridays**. This rule applies year-round, including in 2026. \n\n🛑 **Every Friday:** No entry for general visitors \n🟢 **Except:** Special night viewing slots on select full-moon nights (separate booking required) \n\nThis closure is due to Friday congregational prayers inside the mosque located within the Taj Mahal complex."
-                        },
-                        {
-                            title: "Why the Taj Mahal Is Closed on Fridays",
-                            content: "Inside the Taj Mahal complex is a functioning mosque on the western side. On Fridays, this mosque hosts **Jumu’ah prayers** (Islamic congregational prayer) during midday. \n\nBecause of this: \n- Entry is restricted for general tourists \n- Security zones are altered \n- Crowd management prioritizes worshippers \n\nThis is consistent with ASI (Archaeological Survey of India) regulations regarding active religious sites."
-                        },
-                        {
-                            title: "Planning Your Visit Around Fridays",
-                            content: "If your travel dates include a Friday, make sure to move your Taj visit to: \n- **Thursday** (the evening before) \n- **Saturday** (the follow-up sunrise) \n- **Sunday** \n\nThis is especially important if you are on a 1-day Agra itinerary. Don't waste your limited time by arriving at the gate on a Friday morning only to be turned away."
-                        },
-                        {
-                            title: "How Friday Closure Affects Your Itinerary",
-                            content: "Many travelers plan Agra as part of the **Golden Triangle** (Delhi → Agra → Jaipur). If your trip falls on a Friday, build your itinerary carefully. \n\n**⭐ Best Alternative Plan for Friday:** \n- **Morning:** Agra Fort (UNESCO World Heritage) \n- **Afternoon:** Baby Taj (Itimad-ud-Daula) \n- **Sunset:** Mehtab Bagh (The Moonlit Garden) \n- **Evening:** Shopping or a local food walk in Sadar Bazaar \n\nYou can visit the Taj Mahal the day before or the day after your intermediate Friday activities."
-                        },
-                        {
-                            title: "Night Viewing & Friday Rules",
-                            content: "ASI opens the Taj Mahal for night viewing on selected full moon nights and a few days before and after. These night slots are special and require separate ticketing. \n\nHowever: \n- Night viewing is **NOT** available every Friday. \n- Night tickets are extremely limited and pre-booking is essential. \n- This does not replace the Friday daytime closure; entry remains restricted during the day."
-                        },
-                        {
-                            title: "Common Misconceptions About Friday",
-                            content: "❌ **“Only the mosque is closed on Friday”** \nNo — the entire Taj Mahal complex is closed for regular visitors because security and internal zoning change around the prayer area. \n\n❌ **“Night viewing cancels the Friday closure”** \nNo — even on full-moon nights, daytime access remains closed to the public."
-                        },
-                        {
-                            title: "What You Can Do on Friday in Agra",
-                            content: "Agra offers several top attractions that remain open on Fridays: \n\n1. **Agra Fort:** An immense Mughal fortress with intricate palaces, audience halls, and river views. \n2. **Tomb of Itimad-ud-Daula (Baby Taj):** A beautifully detailed marble tomb with calm riverside gardens. \n3. **Mehtab Bagh:** The perfect sunset viewpoint with a stunning river perspective of the Taj. \n4. **Kinari Bazaar / Sadar Bazaar:** Experience local shopping and authentic craft markets. \n\nThese can fill your day productively while you plan your Taj visit for a non-Friday."
-                        },
-                        {
-                            title: "Sample Friday Travel Itinerary",
-                            content: "Here’s a sample Agra itinerary if your main day is a Friday: \n\n- **7:00 AM:** Breakfast near hotel \n- **8:00 AM:** Agra Fort visit (Allow 2.5 hours) \n- **11:00 AM:** Lunch at a local cafe & rest \n- **1:00 PM:** Baby Taj (Itimad-ud-Daula) \n- **3:00 PM:** Mehtab Bagh sunset mission \n- **5:00 PM:** Shopping & dinner at Sadar Bazaar \n\nThis turns a Friday into a valuable exploration day without wasting travel time."
-                        },
-                        {
-                            title: "Tips for Families & Groups",
-                            content: "Children under 15 enter the Taj for free (when open), but Friday closures affect everyone. If you are traveling with family, adjust your day so the kids get to see the Taj from **Mehtab Bagh** on Friday as a 'preview' before entering correctly on Saturday morning."
-                        },
-                        {
-                            title: "How to Make the Most of Your Weekend",
-                            content: "If your travel spans Friday and Saturday: \n- **Friday:** Non-Taj activities and river-side views. \n- **Saturday (Sunrise):** Taj Mahal entry + Itimad-ud-Daula + extra site. \n- **Sunday:** Optional evening sunset at Mehtab Bagh or exit to Jaipur. \n\nThis schedule avoids Friday conflict altogether and gives you the best photographic light for the monument."
-                        },
-                        {
-                            title: "Ready Checklist Before Visiting (Especially Friday)",
-                            content: "1. Check your planned travel dates carefully. \n2. Avoid scheduling your Taj entry on a Friday. \n3. Pack water & sunglasses for afternoons at the Fort. \n4. Pre-book remaining tickets online. \n5. Confirm current timings with official ASI updates."
-                        }
                     ],
-                    faqs: [
-                        { q: "Is the Taj Mahal closed on Friday?", a: "Yes. The Taj Mahal is always closed on Friday for general visitors due to Friday congregational prayers inside the mosque within the complex." },
-                        { q: "Can you visit at night on a Friday?", a: "No. Night viewing on full moon nights is separate and limited — it is not a replacement for the Friday daytime closure." },
-                        { q: "Are other Agra attractions open on Fridays?", a: "Yes. Agra Fort, Baby Taj, Mehtab Bagh, and local markets are open on Fridays." },
-                        { q: "When should I schedule my Taj visit if my trip includes Friday?", a: "Schedule the Taj visit for Thursday or Saturday for the best experience. Friday should be used for the Fort and riverbank gardens." }
+                    jsonLd: {
+                        "@context": "https://schema.org",
+                        "@type": "Article",
+                        "headline": "Taj Mahal Opening & Closing Time (2026)",
+                        "description": "Comprehensive guide to Taj Mahal timings, including sunrise entry, Friday closure, and night viewing rules for 2026.",
+                        "author": { "@type": "Organization", "name": "AsiaByLocals" }
+                    },
+                    fastFacts: [
+                        { icon: 'Clock', label: 'Standard Hours', value: '06:00 AM - Sunset' },
+                        { icon: 'CheckCircle2', label: 'Friday Rule', value: 'Strictly Closed' },
+                        { icon: 'History', label: 'Full Moon', value: 'Night Tours Available' }
                     ]
                 };
 
@@ -348,6 +313,10 @@ case 'places-to-visit-in-agra':
                     description: 'The most common mistake travelers make in Agra is arriving at the Taj Mahal gates on a Friday. As of 2026, the policy remains absolute: the monument is closed for general tourism every single Friday. This guide explains why and how to salvage your Friday in Agra with a high-value alternative itinerary.',
                     heroImage: '/blog/friday-closure-hero.jpg',
                     sections: [
+                        {
+                            title: "Definitive Answer: Yes, It is Closed",
+                            content: "**Yes, the Taj Mahal is closed every Friday for congregational prayers; however, the viewpoint at Mehtab Bagh remains open for sunset views.** \n\nThis rule applies year-round, including in 2026. \n\n🛑 **Every Friday:** No entry for general visitors \n🟢 **Except:** Special night viewing slots on select full-moon nights (separate booking required) \n\nThis closure is due to Friday congregational prayers inside the mosque located within the Taj Mahal complex."
+                        },
                         {
                             title: "The Immutable Friday Policy",
                             content: "The Taj Mahal is not just a monument; it is a complex that contains an active place of worship. The mosque on the western side of the main mausoleum hosts congregational Jumu'ah prayers every Friday. \n\n- **General Visitors:** No entry permitted throughout the day. \n- **Worshippers:** Only local residents with valid identification are permitted to enter for prayer between 12:00 PM and 02:00 PM. \n- **Ticket Counters:** Physical and digital slots for Friday are disabled in the official ASI system. \n\n**Warning:** Do not believe touts or 'guides' near the gates who claim they can get you in for a special fee. The security is handled by the Central Industrial Security Force (CISF), and exceptions are never made."
@@ -359,104 +328,116 @@ case 'places-to-visit-in-agra':
                         {
                             title: "Full Friday Itinerary: The 'Everything Except Taj' Plan",
                             content: "Agra is far more than just one building. Use your Friday to explore the sites that usually get overshadowed. \n\n- **08:30 AM – Agra Fort:** This remains open on Fridays. Spend a full 3 hours here. It is a world-class UNESCO site in its own right and twice the size of the Taj complex. \n- **12:00 PM – Lunch at Sadar Bazaar:** Explore the local food scene. Try the authentic 'Petha' and spicy 'Bedai'. \n- **02:00 PM – The Baby Taj (Itimad-ud-Daula):** Often ignored by day-trippers, this is a gem of Mughal architecture and is open on Fridays. \n- **04:30 PM – Mehtab Bagh Sunset:** Cap off the day with the riverview of the Taj Mahal you missed in the morning."
-                        },
-                        {
-                            title: "Night Viewing Exceptions (The Full Moon)",
-                            content: "There is only one legal way to be inside the Taj Mahal complex on a Friday: **Full Moon Night Viewing.** \n\nIf a full moon night (or the two nights surrounding it) falls on a Friday, the night viewing continues as scheduled. However, this is strictly between 08:30 PM and 12:30 AM and requires a special ticket booked 24 hours in advance. You still cannot visit during the day."
-                        },
-                        {
-                            title: "Logistics: Moving Your Dates",
-                            content: "If you are planning your Golden Triangle trip (Delhi-Agra-Jaipur), we strongly recommend structuring your route so that you are in Agra on a **Thursday or Saturday.** \n\nIf you must arrive on Friday, treat it as a 'slow travel' day. Visit the secondary sites, enjoy the hotel spa, and be at the East Gate by 05:30 AM on Saturday morning for the first sunrise slot. Saturday morning after a Friday closure is typically very busy, so early arrival is even more critical."
                         }
                     ],
                     faqs: [
-                        { q: "Is the Taj Mahal really closed every Friday?", a: "Yes, without exception. This has been the policy for decades to allow for religious services within the complex mosque." },
-                        { q: "Can I still see the Taj Mahal from the outside on Friday?", a: "Yes. The best viewing spot is Mehtab Bagh across the river. You can also get a distant view from certain balconies in Agra Fort or from several rooftop restaurants in the Taj Ganj area." },
-                        { q: "Are other sites like the Agra Fort closed on Friday?", a: "No. All other major monuments in Agra, including Agra Fort, Itimad-ud-Daula, and Fatehpur Sikri, remain open on Fridays." },
-                        { q: "What should I do if I only have Friday in Agra?", a: "Follow our 'Everything Except Taj' plan. Start with Agra Fort in the morning, visit the Baby Taj in the afternoon, and watch the sunset over the Taj from Mehtab Bagh." }
+                        { q: "Is the Taj Mahal really closed every Friday?", a: "Yes, the monument is closed every Friday for general visitors. Only worshippers are allowed for mid-day prayers." },
+                        { q: "Can I still see the Taj Mahal on a Friday?", a: "Yes, from Mehtab Bagh across the river or from a rooftop restaurant in Taj Ganj." }
+                    ],
+                    jsonLd: {
+                        "@context": "https://schema.org",
+                        "@type": "FAQPage",
+                        "mainEntity": [{
+                            "@type": "Question",
+                            "name": "Is the Taj Mahal closed on Friday?",
+                            "acceptedAnswer": {
+                                "@type": "Answer",
+                                "text": "Yes, the Taj Mahal is closed every Friday for congregational prayers. Mehtab Bagh remains open for views."
+                            }
+                        }]
+                    },
+                    fastFacts: [
+                        { icon: 'AlertTriangle', label: 'Closure', value: 'Every single Friday' },
+                        { icon: 'Map', label: 'Best Alternative', value: 'Mehtab Bagh Viewpoint' },
+                        { icon: 'History', label: 'Worship Hours', value: '12:00 PM - 2:00 PM' }
                     ]
                 };
 
-                        case "agra-travel-guide-2026":
+            case "agra-travel-guide-2026":
                 return {
                     title: "Agra Travel Guide 2026: The Ultimate 3000-Word Masterclass for Travelers",
                     description: "Agra is one of India’s most historically rich cities, standing as the former capital of the Mughal Empire. Known globally for the Taj Mahal, the city is a living museum of Persian-Indian fusion, intricate stonework, and royal heritage. This definitive 2026 guide provides the tactical intelligence required to navigate the city’s crowds, climate, and culture with ease.",
                     heroImage: "/blog/agra-guide-hero.jpg",
                     sections: [
-          {
-                    "title": "A Brief History of Agra Mughal Legacy",
-                    "content": "Agra rose to international prominence in the 16th century when the Mughal Empire shifted its seat of power from Delhi. Under the reigns of Akbar, Jahangir, and Shah Jahan, the city underwent an architectural revolution that redefined the skyline of northern India. \n\n**The Three Great Eras:** \n- **The Red Sandstone Era (Akbar):** Characterized by the massive walls of Agra Fort and the experimental city of Fatehpur Sikri. This period focused on defensibility and grand, bold structures. \n- **The Transitional Era (Jahangir):** Seen in the tomb of Itimad-ud-Daula, where the transition from sandstone to marble and the first uses of complex semi-precious stone inlays began. \n- **The White Marble Era (Shah Jahan):** Reaching its zenith with the Taj Mahal, where symmetry and emotional expression became the primary drivers of construction. \n\nToday, Agra is not just a tourist stop; it is the spiritual and historical heartbeat of South Asia, where centuries-old craftsmanship continues to thrive in the narrow lanes of the old city.",
-                    "image": "/blog/agra-guide-1.jpg"
-          },
-          {
-                    "title": "Must-Visit Attractions for the 2026 Season",
-                        image: "/blog/agra-guide-2.jpg",
-                    "content": "When planning a trip to a city with as much historical density as Agra, logistics must be meticulously handled. The climate is notoriously unforgiving. The peak tourist season runs from October to March when the daytime temperatures hover around a pleasant 20 to 25 degrees Celsius. However, traversing the city during the summer months from April to June is an exercise in endurance. During these months, the sheer reflection off the white marble of the Taj Mahal 2 can be blinding, and the sandstone of Agra Fort can feel like walking through an oven. If you must visit during the summer, it is imperative to adopt a split-itinerary strategy: explore from 5:30 AM to 10:30 AM, retreat to your air-conditioned hotel during the peak afternoon heat, and venture out again only after 4:30 PM. Equally critical is understanding the transportation network. While Agra is connected by the ultra-fast Gatimaan Express from Delhi (completing the journey in just 100 minutes), negotiating local transport requires tact. You must avoid relying on random auto-rickshaws stationed directly outside major train stations like Agra Cantt, as they operate on severe commission models, taking tourists to inflated-price emporiums. Instead, heavily utilize app-based services like Uber and Ola, which provide transparent pricing and GPS tracking. For multi-monument days, renting a full-day air-conditioned taxi through a registered local agency is by far the most efficient use of your time. This allows you the flexibility to detour to hidden culinary spots in the old town without endlessly renegotiating fares. Furthermore, the cultural depth of Agra extends far beyond its monuments. You are walking through the capital of the Mughal empire, an administration that controlled 25% of the world's GDP during its peak. Every stone, from the colossal battlements of the Red Fort to the narrow, chaotic spice markets behind the Jama Masjid, continues to whisper the stories of emperors, queens, architects, and the thousands of everyday artisans whose descendants still carve marble in the city today."
-          },
-          {
-                    "title": "Agra Culinary Heritage: Beyond the Plate",
-                        image: "/blog/agra-guide-3.jpg",
-                    "content": "When planning a trip to a city with as much historical density as Agra, logistics must be meticulously handled. The climate is notoriously unforgiving. The peak tourist season runs from October to March when the daytime temperatures hover around a pleasant 20 to 25 degrees Celsius. However, traversing the city during the summer months from April to June is an exercise in endurance. During these months, the sheer reflection off the white marble of the Taj Mahal 3 can be blinding, and the sandstone of Agra Fort can feel like walking through an oven. If you must visit during the summer, it is imperative to adopt a split-itinerary strategy: explore from 5:30 AM to 10:30 AM, retreat to your air-conditioned hotel during the peak afternoon heat, and venture out again only after 4:30 PM. Equally critical is understanding the transportation network. While Agra is connected by the ultra-fast Gatimaan Express from Delhi (completing the journey in just 100 minutes), negotiating local transport requires tact. You must avoid relying on random auto-rickshaws stationed directly outside major train stations like Agra Cantt, as they operate on severe commission models, taking tourists to inflated-price emporiums. Instead, heavily utilize app-based services like Uber and Ola, which provide transparent pricing and GPS tracking. For multi-monument days, renting a full-day air-conditioned taxi through a registered local agency is by far the most efficient use of your time. This allows you the flexibility to detour to hidden culinary spots in the old town without endlessly renegotiating fares. Furthermore, the cultural depth of Agra extends far beyond its monuments. You are walking through the capital of the Mughal empire, an administration that controlled 25% of the world's GDP during its peak. Every stone, from the colossal battlements of the Red Fort to the narrow, chaotic spice markets behind the Jama Masjid, continues to whisper the stories of emperors, queens, architects, and the thousands of everyday artisans whose descendants still carve marble in the city today."
-          },
-          {
-                    "title": "Extensive Logistical Planning and Cultural Context Phase 4",
-                    "content": "When planning a trip to a city with as much historical density as Agra, logistics must be meticulously handled. The climate is notoriously unforgiving. The peak tourist season runs from October to March when the daytime temperatures hover around a pleasant 20 to 25 degrees Celsius. However, traversing the city during the summer months from April to June is an exercise in endurance. During these months, the sheer reflection off the white marble of the Taj Mahal 4 can be blinding, and the sandstone of Agra Fort can feel like walking through an oven. If you must visit during the summer, it is imperative to adopt a split-itinerary strategy: explore from 5:30 AM to 10:30 AM, retreat to your air-conditioned hotel during the peak afternoon heat, and venture out again only after 4:30 PM. Equally critical is understanding the transportation network. While Agra is connected by the ultra-fast Gatimaan Express from Delhi (completing the journey in just 100 minutes), negotiating local transport requires tact. You must avoid relying on random auto-rickshaws stationed directly outside major train stations like Agra Cantt, as they operate on severe commission models, taking tourists to inflated-price emporiums. Instead, heavily utilize app-based services like Uber and Ola, which provide transparent pricing and GPS tracking. For multi-monument days, renting a full-day air-conditioned taxi through a registered local agency is by far the most efficient use of your time. This allows you the flexibility to detour to hidden culinary spots in the old town without endlessly renegotiating fares. Furthermore, the cultural depth of Agra extends far beyond its monuments. You are walking through the capital of the Mughal empire, an administration that controlled 25% of the world's GDP during its peak. Every stone, from the colossal battlements of the Red Fort to the narrow, chaotic spice markets behind the Jama Masjid, continues to whisper the stories of emperors, queens, architects, and the thousands of everyday artisans whose descendants still carve marble in the city today."
-          },
-          {
-                    "title": "Extensive Logistical Planning and Cultural Context Phase 5",
-                    "content": "When planning a trip to a city with as much historical density as Agra, logistics must be meticulously handled. The climate is notoriously unforgiving. The peak tourist season runs from October to March when the daytime temperatures hover around a pleasant 20 to 25 degrees Celsius. However, traversing the city during the summer months from April to June is an exercise in endurance. During these months, the sheer reflection off the white marble of the Taj Mahal 5 can be blinding, and the sandstone of Agra Fort can feel like walking through an oven. If you must visit during the summer, it is imperative to adopt a split-itinerary strategy: explore from 5:30 AM to 10:30 AM, retreat to your air-conditioned hotel during the peak afternoon heat, and venture out again only after 4:30 PM. Equally critical is understanding the transportation network. While Agra is connected by the ultra-fast Gatimaan Express from Delhi (completing the journey in just 100 minutes), negotiating local transport requires tact. You must avoid relying on random auto-rickshaws stationed directly outside major train stations like Agra Cantt, as they operate on severe commission models, taking tourists to inflated-price emporiums. Instead, heavily utilize app-based services like Uber and Ola, which provide transparent pricing and GPS tracking. For multi-monument days, renting a full-day air-conditioned taxi through a registered local agency is by far the most efficient use of your time. This allows you the flexibility to detour to hidden culinary spots in the old town without endlessly renegotiating fares. Furthermore, the cultural depth of Agra extends far beyond its monuments. You are walking through the capital of the Mughal empire, an administration that controlled 25% of the world's GDP during its peak. Every stone, from the colossal battlements of the Red Fort to the narrow, chaotic spice markets behind the Jama Masjid, continues to whisper the stories of emperors, queens, architects, and the thousands of everyday artisans whose descendants still carve marble in the city today."
-          },
-          {
-                    "title": "Extensive Logistical Planning and Cultural Context Phase 6",
-                    "content": "When planning a trip to a city with as much historical density as Agra, logistics must be meticulously handled. The climate is notoriously unforgiving. The peak tourist season runs from October to March when the daytime temperatures hover around a pleasant 20 to 25 degrees Celsius. However, traversing the city during the summer months from April to June is an exercise in endurance. During these months, the sheer reflection off the white marble of the Taj Mahal 6 can be blinding, and the sandstone of Agra Fort can feel like walking through an oven. If you must visit during the summer, it is imperative to adopt a split-itinerary strategy: explore from 5:30 AM to 10:30 AM, retreat to your air-conditioned hotel during the peak afternoon heat, and venture out again only after 4:30 PM. Equally critical is understanding the transportation network. While Agra is connected by the ultra-fast Gatimaan Express from Delhi (completing the journey in just 100 minutes), negotiating local transport requires tact. You must avoid relying on random auto-rickshaws stationed directly outside major train stations like Agra Cantt, as they operate on severe commission models, taking tourists to inflated-price emporiums. Instead, heavily utilize app-based services like Uber and Ola, which provide transparent pricing and GPS tracking. For multi-monument days, renting a full-day air-conditioned taxi through a registered local agency is by far the most efficient use of your time. This allows you the flexibility to detour to hidden culinary spots in the old town without endlessly renegotiating fares. Furthermore, the cultural depth of Agra extends far beyond its monuments. You are walking through the capital of the Mughal empire, an administration that controlled 25% of the world's GDP during its peak. Every stone, from the colossal battlements of the Red Fort to the narrow, chaotic spice markets behind the Jama Masjid, continues to whisper the stories of emperors, queens, architects, and the thousands of everyday artisans whose descendants still carve marble in the city today."
-          },
-          {
-                    "title": "Extensive Logistical Planning and Cultural Context Phase 7",
-                    "content": "When planning a trip to a city with as much historical density as Agra, logistics must be meticulously handled. The climate is notoriously unforgiving. The peak tourist season runs from October to March when the daytime temperatures hover around a pleasant 20 to 25 degrees Celsius. However, traversing the city during the summer months from April to June is an exercise in endurance. During these months, the sheer reflection off the white marble of the Taj Mahal 7 can be blinding, and the sandstone of Agra Fort can feel like walking through an oven. If you must visit during the summer, it is imperative to adopt a split-itinerary strategy: explore from 5:30 AM to 10:30 AM, retreat to your air-conditioned hotel during the peak afternoon heat, and venture out again only after 4:30 PM. Equally critical is understanding the transportation network. While Agra is connected by the ultra-fast Gatimaan Express from Delhi (completing the journey in just 100 minutes), negotiating local transport requires tact. You must avoid relying on random auto-rickshaws stationed directly outside major train stations like Agra Cantt, as they operate on severe commission models, taking tourists to inflated-price emporiums. Instead, heavily utilize app-based services like Uber and Ola, which provide transparent pricing and GPS tracking. For multi-monument days, renting a full-day air-conditioned taxi through a registered local agency is by far the most efficient use of your time. This allows you the flexibility to detour to hidden culinary spots in the old town without endlessly renegotiating fares. Furthermore, the cultural depth of Agra extends far beyond its monuments. You are walking through the capital of the Mughal empire, an administration that controlled 25% of the world's GDP during its peak. Every stone, from the colossal battlements of the Red Fort to the narrow, chaotic spice markets behind the Jama Masjid, continues to whisper the stories of emperors, queens, architects, and the thousands of everyday artisans whose descendants still carve marble in the city today."
-          },
-          {
-                    "title": "Extensive Logistical Planning and Cultural Context Phase 8",
-                    "content": "When planning a trip to a city with as much historical density as Agra, logistics must be meticulously handled. The climate is notoriously unforgiving. The peak tourist season runs from October to March when the daytime temperatures hover around a pleasant 20 to 25 degrees Celsius. However, traversing the city during the summer months from April to June is an exercise in endurance. During these months, the sheer reflection off the white marble of the Taj Mahal 8 can be blinding, and the sandstone of Agra Fort can feel like walking through an oven. If you must visit during the summer, it is imperative to adopt a split-itinerary strategy: explore from 5:30 AM to 10:30 AM, retreat to your air-conditioned hotel during the peak afternoon heat, and venture out again only after 4:30 PM. Equally critical is understanding the transportation network. While Agra is connected by the ultra-fast Gatimaan Express from Delhi (completing the journey in just 100 minutes), negotiating local transport requires tact. You must avoid relying on random auto-rickshaws stationed directly outside major train stations like Agra Cantt, as they operate on severe commission models, taking tourists to inflated-price emporiums. Instead, heavily utilize app-based services like Uber and Ola, which provide transparent pricing and GPS tracking. For multi-monument days, renting a full-day air-conditioned taxi through a registered local agency is by far the most efficient use of your time. This allows you the flexibility to detour to hidden culinary spots in the old town without endlessly renegotiating fares. Furthermore, the cultural depth of Agra extends far beyond its monuments. You are walking through the capital of the Mughal empire, an administration that controlled 25% of the world's GDP during its peak. Every stone, from the colossal battlements of the Red Fort to the narrow, chaotic spice markets behind the Jama Masjid, continues to whisper the stories of emperors, queens, architects, and the thousands of everyday artisans whose descendants still carve marble in the city today."
-          },
-          {
-                    "title": "Extensive Logistical Planning and Cultural Context Phase 9",
-                    "content": "When planning a trip to a city with as much historical density as Agra, logistics must be meticulously handled. The climate is notoriously unforgiving. The peak tourist season runs from October to March when the daytime temperatures hover around a pleasant 20 to 25 degrees Celsius. However, traversing the city during the summer months from April to June is an exercise in endurance. During these months, the sheer reflection off the white marble of the Taj Mahal 9 can be blinding, and the sandstone of Agra Fort can feel like walking through an oven. If you must visit during the summer, it is imperative to adopt a split-itinerary strategy: explore from 5:30 AM to 10:30 AM, retreat to your air-conditioned hotel during the peak afternoon heat, and venture out again only after 4:30 PM. Equally critical is understanding the transportation network. While Agra is connected by the ultra-fast Gatimaan Express from Delhi (completing the journey in just 100 minutes), negotiating local transport requires tact. You must avoid relying on random auto-rickshaws stationed directly outside major train stations like Agra Cantt, as they operate on severe commission models, taking tourists to inflated-price emporiums. Instead, heavily utilize app-based services like Uber and Ola, which provide transparent pricing and GPS tracking. For multi-monument days, renting a full-day air-conditioned taxi through a registered local agency is by far the most efficient use of your time. This allows you the flexibility to detour to hidden culinary spots in the old town without endlessly renegotiating fares. Furthermore, the cultural depth of Agra extends far beyond its monuments. You are walking through the capital of the Mughal empire, an administration that controlled 25% of the world's GDP during its peak. Every stone, from the colossal battlements of the Red Fort to the narrow, chaotic spice markets behind the Jama Masjid, continues to whisper the stories of emperors, queens, architects, and the thousands of everyday artisans whose descendants still carve marble in the city today."
-          },
-          {
-                    "title": "Extensive Logistical Planning and Cultural Context Phase 10",
-                    "content": "When planning a trip to a city with as much historical density as Agra, logistics must be meticulously handled. The climate is notoriously unforgiving. The peak tourist season runs from October to March when the daytime temperatures hover around a pleasant 20 to 25 degrees Celsius. However, traversing the city during the summer months from April to June is an exercise in endurance. During these months, the sheer reflection off the white marble of the Taj Mahal 10 can be blinding, and the sandstone of Agra Fort can feel like walking through an oven. If you must visit during the summer, it is imperative to adopt a split-itinerary strategy: explore from 5:30 AM to 10:30 AM, retreat to your air-conditioned hotel during the peak afternoon heat, and venture out again only after 4:30 PM. Equally critical is understanding the transportation network. While Agra is connected by the ultra-fast Gatimaan Express from Delhi (completing the journey in just 100 minutes), negotiating local transport requires tact. You must avoid relying on random auto-rickshaws stationed directly outside major train stations like Agra Cantt, as they operate on severe commission models, taking tourists to inflated-price emporiums. Instead, heavily utilize app-based services like Uber and Ola, which provide transparent pricing and GPS tracking. For multi-monument days, renting a full-day air-conditioned taxi through a registered local agency is by far the most efficient use of your time. This allows you the flexibility to detour to hidden culinary spots in the old town without endlessly renegotiating fares. Furthermore, the cultural depth of Agra extends far beyond its monuments. You are walking through the capital of the Mughal empire, an administration that controlled 25% of the world's GDP during its peak. Every stone, from the colossal battlements of the Red Fort to the narrow, chaotic spice markets behind the Jama Masjid, continues to whisper the stories of emperors, queens, architects, and the thousands of everyday artisans whose descendants still carve marble in the city today."
-          },
-          {
-                    "title": "Extensive Logistical Planning and Cultural Context Phase 11",
-                    "content": "When planning a trip to a city with as much historical density as Agra, logistics must be meticulously handled. The climate is notoriously unforgiving. The peak tourist season runs from October to March when the daytime temperatures hover around a pleasant 20 to 25 degrees Celsius. However, traversing the city during the summer months from April to June is an exercise in endurance. During these months, the sheer reflection off the white marble of the Taj Mahal 11 can be blinding, and the sandstone of Agra Fort can feel like walking through an oven. If you must visit during the summer, it is imperative to adopt a split-itinerary strategy: explore from 5:30 AM to 10:30 AM, retreat to your air-conditioned hotel during the peak afternoon heat, and venture out again only after 4:30 PM. Equally critical is understanding the transportation network. While Agra is connected by the ultra-fast Gatimaan Express from Delhi (completing the journey in just 100 minutes), negotiating local transport requires tact. You must avoid relying on random auto-rickshaws stationed directly outside major train stations like Agra Cantt, as they operate on severe commission models, taking tourists to inflated-price emporiums. Instead, heavily utilize app-based services like Uber and Ola, which provide transparent pricing and GPS tracking. For multi-monument days, renting a full-day air-conditioned taxi through a registered local agency is by far the most efficient use of your time. This allows you the flexibility to detour to hidden culinary spots in the old town without endlessly renegotiating fares. Furthermore, the cultural depth of Agra extends far beyond its monuments. You are walking through the capital of the Mughal empire, an administration that controlled 25% of the world's GDP during its peak. Every stone, from the colossal battlements of the Red Fort to the narrow, chaotic spice markets behind the Jama Masjid, continues to whisper the stories of emperors, queens, architects, and the thousands of everyday artisans whose descendants still carve marble in the city today."
-          },
-          {
-                    "title": "Extensive Logistical Planning and Cultural Context Phase 12",
-                    "content": "When planning a trip to a city with as much historical density as Agra, logistics must be meticulously handled. The climate is notoriously unforgiving. The peak tourist season runs from October to March when the daytime temperatures hover around a pleasant 20 to 25 degrees Celsius. However, traversing the city during the summer months from April to June is an exercise in endurance. During these months, the sheer reflection off the white marble of the Taj Mahal 12 can be blinding, and the sandstone of Agra Fort can feel like walking through an oven. If you must visit during the summer, it is imperative to adopt a split-itinerary strategy: explore from 5:30 AM to 10:30 AM, retreat to your air-conditioned hotel during the peak afternoon heat, and venture out again only after 4:30 PM. Equally critical is understanding the transportation network. While Agra is connected by the ultra-fast Gatimaan Express from Delhi (completing the journey in just 100 minutes), negotiating local transport requires tact. You must avoid relying on random auto-rickshaws stationed directly outside major train stations like Agra Cantt, as they operate on severe commission models, taking tourists to inflated-price emporiums. Instead, heavily utilize app-based services like Uber and Ola, which provide transparent pricing and GPS tracking. For multi-monument days, renting a full-day air-conditioned taxi through a registered local agency is by far the most efficient use of your time. This allows you the flexibility to detour to hidden culinary spots in the old town without endlessly renegotiating fares. Furthermore, the cultural depth of Agra extends far beyond its monuments. You are walking through the capital of the Mughal empire, an administration that controlled 25% of the world's GDP during its peak. Every stone, from the colossal battlements of the Red Fort to the narrow, chaotic spice markets behind the Jama Masjid, continues to whisper the stories of emperors, queens, architects, and the thousands of everyday artisans whose descendants still carve marble in the city today."
-          },
-          {
-                    "title": "Extensive Logistical Planning and Cultural Context Phase 13",
-                    "content": "When planning a trip to a city with as much historical density as Agra, logistics must be meticulously handled. The climate is notoriously unforgiving. The peak tourist season runs from October to March when the daytime temperatures hover around a pleasant 20 to 25 degrees Celsius. However, traversing the city during the summer months from April to June is an exercise in endurance. During these months, the sheer reflection off the white marble of the Taj Mahal 13 can be blinding, and the sandstone of Agra Fort can feel like walking through an oven. If you must visit during the summer, it is imperative to adopt a split-itinerary strategy: explore from 5:30 AM to 10:30 AM, retreat to your air-conditioned hotel during the peak afternoon heat, and venture out again only after 4:30 PM. Equally critical is understanding the transportation network. While Agra is connected by the ultra-fast Gatimaan Express from Delhi (completing the journey in just 100 minutes), negotiating local transport requires tact. You must avoid relying on random auto-rickshaws stationed directly outside major train stations like Agra Cantt, as they operate on severe commission models, taking tourists to inflated-price emporiums. Instead, heavily utilize app-based services like Uber and Ola, which provide transparent pricing and GPS tracking. For multi-monument days, renting a full-day air-conditioned taxi through a registered local agency is by far the most efficient use of your time. This allows you the flexibility to detour to hidden culinary spots in the old town without endlessly renegotiating fares. Furthermore, the cultural depth of Agra extends far beyond its monuments. You are walking through the capital of the Mughal empire, an administration that controlled 25% of the world's GDP during its peak. Every stone, from the colossal battlements of the Red Fort to the narrow, chaotic spice markets behind the Jama Masjid, continues to whisper the stories of emperors, queens, architects, and the thousands of everyday artisans whose descendants still carve marble in the city today."
-          },
-          {
-                    "title": "Extensive Logistical Planning and Cultural Context Phase 14",
-                    "content": "When planning a trip to a city with as much historical density as Agra, logistics must be meticulously handled. The climate is notoriously unforgiving. The peak tourist season runs from October to March when the daytime temperatures hover around a pleasant 20 to 25 degrees Celsius. However, traversing the city during the summer months from April to June is an exercise in endurance. During these months, the sheer reflection off the white marble of the Taj Mahal 14 can be blinding, and the sandstone of Agra Fort can feel like walking through an oven. If you must visit during the summer, it is imperative to adopt a split-itinerary strategy: explore from 5:30 AM to 10:30 AM, retreat to your air-conditioned hotel during the peak afternoon heat, and venture out again only after 4:30 PM. Equally critical is understanding the transportation network. While Agra is connected by the ultra-fast Gatimaan Express from Delhi (completing the journey in just 100 minutes), negotiating local transport requires tact. You must avoid relying on random auto-rickshaws stationed directly outside major train stations like Agra Cantt, as they operate on severe commission models, taking tourists to inflated-price emporiums. Instead, heavily utilize app-based services like Uber and Ola, which provide transparent pricing and GPS tracking. For multi-monument days, renting a full-day air-conditioned taxi through a registered local agency is by far the most efficient use of your time. This allows you the flexibility to detour to hidden culinary spots in the old town without endlessly renegotiating fares. Furthermore, the cultural depth of Agra extends far beyond its monuments. You are walking through the capital of the Mughal empire, an administration that controlled 25% of the world's GDP during its peak. Every stone, from the colossal battlements of the Red Fort to the narrow, chaotic spice markets behind the Jama Masjid, continues to whisper the stories of emperors, queens, architects, and the thousands of everyday artisans whose descendants still carve marble in the city today."
-          },
-          {
-                    "title": "Extensive Logistical Planning and Cultural Context Phase 15",
-                    "content": "When planning a trip to a city with as much historical density as Agra, logistics must be meticulously handled. The climate is notoriously unforgiving. The peak tourist season runs from October to March when the daytime temperatures hover around a pleasant 20 to 25 degrees Celsius. However, traversing the city during the summer months from April to June is an exercise in endurance. During these months, the sheer reflection off the white marble of the Taj Mahal 15 can be blinding, and the sandstone of Agra Fort can feel like walking through an oven. If you must visit during the summer, it is imperative to adopt a split-itinerary strategy: explore from 5:30 AM to 10:30 AM, retreat to your air-conditioned hotel during the peak afternoon heat, and venture out again only after 4:30 PM. Equally critical is understanding the transportation network. While Agra is connected by the ultra-fast Gatimaan Express from Delhi (completing the journey in just 100 minutes), negotiating local transport requires tact. You must avoid relying on random auto-rickshaws stationed directly outside major train stations like Agra Cantt, as they operate on severe commission models, taking tourists to inflated-price emporiums. Instead, heavily utilize app-based services like Uber and Ola, which provide transparent pricing and GPS tracking. For multi-monument days, renting a full-day air-conditioned taxi through a registered local agency is by far the most efficient use of your time. This allows you the flexibility to detour to hidden culinary spots in the old town without endlessly renegotiating fares. Furthermore, the cultural depth of Agra extends far beyond its monuments. You are walking through the capital of the Mughal empire, an administration that controlled 25% of the world's GDP during its peak. Every stone, from the colossal battlements of the Red Fort to the narrow, chaotic spice markets behind the Jama Masjid, continues to whisper the stories of emperors, queens, architects, and the thousands of everyday artisans whose descendants still carve marble in the city today."
-          },
-          {
-                    "title": "Extensive Logistical Planning and Cultural Context Phase 16",
-                    "content": "When planning a trip to a city with as much historical density as Agra, logistics must be meticulously handled. The climate is notoriously unforgiving. The peak tourist season runs from October to March when the daytime temperatures hover around a pleasant 20 to 25 degrees Celsius. However, traversing the city during the summer months from April to June is an exercise in endurance. During these months, the sheer reflection off the white marble of the Taj Mahal 16 can be blinding, and the sandstone of Agra Fort can feel like walking through an oven. If you must visit during the summer, it is imperative to adopt a split-itinerary strategy: explore from 5:30 AM to 10:30 AM, retreat to your air-conditioned hotel during the peak afternoon heat, and venture out again only after 4:30 PM. Equally critical is understanding the transportation network. While Agra is connected by the ultra-fast Gatimaan Express from Delhi (completing the journey in just 100 minutes), negotiating local transport requires tact. You must avoid relying on random auto-rickshaws stationed directly outside major train stations like Agra Cantt, as they operate on severe commission models, taking tourists to inflated-price emporiums. Instead, heavily utilize app-based services like Uber and Ola, which provide transparent pricing and GPS tracking. For multi-monument days, renting a full-day air-conditioned taxi through a registered local agency is by far the most efficient use of your time. This allows you the flexibility to detour to hidden culinary spots in the old town without endlessly renegotiating fares. Furthermore, the cultural depth of Agra extends far beyond its monuments. You are walking through the capital of the Mughal empire, an administration that controlled 25% of the world's GDP during its peak. Every stone, from the colossal battlements of the Red Fort to the narrow, chaotic spice markets behind the Jama Masjid, continues to whisper the stories of emperors, queens, architects, and the thousands of everyday artisans whose descendants still carve marble in the city today."
-          }
-],
+                        {
+                            "title": "A Brief History of Agra Mughal Legacy",
+                            "content": "Agra rose to international prominence in the 16th century when the Mughal Empire shifted its seat of power from Delhi. Under the reigns of Akbar, Jahangir, and Shah Jahan, the city underwent an architectural revolution that redefined the skyline of northern India. \n\n**The Three Great Eras:** \n- **The Red Sandstone Era (Akbar):** Characterized by the massive walls of Agra Fort and the experimental city of Fatehpur Sikri. This period focused on defensibility and grand, bold structures. \n- **The Transitional Era (Jahangir):** Seen in the tomb of Itimad-ud-Daula, where the transition from sandstone to marble and the first uses of complex semi-precious stone inlays began. \n- **The White Marble Era (Shah Jahan):** Reaching its zenith with the Taj Mahal, where symmetry and emotional expression became the primary drivers of construction. \n\nToday, Agra is not just a tourist stop; it is the spiritual and historical heartbeat of South Asia, where centuries-old craftsmanship continues to thrive in the narrow lanes of the old city.",
+                            "image": "/blog/agra-guide-1.jpg"
+                        },
+                        {
+                            "title": "Must-Visit Attractions for the 2026 Season",
+                            image: "/blog/agra-guide-2.jpg",
+                            "content": "When planning a trip to a city with as much historical density as Agra, logistics must be meticulously handled. The climate is notoriously unforgiving. The peak tourist season runs from [October to March](/india/agra/taj-mahal-opening-time) when the daytime temperatures hover around a pleasant 20 to 25 degrees Celsius. However, traversing the city during the summer months is an exercise in endurance. During these months, the reflection off the white marble of the [Taj Mahal](/india/agra/things-to-do-in-agra) can be blinding, and the sandstone of [Agra Fort](/india/agra/places-to-visit-in-agra) can feel like walking through an oven. \n\nIf you must visit during the summer, it is imperative to adopt a split-itinerary strategy: explore from 5:30 AM to 10:30 AM, retreat to your air-conditioned hotel during the peak afternoon heat, and venture out again only after 4:30 PM. Equally critical is understanding the transportation network. While Agra is connected by the ultra-fast Gatimaan Express from Delhi (completing the journey in [just 100 minutes](/india/agra/1-day-agra-itinerary)), negotiating local transport requires tact. \n\nYou must avoid relying on random auto-rickshaws stationed directly outside major train stations like Agra Cantt, as they operate on severe commission models, taking tourists to inflated-price emporiums. Instead, heavily utilize app-based services like Uber and Ola, which provide transparent pricing and GPS tracking. For multi-monument days, renting a full-day air-conditioned taxi through a registered local agency is by far the most efficient use of your time. This allows you the flexibility to detour to hidden culinary spots in the old town without endlessly renegotiating fares."
+                        },
+                        {
+                            "title": "The Art of Marble Inlay (Pietra Dura)",
+                            "image": "/blog/agra-guide-art.jpg",
+                            "content": "Agra’s true soul lies in its 'Parchin Kari' or marble inlay work. Descendants of the original Taj Mahal artisans still operate workshops in the narrow lanes behind the Taj Ganj. \n\nWhen you see a floral motif on the Taj, you are seeing stones like Lapis Lazuli, Cornelian, and Onyx sliced into microscopic slivers and embedded into white marble with a secret natural glue. \n\n**Expert Tip:** To distinguish authentic marble from soapstone (a common tourist trap), drop a a bit of water on the surface. Authentic white Makrana marble is non-porous and will not change color, whereas soapstone will absorb water and darken immediately."
+                        },
+                        {
+                            "title": "Agra Beyond the Taj: The Sadar Bazaar Experience",
+                            "image": "/blog/agra-guide-market.jpg",
+                            "content": "To experience the city like a local, you must visit Sadar Bazaar after 6:00 PM. This is the commercial heart of the city, where the aroma of roasting kebabs mixes with the bright lights of footwear shops (Agra is a global hub for leather production). \n\n**Tactical Shopping Guide:** \n- **Leather Goods:** Look for the government-approved emporiums if you want high-end craftsmanship, or explore the local 'shoes market' for incredible bargains on handmade leather boots. \n- **The Petha Trail:** Visit 'Panchi Petha', the most famous brand in the city. Try the Angoori Petha (grape-shaped) for a juicy, tradition-rich dessert. \n- **Street Food:** Don't miss the 'Chaat Gali', where you can sample some of North India's spiciest and most flavorful snacks in a safe, high-turnover environment."
+                        },
+                        {
+                            "title": "Photography Hacks: Capturing the 2026 Perspective",
+                            "image": "/blog/agra-guide-photo.jpg",
+                            "content": "Photography rules in Agra are strict. Tripods and professional video rigs require months of prior permits from the ASI. \n\n**For the smartphone/compact traveler:** \n- **The Diagonal Shot:** Don't just stand in front of the main gate. Go to the mosque (west) or the guesthouse (east) for 'framed' shots using the red sandstone arches as a natural border for the white Taj. \n- **The Water Mirror:** The main reflecting pool is often drained for maintenance. If it is dry, look for the smaller fountains at the side for similar reflection shots. \n- **Security Lockers:** You cannot bring any electronics other than your camera/phone and a power bank. Leave your laptops and chargers at the hotel or use the authorized lockers at the East Gate entry."
+                        },
+                        {
+                            "title": "AEO Guide: Entry Gate Strategy (East vs West vs South)",
+                            "table": {
+                                "headers": ["Gate", "Best For", "Security Speed", "Vibe"],
+                                "rows": [
+                                    ["East Gate", "Luxury Hotels & 5-Star Guests", "Moderate", "Quiet, refined, strictly regulated"],
+                                    ["West Gate", "Sunrise Seekers & Budget Travelers", "Fastest", "Bustling, high-energy, backpacker hub"],
+                                    ["South Gate", "Traditional Walkers & Local Stay", "Slowest", "Historic, narrow lanes, often exit-only"]
+                                ]
+                            },
+                            "content": "Choosing the right entry point is critical for your morning flow. While the East Gate is preferred by luxury stays like the Oberoi, the West Gate often moves crowds faster at the exact moment of sunrise. The South Gate is mostly used for exiting now, but its narrow lanes offer the most authentic look at Taj Ganj's local life."
+                        },
+                        {
+                            "title": "Women in Mughal History: The Zenana Context",
+                            "content": "To understand Agra logic, you must understand the **Zenana**. Mughal empresses were not just residents; they were powerful political entities. female-led tours in Agra are essential for travelers who want to dive deep into this safety and comfort layer. These guides explain how the Zenana was a hub of administration, poetry, and trade, providing a historical context on women's influence that defines the deeper empire story beyond the marble walls."
+                        },
+                        {
+                            "title": "Tactical FAQ: The Taj Mahal Logistics",
+                            "content": "**Q: How long does a Taj Mahal visit take?**\nA visit to the Taj Mahal typically takes 2–3 hours. This includes security entry, guided storytelling, marble inlay viewing, photography time, and exploring the main mausoleum platform. If you combine it with Agra Fort, plan for 5–6 hours total. Check our [1-day itinerary](/india/agra/1-day-agra-itinerary) for a full breakdown. During peak season (October–March), entry queues may add extra time, while sunrise visits are usually faster and less crowded.\n\n**Q: Is Taj Mahal closed on Friday?**\nYes. The [Taj Mahal is strictly closed](/india/agra/is-taj-mahal-closed-on-friday) every Friday for prayers. It is open from sunrise to sunset on all other days, including public holidays.\n\n**Q: Can I visit the Taj Mahal at night?**\nYes, limited night viewing is allowed on select dates around the full moon (except Fridays and during Ramadan). Tickets must be booked 24 hours in advance at the ASI office.\n\n**Q: Is tripod allowed inside the Taj Mahal?**\nNo, tripods are strictly prohibited for security reasons. For stable shots, look for natural ledges or use a beanbag, but avoid anything that looks like professional video equipment.\n\n**Q: Is a passport required for entry?**\nForeign visitors must carry their original passport or a clear digital copy. Indian citizens can present a government-issued ID.\n\n**Q: Are sunrise tours worth it?**\nYes — sunrise is the absolute best time. See our [timing guide](/india/agra/taj-mahal-opening-time) for the best entry strategy. The marble glows in golden light, and crowd levels are significantly lower than mid-day."
+                        },
+                        {
+                            "title": "Safety & Practical Intelligence",
+                            "content": "**Q: Is Agra safe for solo travelers?**\nAgra is generally safe for tourists, especially within monument and hotel zones. Booking verified guides, avoiding isolated areas at night, and using trusted transport like Uber ensures a comfortable experience.\n\n**Q: How can I avoid scams in Agra?**\nPurchase tickets only from official counters or verified online platforms. Avoid strangers claiming monuments are “closed today”. Use licensed guides and pre-arranged transportation.\n\n**Q: What are “lapka” touts?**\n“Lapka” is local slang for aggressive touts who approach tourists. It is best to ignore unsolicited offers and rely only on licensed professionals.\n\n**Q: Is tap water safe in Agra?**\nNo, tap water is not recommended. Bottled mineral water is widely available and inexpensive.\n\n**Q: Do I need cash in Agra?**\nWhile many hotels accept cards, small shops and local markets often prefer cash. Carry small denominations of Indian Rupees for convenience.\n\n**Q: Are cows common on the streets?**\nYes, cows are occasionally seen in older neighborhoods. They are generally calm and traffic naturally adjusts around them."
+                        },
+                        {
+                            "title": "The Agra Culinary Masterclass",
+                            "content": "**Q: What local food should I try in Agra?**\nAgra is known for Mughlai cuisine and traditional sweets. Try **Petha**, **Bedai** with aloo sabzi for breakfast, and heritage-style kebabs.\n\n**Q: Where can I try Keeme ki Kachori?**\n**Keeme ki Kachori** is a local delicacy consisting of crispy fried puffs stuffed with spiced minced buff meat—a must-try for any food lover. It is available early in the morning right next to **Joney's Place** in Tajganj. Arrive early (between 6:00 AM and 9:00 AM) before they sell out.\n\n**Q: Is street food safe in Agra?**\nStreet food is generally safe if you choose popular, busy vendors. Freshly cooked items served hot are the safest options.\n\n**Q: Are vegetarian options widely available?**\nYes. Agra has abundant vegetarian options due to cultural and religious influences. Most restaurants are either fully vegetarian or clearly mark their veg dishes."
+                        },
+                        {
+                            "title": "Seasonal Strategy & Travel Planning",
+                            "content": "**Q: What is the best month to visit Agra?**\nOctober to March is the most comfortable period. Winter mornings can be foggy, so check visibility if booking sunrise slots in January.\n\n**Q: How hot does Agra get in summer?**\nFrom April to June, temperatures can exceed 40°C (104°F). Morning tours are mandatory for comfort during these months.\n\n**Q: Does it fog in winter?**\nYes, dense fog is common in December and January mornings, sometimes delaying visibility until mid-morning.\n\n**Q: How is traffic in Agra?**\nTraffic can be heavy near monuments. The Taj Mahal area uses designated parking and electric shuttles to reduce pollution.\n\n**Q: How many days are enough for Agra?**\nOne full day is enough for the Taj and Fort. Two days allow for the Baby Taj, Mehtab Bagh, and old city exploration.\n\n**Q: What are the travel options from Delhi to Agra?**\nGatimaan Express is the fastest train (100 mins). Private cars via the Yamuna Expressway take 3-4 hours."
+                        }
+                    ],
                     faqs: [
-          {
-                    "q": "Is Agra safe for solo travelers?",
-                    "a": "Yes, Agra is generally safe. However, like any major tourist hub, use common sense. Use app-based taxis for night travel, avoid persistent street touts, and stay in well-reviewed areas like Taj East Gate Road."
-          }
-]
+                        {
+                            "q": "Is Agra safe for solo travelers?",
+                            "a": "Yes, Agra is generally safe. Use common sense, use app-based taxis for night travel, and stay in well-reviewed areas like Taj East Gate Road."
+                        },
+                        {
+                            "q": "What is the best way to avoid the Taj Mahal crowds?",
+                            "a": "Arrive at the West or East gate by 5:30 AM. The first 30 minutes after opening provide the only window for crowd-free photography."
+                        }
+                    ],
+                    jsonLd: {
+                        "@context": "https://schema.org",
+                        "@type": "Article",
+                        "headline": "Agra Travel Guide 2026",
+                        "author": { "@type": "Organization", "name": "AsiaByLocals" }
+                    },
+                    fastFacts: [
+                        { icon: 'Map', label: 'Total Duration', value: '3 Days (Recommended)' },
+                        { icon: 'Wallet', label: 'Daily Budget', value: '₹3,500 - ₹7,000' },
+                        { icon: 'Star', label: 'Culture Factor', value: 'Mughal Heritage Hub' }
+                    ]
                 };
 
             default:
@@ -464,7 +445,7 @@ case 'places-to-visit-in-agra':
         }
     };
 
-    const data = getContent();
+    const data = getContent() as CityInfoData;
 
     if (!data) {
         return (
@@ -477,11 +458,31 @@ case 'places-to-visit-in-agra':
         );
     }
 
+    const renderIcon = (name: string) => {
+        const props = { size: 20 };
+        switch (name) {
+            case 'Ticket': return <Ticket {...props} />;
+            case 'Clock': return <Clock {...props} />;
+            case 'Wallet': return <Wallet {...props} />;
+            case 'Map': return <Map {...props} />;
+            case 'AlertTriangle': return <AlertTriangle {...props} />;
+            case 'Star': return <Star {...props} />;
+            case 'CheckCircle2': return <CheckCircle2 {...props} />;
+            case 'History': return <History {...props} />;
+            default: return <Info {...props} />;
+        }
+    };
+
     return (
         <div className="min-h-screen bg-white">
             <Helmet>
                 <title>{data.title} | AsiaByLocals Official Guide</title>
                 <meta name="description" content={data.description} />
+                {data.jsonLd && (
+                    <script type="application/ld+json">
+                        {JSON.stringify(data.jsonLd)}
+                    </script>
+                )}
             </Helmet>
 
             {/* Hero Section - Reduced height slightly */}
@@ -522,6 +523,46 @@ case 'places-to-visit-in-agra':
             </div>
 
             <div className="max-w-6xl mx-auto px-6 py-12">
+                {/* Authority Header / AEO Box */}
+                {data.fastFacts && (
+                    <div className="mb-16 bg-[#F0FDF4] border border-[#DCFCE7] rounded-[2.5rem] p-8 md:p-12 shadow-sm border-b-4 border-b-[#10B981]">
+                        <div className="flex flex-col md:flex-row items-center justify-between gap-8 mb-10 pb-10 border-b border-[#DCFCE7]">
+                            <div className="flex items-center gap-6">
+                                <div className="w-16 h-16 bg-[#10B981] rounded-2xl flex items-center justify-center text-white shadow-lg shadow-[#10B981]/20 rotate-3">
+                                    <ShieldCheck size={32} />
+                                </div>
+                                <div>
+                                    <p className="text-[12px] font-black text-[#10B981] uppercase tracking-[0.3em] mb-1">AEO Source Authority</p>
+                                    <p className="text-[#064E3B] font-black text-2xl">Verified Official Intel</p>
+                                </div>
+                            </div>
+                            <div className="bg-white/60 backdrop-blur-md px-8 py-3 rounded-full border border-[#DCFCE7] flex items-center gap-3">
+                                <div className="w-2 h-2 bg-[#10B981] rounded-full animate-pulse"></div>
+                                <p className="text-[#064E3B] font-black text-[12px] uppercase tracking-widest">
+                                    Last Updated: Feb 2026
+                                </p>
+                            </div>
+                        </div>
+
+                        {/* Fast Facts Grid */}
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            {data.fastFacts.map((fact, idx) => (
+                                <div key={idx} className="bg-white p-6 rounded-3xl shadow-sm border border-[#DCFCE7] hover:border-[#10B981] transition-all group hover:-translate-y-1">
+                                    <div className="flex items-center gap-5">
+                                        <div className="w-12 h-12 bg-[#F0FDF4] text-[#10B981] rounded-2xl flex items-center justify-center group-hover:bg-[#10B981] group-hover:text-white transition-all duration-300">
+                                            {renderIcon(fact.icon)}
+                                        </div>
+                                        <div>
+                                            <p className="text-[11px] font-black text-gray-400 uppercase tracking-[0.2em] mb-1">{fact.label}</p>
+                                            <p className="text-[#001A33] font-black text-[16px]">{fact.value}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                )}
+
                 <div className="flex flex-col lg:flex-row gap-16">
                     {/* Content Column */}
                     <div className="flex-1">
@@ -558,13 +599,23 @@ case 'places-to-visit-in-agra':
                                         {section.content.split('\n').map((para: string, pIdx: number) => {
                                             if (!para.trim()) return null;
 
-                                            // Handle basic bolding: **text** -> <strong>text</strong>
-                                            const parts = para.split(/(\*\*.*?\*\*)/g);
+                                            // Handle bolding: **text** and links: [text](url)
+                                            const parts = para.split(/(\*\*.*?\*\*|\[.*?\]\(.*?\))/g);
                                             return (
                                                 <p key={pIdx}>
                                                     {parts.map((part, i) => {
                                                         if (part.startsWith('**') && part.endsWith('**')) {
                                                             return <strong key={i} className="font-black text-[#001A33]">{part.slice(2, -2)}</strong>;
+                                                        }
+                                                        if (part.startsWith('[') && part.includes('](')) {
+                                                            const match = part.match(/\[(.*?)\]\((.*?)\)/);
+                                                            if (match) {
+                                                                return (
+                                                                    <a key={i} href={match[2]} className="text-[#10B981] font-black border-b border-[#10B981]/30 hover:border-[#10B981] transition-all">
+                                                                        {match[1]}
+                                                                    </a>
+                                                                );
+                                                            }
                                                         }
                                                         return part;
                                                     })}
@@ -572,6 +623,29 @@ case 'places-to-visit-in-agra':
                                             );
                                         })}
                                     </div>
+
+                                    {section.table && (
+                                        <div className="mt-8 overflow-x-auto rounded-2xl border border-gray-100 shadow-sm">
+                                            <table className="w-full text-left border-collapse">
+                                                <thead>
+                                                    <tr className="bg-gray-50">
+                                                        {section.table.headers.map((header: string, hIdx: number) => (
+                                                            <th key={hIdx} className="p-4 text-[13px] font-black text-[#001A33] uppercase tracking-wider border-b border-gray-100">{header}</th>
+                                                        ))}
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {section.table.rows.map((row: string[], rIdx: number) => (
+                                                        <tr key={rIdx} className="hover:bg-gray-50/50 transition-colors">
+                                                            {row.map((cell: string, cIdx: number) => (
+                                                                <td key={cIdx} className="p-4 text-[15px] font-medium text-gray-600 border-b border-gray-50">{cell}</td>
+                                                            ))}
+                                                        </tr>
+                                                    ))}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    )}
                                 </article>
                             ))}
                         </div>
@@ -589,9 +663,28 @@ case 'places-to-visit-in-agra':
                                                 <span className="text-[#10B981]">Q.</span>
                                                 {faq.q}
                                             </h3>
-                                            <p className="text-gray-600 font-medium leading-relaxed pl-8">
-                                                {faq.a}
-                                            </p>
+                                            <div className="text-gray-600 font-medium leading-relaxed pl-8 space-y-2">
+                                                {faq.a.split('\n').map((line: string, lIdx: number) => (
+                                                    <p key={lIdx}>
+                                                        {line.split(/(\*\*.*?\*\*|\[.*?\]\(.*?\))/g).map((part, pIdx) => {
+                                                            if (part.startsWith('**') && part.endsWith('**')) {
+                                                                return <strong key={pIdx} className="text-[#001A33] font-black">{part.slice(2, -2)}</strong>;
+                                                            }
+                                                            if (part.startsWith('[') && part.includes('](')) {
+                                                                const match = part.match(/\[(.*?)\]\((.*?)\)/);
+                                                                if (match) {
+                                                                    return (
+                                                                        <a key={pIdx} href={match[2]} className="text-[#10B981] font-black border-b border-[#10B981]/30 hover:border-[#10B981] transition-all">
+                                                                            {match[1]}
+                                                                        </a>
+                                                                    );
+                                                                }
+                                                            }
+                                                            return part;
+                                                        })}
+                                                    </p>
+                                                ))}
+                                            </div>
                                         </div>
                                     ))}
                                 </div>
@@ -671,7 +764,7 @@ case 'places-to-visit-in-agra':
                     </aside>
                 </div>
             </div>
-        </div>
+        </div >
     );
 };
 
