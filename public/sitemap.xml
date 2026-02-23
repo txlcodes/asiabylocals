@@ -549,4 +549,60 @@
     <priority>0.8</priority>
   </url>
 
+  <!-- Agra Authority: things-to-do-in-agra -->
+  <url>
+    <loc>https://www.asiabylocals.com/india/agra/things-to-do-in-agra</loc>
+    <lastmod>2026-02-23</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Agra Authority: places-to-visit-in-agra -->
+  <url>
+    <loc>https://www.asiabylocals.com/india/agra/places-to-visit-in-agra</loc>
+    <lastmod>2026-02-23</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Agra Authority: 1-day-agra-itinerary -->
+  <url>
+    <loc>https://www.asiabylocals.com/india/agra/1-day-agra-itinerary</loc>
+    <lastmod>2026-02-23</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Agra Authority: taj-mahal-ticket-price-2026 -->
+  <url>
+    <loc>https://www.asiabylocals.com/india/agra/taj-mahal-ticket-price-2026</loc>
+    <lastmod>2026-02-23</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Agra Authority: taj-mahal-opening-time -->
+  <url>
+    <loc>https://www.asiabylocals.com/india/agra/taj-mahal-opening-time</loc>
+    <lastmod>2026-02-23</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Agra Authority: is-taj-mahal-closed-on-friday -->
+  <url>
+    <loc>https://www.asiabylocals.com/india/agra/is-taj-mahal-closed-on-friday</loc>
+    <lastmod>2026-02-23</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Agra Authority: agra-travel-guide-2026 -->
+  <url>
+    <loc>https://www.asiabylocals.com/india/agra/agra-travel-guide-2026</loc>
+    <lastmod>2026-02-23</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+
 </urlset>

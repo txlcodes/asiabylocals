@@ -199,6 +199,29 @@ async function generateSitemap() {
 `;
     });
 
+    // 6. Layer 5: Authority Pages (e.g. Agra Info Pages)
+    const agraAuthorityPages = [
+      'things-to-do-in-agra',
+      'places-to-visit-in-agra',
+      '1-day-agra-itinerary',
+      'taj-mahal-ticket-price-2026',
+      'taj-mahal-opening-time',
+      'is-taj-mahal-closed-on-friday',
+      'agra-travel-guide-2026'
+    ];
+
+    agraAuthorityPages.forEach(infoSlug => {
+      xml += `  <!-- Agra Authority: ${infoSlug} -->
+  <url>
+    <loc>https://www.asiabylocals.com/india/agra/${infoSlug}</loc>
+    <lastmod>${today}</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+`;
+    });
+
     xml += `</urlset>`;
 
     // Write output
