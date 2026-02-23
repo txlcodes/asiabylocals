@@ -2345,23 +2345,35 @@ ${a(9)}`;
                                   <input type="text" value={item.title} onChange={(e) => { const items = [...formData.itineraryItems]; items[index].title = e.target.value; handleInputChange('itineraryItems', items); }} placeholder="e.g. Taj Mahal" className="w-full bg-gray-50 border-none rounded-lg py-2.5 px-3 font-black text-[#001A33] text-[14px] focus:ring-2 focus:ring-[#10B981] outline-none" />
                                 </div>
                                 <div className="col-span-2">
-                                  <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Time</label>
-                                  <select
-                                    value={item.time}
-                                    onChange={(e) => { const items = [...formData.itineraryItems]; items[index].time = e.target.value; handleInputChange('itineraryItems', items); }}
-                                    className="w-full bg-gray-50 border-none rounded-lg py-2.5 px-3 font-black text-[#001A33] text-[13px] focus:ring-2 focus:ring-[#10B981] outline-none appearance-none"
-                                  >
-                                    <option value="">Select</option>
-                                    {Array.from({ length: 48 }, (_, i) => {
-                                      const hour24 = Math.floor(i / 2);
-                                      const minutes = i % 2 === 0 ? '00' : '30';
-                                      const period = hour24 < 12 ? 'AM' : 'PM';
-                                      const hour12 = hour24 === 0 ? 12 : hour24 > 12 ? hour24 - 12 : hour24;
-                                      const label = `${hour12}:${minutes} ${period}`;
-                                      const value24 = `${String(hour24).padStart(2, '0')}:${minutes}`;
-                                      return <option key={value24} value={value24}>{label}</option>;
-                                    })}
-                                  </select>
+                                  <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">
+                                    {formData.isMultiDayTour ? 'Day / Time' : 'Time'}
+                                  </label>
+                                  {formData.isMultiDayTour ? (
+                                    <input
+                                      type="text"
+                                      value={item.time}
+                                      onChange={(e) => { const items = [...formData.itineraryItems]; items[index].time = e.target.value; handleInputChange('itineraryItems', items); }}
+                                      placeholder="e.g. Day 1, 9am"
+                                      className="w-full bg-gray-50 border-none rounded-lg py-2.5 px-3 font-black text-[#001A33] text-[13px] focus:ring-2 focus:ring-[#10B981] outline-none"
+                                    />
+                                  ) : (
+                                    <select
+                                      value={item.time}
+                                      onChange={(e) => { const items = [...formData.itineraryItems]; items[index].time = e.target.value; handleInputChange('itineraryItems', items); }}
+                                      className="w-full bg-gray-50 border-none rounded-lg py-2.5 px-3 font-black text-[#001A33] text-[13px] focus:ring-2 focus:ring-[#10B981] outline-none appearance-none"
+                                    >
+                                      <option value="">Select</option>
+                                      {Array.from({ length: 48 }, (_, i) => {
+                                        const hour24 = Math.floor(i / 2);
+                                        const minutes = i % 2 === 0 ? '00' : '30';
+                                        const period = hour24 < 12 ? 'AM' : 'PM';
+                                        const hour12 = hour24 === 0 ? 12 : hour24 > 12 ? hour24 - 12 : hour24;
+                                        const label = `${hour12}:${minutes} ${period}`;
+                                        const value24 = `${String(hour24).padStart(2, '0')}:${minutes}`;
+                                        return <option key={value24} value={value24}>{label}</option>;
+                                      })}
+                                    </select>
+                                  )}
                                 </div>
                                 <div className="col-span-3">
                                   <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Duration</label>
