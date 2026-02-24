@@ -674,8 +674,16 @@ ${a(9)}`;
     if (!formData.category || formData.category.trim() === '') missingFields.push('category');
     if (!formData.fullDescription || formData.fullDescription.trim() === '') missingFields.push('fullDescription');
     if (!formData.included || formData.included.trim() === '') missingFields.push('included');
-    if (!formData.images || formData.images.length < 4) missingFields.push('images (need at least 4)');
-    if (!formData.locations || formData.locations.length === 0) missingFields.push('locations');
+    if (formData.images.length < 4) missingFields.push('images (need at least 4)');
+
+    // Check locations properly for multi-day vs single tours
+    let hasLocations = false;
+    if (formData.isMultiDayTour) {
+      hasLocations = Object.values(formData.multiCityLocations).some((locs: any) => locs.length > 0);
+    } else {
+      hasLocations = formData.locations && formData.locations.length > 0;
+    }
+    if (!hasLocations) missingFields.push('locations');
     if (!formData.duration || formData.duration.trim() === '') missingFields.push('duration');
     // Pricing - must have maxGroupSize and at least price for 1 person
     if (!formData.maxGroupSize || formData.maxGroupSize < 1) {
