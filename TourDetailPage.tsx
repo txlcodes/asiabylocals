@@ -2882,8 +2882,9 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
                       <div className="bg-gray-50 rounded-2xl p-6 border border-gray-100">
                         {tour.detailedItinerary.split('\n').map((line: string, index: number) => {
                           const trimmed = line.trim();
-                          if (trimmed.startsWith('## ')) {
-                            return <h2 key={index} className="text-xl font-black text-[#001A33] mt-6 mb-3 first:mt-0">{trimmed.replace(/^##\s*/, '')}</h2>;
+                          if (trimmed.startsWith('##')) {
+                            const level = trimmed.startsWith('###') ? 'text-lg' : 'text-xl';
+                            return <h2 key={index} className={`${level} font-black text-[#001A33] mt-6 mb-3 first:mt-0`}>{trimmed.replace(/^#+\s*/, '')}</h2>;
                           }
                           if (trimmed === '') {
                             return <div key={index} className="h-2" />;

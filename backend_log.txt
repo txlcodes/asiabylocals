@@ -1,0 +1,138 @@
+📧 Using Resend SDK for email delivery
+   RESEND_API_KEY: ✅ Set
+   From Email: info@asiabylocals.com
+✅ Resend SDK initialized - ready to send messages
+🔐 Admin credentials loaded: { username: 'admin', passwordSet: true, passwordLength: 23 }
+🚀 Server running on http://localhost:3001
+📊 API endpoints available at http://localhost:3001/api
+🗄️  Database: PostgreSQL via Prisma ORM
+📧 Email: Configured
+✅ Connected to database via Prisma
+📋 GET /api/public/tours - Request received
+   Query params: {}
+   Headers: { host: '127.0.0.1:3001', 'user-agent': 'curl/8.7.1', accept: '*/*' }
+   Origin: undefined
+📋 Fetching public tours: {
+  city: undefined,
+  country: undefined,
+  category: undefined,
+  status: 'approved'
+}
+   Request received at: 2026-02-18T11:13:07.887Z
+   Where clause: {
+  "status": "approved"
+}
+   Will filter by city/country in memory: { city: undefined, country: undefined }
+   ⚠️  Status param ignored - always fetching approved tours only
+   ✅ Fetched 14 tours in 2953ms
+   ✅ Enriched tours with suppliers and options
+   ✅ Fetched 14 tours in 5415ms (filtered at DB level)
+   ✅ Final result: Found 14 tours
+   🔍 About to format 14 tours...
+   📊 Tour status breakdown: { approved: 14 }
+   📍 Final tours being returned: [
+  {
+    id: 192,
+    title: 'test tour',
+    city: 'Agra',
+    country: 'India',
+    status: 'approved'
+  },
+  {
+    id: 191,
+    title: 'Test Agra Tour Title',
+    city: 'Agra',
+    country: 'India',
+    status: 'approved'
+  },
+  {
+    id: 190,
+    title: 'Varanasi : Full Day Priavte To',
+    city: 'Varanasi',
+    country: 'India',
+    status: 'approved'
+  },
+  {
+    id: 189,
+    title: 'Udaipur: Private Full-Day Sigh',
+    city: 'Udaipur',
+    country: 'India',
+    status: 'approved'
+  },
+  {
+    id: 188,
+    title: 'Jaipur : Explore With Official',
+    city: 'Jaipur',
+    country: 'India',
+    status: 'approved'
+  }
+]
+   ✅ Formatted 14 tours successfully
+   📊 Tours with options: 12, without options: 2
+   📤 Returning 14 tours to frontend
+   ✅ Response will include: { success: true, toursCount: 14, hasTours: true }
+   📤 Sending response with 14 tours (took 5419ms)
+📋 GET /api/public/tours - Request received
+   Query params: {}
+   Headers: { host: 'localhost:3001', 'user-agent': 'curl/8.7.1', accept: '*/*' }
+   Origin: undefined
+📋 Fetching public tours: {
+  city: undefined,
+  country: undefined,
+  category: undefined,
+  status: 'approved'
+}
+   Request received at: 2026-02-18T11:13:13.325Z
+   Where clause: {
+  "status": "approved"
+}
+   Will filter by city/country in memory: { city: undefined, country: undefined }
+   ⚠️  Status param ignored - always fetching approved tours only
+   ✅ Fetched 14 tours in 4978ms
+   ✅ Enriched tours with suppliers and options
+   ✅ Fetched 14 tours in 5324ms (filtered at DB level)
+   ✅ Final result: Found 14 tours
+   🔍 About to format 14 tours...
+   📊 Tour status breakdown: { approved: 14 }
+   📍 Final tours being returned: [
+  {
+    id: 192,
+    title: 'test tour',
+    city: 'Agra',
+    country: 'India',
+    status: 'approved'
+  },
+  {
+    id: 191,
+    title: 'Test Agra Tour Title',
+    city: 'Agra',
+    country: 'India',
+    status: 'approved'
+  },
+  {
+    id: 190,
+    title: 'Varanasi : Full Day Priavte To',
+    city: 'Varanasi',
+    country: 'India',
+    status: 'approved'
+  },
+  {
+    id: 189,
+    title: 'Udaipur: Private Full-Day Sigh',
+    city: 'Udaipur',
+    country: 'India',
+    status: 'approved'
+  },
+  {
+    id: 188,
+    title: 'Jaipur : Explore With Official',
+    city: 'Jaipur',
+    country: 'India',
+    status: 'approved'
+  }
+]
+   ✅ Formatted 14 tours successfully
+   📊 Tours with options: 12, without options: 2
+   📤 Returning 14 tours to frontend
+   ✅ Response will include: { success: true, toursCount: 14, hasTours: true }
+   📤 Sending response with 14 tours (took 5327ms)

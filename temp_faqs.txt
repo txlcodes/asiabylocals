@@ -1,0 +1,354 @@
+                        const getTourSpecificFAQs = (title: string, slug: string | undefined) => {
+                          const t = title.toLowerCase();
+
+                          if (slug === 'taj-mahal-sunrise-guided-tour' || slug === 'taj-mahal-sunrise-tour') {
+                            const isSkipLine = slug === 'taj-mahal-sunrise-tour';
+                            const tourLabel = isSkipLine ? "Taj Mahal Sunrise Tour (Skip-the-line version)" : "Taj Mahal Sunrise Tour";
+                            const tourPath = isSkipLine ? "/india/agra/taj-mahal-sunrise-tour" : "/india/agra/taj-mahal-sunrise-guided-tour";
+
+                            return [
+                              {
+                                question: "What is the first entry time allowed by ASI?",
+                                answer: `The Archaeological Survey of India (ASI) officially opens the Taj Mahal gates exactly **30 minutes before sunrise**. This entry time is strictly enforced to ensure the security personnel from the CISF are in position. For most of the year, this equates to approximately 5:30 AM or 6:00 AM. Many visitors ask if they can enter earlier to beat the crowds, but the ASI protocols are rigid. By booking a [${tourLabel}](${tourPath}), you ensure that our guides have you in the very first segment of the security queue. This strategic positioning is vital because even a 10-minute delay can result in hundreds of people entering before you, potentially obstructing those pristine, reflection-pool views that make the early wake-up call so rewarding for international travelers.`
+                              },
+                              {
+                                question: "Is sunrise timing different in summer vs winter?",
+                                answer: "Yes, sunrise timing in Agra fluctuates dramatically between the seasons, impacting your [visit to the Taj Mahal](/india/agra/taj-mahal-opening-time) schedule. During the intense summer months of May and June, the sun breaks the horizon as early as 5:15 AM, necessitating a 4:30 AM hotel departure. Conversely, in the peak of winter (December and January), sunrise can be as late as 7:15 AM. We constantly monitor the official [sunrise timing](/india/agra/taj-mahal-opening-time) to calibrate our pickup times perfectly. While summer offers clear skies and sharp shadows, winter often brings a mystical morning fog that creates a dream-like atmosphere. Regardless of the month, our local experts ensure you are through the security gates the moment the ASI allows, allowing you to witness the white marble transition from cool lavender to a warm, golden glow as the light intensity changes."
+                              },
+                              {
+                                question: "How early should we reach for best photography?",
+                                answer: "To capture professional-grade photography without the interference of massive crowds, you should aim to reach the security gates at least **30 to 45 minutes before the gates open**. In the world of high-authority travel photography, the \"Blue Hour\"—the period just before technical sunrise—is considered the platinum window for long-exposure shots of the reflecting pools. Many travelers believe arriving at 6:00 AM is sufficient, but by then, the queue at the East Gate can already be quite long. As your specialized local partner, we prioritize early arrival tactics. Our guides know the exact \"symmetry points\" where the light hits the dome first. By being among the first 50 people inside, you can secure that iconic, unobstructed shot of the mausoleum perfectly mirrored in the water."
+                              },
+                              {
+                                question: "Is Taj Mahal closed on Fridays?",
+                                answer: "The Taj Mahal is closed to the public every Friday. This closure is a long-standing tradition to allow local residents to use the 17th-century mosque located within the complex for afternoon prayers. If you are planning an [Agra travel guide 2026](/india/agra/agra-travel-guide-2026) exploration, ensure you do not schedule your visit for a Friday, as the gates will remain firmly locked to all tourists. However, Friday can still be a productive day; you can visit the Agra Fort or the Baby Taj. For those desperate for a view, the Mehtab Bagh (Moonlight Garden) remains open on Fridays and provides a stunning perspective of the Taj Mahal from across the Yamuna River during sunset. Our [1-day itinerary](/india/agra/1-day-agra-itinerary) planners always double-check these dates to prevent any disappointment."
+                              },
+                              {
+                                question: "What should I wear for sunrise visit?",
+                                answer: "Choosing the right attire is essential for both comfort and respect. Since the sunrise visit starts in the dark, temperatures can be 5-10°C cooler than the afternoon. We recommend a \"smart layering\" strategy: a light jacket or pashmina that you can easily remove once the sun rises. We advise dressing modestly (shoulders and knees covered) to maintain the sanctity of the site. Comfortable walking shoes are a must, as you will be covering roughly 3-4 kilometers of marble and sandstone paths. Don't worry about removing your shoes on the main platform; our tours include high-quality [shoe covers](/india/agra/taj-mahal-ticket-price-2026) that allow you to keep your footwear on while exploring the interior cenotaph chamber of Shah Jahan and Mumtaz Mahal."
+                              },
+                              {
+                                question: "Is there morning prayer during sunrise?",
+                                answer: `While the Taj Mahal complex houses a red sandstone mosque on its western side, there is no loud, public morning prayer (Adhan) broadcast within the gardens during the standard tourist sunrise hours. The mosque is primarily used for private prayers by authorized personnel and locals on Fridays. However, you will often notice a profound, spiritual stillness during the early hours. The only sounds you'll hear are the waking birds in the Charbagh gardens and the soft footsteps of other sunrise enthusiasts. This provides a contemplative environment where our guides can share the architectural and romantic history of the monument without being drowned out by the mid-day bustle, making the [${tourLabel}](${tourPath}) experience feel truly exclusive and personal.`
+                              },
+                              {
+                                question: "Is the Taj Mahal Sunrise Tour worth the 4:30 AM wake-up call?",
+                                answer: "Waking up at 4:30 AM is truly necessary and is the only way to experience the Taj Mahal's soul. By arriving at sunrise, you bypass the 40°C afternoon heat and the 40,000+ daily visitors who saturate the complex by noon. The value of seeing the marble change color in near-silence far outweighs an extra two hours of sleep. This is a once-in-a-lifetime moment where the \"platinum light\" of the Golden Hour allows for photos that look like postcards. When you weigh the minor inconvenience of an early start against the intellectual and visual reward of an unobstructed view, the answer is a resounding yes. It is the tactical choice for any serious globetrotter following a premium [agra travel guide 2026](/india/agra/agra-travel-guide-2026)."
+                              },
+                              {
+                                question: "Is it worth booking a private guide for the sunrise tour instead of going solo?",
+                                answer: "A private, ASI-licensed guide is absolutely worth it because they act as your logistical shield and navigate the complex CISF security protocols for you. Beyond logistics, having a historian explain the pietra dura marble inlay and the optical illusions of the calligraphy transforms a \"pretty building\" into a masterpiece of 17th-century engineering. Without a guide, you are essentially just looking at marble; with us, you are experiencing the political and romantic legacy of the Mughal Empire. For the price of a dinner, you gain a deep, high-authority educational experience that makes your [visit to the Taj Mahal](/india/agra/taj-mahal-opening-time) truly meaningful. It settles all objections regarding the complexity of the site."
+                              },
+                              {
+                                question: "Is it worth visiting Agra just for the sunrise tour?",
+                                answer: "Many of our guests specifically book a [Delhi to Agra day trip](/india/agra/1-day-agra-itinerary) just to witness this one specific sunrise moment—and they never regret it. The Taj Mahal at dawn is an emotional experience that justifies the entire trip to India for many. The sheer scale and symmetry, revealed slowly through the morning mist or the first clear light, is a visual payload that mid-day tours simply cannot deliver. By focusing your energy on the sunrise, you capture the \"prime time\" of the city and can even be back in Delhi or at your next destination by mid-afternoon. If you only have 24 hours in Northern India, the sunrise tour is the highest-value investment of your time and travel budget compared to any other [things to do in Agra](/india/agra/things-to-do-in-agra)."
+                              }
+                            ];
+                          }
+
+                          if (slug === 'taj-mahal-agra-fort-guided-tour') {
+                            return [
+                              {
+                                question: "How long does the Taj Mahal & Agra Fort tour take?",
+                                answer: "A comprehensive [Taj Mahal & Agra Fort Guided Tour](/india/agra/taj-mahal-agra-fort-guided-tour) typically requires **4 to 6 hours** of active exploration. This duration is strategically designed to allow for a deep-dive into the architectural nuances and historical narratives of two UNESCO World Heritage sites. We usually dedicate approximately 3 hours to the Taj Mahal to appreciate the light transitions on the marble and the symmetry of the gardens, followed by another 2 hours at the Agra Fort to explore the royal pavilions and military ramparts. By booking this combined experience, you ensure a high-authority educational journey that captures the essence of the Mughal Empire's zenith without the stress of independent navigation."
+                              },
+                              {
+                                question: "Which monument do we visit first during the combined tour?",
+                                answer: "To maximize your visual and physical comfort, we always recommend visiting the **Taj Mahal first**. Starting your day at sunrise or shortly after the gates open is the most tactical decision you can make, as it allows you to beat the 40,000+ daily visitors and the intense afternoon heat that can reach 45°C in summer. Once we have captured those iconic reflecting-pool photos in the \"Golden Hour\" light, we proceed to the Agra Fort. Since the Fort is built largely of thick red sandstone, it provides much better natural shade and remains relatively cooler than the open-air marble platforms of the Taj, making the late-morning transition comfortable and productive."
+                              },
+                              {
+                                question: "How far is the Agra Fort from the Taj Mahal?",
+                                answer: "The physical distance between these two legendary monuments is surprisingly short, approximately **2.5 kilometers (1.5 miles)**. Under standard traffic conditions in the historical zone, the transition takes about 10 to 15 minutes in our private vehicle. This proximity is exactly why the [Taj Mahal & Agra Fort Guided Tour](/india/agra/taj-mahal-agra-fort-guided-tour) is the most popular choice for travelers on a restricted [1-day Agra itinerary](/india/agra/1-day-agra-itinerary). Despite being so close, the two sites offer vastly different architectural atmospheres—one being a romantic mausoleum and the other a fortified royal city. Our seamless transport between these points ensures you don't waste precious time or energy on the busy city streets."
+                              },
+                              {
+                                question: "Is transport included between the monuments?",
+                                answer: "Yes, our premium service level includes **dedicated private transportation** between the Taj Mahal and the Agra Fort. We use modern, air-conditioned vehicles to provide a sanctuary from the bustle and dust of Agra's streets during the short transition. Many budget travelers attempt to use cycle-rickshaws or walk, but our high-authority advice is to utilize private transport to maintain your energy levels for the extensive walking required inside the monuments themselves. Having a driver wait for you at the exit gates of the Taj Mahal and drop you exactly at the entrance of the Fort is a major logistical advantage that defines the premium quality of our [Agra travel guide 2026](/india/agra/agra-travel-guide-2026) services."
+                              },
+                              {
+                                question: "Are entry tickets included for both sites?",
+                                answer: "We offer **fully customizable options** regarding admission. You can choose a \"Guided Only\" package if you prefer to buy your own tickets using your phone, or a \"Full Package\" where we pre-purchase the digital ASI tickets for you. If you choose the inclusion option, we handle all the technicalities of the [Taj Mahal ticket price 2026](/india/agra/taj-mahal-ticket-price-2026) system for both the Taj Mahal and the Agra Fort. This ensures you have the correct high-value tickets for the main mausoleum entry and avoids any confusion at the turnstiles. Please note that the \"Mausoleum\" entry is an additional fee on top of the base Taj Mahal ticket, and we ensure this is always included in our full-service bookings."
+                              },
+                              {
+                                question: "What is the difference between Taj Mahal and Agra Fort architecture?",
+                                answer: "The architectural contrast is profound: the Taj Mahal is the pinnacle of **Indo-Islamic funerary architecture**, characterized by its ethereal white Makrana marble, delicate pietra dura stone inlay, and perfect bilateral symmetry. In contrast, the Agra Fort is a massive **military and residential citadel** built primarily of rugged red sandstone. While the Taj Mahal represents the romantic and spiritual side of the Mughal Empire, the Agra Fort showcases its political and military power through 70-foot high ramparts and defensive moats. Inside the Fort, however, you will find delicate white marble palaces like the Khas Mahal, which served as the precursor to the Taj's style. This architectural evolution is a core focus of our [Taj Mahal & Agra Fort Guided Tour](/india/agra/taj-mahal-agra-fort-guided-tour)."
+                              },
+                              {
+                                question: "Can we see the Taj Mahal from the Agra Fort?",
+                                answer: "Absolutely, and it is one of the most poignant moments of the entire experience. From the **Musamman Burj** (an octagonal tower) within the Agra Fort, you can enjoy a stunning, framed view of the Taj Mahal sitting across the Yamuna River. This is the exact spot where Emperor Shah Jahan was reportedly imprisoned by his son, Aurangzeb, spendng the final eight years of his life gazing at the monument he built for his wife. This high-authority historical site provides a unique perspective that you cannot get from the Taj's own gardens. Our guides will help you find the best vantage points for photography, ensuring you capture that iconic \"view from the balcony\" that is essential for any [Agra travel guide 2026](/india/agra/agra-travel-guide-2026) collection."
+                              },
+                              {
+                                question: "Is the Agra Fort wheelchair accessible?",
+                                answer: "The Agra Fort is partially accessible, though it presents more challenges than the Taj Mahal. The main entrance at Amar Singh Gate has a **steep ramp** that requires a strong assistant or motorized help. Many of the interior courtyards are paved with flat stone and are accessible, but certain high-value areas like the interior of the Jahangiri Mahal have small steps. However, as local experts, we have designed specific \"accessibility paths\" that bypass the most difficult stairs. If you or a family member uses a wheelchair, please notify us during booking so we can arrange additional assistance and ensure your [Taj Mahal & Agra Fort Guided Tour](/india/agra/taj-mahal-agra-fort-guided-tour) is comfortable. Most of the primary palaces can be viewed from the courtyards without needing to climb steps."
+                              },
+                              {
+                                question: "Is this tour too long or strenuous for elderly visitors?",
+                                answer: "We pride ourselves on creating a **flexible and senior-friendly pace**. While the combined tour involves significant walking (approx. 4-5 km total), we utilize electric carts for the 1km approach to the Taj Mahal to save your energy. Within the monuments, our guides are trained to identify seating areas and shade where you can rest while they share historical anecdotes. If you feel tired after the Taj Mahal, we can customize the Agra Fort segment to focus only on the main palaces near the entrance, skipping the more military-style hiking. This ability to dial the intensity up or down is why our [Agra travel guide 2026](/india/agra/agra-travel-guide-2026) approach is highly rated by multi-generational families who want to experience history without exhaustion."
+                              },
+                              {
+                                question: "Are both monuments official UNESCO World Heritage sites?",
+                                answer: "Yes, both the Taj Mahal and the Agra Fort are prestigious **UNESCO World Heritage Sites**, designated in 1983. They are considered the \"twin pillars\" of Mughal history in India. The Taj Mahal is recognized for being the \"jewel of Muslim art in India,\" while the Agra Fort is honored for its status as a major 16th-century Mughal monument of red sandstone. Visiting both on a single [Taj Mahal & Agra Fort Guided Tour](/india/agra/taj-mahal-agra-fort-guided-tour) is logically consistent because their histories are inextricably linked. The Fort was the seat of power where the decisions to build the Taj were made. Experiencing both UNESCO sites together provides the high-authority educational context needed to understand why the Mughal Empire remains such a fascinating chapter of global history."
+                              },
+                              {
+                                question: "Can we add Mehtab Bagh (Moonlight Garden) to this tour?",
+                                answer: "We can certainly add a visit to **Mehtab Bagh** as a \"sunset finale\" to your combined tour. Located directly across the Yamuna River from the Taj Mahal, this 25-acre garden complex offers the perfect symmetrical view of the mausoleum without the crowds. It is particularly valuable on Fridays when the Taj is closed, or for photographers who want the \"rear view\" of the monument reflected in the river. Adding this site extends the tour by about 1 hour and requires a short drive across the river bridge. For many travelers, this is the ultimate objection-killer because it allows for a peaceful, long-distance appreciation of the monument after the close-up intensity of the [Taj Mahal & Agra Fort Guided Tour](/india/agra/taj-mahal-agra-fort-guided-tour)."
+                              },
+                              {
+                                question: "Are guides allowed to enter inside the Agra Fort with us?",
+                                answer: "Yes, our **ASI-licensed guides** are fully authorized to accompany you inside every accessible area of the Agra Fort, including the Diwan-i-Aam (Hall of Public Audience) and the royal pavilions. Unlike some countries where site-specific guides are required, our guides stay with you throughout the entire 5-hour journey. This continuity is vital for a high-authority experience, as the guide can draw direct comparisons between the architecture of the Taj Mahal and the Fort. They will navigate the complex security gates and interior paths for you, ensuring you don't miss the hidden gems like the Anguri Bagh (Grape Garden) or the Gem Mosque. Their presence ensures your [Taj Mahal & Agra Fort Guided Tour](/india/agra/taj-mahal-agra-fort-guided-tour) remains educational and logistically smooth from start to finish."
+                              },
+                              {
+                                question: "Is there a lunch stop included in the combined tour?",
+                                answer: "While lunch is not strictly part of the \"monument time,\" we always build in a **flexible lunch break** between the Taj Mahal and the Agra Fort. We have a curated list of high-authority restaurant partners ranging from traditional Mughal thali spots to modern international cafes with views of the Taj. We avoid the \"tourist trap\" buffets that many large bus tours frequent, instead focusing on clean, authentic establishments that meet international hygiene standards. This break is essential for hydration and rest, allowing you to process the morning's history before tackling the Fort. If you are on a tight [1-day Agra itinerary](/india/agra/1-day-agra-itinerary), we can arrange a quick but high-quality meal to keep the day moving efficiently without sacrificing quality."
+                              },
+                              {
+                                question: "What is the best season for a combined Taj and Fort tour?",
+                                answer: "The \"Platinum Window\" for visiting Agra is from **October to March**. During these months, the weather is pleasantly cool with clear blue skies, making the extensive walking required for the [Taj Mahal & Agra Fort Guided Tour](/india/agra/taj-mahal-agra-fort-guided-tour) very easy. December and January can bring morning fog, which adds a mystical atmosphere to the Taj but may delay sunrise views. Conversely, the summer months (April to June) are extremely hot, with temperatures often exceeding 40°C, necessitating a very early 5:30 AM start. Monsoon season (July to September) brings humidity and occasional heavy rain, but also results in lush, green gardens and fewer tourists. We calibrate our pickup times and tour intensity based on the specific month of your visit to ensure maximum comfort."
+                              },
+                              {
+                                question: "Can we shorten the Agra Fort visit if we feel tired?",
+                                answer: "Absolutely. One of the primary benefits of a **private guided tour** is that it is 100% adaptable to your energy levels. If you feel that you've reached your \"historical limit\" after the Taj Mahal, we can pivot to a \"Highlights Only\" version of the Agra Fort. This focuses on the most spectacular palaces located close to the entrance, reducing the walking distance by half while still allowing you to see the famous Musamman Burj view of the Taj. We never force our guests to follow a rigid schedule; if you'd rather trade an hour of fort-walking for a relaxed coffee or some souvenir shopping in the local bazaars, our [Agra travel guide 2026](/india/agra/agra-travel-guide-2026) planners will make it happen seamlessly. Your comfort is our highest priority."
+                              },
+                              {
+                                question: "Is photography allowed inside the Agra Fort?",
+                                answer: "Yes, **photography is permitted** throughout most of the Agra Fort complex for personal use. You are encouraged to capture the intricate carvings and the stunning river views. However, please note that there are two specific restrictions: first, professional equipment like tripods and large lighting rigs requires a separate, expensive permit from the ASI. Second, like the Taj Mahal, photography is generally prohibited inside the very small, specific religious prayer areas (mosques) if they are in active use. For the most part, you can freely document your [Taj Mahal & Agra Fort Guided Tour](/india/agra/taj-mahal-agra-fort-guided-tour) with your camera or smartphone. Our guides know the exact \"symmetry spots\" where you can get professional-looking photos without other tourists in the frame, making your social media posts truly high-authority."
+                              },
+                              {
+                                question: "Are large bags allowed inside the monuments?",
+                                answer: "No, both the Taj Mahal and the Agra Fort have **strict security protocols** that prohibit large backpacks, suitcases, or heavy bags. Only small ladies' handbags or small day-packs containing essentials like water, cameras, and wallets are permitted. Prohibited items include tobacco, lighters, knives, chargers, and food. To simplify your visit, we recommend leaving all non-essential items in our private vehicle, which remains parked in a secure zone with our driver. This \"clean-entry\" strategy allows you to breeze through the CISF security checks and start your [Taj Mahal & Agra Fort Guided Tour](/india/agra/taj-mahal-agra-fort-guided-tour) without the hassle of using the monument locker rooms, which can have long queues. This is a vital tactical tip for maintaining a smooth pace during your visit."
+                              },
+                              {
+                                question: "Is this a private tour or a shared group tour?",
+                                answer: "This experience is **strictly a private tour**, meaning you will have your own dedicated ASI-licensed guide and private vehicle. We do not consolidate individual bookings into large groups. This private format is the only way to deliver a high-authority, personalized experience where you can ask as many questions as you like and move at your own pace. Whether you are a solo traveler, a couple on a honeymoon, or a large family, the tour is tailored exclusively to your group. This settles the common objection of being \"stuck\" with a slow group or missing out on details because the guide is too far away. By choosing our [Taj Mahal & Agra Fort Guided Tour](/india/agra/taj-mahal-agra-fort-guided-tour), you are investing in a premium, 1-on-1 educational session that respects your time and interests."
+                              },
+                              {
+                                question: "Is the combined Taj Mahal and Agra Fort tour worth the price?",
+                                answer: "When you consider the logistical complexity of navigating Agra's traffic and the dense history of these sites, the [Taj Mahal & Agra Fort Guided Tour](/india/agra/taj-mahal-agra-fort-guided-tour) is **the highest-value investment** you can make for your India trip. Attempting to see both sites independently often results in \"temple fatigue\" and wasted hours in ticket queues or negotiating with local transport. By booking this expert-led combined tour, you gain a seamless narrative that connects the dots between a lover's tomb and a royal fortress. The \"intellectual payload\" you receive from a historian-guide transforms these monuments from mere stone structures into living stories. When you factor in the private transport, the skip-the-line ticket assistance, and the climate-controlled comfort, the value-to-cost ratio is overwhelmingly positive for any serious globetrotter."
+                              },
+                              {
+                                question: "Is it worth seeing the Agra Fort if I've already seen the Red Fort in Delhi?",
+                                answer: "While both are Mughal masterpieces, many historians consider the **Agra Fort to be far superior** in terms of architectural preservation and intricate detail. While the Delhi Red Fort is impressive for its massive walls, the interior palaces of the Agra Fort (like the Khas Mahal and Shish Mahal) are much more intact and offer better examples of the transition from sandstone to marble. Furthermore, the unique \"Taj-view\" perspectives available only from the Agra Fort make it an essential companion piece to the mausoleum itself. If you only visit the Taj Mahal without the Fort, you are only getting half of the Mughal story. For anyone following a premium [agra travel guide 2026](/india/agra/agra-travel-guide-2026), the Agra Fort is a non-negotiable inclusion that provides deep historical context and unparalleled photography opportunities."
+                              }
+                            ];
+                          }
+
+                          if (slug === 'taj-mahal-delhi-guided-tour') {
+                            return [
+                              {
+                                question: "What time do we typically leave Delhi for a Taj Mahal day tour?",
+                                answer: "For the most tactical and visually rewarding [Delhi to Agra day trip](/india/agra/1-day-agra-itinerary), we recommend a **3:00 AM or 4:00 AM departure**. This early start is the only way to witness the Taj Mahal at sunrise, allowing you to experience the \"Platinum Hour\" before the intense heat and the 40,000+ daily visitors arrive. If you prefer a more relaxed schedule, a 6:00 AM or 7:00 AM departure is also feasible, though you will encounter more traffic on the way out of the capital. Our private chauffeurs are highly punctual, ensuring you are on the Yamuna Expressway while the rest of the city is still asleep, maximizing your exploration time in the City of Love."
+                              },
+                              {
+                                question: "How long is the actual Delhi to Agra drive and is the expressway safe?",
+                                answer: "The drive from Delhi to Agra via the **Yamuna Expressway** typically takes between **3 to 3.5 hours** under standard conditions. This 165 km six-lane toll road is the most modern and safest highway in Northern India, bypassing the congested older towns. We prioritize your security by using late-model vehicles equipped with professional-grade safety features and experienced chauffeurs who specialize in this specific corridor. The expressway is fully paved and features multiple monitored rest plazas with clean facilities and international food options. This seamless logistical path is what makes a high-quality [Delhi to Agra day trip](/india/agra/1-day-agra-itinerary) not only possible but extremely comfortable for international travelers."
+                              },
+                              {
+                                question: "Do you recommend traveling from Delhi to Agra by car or by train?",
+                                answer: "While the Gatimaan Express train is fast, we strongly recommend a **private car for maximum flexibility**. A private [Taj Mahal Delhi Guided Tour](/india/agra/taj-mahal-delhi-guided-tour) by car allows you to set your own pace, choose your own pickup time from your hotel, and store your luggage securely throughout the day. More importantly, it provides door-to-door service without the stress of navigating train stations or coordinating with local taxis in Agra. If you are traveling as a family or small group, the cost-to-comfort ratio of a private air-conditioned SUV is far superior to first-class train tickets, providing a \"sanctuary on wheels\" throughout your 12-hour journey."
+                              },
+                              {
+                                question: "Is hotel pickup available from Gurgaon, Noida, or near the Airport?",
+                                answer: "Yes, our high-authority service includes **complimentary door-to-door pickup** from any location within the National Capital Region (NCR), including New Delhi, Gurgaon (Gurugram), Noida, and hotels near the Indira Gandhi International Airport (IGIA). We calibrate our pickup windows based on your specific location to ensure we hit the Yamuna Expressway at the optimal time. Whether you are staying at a major global chain in Aerocity or a private residence in South Delhi, our chauffeur will be waiting in the lobby at the scheduled time. This all-inclusive logistical support removes the biggest objection for travelers staying outside the main city center, making the [Delhi to Agra day trip](/india/agra/1-day-agra-itinerary) effortless."
+                              },
+                              {
+                                question: "Is it possible to visit both the Taj Mahal and Agra Fort in one day?",
+                                answer: "Absolutely—the [Taj Mahal Delhi Guided Tour](/india/agra/taj-mahal-delhi-guided-tour) is specifically engineered to cover both UNESCO World Heritage sites seamlessly. A typical itinerary includes 3 hours at the Taj Mahal for deep exploration and photography, a relaxed 5-star lunch break, and 2 hours at the historical Agra Fort citadel. Because of the efficiency of the Yamuna Expressway, you can easily accomplish this in a 12-hour window. You can even add a quick visit to the Baby Taj (Itimad-ud-Daulah) or Mehtab Bagh if you maintain a steady pace. Our guides are experts at navigating the crowds, ensuring you receive a high-authority educational experience without ever feeling rushed or overwhelmed."
+                              },
+                              {
+                                question: "What if the traffic is heavy when returning to Delhi?",
+                                answer: "Traffic congestion is a reality in any major capital, but we utilize **real-time GPS navigation** and tactical route planning to minimize delays. Our drivers are intimately familiar with the peak-hour bottlenecks in areas like Noida and Sarita Vihar. By timing our departure from Agra around 4:00 PM or 5:00 PM, we aim to reach the Delhi border after the heaviest commuter surge. Even if traffic is dense, you will be in the climate-controlled comfort of a private vehicle with complimentary bottled water and Wi-Fi, turning a potential frustration into a period of relaxation. Our priority is to return you to your hotel safely and as efficiently as the [Agra travel guide 2026](/india/agra/agra-travel-guide-2026) standards dictate."
+                              },
+                              {
+                                question: "Are rest stops and clean restrooms included during the journey?",
+                                answer: "We understand that comfort and hygiene are non-negotiable for international travelers. We schedule **mandatory rest stops** at high-quality midway plazas on the Yamuna Expressway. these plazas are specifically selected for their international hygiene standards, featuring clean Western-style restrooms, ATMs, and reliable food outlets like Starbucks, Costa Coffee, or high-end Indian vegetarian restaurants. This allows you to stretch your legs, grab a fresh espresso, and freshen up before or after your monument visits. These stops are integrated into our [Delhi to Agra day trip](/india/agra/1-day-agra-itinerary) to ensure that the 3-hour journey remains a pleasant part of the overall experience rather than a physical endurance test."
+                              },
+                              {
+                                question: "Is the driver English-speaking and what is their role?",
+                                answer: "Our drivers are **professional chauffeurs** who speak functional English suited for navigation, basic logistics, and safety coordination. Their primary role is to ensure your physical safety on the road and handle all logistical technicalities like toll taxes and parking. While they are very knowledgeable about the route, they are not licensed historical guides. Upon arrival in Agra, you will be met by your specialized, ASI-licensed historical guide who will lead you through the Taj Mahal and Agra Fort. this \"division of labor\" ensures you have a high-authority expert for the history and a focused professional for the driving—a combination that defines a premium [Taj Mahal Delhi Guided Tour](/india/agra/taj-mahal-delhi-guided-tour)."
+                              },
+                              {
+                                question: "Can we customize the monument list or add a lunch stop?",
+                                answer: "Yes, our private tours are **100% customizable**. While the standard itinerary focuses on the Taj Mahal and Agra Fort, you can easily swap or add sites like the Baby Taj, the local handicraft bazaars, or the Mehtab Bagh sunset point. regarding dining, we have a curated list of high-authority restaurant partners. You can choose from a traditional Mughal thali lunch at a respected local spot or a luxury 5-star buffet at a hotel like the Taj Gateway or Courtyard by Marriott. Simply communicate your preferences to your guide or driver on the day, and they will adjust the flow of your [Agra travel guide 2026](/india/agra/agra-travel-guide-2026) experience to match your interests."
+                              },
+                              {
+                                question: "Is it worth doing a Delhi to Agra day trip instead of an overnight stay?",
+                                answer: "For many travelers, a **same-day trip is actually the superior choice**. It allows you to see the absolute highlights of Agra while keeping your base in Delhi, avoiding the hassle of checking in and out of multiple hotels. Thanks to the high-speed Yamuna Expressway, you can enjoy a full 6-7 hours of high-authority sightseeing and still be back in the capital for dinner. An overnight stay is only recommended if you wish to see the Taj Mahal at both sunrise and sunset on different days, or if you plan to continue your journey further into Rajasthan. For the typical visitor, the efficiency and convenience of our [Delhi to Agra day trip](/india/agra/1-day-agra-itinerary) provide the best value for time."
+                              },
+                              {
+                                question: "Is there a lunch stop included in the tour?",
+                                answer: "We build a **flexible lunch window** into every itinerary. While the cost of lunch is usually an optional add-on (unless you choose our all-inclusive package), we exclusively recommend restaurants that meet the highest international health and hygiene standards. We avoid the low-quality tourist cafes, instead directing our guests to authentic Mughal dining rooms or international luxury hotel buffets. This ensures you can sample the famous \"Petha\" and local Agra cuisine without any concerns about food safety. Taking a break for a high-quality meal is essential to recharge during your [Taj Mahal Delhi Guided Tour](/india/agra/taj-mahal-delhi-guided-tour), especially after several hours of exploring the vast marble platforms and sandstone courtyards."
+                              },
+                              {
+                                question: "Do I need my passport for ticket booking or monument entry?",
+                                answer: "For international travelers, carrying a **physical passport is mandatory** for the purchase of the \"Foreigner Category\" tickets and for entry validation by the CISF security personnel at the monuments. While digital copies on your phone are useful for backups, the security officers at the Taj Mahal gates often require the original document to match the name on your digital ASI ticket. We ensure that our ticketing technical assistance covers the correct entry category, but the physical passport check is a federal security requirement. This high-authority advice ensures you don't face any friction at the turnstiles during your [Delhi to Agra day trip](/india/agra/1-day-agra-itinerary) exploration."
+                              },
+                              {
+                                question: "Is the Delhi to Agra day trip worth the early wake-up call?",
+                                answer: "Absolutely. The 3:00 AM wake-up call is the single most important tactical move for a successful Agra visit. By arriving at the Taj Mahal for sunrise, you witness the marble change from a soft gray to a glowing pink and finally a brilliant white—all in relative silence. You bypass the mid-day crowds that can exceed 40,000 people and the punishing afternoon sun. The \"intellectual payload\" of seeing the monument at its most tranquil is worth every minute of lost sleep. This is why our [Taj Mahal Delhi Guided Tour](/india/agra/taj-mahal-delhi-guided-tour) is the top-rated experience for travelers who want the \"platinum version\" of India's most famous site without the logistical stress."
+                              },
+                              {
+                                question: "Is it worth booking a private tour versus a group bus tour from Delhi?",
+                                answer: "A private tour is **infinitely more valuable** for three reasons: first, you control the timing and don't have to wait for 40 other people at rest stops. Second, your ASI-licensed guide provides a high-authority, 1-on-1 historical narrative that a group guide simply cannot offer. Third, you travel in the privacy and health-conscious environment of your own vehicle. Group buses often follow rigid schedules that arrive at the Taj during peak congestion and heat, leading to a diminished experience. For the price of a modest dinner, the upgrade to a private [Delhi to Agra day trip](/india/agra/1-day-agra-itinerary) transforms your visit from a generic shuttle into a meaningful, tailored historical journey."
+                              },
+                              {
+                                question: "Is it worth visiting the Agra Fort after seeing the Taj Mahal?",
+                                answer: "Yes, visiting the Agra Fort is essential to understanding the **full historical context** of the Taj Mahal. While the Taj is a spiritual and romantic monument, the Agra Fort was the seat of the Mughal Empire's political and military power. It is where Emperors Akbar, Jahangir, and Shah Jahan lived and ruled. Most importantly, the Fort contains the Musamman Burj, the tower where Shah Jahan was imprisoned and spent his final years gazing at his wife's tomb across the river. Skipping the Fort means you only get half of the story. Our [Taj Mahal Delhi Guided Tour](/india/agra/taj-mahal-delhi-guided-tour) ensures you see both sides of the coin, providing the deep-dive historical context that every serious traveler seeks."
+                              },
+                              {
+                                question: "Is the Delhi to Agra day trip suitable for elderly travelers?",
+                                answer: "Yes, we prioritize the **comfort of senior citizens** by ensuring a private, flexible pace. We provide late-model SUVs with easy ingress/egress and ample legroom for the 3-hour journey. In the monuments, your guide will arrange for electric golf cart transport (where available) to minimize walking distances between the parking area and the main platforms. We also strategically plan our visits to the Taj Mahal during the cooler morning hours and include multiple rest stops with clean facilities. This personalized approach settles the objection that a [Delhi to Agra day trip](/india/agra/1-day-agra-itinerary) might be too physically demanding, making it a high-authority choice for multi-generational family groups."
+                              },
+                              {
+                                question: "What happens if the Taj Mahal is closed due to a VIP visit?",
+                                answer: "While rare, **official VIP closures** or technical maintenance can happen. Because we are high-authority operators with on-ground contacts, we usually receive notifications 24-48 hours in advance. In such cases, we proactively contact you to reschedule your [Taj Mahal Delhi Guided Tour](/india/agra/taj-mahal-delhi-guided-tour) to the nearest available window. If rescheduling is not possible, we pivot the itinerary to include exceptional alternatives like Fatehpur Sikri or extended time at the Agra Fort and Mehtab Bagh. Our skip-the-line technical assistance ensures that your tickets are adjusted for the new entry time without additional cost, protecting your investment and ensuring your limited time in India is still utilized effectively."
+                              },
+                              {
+                                question: "Are toll taxes and parking fees included in the tour price?",
+                                answer: "Yes, our pricing is **strictly all-inclusive**. We cover all Yamuna Expressway toll taxes, state border taxes, monument parking fees, and fuel costs. There are no hidden surcharges or \"on-the-road\" payments required. This transparency is a key part of our high-authority service standard, allowing you to relax in your private vehicle without needing to carry large amounts of local currency for transit fees. When you book our [Delhi to Agra day trip](/india/agra/1-day-agra-itinerary), the price you see is the final price for the logistical execution of your journey, ensuring a stress-free transition from the capital to the monuments and back."
+                              },
+                              {
+                                question: "Can we pay the balance on arrival and are child seats available?",
+                                answer: "We offer **flexible payment structures**, typically requiring a small deposit to secure your vehicle and guide, with the balance payable upon arrival to your driver in Agra. Regarding child safety, we provide specialized child car seats upon prior request for infants and toddlers. This is a vital service for family travelers following a premium [agra travel guide 2026](/india/agra/agra-travel-guide-2026) who want to ensure the same safety standards as they have at home. simply specify the age and weight of your child during the booking process for your [Taj Mahal Delhi Guided Tour](/india/agra/taj-mahal-delhi-guided-tour), and we will have the appropriate equipment installed before your 3:00 AM pickup."
+                              }
+                            ];
+                          }
+
+                          if (slug === 'taj-mahal-full-day-tour') {
+                            return [
+                              {
+                                question: "Is the vehicle for the Taj Mahal full day tour strictly private?",
+                                answer: "Yes, our [Taj Mahal Full Day Tour](/india/agra/taj-mahal-full-day-tour) is built on a strictly private foundation. Your vehicle—whether it is a standard sedan, a premium SUV, or a luxury coach—is reserved exclusively for your party from the moment of pickup in Delhi. This ensures total privacy, allowing you to relax, work, or rest during the 3-hour journey without the noise or unpredictability of group coaches. A private vehicle also means we can adjust the internal temperature, choosing the exact climate-control level that suits your preference. This high-authority service standard is designed for premium buyers who value their personal space and time, turning the transition from Delhi to Agra into a luxurious extension of their overall India experience."
+                              },
+                              {
+                                question: "Will we have the same driver throughout the entire day trip?",
+                                answer: "Continuity is a hallmark of our premium service. You will be assigned a **dedicated professional chauffeur** who will stay with you from your morning pickup in Delhi until your safe return in the evening. This eliminates the confusion of switching vehicles or coordinating with multiple drivers. Your chauffeur serves as your logistical anchor, managing the Yamuna Expressway transition, the monument parking technicalities, and any spontaneous stops you may require. Having the same driver ensures they become familiar with your pacing and preferences, providing a seamless and secure environment throughout your [Delhi to Agra day trip](/india/agra/1-day-agra-itinerary). Our drivers are trained to prioritize your safety and discretion, adhering to the highest standards of the [Agra travel guide 2026](/india/agra/agra-travel-guide-2026) hospitality."
+                              },
+                              {
+                                question: "Can we stop for photographs or breaks on the Yamuna Expressway?",
+                                answer: "While the Yamuna Expressway is a high-speed transit corridor, your private [Taj Mahal Full Day Tour](/india/agra/taj-mahal-full-day-tour) includes the flexibility to make tactical stops at the monitored rest plazas. These plazas offer clean facilities and safe panoramas of the Uttar Pradesh countryside. However, for safety reasons, stopping on the actual shoulder of the expressway is strictly prohibited by highway authorities. We instead plan our breaks at designated service areas where you can safely photograph the landscape and enjoy premium refreshments. This ensures that your journey remains both visually rewarding and logistically safe. If you have a specific interest in rural photography, our drivers can suggest the best plazas to stop at while still maintaining the efficiency of your [1-day Agra itinerary](/india/agra/1-day-agra-itinerary)."
+                              },
+                              {
+                                question: "Is a luxury car upgrade available for this private Agra tour?",
+                                answer: "For our most discerning guests, we offer a range of **luxury vehicle upgrades** including BMW, Mercedes-Benz, or Audi sedans, as well as premium 4x4 SUVs like the Toyota Fortuner. Upgrading your vehicle transforms the 330 km round-trip into a truly world-class experience, featuring superior suspension, premium upholstery, and enhanced noise isolation. If you are traveling as a premium business traveler or for a special occasion like a honeymoon, a luxury upgrade is highly recommended. Simply specify your preference during the booking process for your [Taj Mahal Full Day Tour](/india/agra/taj-mahal-full-day-tour), and we will ensure a pristine, top-tier vehicle is dispatched to your Delhi hotel. This is the ultimate way to settle any concern about the long drive, ensuring you arrive in Agra refreshed and ready for exploration."
+                              },
+                              {
+                                question: "Can we upgrade our lunch to a 5-star luxury buffet?",
+                                answer: "Absolutely. While our standard [Taj Mahal Full Day Tour](/india/agra/taj-mahal-full-day-tour) includes a high-quality local lunch, we offer a premium upgrade to a **5-star luxury buffet** at Agra's most prestigious hotels, such as the ITC Mughal, the Oberoi Amarvilas, or the Taj Gateway. These dining rooms offer a high-authority culinary experience, featuring royal Mughal recipes prepared with international hygiene standards and impeccable service. A 5-star lunch break is more than just a meal; it is a moment to process the morning's history in a palatial setting. This upgrade is a favorite for premium buyers following an [Agra travel guide 2026](/india/agra/agra-travel-guide-2026) plan, as it provides a refined sanctuary away from the mid-day monument crowds before continuing to the Agra Fort."
+                              },
+                              {
+                                question: "Is the tour guide separate from the driver?",
+                                answer: "Yes, we adhere to a professional \"division of specialized labor.\" Your tour is facilitated by **two separate professionals**: an expert driver for the 330 km journey and an ASI-licensed historical guide for the monument explorations. Your driver focuses entirely on your road safety and logistical comfort, while your guide—who joins you in Agra—focuses on the architectural nuances and Mughal narratives of the Taj Mahal and Agra Fort. This high-authority approach ensures that you aren't receiving a distracted, multi-tasked service. By having a dedicated specialist for each role, your [Taj Mahal Full Day Tour](/india/agra/taj-mahal-full-day-tour) maintains a level of depth and quality that and-driver combinations simply cannot match, providing the premium experience you expect."
+                              },
+                              {
+                                question: "Are the Taj Mahal entry tickets fast-track or skip-the-line?",
+                                answer: "Our premium [Taj Mahal Full Day Tour](/india/agra/taj-mahal-full-day-tour) service includes **priority ticketing assistance**. While there is no separate \"fast-track\" lane through the federal security check at the monument gates, we pre-book your digital ASI entry tickets in advance. This means you skip the massive public ticket window queues, which can often exceed an hour during the peak season. Upon arrival, your guide handles the technicality of the entry turnstiles, allowing you to move directly to the security screening. This skip-the-line strategy is vital for optimizing your [1-day Agra itinerary](/india/agra/1-day-agra-itinerary), ensuring that your time is spent in front of the marble dome rather than standing in the morning sun waiting for a paper ticket."
+                              },
+                              {
+                                question: "Can we strictly avoid shopping stops during the tour?",
+                                answer: "Yes, we believe in a **zero-pressure sightseeing experience**. Unlike many budget operators who derive commission from forced visits to marble factories or carpet emporiums, we prioritize your historical interests. If you wish to skip shopping entirely, simply inform your guide at the beginning of the day. Your [Taj Mahal Full Day Tour](/india/agra/taj-mahal-full-day-tour) is about the monuments, not the markets. We only suggest local craft visits if you explicitly request to see the traditional artisans at work, such as the descendants of the original Taj marble carvers. This commitment to an \"uncluttered\" itinerary is why we are considered a high-authority choice for serious travelers who want to follow a focused [Agra travel guide 2026](/india/agra/agra-travel-guide-2026) without distraction."
+                              },
+                              {
+                                question: "Is this private Agra tour fully customizable?",
+                                answer: "Customization is at the core of our premium service. While we have a tried-and-tested logical flow, you are free to **modify the itinerary** based on your specific interests. If you wish to spend more time photographing the Taj Mahal and skip the Baby Taj, or if you'd like to include a visit to the local Christian cemetery to see the Dutch tombs, we will make it happen. You can choose your pickup time, your lunch venue, and the order of monuments. This flexibility is what defines a truly private [Taj Mahal Full Day Tour](/india/agra/taj-mahal-full-day-tour), transforming it from a standard package into a personal historical commission that respects your unique travel style and pacing."
+                              },
+                              {
+                                question: "What is the cancellation policy for the full day private tour?",
+                                answer: "We offer a **discerning cancellation policy** that reflects the flexibility required by international travelers. For our private vehicle and guide services, you can generally cancel with a full refund up to 24-48 hours before the scheduled departure. However, please note that government-issued Taj Mahal entry tickets are non-refundable once the specific QR code has been generated by the ASI. This transparent policy protects both your investment and our logistical commitments. We recommend reviewing the specific terms during your booking for the [Taj Mahal Full Day Tour](/india/agra/taj-mahal-full-day-tour), as we aim to provide a high-authority, stress-free booking environment that accommodates the dynamic nature of luxury travel."
+                              },
+                              {
+                                question: "What happens in the rare event of a vehicle breakdown?",
+                                answer: "While we use only modern, meticulously maintained vehicles, we have a **rigorous emergency backup protocol** in place. In the extremely unlikely event of a mechanical issue on the Yamuna Expressway, our control center in Delhi can dispatch a relief vehicle from our nearest support station within 60 to 90 minutes. Our drivers are trained in basic troubleshooting but focus on your immediate comfort and safety while the replacement arrives. Your [Taj Mahal Full Day Tour](/india/agra/taj-mahal-full-day-tour) is backed by our regional logistical network, ensuring that a technical glitch never turns into a stranded day. This operational redundacy is a key reason why travelers choose a high-authority operator for their [Delhi to Agra day trip](/india/agra/1-day-agra-itinerary)."
+                              },
+                              {
+                                question: "Is travel insurance included in the private tour package?",
+                                answer: "Our services include **standard passenger liability insurance** as required by Indian transport laws for all commercial vehicles. This covers basic medical contingencies resulting from transit. However, we strongly recommend that all our guests carry comprehensive personal travel insurance that includes trip cancellation, baggage loss, and international medical evacuation. While we provide the highest-authority logistical safety through experienced drivers and modern vehicles, a private [Taj Mahal Full Day Tour](/india/agra/taj-mahal-full-day-tour) should always be part of a well-insured international journey. This settled objection ensures you have total peace of mind as you traverse the highway and explore the vast complexes of Agra under our professional care."
+                              }
+                            ];
+                          }
+
+                          if (slug === 'female-guide-for-taj-mahal') {
+                            return [
+                              {
+                                question: "Are female guides licensed by government?",
+                                answer: "Yes, all our female guides for the Taj Mahal are **government-approved (ASI-licensed)**. They undergo rigorous training and background checks by the Ministry of Tourism, Government of India, ensuring you receive authentic historical information from a verified professional."
+                              },
+                              {
+                                question: "Can I request specific language?",
+                                answer: "Absolutely. While English is the default, you can request a [female guide for Taj Mahal](/india/agra/female-guide-for-taj-mahal) who speaks **Spanish, French, German, Italian, or Japanese**. Please specify your preferred language during booking so we can assign the most suitable expert for your group."
+                              },
+                              {
+                                question: "Is this suitable for solo female travelers?",
+                                answer: "This tour is specifically engineered for **solo female travelers** seeking an extra layer of comfort and safety in India. A female guide provides a secure environment while navigating the monument's crowds and security queues, allowing you to focus entirely on the architectural beauty of the Taj Mahal."
+                              },
+                              {
+                                question: "Can guide assist with saree draping photos?",
+                                answer: "Yes, your guide can assist with **basic saree draping** and photo coordination. Many of our female guests choose to wear traditional Indian attire for their visit, and having a female guide ensures you have someone who understands the nuances of the drape and knows exactly which [photography spots](/india/agra/taj-mahal-photography-tour) offer the best background for your shots."
+                              },
+                              {
+                                question: "Is cultural sensitivity maintained?",
+                                answer: "Cultural sensitivity is a core pillar of our [Agra travel guide 2026](/india/agra/agra-travel-guide-2026) services. Female guides offer a deep, empathetic understanding of local customs, traditions, and the spiritual significance of the site, ensuring that your interactions with the local environment are respectful and meaningful."
+                              },
+                              {
+                                question: "Are guides trained in history formally?",
+                                answer: "Yes, our guides are **formally trained historians** with university degrees in History or Archeology. They specialize in Mughal history and can provide a deep-dive analysis of the pietra dura marble inlay, the Persian garden layout, and the political motivations behind the Taj Mahal's construction."
+                              },
+                              {
+                                question: "Can female guide handle family groups?",
+                                answer: "Definitely. Female guides are exceptionally skilled at handling **multi-generational family groups**. They are patient with children and can adapt their storytelling style to engage all age groups, making the history of the Taj Mahal accessible and interesting for both kids and adults."
+                              },
+                              {
+                                question: "Is there extra charge compared to male guide?",
+                                answer: "No, we maintain **pricing parity**. There is no surcharge for requesting a female guide. Every [AsiaByLocals tour](/india/agra/things-to-do-in-agra) is priced based on the expertise and licensing of the individual, regardless of gender."
+                              },
+                              {
+                                question: "Can I request modest storytelling approach?",
+                                answer: "Yes, you can request a **modest storytelling approach** that focuses on the architectural and historical facts while respecting cultural boundaries. Our guides are flexible and will calibrate their narrative style to match your party's comfort level and interests."
+                              },
+                              {
+                                question: "Are guides safe and verified?",
+                                answer: "Your safety is our top priority. Every guide is **personally verified** by AsiaByLocals and holds a valid government ID. We only work with professionals who have established a multi-year track record of excellence and safety with international travelers."
+                              },
+                              {
+                                question: "Can guide help avoid local scams?",
+                                answer: "Yes, your guide acts as your **logistical shield**, protecting you from unauthorized photographers, aggressive street vendors, and common local scams at the monument entrance. They ensure you pay the correct [Taj Mahal ticket price 2026](/india/agra/taj-mahal-ticket-price-2026) and navigate the security check without unnecessary delays."
+                              },
+                              {
+                                question: "Can we customize duration?",
+                                answer: "Yes, as this is a **private tour**, the duration is fully customizable. While a standard visit takes 2-3 hours, we can extend it for serious photographers or shorten it for travelers on a tight [1-day Agra itinerary](/india/agra/1-day-agra-itinerary)."
+                              },
+                              {
+                                question: "Can she recommend safe cafes?",
+                                answer: "Certainly. Your guide can recommend **safe, hygienic cafes and restaurants** that meet international standards. Whether you want a rooftop cafe with a Taj view or a clean, traditional Mughal dining room, she will ensure you have a safe and authentic culinary experience."
+                              },
+                              {
+                                question: "Is photography assistance included?",
+                                answer: "While they are not professional photographers, our guides are experts at finding the **best symmetry points and lighting**. They are happy to help you capture those iconic photos on your smartphone or camera, ensuring you don't miss those essential \"reflection pool\" shots."
+                              },
+                              {
+                                question: "Can guide assist elderly women travelers?",
+                                answer: "Yes, our female guides are trained to provide a **gentle and patient pace** for elderly women travelers. They can arrange for electric carts, identify resting spots with shade, and ensure the walking route inside the monument avoids strenuous steps where possible."
+                              }
+                            ];
+                          }
+
+                          if (slug === 'taj-mahal-entry-ticket') {
+                            return [
+                              {
+                                question: "Is this an official Taj Mahal entry ticket?",
+                                answer: "Yes, these are 100% official digital entry tickets issued by the Archaeological Survey of India (ASI). As an authorized booking partner, we process your admission under strict government regulations, ensuring your QR code is valid at all entry turnstiles. Unlike unauthorized \"skip-the-line\" vouchers sold on the street, our tickets grant you legitimate access to the main Taj Mahal complex, including the peripheral gardens and flanking monuments. By pre-booking with us, you avoid the risk of counterfeit tickets and ensure your visit is recorded in the official ASI attendance system."
+                              },
+                              {
+                                question: "Does “skip-the-line” mean skipping security checks?",
+                                answer: "It is a common misconception that skip-the-line tickets allow you to bypass the security gates. In reality, \"Skip-The-Line\" refers specifically to bypassing the **official ASI ticket window queues**, which can often exceed 60 to 90 minutes during the peak tourist season. However, every single visitor to the Taj Mahal, regardless of their status or ticket type, must undergo a mandatory physical security screening conducted by the Central Industrial Security Force (CISF)."
+                              }
+                            ];
+                          }
+
+                          if (t.includes('delhi') && t.includes('agra') && t.includes('day trip')) {
+                            return [
+                              { question: "What time do we leave Delhi for a Taj Mahal day tour?", answer: "To maximize your day and experience the Taj Mahal at its most tranquil, we typically recommend a **3:00 AM or 4:00 AM departure** from Delhi. This early start allows you to reach Agra just as the gates open for sunrise, avoiding the heavy morning traffic on the Yamuna Expressway." },
+                              { question: "How long is the Delhi to Agra drive and is the expressway safe?", answer: "The drive from Delhi to Agra via the **Yamuna Expressway** typically takes between **3 to 3.5 hours**. This modern, 6-lane toll road is one of India's best highways, offering a smooth and safe journey. We include all toll taxes, parking, and fuel in your tour package." },
+                              { question: "Is a same-day Taj Mahal tour from Delhi actually worth it?", answer: "Absolutely—thanks to the ultra-fast Yamuna Expressway, a **same-day trip is the most popular way** to visit Agra. A well-structured itinerary easily covers the Taj Mahal, Agra Fort, and a relaxed 5-star lunch." }
+                            ];
+                          }
+                          return null;
+                        };
