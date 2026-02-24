@@ -21,8 +21,8 @@ const CITY_DESCRIPTIONS: Record<string, {
     title: 'Agra Tours & Things to Do | Guided Experiences by Locals',
     description: 'Discover the best tours in Agra with licensed local guides. Taj Mahal sunrise tours, heritage walks, food tours & day trips.',
     intro: [
-      'Agra is one of India\'s most visited cities, famous worldwide for the Taj Mahal and its rich Mughal heritage. Beyond the iconic monument, Agra offers a deep cultural experience through historic forts, bustling bazaars, traditional crafts, and local cuisine.',
-      'At AsiaByLocals, discover expert-led tours in Agra hosted by licensed local guides and historians. From Taj Mahal sunrise visits to heritage walks, food tours, and day trips to Fatehpur Sikri, explore Agra through authentic, locally curated experiences.'
+      'At AsiaByLocals, discover expert-led [tours in Agra](/india/agra/things-to-do-in-agra) hosted by a licensed **local guide for Agra** and historians. From an **Agra tour by guide** for Taj Mahal sunrise visits to a comprehensive **Agra guided tour**, explore the city through authentic, locally curated [1-day itineraries](/india/agra/1-day-agra-itinerary).',
+      'Agra is one of India\'s most visited cities, famous worldwide for the Taj Mahal and its rich Mughal heritage. Beyond the iconic monument, Agra offers a deep cultural experience through historic forts, bustling bazaars, traditional crafts, and local cuisine.'
     ],
     whyBook: [
       'Licensed & experienced local experts',

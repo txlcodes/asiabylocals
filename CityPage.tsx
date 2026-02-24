@@ -6,6 +6,8 @@ import {
 } from 'lucide-react';
 import { CITY_LOCATIONS } from './constants';
 import { Helmet } from 'react-helmet-async';
+import Footer from './Footer';
+import Breadcrumbs from './Breadcrumbs';
 
 interface CityPageProps {
   country: string;
@@ -26,8 +28,8 @@ const CITY_DESCRIPTIONS: Record<string, {
     title: 'Agra Tours & Things to Do | Guided Experiences by Locals',
     description: 'Discover the best tours in Agra with licensed local guides. Taj Mahal sunrise tours, heritage walks, food tours & day trips.',
     intro: [
-      'Agra is one of India\'s most visited cities, famous worldwide for the Taj Mahal and its rich Mughal heritage. Beyond the iconic monument, Agra offers a deep cultural experience through historic forts, bustling bazaars, traditional crafts, and local cuisine.',
-      'At AsiaByLocals, discover expert-led [tours in Agra](/india/agra/things-to-do-in-agra) hosted by licensed local guides and historians. From Taj Mahal sunrise visits to [1-day itineraries](/india/agra/1-day-agra-itinerary), explore Agra through authentic, locally curated experiences.'
+      'At AsiaByLocals, discover expert-led [tours in Agra](/india/agra/things-to-do-in-agra) hosted by a licensed **local guide for Agra** and historians. From an **Agra tour by guide** for Taj Mahal sunrise visits to a comprehensive **Agra guided tour**, explore the city through authentic, locally curated [1-day itineraries](/india/agra/1-day-agra-itinerary).',
+      'Agra is one of India\'s most visited cities, famous worldwide for the Taj Mahal and its rich Mughal heritage. Beyond the iconic monument, Agra offers a deep cultural experience through historic forts, bustling bazaars, traditional crafts, and local cuisine.'
     ],
     whyBook: [
       'Licensed & experienced local experts',
@@ -1721,6 +1723,8 @@ const CityPage: React.FC<CityPageProps> = ({ country, city }) => {
           <span>Back</span>
         </button>
 
+        <Breadcrumbs country={country} city={city} />
+
         {/* H1 - SEO Gold (ONLY ONE H1) */}
         <h1 className="text-4xl md:text-5xl font-black text-[#001A33] mb-8">
           Guided Tours & Things to Do in {city}
@@ -2192,6 +2196,7 @@ const CityPage: React.FC<CityPageProps> = ({ country, city }) => {
           </div>
         )}
       </div>
+      <Footer />
     </div>
   );
 };
