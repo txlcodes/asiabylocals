@@ -124,7 +124,7 @@ const TourCreationForm: React.FC<TourCreationFormProps> = ({
         groupPricingTiers: tour.groupPricingTiers ? (typeof tour.groupPricingTiers === 'string' ? JSON.parse(tour.groupPricingTiers) : tour.groupPricingTiers) : [],
         unavailableDates: tour.unavailableDates ? (typeof tour.unavailableDates === 'string' ? JSON.parse(tour.unavailableDates) : tour.unavailableDates) : [], // Legacy
         unavailableDaysOfWeek: tour.unavailableDaysOfWeek ? (typeof tour.unavailableDaysOfWeek === 'string' ? JSON.parse(tour.unavailableDaysOfWeek) : tour.unavailableDaysOfWeek) : (tour.unavailableDaysOfWeek ? [] : []),
-        currency: tour.currency || 'INR',
+        currency: tour.currency || 'USD',
         shortDescription: tour.shortDescription || '',
         fullDescription: tour.fullDescription || '',
         highlights: Array.isArray(tour.highlights) ? tour.highlights : (typeof tour.highlights === 'string' ? JSON.parse(tour.highlights || '[]') : ['', '', '']),
@@ -1319,7 +1319,7 @@ ${a(9)}`;
                     value={formData.country}
                     onChange={(e) => {
                       const newCountry = e.target.value;
-                      const newCurrency = newCountry === 'Thailand' ? 'THB' : 'USD';
+                      const newCurrency = 'USD';
                       setFormData(prev => ({
                         ...prev,
                         country: newCountry,
@@ -1871,18 +1871,7 @@ ${a(9)}`;
                       onChange={(e) => handleInputChange('currency', e.target.value)}
                       className="w-full bg-gray-50 border-none rounded-2xl py-4 px-4 font-bold text-[#001A33] text-[14px] focus:ring-2 focus:ring-[#10B981] outline-none"
                     >
-                      {formData.country === 'Thailand' ? (
-                        <>
-                          <option value="THB">{getCurrencySymbol('THB')} THB</option>
-                          <option value="USD">{getCurrencySymbol('USD')} USD</option>
-                        </>
-                      ) : (
-                        <>
-                          <option value="INR">{getCurrencySymbol('INR')} INR</option>
-                          <option value="USD">{getCurrencySymbol('USD')} USD</option>
-                          <option value="EUR">{getCurrencySymbol('EUR')} EUR</option>
-                        </>
-                      )}
+                      <option value="USD">{getCurrencySymbol('USD')} USD</option>
                     </select>
                   </div>
                 </div>
@@ -1941,7 +1930,7 @@ ${a(9)}`;
                               <span className="text-[14px] font-bold text-[#001A33]">{numPeople} {numPeople === 1 ? 'person' : 'people'}</span>
                             </div>
                             <div className="flex-1 flex items-center gap-3">
-                              <span className="text-[16px] font-bold text-[#001A33]">{formData.currency === 'INR' ? '₹' : '$'}</span>
+                              <span className="text-[16px] font-bold text-[#001A33]">{getCurrencySymbol(formData.currency)}</span>
                               <div className="flex-1 relative">
                                 <input
                                   type="number"
@@ -1992,7 +1981,7 @@ ${a(9)}`;
 
                     {formData.groupPricingTiers && formData.groupPricingTiers.length > 0 && formData.groupPricingTiers[0]?.price && (
                       <p className="text-[12px] text-[#10B981] font-semibold mt-4">
-                        ✓ Main card will show: "Starting from {formData.currency === 'INR' ? '₹' : '$'}{parseFloat(formData.groupPricingTiers[0].price).toLocaleString()}"
+                        ✓ Main card will show: "Starting from {getCurrencySymbol(formData.currency)}{parseFloat(formData.groupPricingTiers[0].price).toLocaleString()}"
                       </p>
                     )}
                   </div>
@@ -2897,9 +2886,6 @@ ${a(9)}`;
                               className="w-full bg-white border-none rounded-xl py-3 px-4 font-semibold text-[#001A33] text-[14px] focus:ring-2 focus:ring-[#10B981] outline-none"
                             >
                               <option value="USD">USD ($)</option>
-                              <option value="THB">THB (฿)</option>
-                              <option value="INR">INR (₹)</option>
-                              <option value="EUR">EUR (€)</option>
                             </select>
                           </div>
                         </div>
@@ -3031,9 +3017,6 @@ ${a(9)}`;
                             className="w-full bg-gray-50 border-none rounded-xl py-3 px-4 font-bold text-[#001A33] text-[14px] focus:ring-2 focus:ring-[#10B981] outline-none"
                           >
                             <option value="USD">USD ($)</option>
-                            <option value="THB">THB (฿)</option>
-                            <option value="INR">INR (₹)</option>
-                            <option value="EUR">EUR (€)</option>
                           </select>
                         </div>
                         <div>
