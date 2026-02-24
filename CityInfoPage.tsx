@@ -379,7 +379,15 @@ const CityInfoPage: React.FC<CityInfoPageProps> = ({ country, city, slug }) => {
                     sections: [
                         {
                             title: "Definitive Answer: Yes, It is Closed",
-                            content: "**Yes, the Taj Mahal is closed every Friday for congregational prayers; however, the viewpoint at Mehtab Bagh remains open for sunset views.** \n\nThis rule applies year-round, including in 2026. \n\n🛑 **Every Friday:** No entry for general visitors \n🟢 **Except:** Special night viewing slots on select full-moon nights (separate booking required) \n\nThis closure is due to Friday congregational prayers inside the mosque located within the Taj Mahal complex."
+                            content: "**Yes, the Taj Mahal is closed every Friday for congregational prayers; however, the viewpoint at Mehtab Bagh remains open for sunset views.** \n\nThis rule applies year-round, including in 2026. \n\n**Every Friday:** No entry for general visitors \n**Except:** Special night viewing slots on select full-moon nights (separate booking required) \n\nThis closure is due to Friday congregational prayers inside the mosque located within the Taj Mahal complex."
+                        },
+                        {
+                            isCTA: true,
+                            title: "Don't Waste Your Friday in Agra",
+                            content: "Join our expert-led tour designed specifically for when the Taj is closed. See the best of Agra Fort, Baby Taj, and a stunning sunset view of the Taj Mahal from across the river.",
+                            image: "https://res.cloudinary.com/dx2fxyaft/image/upload/v1771968962/tours/agra/tours/agra_1771968961387_0.jpg",
+                            buttonText: "Book Friday Special Tour",
+                            buttonLink: "https://www.asiabylocals.com/india/agra/agra-friday-tour-taj-closed-alternative"
                         },
                         {
                             title: "The Immutable Friday Policy",
@@ -646,21 +654,26 @@ const CityInfoPage: React.FC<CityInfoPageProps> = ({ country, city, slug }) => {
                                 if (section.isCTA) {
                                     return (
                                         <div key={index} className="bg-gradient-to-br from-[#001A33] to-[#003366] rounded-[2.5rem] p-10 text-white shadow-2xl relative overflow-hidden group">
-                                            <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-8">
+                                            <div className="relative z-10 flex flex-col md:flex-row items-center gap-12">
+                                                {section.image && (
+                                                    <div className="w-full md:w-[280px] aspect-[4/3] shrink-0 rounded-3xl overflow-hidden shadow-2xl border-4 border-white/10 group-hover:scale-[1.02] transition-transform duration-700">
+                                                        <img src={section.image} alt={section.title} className="w-full h-full object-cover" />
+                                                    </div>
+                                                )}
                                                 <div className="flex-1 text-center md:text-left">
-                                                    <h3 className="text-2xl md:text-3xl font-black mb-4 leading-tight">
+                                                    <h3 className="text-2xl md:text-4xl font-black mb-6 leading-tight">
                                                         {section.title}
                                                     </h3>
-                                                    <p className="text-white/80 font-bold text-lg leading-relaxed max-w-xl">
+                                                    <p className="text-white/80 font-bold text-lg leading-relaxed max-w-xl mb-10">
                                                         {section.content}
                                                     </p>
+                                                    <button
+                                                        onClick={() => window.location.href = section.buttonLink}
+                                                        className="px-10 py-5 bg-[#10B981] hover:bg-[#059669] text-white font-black rounded-2xl transition-all shadow-xl hover:scale-105 active:scale-95 text-[17px] whitespace-nowrap"
+                                                    >
+                                                        {section.buttonText}
+                                                    </button>
                                                 </div>
-                                                <button
-                                                    onClick={() => window.location.href = section.buttonLink}
-                                                    className="px-8 py-5 bg-[#10B981] hover:bg-[#059669] text-white font-black rounded-2xl transition-all shadow-xl hover:scale-105 active:scale-95 text-[16px] whitespace-nowrap"
-                                                >
-                                                    {section.buttonText}
-                                                </button>
                                             </div>
                                             {/* Decorative element */}
                                             <div className="absolute top-0 right-0 w-64 h-64 bg-[#10B981]/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 group-hover:scale-150 transition-transform duration-1000"></div>
