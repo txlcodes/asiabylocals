@@ -4,7 +4,7 @@
     "slug": "india-gate-india-guided-tour",
     "city": "Delhi",
     "country": "India",
-    "updatedAt": "2026-01-16T16:27:42.758Z"
+    "updatedAt": "2026-02-24T13:53:54.354Z"
   },
   {
     "id": 190,
@@ -12,6 +12,13 @@
     "city": "Varanasi",
     "country": "India",
     "updatedAt": "2026-02-15T09:48:23.271Z"
+  },
+  {
+    "id": 209,
+    "slug": "taj-mahal-royal-private-tour",
+    "city": "Agra",
+    "country": "India",
+    "updatedAt": "2026-02-24T19:33:50.702Z"
   },
   {
     "id": 201,
@@ -35,6 +42,13 @@
     "updatedAt": "2026-02-23T09:01:47.477Z"
   },
   {
+    "id": 207,
+    "slug": "india-gate-triangle-guided-tour",
+    "city": "Delhi",
+    "country": "India",
+    "updatedAt": "2026-02-24T18:21:21.769Z"
+  },
+  {
     "id": 203,
     "slug": "taj-mahal-agra-fort-guided-tour",
     "city": "Agra",
@@ -46,7 +60,7 @@
     "slug": "taj-mahal-sunrise-tour",
     "city": "Agra",
     "country": "India",
-    "updatedAt": "2026-02-17T13:34:40.761Z"
+    "updatedAt": "2026-02-24T10:06:36.249Z"
   },
   {
     "id": 179,
@@ -70,11 +84,18 @@
     "updatedAt": "2026-02-20T06:31:01.351Z"
   },
   {
+    "id": 204,
+    "slug": "india-gate-express-tour",
+    "city": "Delhi",
+    "country": "India",
+    "updatedAt": "2026-02-23T16:15:32.352Z"
+  },
+  {
     "id": 185,
     "slug": "female-guide-for-taj-mahal",
     "city": "Agra",
     "country": "India",
-    "updatedAt": "2026-02-24T17:16:21.000Z"
+    "updatedAt": "2026-02-24T11:48:02.671Z"
   },
   {
     "id": 181,
@@ -98,11 +119,25 @@
     "updatedAt": "2026-02-15T09:13:03.844Z"
   },
   {
+    "id": 208,
+    "slug": "taj-mahal-photography-tour",
+    "city": "Agra",
+    "country": "India",
+    "updatedAt": "2026-02-24T18:32:07.720Z"
+  },
+  {
     "id": 197,
     "slug": "agra-same-guided-tour",
     "city": "Agra",
     "country": "India",
     "updatedAt": "2026-02-20T10:39:40.387Z"
+  },
+  {
+    "id": 200,
+    "slug": "taj-mahal-sunrise-guided-tour",
+    "city": "Agra",
+    "country": "India",
+    "updatedAt": "2026-02-24T10:35:25.392Z"
   },
   {
     "id": 198,
@@ -112,17 +147,17 @@
     "updatedAt": "2026-02-21T14:01:23.109Z"
   },
   {
-    "id": 200,
-    "slug": "taj-mahal-sunrise-guided-tour",
-    "city": "Agra",
-    "country": "India",
-    "updatedAt": "2026-02-21T19:18:13.715Z"
-  },
-  {
     "id": 202,
     "slug": "jaipur-city-highlights-tour-with-amber-fort-hawa-mahal",
     "city": "Jaipur",
     "country": "India",
     "updatedAt": "2026-02-23T08:57:07.379Z"
+  },
+  {
+    "id": 210,
+    "slug": "agra-friday-tour-taj-closed-alternative",
+    "city": "Agra",
+    "country": "India",
+    "updatedAt": "2026-02-24T21:39:00.602Z"
   }
 ]
