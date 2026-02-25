@@ -53,6 +53,841 @@ interface TourDetailPageProps {
 export const getTourSpecificFAQs = (title: string, slug: string | undefined) => {
   const t = title.toLowerCase();
 
+  // --- AUTO-INJECTED FAQS ---
+  if (slug === 'book-guide-for-taj-mahal') {
+    return [
+      {
+        question: "Is this an official licensed Taj Mahal tour guide?",
+        answer: "Yes, absolutely. We exclusively provide Ministry of Tourism-approved and officially licensed guides for your Taj Mahal experience. These are high-authority professionals authorized to guide inside all federally protected archaeological sites in India. This guarantees that the historical narrative you receive is accurate, deeply researched, and free from common myths. Engaging an official guide also ensures you bypass unregistered touts outside the monument. They understand the complex architecture, the intricate Pietra Dura marble inlay work, and the authentic history of the Mughal Empire, delivering a premium educational payload rather than just a basic walk-through."
+      },
+      {
+        question: "How long will the guide stay with us?",
+        answer: "Your dedicated professional guide will typically stay with you for approximately two to three hours during a standard Taj Mahal visit. However, since this is a private guiding service, the timeline is completely flexible and customized to your specific pace and interests. If you wish to spend more time examining the calligraphy, admiring the symmetrical gardens, or taking photographs at different vantage points, your guide will happily accommodate. The core objective is to ensure you comprehensively understand the monument without feeling rushed, maximizing the value of your once-in-a-lifetime visit to this world wonder."
+      },
+      {
+        question: "Where will the guide meet us at Taj Mahal?",
+        answer: "To ensure an absolutely seamless experience, your professional guide will meet you precisely at your chosen entry point—either the East Gate or the West Gate ticket counters, or even directly at the parking facility if you prefer. They will be holding a clear name board for immediate recognition. Because the area around the monument can be hectic, having your [local expert guide](/india/agra/agra-travel-guide-2026) meet you before you even enter the queue provides immediate peace of mind. They take over the logistical navigation immediately, allowing you to focus entirely on the upcoming architectural marvel."
+      },
+      {
+        question: "Can the guide meet at East or West Gate?",
+        answer: "Yes, our flexible guiding service allows you to dictate the exact meeting point. The Taj Mahal has two main tourist entrances: the East Gate and the West Gate. Both are fully operational, but the East Gate is typically preferred for sunrise visits due to its proximity to the main hotel district and slightly better infrastructure. Your guide will coordinate with you via WhatsApp or phone a day prior to establish the most convenient gate based on your hotel's location and your arrival vehicle, ensuring zero confusion on the morning of your highly anticipated tour."
+      },
+      {
+        question: "Are monument entry tickets included?",
+        answer: "This specific booking is purely for our premium, high-authority guiding service and does not include the cost of monument entry tickets. However, your guide acts as your logistical architect; they will assist you in acquiring your tickets via the official government online portal or physically at the designated priority counters. By keeping the guiding fee separate, you avoid any hidden markups on ticket prices. We ensure the ticketing process is handled efficiently so that you spend your time admiring the 17th-century white marble mausoleum rather than standing in administrative queues."
+      },
+      {
+        question: "What languages are available?",
+        answer: "We pride ourselves on offering a comprehensive roster of linguistically diverse, federally licensed guides to cater to our international clientele. Beyond fluent English, we can provide expert storytelling in Spanish, French, German, Italian, Russian, and Japanese. This ensures that you receive the complex historical narrative of the Mughal dynasty in your native tongue, preventing any loss of detail or nuance. When you [book your Taj Mahal visit](/india/agra/taj-mahal-opening-time), simply specify your preferred language, and we will flawlessly match you with a senior specialized guide who possesses absolute fluency and high-authority historical knowledge."
+      },
+      {
+        question: "Can I verify the guide’s government ID?",
+        answer: "Absolutely. Transparency and professional integrity are the cornerstones of our service. Upon meeting you, your guide will proudly display their valid, government-issued Ministry of Tourism license. This laminated ID is strictly required by the Archaeological Survey of India (ASI) for anyone providing historical commentary inside the monument. Verifying this ID gives you immediate confidence that you are not dealing with an unauthorized storyteller. We encourage all discerning travelers to check these credentials, as it guarantees you are receiving a factually accurate, premium educational experience regarding the construction and legacy of Shah Jahan's masterpiece."
+      },
+      {
+        question: "Is this a private guiding service?",
+        answer: "Yes, this is a strictly 100% private guiding service engineered exclusively for you and your travel companions. We do not consolidate or mix different booking parties into large, impersonal groups. This total exclusivity means the entire narrative is tailored to your engagement level. You dictate the pace, pause whenever you desire, and ask unrestricted questions without worrying about a group schedule. This private sanctuary ensures a meaningful, high-authority connection with the architecture and the romantic history, providing the ultimate VIP exploration of India's most iconic and revered 17th-century monument."
+      },
+      {
+        question: "Can the guide help with photography?",
+        answer: "Certainly. Our seasoned professional guides understand that capturing stunning visuals is a critical component of your [visit to the Taj Mahal](/india/agra/taj-mahal-ticket-price-2026). While they are primarily historians, they possess exceptional spatial awareness of the monument's grounds. They know the exact \"symmetry points,\" the best angles to capture the reflection pools, and how to utilize the natural light—especially during the golden hour. They will gladly use your camera or smartphone to take high-quality photos of you, ensuring you leave with spectacular, properly framed memories without the need to hire a separate, costly photographer."
+      },
+      {
+        question: "Is tipping expected?",
+        answer: "While tipping is never mandatory, it is a customary way to express gratitude for exceptional service in the Indian tourism industry. Our professional guides are compensated fairly for their high-authority expertise and time. However, if your guide successfully navigates you through the crowds, provides compelling historical insights, and elevates your overall experience, a gratuity is highly appreciated. The exact amount is entirely at your discretion and should reflect your satisfaction with the educational payload and logistical support provided during your exploration of the magnificent white marble mausoleum and its surrounding complex."
+      },
+      {
+        question: "Can we customize the storytelling depth?",
+        answer: "Absolutely. The primary advantage of a private, high-authority guide is the ability to perfectly calibrate the educational depth to your preferences. If you are a history enthusiast who wants a deep dive into Islamic calligraphy, the complex Pietra Dura marble inlay techniques, and the macro-political economy of the Mughal Empire, our guide will deliver a masterclass. Conversely, if you prefer a lighter, more romantic narrative focused on the architectural highlights and the love story of Shah Jahan and Mumtaz Mahal, the guide will seamlessly pivot. The intellectual journey is entirely yours."
+      },
+      {
+        question: "Is this suitable for families with children?",
+        answer: "Yes, this private guiding service is exceptionally well-suited for families traveling with children of all ages. Navigating a massive, crowded monument can be stressful for parents. Because our service is private, you can dictate a slower pace, take necessary breaks in shaded areas, and avoid the rigid timelines of group tours. Furthermore, our seasoned guides are skilled at adapting their [Agra guided tour](/india/agra/things-to-do-in-agra) narrative, making the history of emperors, massive fortresses, and precious gemstones engaging and accessible for younger audiences while simultaneously delivering complex details to the adults."
+      },
+      {
+        question: "Can the guide also cover Agra Fort?",
+        answer: "Yes, you can easily extend your guide's services to include the magnificent Agra Fort on the same day. In fact, we highly recommend this approach, as the Fort provides crucial political and military context to the Taj Mahal's creation. You will see the specific tower, the Musamman Burj, where Shah Jahan was imprisoned by his son with a view of his wife's mausoleum. Using the same professional guide ensures a cohesive, uninterrupted historical narrative across both UNESCO World Heritage sites, creating a comprehensive and deeply satisfying understanding of 17th-century Mughal dominance."
+      },
+      {
+        question: "What happens if the guide is late?",
+        answer: "We operate with total logistical precision, and our professional guides arriving late is an exceptionally rare occurrence. They are trained to arrive at the designated meeting point at least 15 minutes prior to your scheduled time. However, in the highly unlikely event of an emergency or severe traffic delay, we have a robust backup system. Our local operations manager will instantly dispatch a replacement guide of equal high-authority standing and notify you immediately via WhatsApp or phone. We absolutely guarantee that you will not be left stranded or miss your critical entry window."
+      },
+      {
+        question: "Is this better than using an audio guide?",
+        answer: "Undoubtedly. While an audio device provides a static recording, a [professional local historian](/india/agra/1-day-agra-itinerary) offers a dynamic, interactive experience that cannot be replicated. A live guide protects you from touts, navigates the intense crowds, finds the exact shaded spots for photography, and immediately answers your specific questions. They adjust the narrative depth based on your reactions and seamlessly handle the complex entry logistics with security personnel. The personalized attention, safety, and deep contextual understanding provided by a human expert offer an exponential upgrade over a pre-recorded audio track, making your visit truly memorable."
+      }
+    ];
+  }
+  if (slug === 'agra-half-day-guided-tour') {
+    return [
+      {
+        question: "How many hours does the half-day tour last?",
+        answer: "The Private Half Day Tour typically spans a comprehensive 4 to 5 hours. This duration is meticulously calculated to ensure you experience the absolute pinnacle of Agra without the exhaustion associated with a marathon full-day itinerary. This timeframe comfortably allows for an unhurried, deeply educational exploration of both the Taj Mahal and the Agra Fort, including necessary travel time between the monuments. It is the perfect, high-efficiency solution for travelers arriving by morning train or those looking to maximize their visual payload before continuing to their next destination later in the afternoon."
+      },
+      {
+        question: "Which monument is visited first?",
+        answer: "To maximize your visual and physical comfort, we almost universally initiate the tour at the Taj Mahal. Securing early entry allows you to beat the largest influx of crowds and experience the white marble mausoleum while the morning light is soft and the temperature is cooler. After securing your iconic photographs during this premium window, we smoothly transition to the massive Agra Fort. Built primarily of red sandstone, the Fort offers far superior natural shade and is much more comfortable to explore as the mid-day heat begins to build, ensuring a perfectly paced experience."
+      },
+      {
+        question: "Are Taj Mahal and Agra Fort tickets included?",
+        answer: "This specific half-day package covers our premium private transportation and a high-authority, federally licensed guide, but intentionally excludes the monument entrance fees. By keeping the [Taj Mahal ticket price 2026](/india/agra/taj-mahal-ticket-price-2026) separate, you pay the exact government rate without any hidden agency markups. Moreover, your professional guide acts as your logistical concierge. They will utilize the priority digital ticketing system on your behalf, allowing you to seamlessly bypass the massive manual ticket lines and walk directly to the security perimeter, maximizing your time exploring rather than waiting."
+      },
+      {
+        question: "Is hotel pickup included?",
+        answer: "Yes, absolutely. To guarantee a frictionless and stress-free start to your morning, we provide complimentary, door-to-door pickup from any hotel, homestay, or railway station within the Agra city limits. Your designated air-conditioned luxury vehicle and professional chauffeur will arrive exactly at your pre-scheduled time. We manage all the chaotic city navigation so you don't have to negotiate with local taxis or figure out meeting points. At the conclusion of your half-day historical exploration, you will be smoothly transported back to your exact starting point or any other preferred local drop-off location."
+      },
+      {
+        question: "What type of car is provided?",
+        answer: "We strictly utilize a modern, impeccably maintained fleet of air-conditioned vehicles to ensure your absolute comfort. For solo travelers or couples, we deploy premium sedans like the Toyota Etios or Swift Dzire. For families or small groups of up to six people, we upgrade you to an extremely spacious Toyota Innova SUV, which provides superior legroom and smooth suspension. Every vehicle is thoroughly sanitized and operated by a uniformed, commercially licensed chauffeur who is trained in defensive driving protocols, guaranteeing safe and luxurious transit between the majestic Mughal monuments."
+      },
+      {
+        question: "Is this tour fully private?",
+        answer: "Yes, this entire half-day itinerary operates as a strictly 100% private experience. We guarantee that your premium vehicle and your high-authority historian guide are dedicated solely to you and your chosen travel companions. We do not combine bookings or force you to endure the rigid schedules of large, impersonal bus tours. This total exclusivity gives you complete tactical control over your [Agra guided tour](/india/agra/things-to-do-in-agra). You have the freedom to dictate the pace, pause for photography exactly when you wish, and engage in continuous, private dialogue with your dedicated expert."
+      },
+      {
+        question: "Is this suitable for elderly travelers?",
+        answer: "We highly recommend this specific itinerary for elderly travelers because it is meticulously engineered for comfort. Our private vehicle provides seamless, door-to-door transit, minimizing the need to walk on public streets. Inside the monuments, your senior guide will proactively manage the pace, utilizing ramps where available and intentionally stopping in shaded areas with seating. The half-day duration prevents physical exhaustion while still delivering the full impact of the UNESCO World Heritage sites. We remove all logistical friction, settling any objections regarding physical strain and ensuring the focus remains entirely on historical appreciation."
+      },
+      {
+        question: "Can we skip Agra Fort if short on time?",
+        answer: "Absolutely. Because you possess total command over this private itinerary, we can easily pivot to accommodate your schedule. If you decide you want to dedicate your entire 4-hour window exclusively to an exhaustive, deep-dive examination of the Taj Mahal's architecture, or if you simply need an early departure to catch a train, we will instantaneously adjust the plan. You tell your guide what you need, and they execute the logistics flawlessly. This ultimate flexibility is the core advantage of booking a high-authority, fully private travel experience over a rigid group package."
+      },
+      {
+        question: "Are shopping stops included?",
+        answer: "We operate with a rigid zero-stress policy regarding commerce. Our primary mandate is historical education and visual appreciation. If you explicitly wish to see local artisans continuing the centuries-old tradition of Pietra Dura marble inlay work, your guide can facilitate an authentic, high-quality visit. However, if you prefer a strictly monumental focus, your [Agra travel guide 2026](/india/agra/agra-travel-guide-2026) itinerary will completely bypass all shopping areas. We never enforce mandatory detours to tourist traps. The decision to observe local craftsmanship relies entirely on your personal preference, ensuring your valuable time is never wasted."
+      },
+      {
+        question: "Is sunrise included in half-day option?",
+        answer: "Yes, you can absolutely schedule your half-day tour to begin at sunrise, and we actually consider this the tactical \"platinum option.\" By selecting a 5:30 AM or 6:00 AM pickup (depending on the season), you guarantee yourself the softest, most photogenic light and bypass the crushing mid-day crowds at the Taj Mahal. This early start also means you will comfortably conclude the entire tour—having seen the Taj, the Fort, and captured stunning photographs—by late morning, leaving the rest of your day completely free for relaxation or travel."
+      },
+      {
+        question: "How much walking is involved?",
+        answer: "Visiting the Taj Mahal and Agra Fort requires a moderate amount of walking. The Taj Mahal complex is expansive, and you should anticipate walking approximately 2 to 3 kilometers (mostly on flat marble and sandstone surfaces) to see the main mausoleum and the surrounding Charbagh gardens. The Agra Fort involves another 1.5 kilometers of walking, including some slight inclines. We always recommend wearing comfortable, supportive footwear. Fortunately, your private guide will expertly pace the walk, taking frequent opportunities to pause, share details, and utilize available resting spots to prevent fatigue."
+      },
+      {
+        question: "Can we customize the itinerary?",
+        answer: "Customization is the fundamental pillar of this private half-day tour. While our standard route seamlessly links the Taj Mahal and the Agra Fort, the framework is entirely yours to command. If you wish to swap the Fort for the exquisitely detailed Baby Taj (Tomb of I'timād-ud-Daulah), or if you want to include a stop at a specific, highly rated local restaurant for a quick culinary experience, your guide and chauffeur will integrate your requests on the fly. We act as your dynamic, [local expert guide](/india/agra/1-day-agra-itinerary) team, building the exact experience you specify."
+      },
+      {
+        question: "What is the cancellation policy?",
+        answer: "We understand that premium international travel demands flexibility, so we apply a highly transparent and discerning cancellation policy. If you cancel your private half-day tour more than 24 hours prior to the scheduled pickup time, you will receive a comprehensive 100% full refund with no complex administrative penalties. Cancellations made within the 24-hour window are subject to restrictions to fairly compensate our permanently dedicated chauffeurs and senior guides. This straightforward policy is designed to protect both your financial investment and our commitment to deploying elite, high-authority professionals exclusively for your booking."
+      },
+      {
+        question: "Is a licensed guide included?",
+        answer: "Yes, a federally licensed, high-authority historian guide is the centerpiece of this package. They possess official Ministry of Tourism credentials and deep academic knowledge of the Mughal Empire. They do not merely recite memorized dates; they deconstruct the Islamic calligraphy, explain the defensive engineering of the red sandstone fort, and provide the macro-political context surrounding the construction of these immense UNESCO sites. This intellectual depth transforms your visit from a simple visual walk-through into a profound, university-level exploration of India's most powerful and artistic historical era."
+      },
+      {
+        question: "Is this better than a full-day Agra tour?",
+        answer: "The half-day tour is the optimal tactical choice if you have limited time or if you prefer a tightly focused, high-impact historical experience. It efficiently delivers the two absolute \"must-see\" masterpieces (the Taj and the Fort) before monumental fatigue sets in. We eliminate any unnecessary filler. Conversely, a [full-day Agra tour](/india/agra/taj-mahal-full-day-tour) is ideal for those who possess a slower pace and wish to extensively photograph the Baby Taj, cross the river to Mehtab Bagh at sunset, or engage deeply with local culinary and artisanal experiences. The half-day is about maximum efficiency."
+      }
+    ];
+  }
+  if (slug === 'agra-photography-tour-taj-mahal') {
+    return [
+      {
+        question: "Is a professional photographer included?",
+        answer: "Yes, absolutely. This specialized tour strictly pairs you with a vetted, high-authority professional photographer who possesses deep extensive knowledge of the Taj Mahal's architecture and lighting dynamics. They are not merely standard guides with DSLRs; they understand composition, perspective, and the complex optical symmetry designed by the Mughal architects. They know precisely where to position you to eliminate background crowds and capture the intricate marble inlay work. Their mandate is to orchestrate a premium, magazine-quality photoshoot while you engage freely with the monument's historical grandeur, ensuring you receive spectacular visual assets of your once-in-a-lifetime visit."
+      },
+      {
+        question: "How many edited photos will we receive?",
+        answer: "We operate with total transparency regarding your digital deliverables. Following your intensive photography session, our team rigorously curates the portfolio to eliminate blinks, poor lighting, or unwanted background distractions. You will receive a definitive, high-resolution collection of a minimum of 50 to 80 professionally color-graded and expertly edited images. This comprehensive deliverable ensures you have premium documentation of your visit from multiple iconic vantage points, including the reflective pools, the majestic Darwaza-i-Rauza (Great gate), and the intricate marble walls of the central mausoleum itself, beautifully preserving your memory."
+      },
+      {
+        question: "Are raw files provided?",
+        answer: "Because we hold ourselves to an uncompromising standard of visual excellence, we do not typically distribute unedited RAW files. Our [professional local photographer](/india/agra) expends significant post-production effort adjusting exposure, contrast, and color balance to achieve the finished, premium aesthetic that defines our service. The curated, high-resolution JPEG files you receive represent the final, perfected artwork. However, for specialized commercial clients or unique requests, the transfer of original RAW files can absolutely be negotiated prior to the tour date, though it may incur an additional data processing fee."
+      },
+      {
+        question: "Is sunrise included for best lighting?",
+        answer: "Securing the absolute best optical environment is our priority, so we highly recommend and strongly incentivize booking this specific photography tour for the sunrise slot. This tactical 6:00 AM entry window provides the critical \"golden hour\" light, drastically reducing harsh mid-day shadows that compromise facial definition. Furthermore, the early access strategy structurally bypasses the crushing afternoon crowds, allowing our professional to secure wide, unobstructed angles of the white marble mausoleum. Navigating the changing morning light against the Yamuna River backdrop creates the definitive visual narrative of Shah Jahan's masterpiece."
+      },
+      {
+        question: "Are DSLR cameras allowed inside Taj Mahal?",
+        answer: "Yes, the Archaeological Survey of India (ASI) officially permits standard DSLR cameras and mirrorless camera systems inside the monument grounds for non-commercial, personal photography. Your professional photographer operates within these strict federal guidelines to prevent any security-related confiscation delays. We manage all foundational logistics, ensuring your camera equipment bypasses the stringent security checkpoints smoothly. This allows you and your [Agra guided tour](/india/agra/things-to-do-in-agra) photographer to immediately deploy to the prime symmetry points and capture the structural magnitude of the 17th-century complex without any administrative friction."
+      },
+      {
+        question: "Is tripod allowed?",
+        answer: "Unfortunately, federal regulations strictly prohibit the entry and utilization of tripods, monopods, and all forms of physical camera stabilization equipment inside the Taj Mahal complex. The ASI enforces this mandate universally to manage crowd flow and protect the sensitive historical surfaces. However, our highly seasoned photographers are deeply experienced in circumventing these restrictions. They utilize premium lenses with superior internal stabilization and deploy advanced low-light handheld techniques, guaranteeing that your [Taj Mahal photography shoot](/india/agra) yields impeccably sharp, high-resolution imagery regardless of the strict architectural parameters."
+      },
+      {
+        question: "Is drone photography permitted?",
+        answer: "Absolutely not. The Taj Mahal and its immediate surrounding airspace are designated as a strict, legally enforced \"No Fly Zone\" (NFZ) by the Indian government for security and monument preservation. Operating a drone will result in immediate confiscation by the Central Industrial Security Force (CISF) and severe legal consequences. Our professional service operates exclusively within the bounds of high-authority, ground-based photography. We rely on expert composition, carefully chosen angles across the Charbagh gardens, and tactical positioning to capture the monumental scale without resorting to illegal aerial methods."
+      },
+      {
+        question: "Can this tour be used for pre-wedding shoots?",
+        answer: "While we frequently accommodate couples seeking exceptionally romantic, high-quality documentation of their travels, the ASI strictly prohibits formal \"pre-wedding\" or commercial fashion shoots involving elaborate costume changes, heavy makeup styling, or significant prop utilization inside the Taj Mahal complex. If security personnel perceive the shoot as a commercial or formal wedding endeavor, they will immediately halt the session. Therefore, our photographers expertly execute a \"lifestyle aesthetic.\" We document your genuine connection and the monumental backdrop organically, avoiding any staged, commercial setups that violate federal preservation regulations."
+      },
+      {
+        question: "Do we need special permission for professional shoots?",
+        answer: "If your objective is strictly personal, non-commercial documentation—such as engagement photos, family portraits, or high-end travel memories—no special ASI permission is required, provided you follow the standard clothing and equipment guidelines. Our [local expert guide](/india/agra/agra-travel-guide-2026) photographer seamlessly manages the session within these parameters. However, if your shoot is intended for commercial advertising, editorial publication, or broadcasting, complex federal permits must be secured months in advance from the ASI headquarters in Delhi. We specialize strictly in the premium, personal documentation category to avoid these extensive bureaucratic delays."
+      },
+      {
+        question: "What happens in case of fog or rain?",
+        answer: "Weather variables in North India, specifically dense winter fog (December-January) or heavy monsoon rain (July-August), require tactical flexibility. If extreme atmospheric conditions compromise the visibility of the mausoleum, we do not simply cancel. We pivot. Our photographers expertly utilize the massive red sandstone arches of the Darwaza-i-Rauza (Main Gate) or the adjacent mosque for striking, moody compositions that leverage the weather organically. If you possess a highly flexible schedule, we will proactively attempt to reschedule your dedicated session to an alternate, clearer time slot within your Agra stay."
+      },
+      {
+        question: "How long is the photography session?",
+        answer: "This specialized, high-impact photography tour requires a dedicated time investment of approximately 2 to 3 hours inside the Taj Mahal complex. This duration is strictly necessary for our professional to navigate the crowds, position you at the five primary \"symmetry points,\" and account for any necessary waiting time at the highly coveted Princess Diana bench or the central reflection pools. We do not rush this process. This extensive window guarantees we secure a comprehensive, high-resolution portfolio that fully documents your interaction with India's most iconic architectural achievement."
+      },
+      {
+        question: "Can we change outfits inside?",
+        answer: "No. The ASI heavily enforces a strict protocol against outfit changes inside the Taj Mahal complex and its public restrooms. Attempting to change specialized clothing (such as moving from casual wear into a formal gown or a traditional sari) will immediately trigger security intervention, as it suggests an unauthorized commercial shoot. We strongly advise that you arrive at your [Agra photography session](/india/agra/taj-mahal-ticket-price-2026) fully dressed in your preferred, final attire. Our strategy relies entirely on maximizing your time capturing stunning visuals, not navigating restrictive security interventions."
+      },
+      {
+        question: "Is this tour private?",
+        answer: "Yes, absolutely. This is an elite, 100% private photography experience engineered exclusively for you, your partner, or your dedicated travel group. We totally reject the paradigm of mixing different bookings into large, chaotic clusters. Your designated professional photographer focuses their entire creative bandwidth exclusively on your session, ensuring a highly personalized narrative. You dynamically dictate the pace, request specific angles, and receive uninterrupted, high-authority direction, guaranteeing the final digital portfolio precisely matches your specific aesthetic requirements without interference from outside participants."
+      },
+      {
+        question: "Are monument tickets included?",
+        answer: "The pricing structure for this specific service covers the premium expertise of our professional photographer, their high-end camera equipment, and the extensive post-production editing required to finalize your portfolio. It intentionally excludes the baseline monument entrance tickets. However, your photographer acts as a localized concierge; they will guide you exactly on how to purchase the official ASI digital tickets immediately prior to entry. By keeping these costs strictly decoupled, you pay the exact, uninflated government rate and bypass any hidden agency markups while focusing on the creative session."
+      },
+      {
+        question: "Is photo editing included in the package?",
+        answer: "Color grading and meticulous photo editing are the absolute cornerstones of this premium [Taj Mahal photography experience](/india/agra/1-day-agra-itinerary). Our professionals do not simply hand over an SD card of flat, unprocessed JPEGs. Following your 3-hour session, the raw data undergoes an intensive post-production phase. We meticulously adjust the exposure to highlight the intricate Pietra Dura marble inlay work, optimize the dynamic range between the bright white mausoleum and the surrounding red sandstone, and crop out extraneous background crowds, ensuring a masterful final visual product."
+      }
+    ];
+  }
+  if (slug === 'heritage-walk-in-agra') {
+    return [
+      {
+        question: "What areas are covered in the heritage walk?",
+        answer: "This immersive, academically focused walking tour completely bypasses the standard, heavily trafficked tourist circuits. Instead, we delve deeply into the complex, organic architecture of Agra’s oldest residential sectors, specifically focusing on the intricate alleyways surrounding the Jama Masjid and the historic Kinari Bazaar. We examine the authentic, multi-generational havelis (mansions) that predate British colonization, investigate the ancient spice trading hubs, and engage with the localized silver and gold markets that represent the very economic foundation of the 16th and 17th-century Mughal Empire’s mercantile dominance."
+      },
+      {
+        question: "How long is the walking tour?",
+        answer: "We strictly mandate a comprehensive 2.5 to 3-hour duration for this specialized heritage walk. This timeframe is absolutely critical to moving beyond superficial observation and delivering a deep, high-authority narrative. We require this extended period to successfully navigate the dense, labyrinthine street grids of the original Mughal city, allow for organic engagement with local artisans working in narrow alleyways, and structurally analyze the architectural evolution of the ancient havelis. This is a rigorous, educational exploration, not a brief, generalized stroll through a commercialized market sector."
+      },
+      {
+        question: "Is this tour suitable for seniors?",
+        answer: "While we welcome seniors who possess a strong baseline of physical mobility, we must be highly transparent: this walk traverses complex, uneven terrain. We navigate through active, densely packed bazaars, narrow cobblestone alleyways, and areas where modern sidewalk infrastructure is completely absent. Furthermore, maneuvering around ongoing street commerce and occasional localized traffic requires active physical dexterity. If continuous walking for over two hours in vibrant, highly stimulating environments presents a challenge, we strongly recommend evaluating our more localized, vehicle-supported [Agra guided tours](/india/agra/things-to-do-in-agra) for superior comfort."
+      },
+      {
+        question: "Is the walk crowded?",
+        answer: "Yes, absolutely, and this density is a fundamental component of the authentic, high-impact experience we deliver. We are intentionally penetrating the active, living economic core of historical Agra, which operates completely independent of the sterile tourist zones. You will encounter the genuine, chaotic energy of wholesale spice merchants, silver traders, and localized transport logistics. While intense, your professional historian guide structurally navigates this complex urban environment, ensuring your absolute safety while translating the overwhelming localized sensory input into a coherent, deeply fascinating narrative regarding Mughal urban planning."
+      },
+      {
+        question: "What is the difficulty level?",
+        answer: "We scientifically classify this specific architectural and cultural exploration as a \"moderate\" difficulty endeavor. The primary challenges are not elevation changes or cardiovascular strain, but rather the sustained necessity of navigating a highly complex, uneven, and intensely active urban environment for nearly three continuous hours. You must actively maneuver through dense crowds within the Kinari Bazaar, negotiate uneven ancient paving stones, and maintain situational awareness around narrow alleyway traffic. Superior, highly supportive footwear is absolutely non-negotiable for successfully completing this rigorous [heritage walking experience](/india/agra)."
+      },
+      {
+        question: "Are food tastings included?",
+        answer: "While our primary mandate is deep architectural and historical analysis, we integrate highly localized culinary elements to provide a comprehensive cultural payload. Within the vast expanse of the Kinari Bazaar and its surrounding arterial streets, your expert guide will structurally introduce you to Agra's most revered, multi-generational sweetmaker to sample the authentic \"Petha\" (a translucent soft candy originating from the royal kitchens). You will also safely experience specifically vetted, traditional chai (spiced tea) stalls, organically blending the sensory reality of the market with the broader historical narrative of the city."
+      },
+      {
+        question: "Is hotel pickup included?",
+        answer: "Unlike our broad-spectrum monument packages, this highly specialized walking tour operates from a strict, centralized starting protocol. We do not provide geographically dispersed hotel pickups, as navigating a large vehicle through the dense Agra traffic to collect multiple individuals severely compromises the timeline. You will independently meet your high-authority guide at explicitly defined, highly recognizable coordinates—typically near the iconic Jama Masjid or the Agra Fort railway station—ensuring we initiate the educational walk precisely on schedule and avoid any unnecessary logistical friction or traffic delays."
+      },
+      {
+        question: "What time is best for this walk?",
+        answer: "We operate this rigorous walk during two highly specific tactical windows to maximize your experience while mitigating environmental harshness. The early morning slot (beginning between 7:30 AM and 8:00 AM) is optimal for analytical photography, offering soft light and allowing you to witness the city's organic awakening before the intense commercial chaos peaks. Alternatively, the late afternoon slot (around 4:00 PM) plunges you directly into the high-energy, vibrant reality of the peak market operations. Both timings strictly avoid the crushing, exhausting heat of the mid-day Indian sun."
+      },
+      {
+        question: "Are monuments included in this tour?",
+        answer: "This highly specialized itinerary is explicitly designed as a counter-narrative to the standard, federally ticketed monument circuit. We absolutely do not cover the interior of the Taj Mahal or the Agra Fort during this session. Instead, your [local expert guide](/india/agra/agra-travel-guide-2026) diverts your attention to the complex, secondary structures that sustained the empire: the 17th-century Jama Masjid (the colossal Friday Mosque), the intricate, privately-owned historical havelis, and the ancient active temples embedded within the market infrastructure, delivering an uncompromising look at the city's living, non-ticketed heritage."
+      },
+      {
+        question: "Is this a private or group walk?",
+        answer: "We strictly guarantee that this architectural and cultural exploration operates as a 100% private, fully enclosed experience exclusively for you and your specified travel companions. We reject the methodology of large, cumbersome group tours that dilute the educational payload. Navigating complex, dense alleyways like the Kinari Bazaar requires intense logistical control and localized situational awareness. Operating privately ensures your high-authority guide can instantaneously pause the narrative, address your highly specific architectural questions, and deeply customize the pace without managing the divergent interests of stragglers."
+      },
+      {
+        question: "Is photography allowed?",
+        answer: "Overall, photography is heavily encouraged, as the dense bazaars and intricate havelis offer profound visual documentation opportunities perfectly suited for serious street photography. However, we mandate strict adherence to ethical engagement protocols. Because this tour penetrates deeply into highly active, localized residential sectors and small-scale artisanal workshops, your professional guide will structurally define when and where explicit permission is required before photographing individuals or specific private religious sites, ensuring you capture phenomenal imagery without violating the privacy or disrupting the commercial operations of the local inhabitants."
+      },
+      {
+        question: "Can children join this walk?",
+        answer: "We strongly advise against bringing young children or toddlers on this specific itinerary. The rigorous requirement to continuously navigate highly chaotic, densely crowded commercial sectors for three hours across uneven terrain often results in severe fatigue and sensory overload for children. Managing stroller logistics inside the incredibly narrow alleyways of the Kinari Bazaar is physically impossible. Therefore, we highly recommend this complex, academically oriented [heritage walking tour](/india/agra/1-day-agra-itinerary) exclusively for adults and older teenagers who possess the stamina and focus required for a demanding urban exploration."
+      },
+      {
+        question: "Is the walk safe in the evening?",
+        answer: "Our paramount operating principle is the absolute safety and security of our clients. We do not schedule this complex urban exploration during late-night hours. All iterations of the walk are structurally designed to conclude well before nightfall or shortly after dusk while the commercial sectors remain highly active and intensely populated. Furthermore, you will remain continuously flanked by your federally licensed, high-authority guide, a seasoned local expert who understands the precise micro-geography of the alleyways, comprehensively mitigating any navigational or security vulnerabilities within the ancient city grid."
+      },
+      {
+        question: "Are entrance tickets included?",
+        answer: "The pricing architecture for this highly specialized walking tour exclusively secures the time, localized expertise, and deep academic narrative of your professional historian guide. Because we intentionally avoid the primary, heavily monetized UNESCO World Heritage sites (which operate on expensive, separate ticketing systems), there are generally no significant entrance fees required during this specific route. You will engage with active mosques, open bazaars, and historical residential sectors that are organically integrated into the modern city infrastructure and do not require formal, federally mandated ticket purchases."
+      },
+      {
+        question: "Can this be combined with Taj Mahal visit?",
+        answer: "Absolutely. This deep-dive architectural walk serves as the ultimate, intellectually rigorous complement to a traditional monument tour. We frequently organize complex, full-day itineraries where clients experience the immaculate symmetry of the Taj Mahal at dawn, rest during the harsh mid-day heat, and then deploy on this intense [Agra market exploration](/india/agra/taj-mahal-full-day-tour) in the late afternoon. This comprehensive strategy provides a completely balanced, macro-level understanding of the 17th-century Mughal Empire, contrasting the elite monumental engineering with the vibrant, chaotic reality of the city that physically built it."
+      }
+    ];
+  }
+  if (slug === 'taj-mahal-and-agra-guided-tour') {
+    return [
+      {
+        question: "What monuments are included in the Agra city tour?",
+        answer: "This comprehensive, high-authority city tour is strategically designed to cover the absolute pinnacle of Mughal architecture. The itinerary anchors on exploring the ivory-white marble mausoleum of the Taj Mahal in exhaustive detail. Following this, we transition to the massive, red sandstone defensive perimeter and ornate palaces of the Agra Fort. To complete the historical narrative, the tour concludes with the incredibly intricate Tomb of I'timād-ud-Daulah, frequently referred to as the 'Baby Taj'. These three highly specific UNESCO and federally protected sites deliver the definitive understanding of 17th-century imperial dominance, artistry, and military engineering."
+      },
+      {
+        question: "Is Taj Mahal sunrise included?",
+        answer: "Yes, we strongly advocate initiating this comprehensive city tour at sunrise. By beginning your exploration precisely when the gates open (typically between 5:30 AM and 6:00 AM depending on seasonality), you secure the critical tactical advantage of the \"golden hour\" light for photography. Furthermore, this aggressive early deployment structurally bypasses the crushing, exhausting crowds that flood the complex by mid-morning. You experience Shah Jahan's masterpiece in relative tranquility, setting a highly efficient, premium pace for the remainder of your multi-monument itinerary across the city."
+      },
+      {
+        question: "Are entry tickets included?",
+        answer: "To ensure absolute financial transparency and flexibility, this specific package covers the provision of your private, air-conditioned vehicle and your dedicated, highly credentialed historian guide, but intentionally excludes the baseline monument entrance fees. By decoupling these costs, you avoid hidden agency markups and pay the exact, uninflated government rate at each UNESCO site. More importantly, your assigned [local expert guide](/india/agra) operates as an elite logistical concierge. They seamlessly navigate the complex ASI online ticketing portals on your behalf, guaranteeing you bypass the chaotic manual queues and maximize your time inside."
+      },
+      {
+        question: "How long is the full tour?",
+        answer: "Because this is a deeply comprehensive, multi-monument exploration, you must allocate a rigorous 7 to 8 hours for the complete itinerary. This expansive timeframe guarantees that our high-authority historian guide is never forced to rush the complex narrative. We structurally allocate approximately 2.5 hours for the Taj Mahal, 2 hours for the sprawling Agra Fort complex, and 1 hour for the highly detailed Baby Taj. We also intentionally schedule dedicated intervals for high-quality dining and smooth transit through the chaotic local traffic, ensuring a physically sustainable and intellectually rewarding day."
+      },
+      {
+        question: "Is this tour private?",
+        answer: "Yes, this entire comprehensive city tour operates as a strictly 100% private, fully enveloped experience exclusively for you and your specified travel companions. We fundamentally reject the paradigm of consolidating independent bookings into large, unwieldy group tours. Your dedicated, premium vehicle and your federally licensed guide represent a dedicated strike team focused entirely on your specific educational and aesthetic requirements. You possess absolute tactical command over the itinerary, dictating the pace, lingering at crucial photography points, and directly engaging your guide with highly specific architectural questions without group interference."
+      },
+      {
+        question: "Is hotel pickup included?",
+        answer: "Absolutely. To eliminate all logistical friction and provide a genuinely premium experience, we include seamless, door-to-door transportation. Your designated, air-conditioned luxury vehicle and professionally licensed chauffeur will arrive precisely at your pre-scheduled time at any hotel, homestay, or railway station within the immediate city limits. We totally insulate you from the aggressive local taxi networks. At the conclusion of your rigorous [Agra guided tour](/india/agra/things-to-do-in-agra), you will be smoothly, securely transported back to your original starting point or any other preferred local drop-off coordinate you specify."
+      },
+      {
+        question: "Can we add Baby Taj or Mehtab Bagh?",
+        answer: "The incredibly intricate Tomb of I'timād-ud-Daulah (Baby Taj) is already a foundational component of this comprehensive city tour. However, because you command this 100% private itinerary, we can easily execute a tactical pivot to include the Mehtab Bagh (Moonlight Garden). Situated directly across the Yamuna River, this location provides the definitive, unobstructed sunset view of the Taj Mahal's rear facade. Your high-authority guide will seamlessly integrate this highly photogenic addition into the afternoon schedule, ensuring you capture the most iconic, magazine-quality imagery possible."
+      },
+      {
+        question: "Is lunch included?",
+        answer: "This specialized package intentionally decouples the cost of meals to provide you with absolute dietary freedom and financial transparency. While lunch is not included in the base price, your dedicated guide acts as a highly localized culinary concierge. They will proactively recommend rigorously vetted, premium restaurants or authentic, high-quality local establishments that align perfectly with your specific dietary requirements and hygiene standards. This strategy ensures you are never forced into substandard, pre-set tourist buffets, allowing you to control your culinary experience as tightly as your historical exploration."
+      },
+      {
+        question: "What type of vehicle is provided?",
+        answer: "We strictly deploy a modern, impeccably maintained fleet of air-conditioned vehicles to ensure your absolute comfort and security. For solo travelers or couples, we utilize premium sedans such as the Toyota Etios or Swift Dzire. For families or small groups (up to six individuals), we automatically upgrade the logistics to an extremely spacious Toyota Innova SUV, providing superior legroom and suspension. Every vehicle is thoroughly sanitized and operated by a uniformed, commercially licensed chauffeur trained in defensive driving protocols, guaranteeing a seamless [Agra travel experience](/india/agra)."
+      },
+      {
+        question: "Is this suitable for first-time visitors?",
+        answer: "This comprehensive, multi-monument itinerary is the absolute definitive strategy for first-time visitors seeking to maximize their understanding of the Mughal Empire in a single day. We completely remove the intense logistical burden of navigating a chaotic foreign city. Your high-authority historian guide and dedicated chauffeur manage every complex variable: from bypassing aggressive touts and executing priority ticketing, to establishing the optimal sequential flow between the massive UNESCO sites. We provide a totally insulated, intellectually rigorous environment that allows the first-time visitor to focus entirely on the profound history and architecture."
+      },
+      {
+        question: "How much walking is involved?",
+        answer: "Executing this comprehensive exploration of three major 17th-century monuments requires a significant degree of physical stamina. You must anticipate walking a cumulative total of approximately 4 to 6 kilometers across expansive marble platforms, uneven red sandstone courtyards, and slight inclines within the fort. High-quality, supportive footwear is absolutely mandatory. However, because this is a strictly private deployment, your senior historian guide will expertly mitigate fatigue by intentionally pacing the narrative, heavily utilizing shaded architectural features for lengthy explanations, and ensuring the physical demand remains manageable throughout the intense itinerary."
+      },
+      {
+        question: "Are shopping stops mandatory?",
+        answer: "We enforce a rigid, non-negotiable zero-stress policy regarding commerce. Our absolute mandate is high-level historical education and architectural appreciation. We will never physically force you or subtly coerce you into visiting high-pressure souvenir emporiums or tourist traps. If you explicitly request to view authentic, multi-generational artisans executing the complex Pietra Dura marble inlay techniques, your [local expert guide](/india/agra/agra-travel-guide-2026) can facilitate a legitimate, pressure-free demonstration. However, this decision rests entirely with you. If you prefer a strictly monumental focus, your itinerary will completely bypass all specialized commercial sectors."
+      },
+      {
+        question: "Is this tour available daily?",
+        answer: "This comprehensive city tour is aggressively deployed six days a week, but it is strictly UNAVAILABLE to execute on Fridays. The Indian government mandates that the Taj Mahal is entirely closed to all tourist access every Friday to accommodate mandatory prayer services at the active mosque located within the complex. If your travel matrix restricts you to a Friday arrival, we will immediately pivot to our specialized 'Friday Alternative Tour,' which heavily focuses on the Agra Fort, Baby Taj, and the stunning sunset view from Mehtab Bagh across the river."
+      },
+      {
+        question: "What languages are available?",
+        answer: "We maintain a highly specialized roster of linguistically diverse, federally licensed historian guides to cater to our elite international clientele. Beyond absolute fluency in English, we can deploy senior experts who deliver complex architectural and political narratives in Spanish, French, German, Italian, Russian, and Japanese. This ensures the profound historical payload of the Mughal dynasty is communicated seamlessly in your native tongue, preventing any critical loss of detail. Simply specify your linguistic requirement upon booking, and we will flawlessly match you with the appropriate high-authority guide."
+      },
+      {
+        question: "What is the cancellation policy?",
+        answer: "We recognize that premium international travel demands high-level flexibility, so we execute a highly transparent and discerning cancellation matrix. If you cancel this comprehensive private tour more than 24 hours prior to the designated pickup time, you will immediately receive a 100% full refund with zero complex administrative friction. Cancellations executed within the strict 24-hour window are subject to restrictions to fairly compensate our permanently dedicated chauffeurs and senior [professional guides](/india/agra/1-day-agra-itinerary). This straightforward policy structurally protects both your financial investment and our commitment to deploying elite, highly specialized personnel."
+      }
+    ];
+  }
+  if (slug === 'agra-same-guided-tour') {
+    return [
+      {
+        question: "How long does the same-day Agra tour last?",
+        answer: "This highly efficient, same-day deployment is structurally engineered to be completed within a rigorous 12 to 14-hour window, assuming a departure from the Delhi National Capital Region. This expansive timeframe precisely calculates the required 3.5-hour transit via the Yamuna Expressway in each direction. It comfortably secures a massive 5 to 6-hour operational window upon arrival, guaranteeing our high-authority historian guide can execute a comprehensive, unhurried exploration of the primary UNESCO monuments, facilitate a premium lunch, and ensure your safe return before late evening."
+      },
+      {
+        question: "What monuments are covered?",
+        answer: "This aggressive, high-impact itinerary is laser-focused on the absolute architectural apex of the Mughal Empire. The day anchors on a deep, expansive exploration of the ivory-white marble mausoleum of the Taj Mahal. Once this primary objective is secured, the tour rapidly transitions to the colossal red sandstone defensive perimeter and ornate palaces of the Agra Fort. These two massive UNESCO World Heritage sites deliver a complete, highly concentrated narrative of 17th-century imperial dominance, artistry, and military engineering without diluting the timeline with secondary, less critical structures."
+      },
+      {
+        question: "Is pickup included from hotel?",
+        answer: "Absolutely. To eliminate all early-morning logistical friction, we execute seamless, door-to-door transportation. Your designated, air-conditioned luxury vehicle and professionally licensed chauffeur will arrive exactly at your pre-scheduled time at any hotel, homestay, or specific residential coordinate within Delhi, Gurgaon, or Noida. We entirely insulate you from the aggressive local taxi networks. At the conclusion of this demanding [same-day guided tour](/india/agra), you will be securely and smoothly transported back to your exact starting point or directly to the Delhi International Airport if required."
+      },
+      {
+        question: "Are monument tickets included?",
+        answer: "To enforce absolute financial transparency, this specific rapid-deployment package covers the provision of your premium private vehicle, highway tolls, and a dedicated, highly credentialed historian guide, but intentionally excludes the baseline monument entrance fees. By decoupling these costs, you avoid hidden agency markups and pay the exact government rate. More importantly, your assigned local guide operates as an elite logistical concierge. They seamlessly navigate the complex ASI online ticketing portals on your behalf, guaranteeing you bypass the chaotic manual queues and maximize your extremely valuable time."
+      },
+      {
+        question: "Is this tour private?",
+        answer: "Yes, this entire high-efficiency itinerary operates as a strictly 100% private, fully enveloped experience exclusively for you and your specified travel companions. We fundamentally reject the paradigm of consolidating independent bookings into large, slow-moving group bus tours. Your dedicated, premium vehicle and your federally licensed guide represent a dedicated strike team focused entirely on your specific timeline and educational requirements. You possess absolute tactical command over the itinerary, dictating the pace and directly engaging your guide with highly specific architectural questions without any external group interference."
+      },
+      {
+        question: "What vehicle type is used?",
+        answer: "We strictly deploy a modern, impeccably maintained fleet of air-conditioned vehicles to ensure your absolute comfort and security during the extensive highway transit. For solo travelers or couples, we utilize premium sedans such as the Toyota Etios or Swift Dzire. For families or small groups (up to six individuals), we automatically upgrade the logistics to an extremely spacious Toyota Innova SUV, providing superior legroom and suspension. Every vehicle is thoroughly sanitized and operated by a uniformed, commercially licensed chauffeur, guaranteeing a seamless [journey to Agra](/india/agra/taj-mahal-ticket-price-2026)."
+      },
+      {
+        question: "Can we include Fatehpur Sikri?",
+        answer: "While technically possible, we strongly advise against attempting to integrate the massive abandoned city of Fatehpur Sikri into a same-day Delhi departure framework. Fatehpur Sikri is located an additional 40 kilometers beyond the city limits. Adding this complex ruins the carefully balanced timeline, converting a highly educational, comfortable exploration of the primary UNESCO sites into an exhausting, rushed logistical marathon. If Fatehpur Sikri is an absolute mandate, we strongly recommend booking our specialized overnight itinerary to ensure the architectural narrative is never severely compromised."
+      },
+      {
+        question: "Is lunch included?",
+        answer: "This specialized package intentionally decouples the cost of meals to provide you with absolute dietary freedom and financial transparency. While lunch is not included in the base price, your dedicated guide acts as a highly localized culinary concierge. They will proactively recommend rigorously vetted, premium restaurants or authentic, high-quality local establishments that align perfectly with your specific dietary requirements and hygiene standards. This strategy ensures you are never forced into substandard, pre-set tourist buffets, allowing you to control your culinary experience as tightly as your historical exploration."
+      },
+      {
+        question: "Is this suitable for elderly travelers?",
+        answer: "Because this specific itinerary demands a minimum of 7 hours of high-speed highway transit combined with extensive walking across multiple massive UNESCO monuments, it presents a significant physical challenge. While our private vehicle and [local expert guide](/india/agra/taj-mahal-full-day-tour) proactively manage the pace, utilize ramps, and identify shaded resting areas, the aggregate physical demand of a chaotic 14-hour day is intense. For elderly travelers or those with mobility limitations, we urgently recommend selecting our overnight option to structurally divide the physical output and dramatically improve the overall comfort matrix."
+      },
+      {
+        question: "What is the best start time?",
+        answer: "To secure the absolute maximum tactical advantage, we strongly mandate initiating this same-day deployment from Delhi no later than 6:00 AM. This aggressive early departure accomplishes two critical objectives: it largely bypasses the crushing, unpredictable morning gridlock within the National Capital Region, and it guarantees you arrive at the Taj Mahal complex before the intense, exhausting mid-day heat peaks. Arriving by 9:30 AM provides cooler temperatures, softer lighting for photography, and allows our high-authority guide to navigate the monuments before peak crowd density is achieved."
+      },
+      {
+        question: "Are shopping stops included?",
+        answer: "We enforce a rigid, non-negotiable zero-stress policy regarding commerce. Our absolute mandate is high-level historical education and architectural appreciation. We will never physically force you or subtly coerce you into visiting high-pressure souvenir emporiums or tourist traps. If you explicitly request to view authentic, multi-generational artisans executing the complex Pietra Dura marble inlay techniques, your guide can facilitate a legitimate, pressure-free demonstration. However, this decision rests entirely with you. Given the tight timeline of a same-day deployment, we generally recommend bypassing all specialized commercial sectors to maximize monument time."
+      },
+      {
+        question: "Can we customize the itinerary?",
+        answer: "Absolutely. Because you possess total command over this strictly private 14-hour deployment, the operational framework is entirely yours to adjust. While our standard route seamlessly links the Taj Mahal and the Agra Fort, we can easily execute a tactical pivot. If you wish to substitute the Fort for the highly intricate Baby Taj, or mandate a specific stop at a highly rated culinary establishment, your guide and chauffeur will instantaneously integrate your requests. We act as your dynamic, [premium guided tour](/india/agra) team, building the exact experience you specify."
+      },
+      {
+        question: "What happens in case of heavy traffic?",
+        answer: "While the Yamuna Expressway is generally highly efficient, unpredictable gridlock in Delhi or sudden highway incidents require tactical flexibility. Our highly experienced, commercially licensed chauffeurs utilize real-time satellite navigation and possess deep knowledge of secondary arterial routes to mitigate delays. If severe friction compromises the timeline, your dedicated high-authority guide will immediately restructure the on-ground itinerary. They will dynamically prioritize the most critical architectural elements of the Taj Mahal and the Fort, ensuring the primary educational payload is successfully delivered despite the compressed operational window."
+      },
+      {
+        question: "Is guide included?",
+        answer: "Yes, a federally licensed, high-authority historian guide is the absolute centerpiece of this package. They possess official Ministry of Tourism credentials and deep academic knowledge of the Mughal Empire. They do not merely recite memorized dates; they deconstruct the Islamic calligraphy, explain the defensive engineering of the red sandstone fort, and provide the macro-political context surrounding the construction of these immense UNESCO sites. This intellectual depth transforms your rapid same-day visit from a simple visual walk-through into a profound, university-level exploration of India's most powerful historical era."
+      },
+      {
+        question: "Is this better than overnight stay?",
+        answer: "The same-day deployment is the optimal, highly aggressive tactical choice if your overall India itinerary is severely restricted and you must process the primary UNESCO sites with maximum time efficiency. However, an overnight stay is vastly superior if you require a slower, more analytical pace. An [overnight Agra itinerary](/india/agra/1-day-agra-itinerary) allows you to secure the critical sunrise lighting at the Taj Mahal, easily incorporates secondary sites like Fatehpur Sikri, and completely eliminates the physical exhaustion of enduring seven hours of highway transit in a single day."
+      }
+    ];
+  }
+  if (slug === 'fatehpur-sikri-guided-tour') {
+    return [
+      {
+        question: "Is this an official guide for Fatehpur Sikri?",
+        answer: "Absolutely. Because this massive, structurally complex red sandstone city is designated as a protected UNESCO World Heritage site, we deploy only high-authority, federally licensed historians. They possess specific expertise in the brief but highly impactful reign of Emperor Akbar, who built this imperial capital from the ground up in the 16th century before abruptly abandoning it. Your professional guide interprets the highly advanced geometric planning, the immense Jama Masjid, and the multi-religious architectural syncretism of the primary palaces, ensuring a premium academic experience completely free from the aggressive, unregistered touts who frequently surround the massive Buland Darwaza victory gate."
+      },
+      {
+        question: "How long does the guided tour take?",
+        answer: "We strictly mandate a comprehensive 2 to 3-hour duration for the exploration of this sprawling abandoned city. This timeframe is absolutely critical to moving beyond a simple visual walk-through of the immense courtyards. We require this rigorous intellectual engagement to successfully navigate the dense, labyrinthine street grids of the original Mughal capital, analyze the specific acoustics of the Diwan-i-Khas (Hall of Private Audiences), and deconstruct the incredibly detailed carved sandstone pillars of the Panch Mahal. This duration ensures our high-authority historian guide can deliver a deeply comprehensive, multi-layered narrative of 16th-century imperial operations."
+      },
+      {
+        question: "Where does the guide meet us?",
+        answer: "Because the immediate perimeter of the Buland Darwaza and the main parking facilities are intensely chaotic and heavily populated with unregistered vendors, your federally licensed guide will execute a seamless, pre-arranged rendezvous. They will meet you precisely at the designated tourist parking lot drop-off coordinate before you board the mandatory government shuttle bus that traverses the final steep incline to the main entrance. This strategic [local expert guide](/india/agra) deployment ensures you are completely insulated from aggressive solicitation and logistical friction from the very moment you arrive at this massive archaeological complex."
+      },
+      {
+        question: "Are entry tickets included?",
+        answer: "This specific booking is purely for our premium, high-authority guiding service and intentionally excludes the cost of the monument entrance fees. However, your guide acts as your logistical architect; they will assist you in acquiring your specialized ASI digital tickets via the official government online portal, or physically at the designated priority counters near the Jodha Bai Palace entrance. By keeping the guiding fee strictly separate, you avoid any hidden markups on ticket prices. We orchestrate the ticketing process efficiently so you spend your time admiring the vast red sandstone courtyards instead of standing in administrative lines."
+      },
+      {
+        question: "Is transport included?",
+        answer: "This specific package strictly provides the elite intellectual capital of our high-authority historian guide and does not include transportation to or from the monument. You must arrange your own vehicle or utilize a pre-booked [Agra guided tour](/india/agra/things-to-do-in-agra) transport network to reach the designated meeting coordinate at the base of the plateau. Once you arrive, your dedicated guide takes absolute command, managing the mandatory government shuttle bus transfer and executing all on-site navigational logistics through the massive, multi-tiered complex of abandoned palaces, mosques, and administrative buildings."
+      },
+      {
+        question: "How far is Fatehpur Sikri from Agra?",
+        answer: "This incredibly preserved abandoned capital is situated approximately 40 kilometers (25 miles) west of central Agra, requiring a dedicated transit window of roughly 60 to 75 minutes, depending heavily on localized highway traffic and regional road conditions. Because of this significant geographical separation from the primary Taj Mahal and Agra Fort circuit, we strongly advise treating Fatehpur Sikri as a distinct half-day deployment or formally integrating it into the morning agenda if you are driving directly onward to Jaipur, ensuring you maximize your tactical [Agra travel time](/india/agra/agra-travel-guide-2026)."
+      },
+      {
+        question: "Is this tour private?",
+        answer: "Yes, this entire high-efficiency itinerary operates as a strictly 100% private, fully enveloped experience exclusively for you and your specified travel companions. We fundamentally reject the paradigm of consolidating independent bookings into large, slow-moving group bus tours. Your dedicated, premium vehicle and your federally licensed guide represent a dedicated strike team focused entirely on your specific timeline and educational requirements. You possess absolute tactical command over the itinerary, dictating the pace, lingering at crucial photography points, and directly engaging your guide with highly specific architectural questions without group interference."
+      },
+      {
+        question: "Is it less crowded than Taj Mahal?",
+        answer: "Generally, yes. While the primary Jama Masjid and the enormous Buland Darwaza see significant religious and tourist traffic, the sprawling nature of the abandoned royal complex—which spans over three kilometers—drastically dilutes the overall human density. You will experience far greater tranquility while exploring Akbar's private residential quarters, the intricately carved Anup Talao (peerless pool), and the vast administrative courtyards compared to the highly concentrated, incredibly intense crowds immediately surrounding the white marble mausoleum of the Taj Mahal. This scale provides a significantly more relaxed, highly analytical [monument viewing experience](/india/agra/taj-mahal-ticket-price-2026)."
+      },
+      {
+        question: "How much walking is involved?",
+        answer: "Executing this comprehensive exploration of the massive 16th-century capital requires a very significant degree of physical stamina. You must anticipate walking a cumulative total of approximately 3 to 4 kilometers across expansive, uneven red sandstone courtyards, traversing steep staircases near the Buland Darwaza, and navigating the vast, unshaded royal administrative sectors. High-quality, supportive footwear is absolutely mandatory. However, because this is a strictly private deployment, your senior historian guide will expertly mitigate fatigue by intentionally pacing the narrative and heavily utilizing shaded architectural features for lengthy historical explanations."
+      },
+      {
+        question: "Is this suitable for children?",
+        answer: "While we welcome families, we must be highly transparent: this massive, complex archaeological site presents significant physical challenges. The requirement to continuously navigate highly chaotic, densely populated religious sectors near the main gate, combined with extensive walking across uneven terrain with minimal modern infrastructure or shaded seating, often results in severe fatigue and sensory overload for children. Managing stroller logistics inside the incredibly narrow, stepped alleyways is physically impossible. Therefore, we heavily recommend assessing your children's stamina before committing to this rigorous, academically oriented deployment."
+      },
+      {
+        question: "Are stairs involved?",
+        answer: "Yes, extensively. While the massive central courtyards of the royal sector are largely flat, accessing the primary complex involves steep mandatory inclines. More critically, the most iconic element of truth—the colossal 54-meter (177-foot) high Buland Darwaza (Gate of Magnificence)—is approached physically via a highly imposing, massive flight of 42 steep, uneven stone steps designed to intimidate visiting ambassadors. Navigating this immense structure and the subsequent tiered palatial [architectural viewpoints](/india/agra/1-day-agra-itinerary) demands robust mobility. Wheelchair accessibility across the entire site is severely limited and often practically non-existent."
+      },
+      {
+        question: "Can we combine with Agra tour?",
+        answer: "Attempting to integrate this massive, sprawling abandoned city into a standard, single-day itinerary alongside the Taj Mahal and the Agra Fort is an exceptionally poor tactical decision that we strongly advise against. Deploying to Fatehpur Sikri requires an additional 80-kilometer round trip and three hours of on-site exploration. Adding this complex ruins the carefully balanced timeline, converting a highly educational, comfortable exploration into an exhausting, rushed marathon across terrible secondary roads. We strongly mandate separating this site into its own dedicated half-day window to ensure the architectural narrative is never compromised."
+      },
+      {
+        question: "Is Friday busy?",
+        answer: "Absolutely. Fatehpur Sikri houses the incredibly sacred tomb of the revered Sufi saint Salim Chishti, situated directly inside the vast courtyard of the active Jama Masjid. Because Fridays hold immense religious significance for the local Islamic community, the area immediately surrounding the mosque and the massive Buland Darwaza becomes intensely, aggressively crowded with local worshippers and pilgrims seeking blessings. While the separate, non-religious royal palatial complex remains relatively accessible, the primary entry parameters involve navigating a highly chaotic, overwhelmingly dense environment that requires sophisticated local guidance to bypass effectively."
+      },
+      {
+        question: "What languages are available?",
+        answer: "We maintain a highly specialized roster of linguistically diverse, federally licensed historian guides to cater to our elite international clientele. Beyond absolute fluency in English, we can deploy senior experts who deliver complex architectural and political narratives in Spanish, French, German, Italian, Russian, and Japanese at this specific location. This ensures the profound historical payload of Akbar's 16th-century religious syncretism and urban planning is communicated seamlessly in your native tongue, preventing any critical loss of detail. Simply specify your linguistic requirement upon booking to secure your preferred [high-authority expert](/india/agra/taj-mahal-full-day-tour)."
+      },
+      {
+        question: "Is advance booking required?",
+        answer: "We absolutely mandate advance reservations to secure our premium, high-authority historians. Because Fatehpur Sikri is located significantly outside the main city infrastructure, maintaining elite, federally licensed personnel on-site requires precise logistical coordination. If you attempt to secure a guide upon arrival at the massive, chaotic parking facilities, you will invariably engage with aggressive, unregistered touts who fabricate history and forcefully divert you into high-pressure carpet showrooms. Booking our verified, highly credentialed service in advance guarantees your intellectual safety and completely removes all aggressive local solicitation from your experience."
+      }
+    ];
+  }
+  if (slug === 'agra-friday-tour-taj-closed-alternative') {
+    return [
+      {
+        question: "Why is Taj Mahal closed on Friday?",
+        answer: "The Indian government and the Archaeological Survey of India (ASI) strictly mandate that the Taj Mahal complex is entirely closed to all tourist access every single Friday. This non-negotiable policy is enforced to exclusively accommodate the local Muslim population, who utilize the active red sandstone mosque—situated directly adjacent to the white marble mausoleum on the western side of the main plinth—for their mandatory Friday congregational Jumu'ah prayers. No tourist ticketing or entry is permitted under any circumstances, necessitating a tactical pivot for any travelers arriving in the city on this specific day."
+      },
+      {
+        question: "What monuments are included in this alternative tour?",
+        answer: "This aggressive, highly optimized alternative itinerary completely circumvents the Friday closure by anchoring immediately on the massive, red sandstone defensive perimeter and ornate palaces of the Agra Fort. We then transition to the incredibly intricate Tomb of I'timād-ud-Daulah, frequently referenced as the 'Baby Taj,' which profoundly influenced subsequent Mughal architecture. Finally, we execute a tactical deployment to the Mehtab Bagh (Moonlight Garden) located directly across the Yamuna River. This precise location delivers the definitive, unobstructed sunset view of the Taj Mahal's rear facade, ensuring you still secure iconic, magazine-quality imagery."
+      },
+      {
+        question: "Is this a full-day tour?",
+        answer: "This highly efficient alternative itinerary is structurally engineered as a comprehensive 6 to 7-hour deployment. This calculated timeframe guarantees our [high-authority local expert](/india/agra) guide can execute an expansive, unhurried exploration of the massive Agra Fort and the intensely detailed Baby Taj. It comfortably secures an extended, relaxed window across the river at Mehtab Bagh during the critical \"golden hour\" light leading precisely up to sunset. We also intentionally schedule dedicated intervals for high-quality dining and smooth transit, ensuring a physically sustainable and intellectually rewarding day without the intense rush of the standard circuit."
+      },
+      {
+        question: "Are entry tickets included?",
+        answer: "To enforce absolute financial transparency, this specific alternative package covers the provision of your premium private vehicle and a dedicated, highly credentialed historian guide, but intentionally excludes the baseline monument entrance fees for the Fort, Baby Taj, and Mehtab Bagh. By decoupling these costs, you avoid hidden agency markups and pay the exact, uninflated government tier rate. More importantly, your assigned local guide operates as an elite logistical concierge. They seamlessly navigate the complex ASI online ticketing portals on your behalf, guaranteeing you bypass the manual queues and maximize your operational time."
+      },
+      {
+        question: "Is this tour private?",
+        answer: "Yes, this entire high-efficiency itinerary operates as a strictly 100% private, fully enveloped experience exclusively for you and your specified travel companions. We fundamentally reject the paradigm of consolidating independent Friday bookings into large, slow-moving group bus tours. Your dedicated, premium vehicle and your federally licensed guide represent a dedicated strike team focused entirely on your specific timeline and educational requirements. You possess absolute tactical command over the itinerary, dictating the pace, lingering at crucial photography points at Mehtab Bagh, and directly engaging your guide with highly specific questions."
+      },
+      {
+        question: "Is Mehtab Bagh sunset included?",
+        answer: "This incredibly strategic location is the absolute pinnacle of this Friday alternative itinerary. The Mehtab Bagh (Moonlight Garden) was meticulously aligned perfectly with the Taj Mahal by the original Mughal architects, situated directly across the Yamuna River. Our [high-authority guided tour](/india/agra/things-to-do-in-agra) deploys you to this specific 25-acre garden perfectly synchronized with the late afternoon light. As the sun sets, you secure an unobstructed, unparalleled rear view of the massive white marble mausoleum reflecting in the river, completely devoid of the crushing crowds that normally populate the interior complex."
+      },
+      {
+        question: "Is hotel pickup included?",
+        answer: "Absolutely. To eliminate all logistical friction and provide a genuinely premium experience, we execute seamless, door-to-door transportation. Your designated, air-conditioned luxury vehicle and professionally licensed chauffeur will arrive exactly at your pre-scheduled time at any hotel, homestay, or railway station within the immediate city limits. We totally insulate you from the unpredictable local taxi networks. At the conclusion of your rigorous Friday exploration, you will be smoothly, securely transported back to your original starting point or any other preferred local drop-off coordinate you specify."
+      },
+      {
+        question: "Is this suitable for first-time visitors?",
+        answer: "This comprehensive, multi-monument alternative itinerary is the definitive strategy for first-time visitors severely restricted by the Friday closure. It completely removes the intense disappointment of a locked gate by aggressively substituting the massive palatial structures of the Agra Fort, the spectacular marble inlay work of the Baby Taj, and delivering the iconic Taj Mahal visual from Mehtab Bagh. Your high-authority historian guide manages every complex variable, providing a totally insulated, intellectually rigorous environment that allows the first-time visitor to extract maximum monumental value despite the significant federal operational restrictions."
+      },
+      {
+        question: "Can we see Taj Mahal from Mehtab Bagh?",
+        answer: "Yes, absolutely, and this is the specific tactical reason we deploy to this exact location. The Mehtab Bagh provides an utterly unobstructed, perfectly symmetrical rear-view of the Taj Mahal directly across the Yamuna River. In fact, many professional photographers severely prefer this exact vantage point over the interior grounds because you eliminate the aggressive crowds of tourists in your foreground. Your [professional Agra guide](/india/agra/agra-travel-guide-2026) positions you perfectly during the critical \"golden hour\" light, ensuring you capture phenomenal, magazine-quality imagery of Shah Jahan's masterpiece despite the official complex closure."
+      },
+      {
+        question: "Is lunch included?",
+        answer: "This specialized package intentionally decouples the cost of meals to provide you with absolute dietary freedom and financial transparency. While lunch is not included in the base price, your dedicated guide acts as a highly localized culinary concierge. They will proactively recommend rigorously vetted, premium restaurants or authentic, high-quality local establishments that align perfectly with your specific dietary requirements and hygiene standards. This strategy ensures you are never forced into substandard, pre-set tourist buffets, allowing you to control your culinary experience as tightly as your historical exploration."
+      },
+      {
+        question: "What vehicle is provided?",
+        answer: "We strictly deploy a modern, impeccably maintained fleet of air-conditioned vehicles to ensure your absolute comfort and security. For solo travelers or couples, we utilize premium sedans such as the Toyota Etios or Swift Dzire. For families or small groups (up to six individuals), we automatically upgrade the logistics to an extremely spacious Toyota Innova SUV, providing superior legroom and suspension. Every vehicle is thoroughly sanitized and operated by a uniformed, commercially licensed chauffeur trained in defensive driving protocols, guaranteeing a seamless transit between all the alternative monumental sites."
+      },
+      {
+        question: "Is guide included?",
+        answer: "Yes, a federally licensed, high-authority historian guide is the centerpiece of this alternative package. They possess official Ministry of Tourism credentials and deep academic knowledge of the Mughal Empire. They do not merely recite dates; they deconstruct the intense political struggles within the Agra Fort where Shah Jahan was imprisoned by his son with a [view of the Taj Mahal](/india/agra/taj-mahal-ticket-price-2026), and they explain the revolutionary architectural transition represented by the Baby Taj. This intellectual depth transforms your visit from a simple visual walk-through into a profound, university-level exploration of India's history."
+      },
+      {
+        question: "Can this tour replace Taj Mahal visit?",
+        answer: "While this rigorous, highly optimized itinerary delivers the maximum possible value on a Friday, we must be absolutely transparent: nothing fully replaces standing inside the white marble mausoleum. This alternative tour is a highly aggressive tactical mitigation strategy for travelers with inflexible schedules. It delivers brilliant photography from Mehtab Bagh, intense history at the Fort, and stunning marble work at the Baby Taj. However, if your itinerary permits any flexibility whatsoever, we strongly mandate spending an additional night to execute the official inside visit on the adjacent Thursday or Saturday."
+      },
+      {
+        question: "Is this less crowded than regular days?",
+        answer: "Generally, yes. Because the massive influx of tourists specifically targeting the interior of the Taj Mahal is entirely halted, the broader infrastructure of the city experiences slightly reduced friction. The Agra Fort and the Baby Taj will still exhibit standard baseline attendance, but the crushing, overwhelmingly dense crowds are mitigated. Furthermore, deploying our [Friday alternative exploration](/india/agra/1-day-agra-itinerary) to Mehtab Bagh ensures you bypass the intense security queues at the main gates, allowing a significantly more relaxed, highly analytical engagement with the monuments compared to the chaotic environment of a standard operational day."
+      },
+      {
+        question: "What is the cancellation policy?",
+        answer: "We apply a highly transparent and discerning cancellation matrix for this specialized Friday deployment. If you cancel this comprehensive private tour more than 24 hours prior to the designated pickup time, you will immediately receive a 100% full refund with zero complex administrative friction. Cancellations executed within the strict 24-hour window are subject to restrictions to fairly compensate our permanently dedicated chauffeurs and senior guides. This straightforward policy structurally protects both your financial investment and our commitment to maintaining elite, highly specialized personnel exclusively reserved for your Friday itinerary."
+      }
+    ];
+  }
+  if (slug === 'taj-mahal-sunrise-guided-tour') {
+    return [
+      {
+        question: "What time does sunrise tour start?",
+        answer: "The exact commencement time of your premium sunrise tour depends entirely on the specific season and the exact time of dawn. In the peak winter months (December through February), the complex gates typically open around 6:30 AM to 7:00 AM due to dense atmospheric fog. During the intense summer months, we mandate a much earlier tactical deployment, typically scheduling your dedicated hotel pickup between 5:15 AM and 5:30 AM. Your high-authority local guide will communicate precisely with you the evening prior to pinpoint the absolute optimal entry window for photography."
+      },
+      {
+        question: "Which gate do we enter?",
+        answer: "Our highly experienced guides execute a dynamic operational strategy based exclusively on localized crowd densities and your specific hotel location. We predominantly utilize the East Gate for early morning entry, as it is situated significantly closer to the primary premium hotel district in Agra and generally features slightly more organized infrastructure for VIP access. However, if our ground team determines a massive influx of tour buses at the East Gate, we will instantaneously pivot and aggressively deploy you through the West Gate to guarantee the fastest possible security clearance."
+      },
+      {
+        question: "Is sunrise less crowded?",
+        answer: "Absolutely, and this is the foundational tactical advantage of this specific early-deployment itinerary. By arriving prior to the official gate opening, you systematically bypass the massive, crushing influx of domestic tourists and large-scale bus tours that begin flooding the complex by 9:30 AM. While you will not be completely alone—as sunrise is highly coveted by serious photographers—the initial hour provides unparalleled, serene [access to the Taj Mahal](/india/agra). You can secure iconic, wide-angle photographs of the white marble mausoleum reflecting perfectly in the central pools without overwhelming background interference."
+      },
+      {
+        question: "Are entry tickets included?",
+        answer: "To enforce absolute financial transparency, this specialized premium package strictly covers your early-morning, air-conditioned transportation and the elite expertise of your federally licensed historian guide; it intentionally excludes the baseline monument entrance tickets. By decoupling this variable cost, you avoid all hidden agency markups and pay the exact, uninflated government tier rate. More importantly, your assigned local expert acts as a high-level logistical concierge. They will proactively assist you in navigating the complex ASI online ticketing portals, ensuring you completely bypass the chaotic manual ticket queues immediately upon arrival."
+      },
+      {
+        question: "What if it is foggy?",
+        answer: "In North India, dense winter fog (primarily occurring in very late December and throughout January) introduces a significant operational variable. If extreme atmospheric conditions severely compromise the initial visibility of the mausoleum from the Darwaza-i-Rauza (Main Gate), we do not cancel. We execute a strategic pivot. Our high-authority photographers and [professional Agra guides](/india/agra/things-to-do-in-agra) expertly utilize the massive red sandstone arches and the adjacent active mosque for striking, moody, and highly atmospheric close-up compositions. As the morning sun strengthens, the fog typically breaks, allowing for the classic wide shots later."
+      },
+      {
+        question: "Is this tour private?",
+        answer: "Yes, this entire high-efficiency early deployment operates as a strictly 100% private, fully enveloped experience exclusively for you and your specified travel companions. We fundamentally reject the paradigm of consolidating independent sunrise bookings into large, slow-moving group bus tours. Your dedicated, premium vehicle and your federally licensed guide represent a dedicated strike team strictly focused entirely on your specific timeline and highly specialized photographic requirements. You possess absolute tactical command over the itinerary, dictating the narrative pace and lingering at crucial symmetry points without any interference from an outside group."
+      },
+      {
+        question: "How long do we stay inside?",
+        answer: "Because this intense, early-morning exploration is designed for serious architectural appreciation and premium digital photography, we structurally allocate a dedicated 2.5 to 3-hour window specifically inside the Taj Mahal complex. This rigorous timeframe guarantees that our high-authority historian guide is never forced to rush the complex narrative. We require this extended period to successfully navigate the expansive Charbagh gardens, allow for organic engagement with the intricate Pietra Dura marble inlay work on the central mausoleum, and structurally analyze the massive red sandstone mosque and the matching guest house."
+      },
+      {
+        question: "Is breakfast included?",
+        answer: "This highly focused, specialized package intentionally decouples the cost of meals to provide you with absolute dietary freedom and financial transparency. Breakfast is not included in the base price. However, following your intensive 3-hour morning exploration of the Taj Mahal, your dedicated [local expert guide](/india/agra/agra-travel-guide-2026) acts as a highly localized culinary concierge. They will proactively recommend rigorously vetted, premium restaurants or your hotel’s primary dining room that align perfectly with your specific dietary requirements and hygiene standards, avoiding any forced attendance at substandard, pre-set tourist buffets."
+      },
+      {
+        question: "Is this suitable for elderly travelers?",
+        answer: "This aggressive early deployment is exceptionally well-suited for elderly travelers because it is meticulously engineered for comfort. Our private vehicle provides seamless, door-to-door transit to the VIP entry points before the intense local heat peaks. Inside the monument, your senior guide will proactively manage the pace, utilizing ramps where available and intentionally stopping in deeply shaded areas with seating. Exploring the enormous complex during the cooler morning hours drastically mitigates physical exhaustion, removing major logistical friction and ensuring the focus entirely remains on profound historical appreciation of the UNESCO site."
+      },
+      {
+        question: "What should I wear in winter?",
+        answer: "If you are deploying for the sunrise tour between December and early February, absolutely rigorous thermal layering is mandatory. The pre-dawn temperature in Agra frequently plummets to 4°C (39°F), and the immense white marble structure radiates intense cold. A heavy winter jacket, thermal base layers, a scarf, and gloves are non-negotiable for comfort. Because you must remove your shoes or wear provided protective shoe covers upon ascending the main mausoleum plinth, wearing thick, insulated socks is the single most critical tactical adjustment to prevent extreme foot discomfort on the freezing marble."
+      },
+      {
+        question: "Can guide help with photos?",
+        answer: "Certainly. Our seasoned, high-authority professionals understand that capturing stunning visuals in the elusive morning light is a core mandate of your [sunrise visit to Agra](/india/agra/taj-mahal-ticket-price-2026). While primarily historians, they possess exceptional spatial awareness of the massive monument's complex grounds. They know the exact, highly coveted five \"symmetry points,\" the precise angles to capture the reflection pools before the crowds arrive, and how to utilize the dynamic sunrise light organically against the white marble. They will gladly use your smartphone or DSLR to capture high-quality, perfectly framed wide-angle memories."
+      },
+      {
+        question: "Is hotel pickup included?",
+        answer: "Absolutely. To eliminate all early-morning logistical friction within a foreign environment, we execute seamless, door-to-door dark-hour transportation. Your designated, air-conditioned luxury vehicle and professionally licensed chauffeur will arrive exactly at your pre-scheduled 5:30 AM (or specified) time at any hotel, homestay, or railway station within the immediate city limits. We totally insulate you from the chaotic, unpredictable local morning taxi networks. At the conclusion of this demanding sunrise exploration, you will be securely and smoothly transported back to your exact starting point for breakfast or your onward journey."
+      },
+      {
+        question: "Can we add Agra Fort?",
+        answer: "Yes, extending this highly focused sunrise itinerary to seamlessly include the massive Agra Fort is a deeply popular, tactically sound upgrade. Following your 3-hour Taj Mahal exploration and a brief interval for breakfast at your hotel, your dedicated guide and private vehicle will deploy you directly to the enormous red sandstone defensive perimeter of the Fort. This cohesive dual-monument strategy optimally utilizes the cooler morning hours while your energy levels are peaking, securing the absolute pinnacle of Mughal architecture before the midday heat and crushing afternoon crowds set in."
+      },
+      {
+        question: "What is cancellation policy?",
+        answer: "We recognize that premium international travel demands high-level tactical flexibility, so we execute a highly transparent, discerning [cancellation matrix](/india/agra/1-day-agra-itinerary) for this specialized sunrise deployment. If you cancel this comprehensive private tour more than 24 hours prior to the designated dark-hour pickup time, you will immediately receive a 100% full refund with zero complex administrative friction. Cancellations executed within the strict 24-hour window are significantly restricted to fairly compensate our permanently dedicated chauffeurs and senior guides, protecting both your financial investment and our commitment to deploying elite, highly specialized personnel."
+      },
+      {
+        question: "Is sunrise better than sunset?",
+        answer: "For serious architectural appreciation and magazine-quality photography, the sunrise deployment is structurally vastly superior to the sunset slot. At sunrise, you are entering the pristine complex alongside a fraction of the daily crowd, allowing for clean, unobstructed camera angles and serene appreciation of the marble inlay. At sunset, you are systematically battling the cumulative aggregation of the entire day's tourists—often exceeding 20,000 people—creating an incredibly dense, loud, and chaotic environment. Sunrise guarantees the softest light interacting with the mausoleum while providing the ultimate tactical advantage over overwhelming crowds."
+      }
+    ];
+  }
+  if (slug === 'sunrise-taj-mahal-and-agra-tour-by-car') {
+    return [
+      {
+        question: "What time is pickup from Delhi?",
+        answer: "To secure the critical, highly coveted \"golden hour\" light at the Taj Mahal, executing an incredibly aggressive, pre-dawn departure from Delhi is an absolute mandate. Your designated, air-conditioned luxury vehicle and commercially licensed chauffeur will deploy to your specific Delhi NCR hotel, Gurgaon homestay, or airport location perfectly synchronized between 2:30 AM and 3:00 AM. This precise tactical departure utterly bypasses all crippling morning gridlock within the metropolitan capital, allowing a high-speed, 3.5-hour transit via the Yamuna Expressway and guaranteeing your arrival precisely as the complex gates unlock."
+      },
+      {
+        question: "How long is the drive?",
+        answer: "The highly efficient point-to-point transit from the central Delhi National Capital Region to the immediate perimeter of the UNESCO monuments in Agra demands approximately 3.5 to 4 hours of continuous driving. This timeframe relies entirely upon deploying our premium vehicles directly onto the six-lane, controlled-access Yamuna Expressway, completely bypassing the chaotic and heavily congested secondary state highways. Our seasoned, professionally licensed chauffeurs are specifically trained for these high-speed, early morning logistics, ensuring you experience a seamless, incredibly smooth journey that allows you to safely sleep and recover energy before arriving."
+      },
+      {
+        question: "Is this fully private?",
+        answer: "Yes, this entire high-efficiency, multi-city deployment operates as a strictly 100% private, fully enveloped experience exclusively designed for you and your specified travel companions. We fundamentally reject the chaotic paradigm of consolidating independent pre-dawn bookings into large, slow-moving group bus tours from Delhi. Your dedicated, premium vehicle and your federally licensed [local expert guide](/india/agra) who meets you upon arrival represent an elite strike team. You possess absolute tactical command over the itinerary, dictating the pace and directly engaging your high-authority historian with highly specific questions throughout the entire 14-hour operation."
+      },
+      {
+        question: "Are tickets included?",
+        answer: "To enforce absolute financial predictability and transparency, this specialized rapid-deployment package covers the provision of your premium private vehicle, all Yamuna Expressway highway tolls, interstate taxes, and your dedicated, highly credentialed historian guide. It intentionally excludes the baseline monument entrance fees. By decoupling these costs, you avoid all hidden agency markups and pay the exact, uninflated government tier rate. More importantly, your assigned local guide operates as an elite logistical concierge in Agra, seamlessly navigating the complex ASI online ticketing portals and ensuring you bypass the chaotic manual ticket queues immediately."
+      },
+      {
+        question: "Is Agra Fort included?",
+        answer: "Yes. This aggressive, high-impact itinerary is laser-focused on the absolute architectural apex of the Mughal Empire. Following your intensive 3-hour dawn exploration of the Taj Mahal and a subsequent scheduled breakfast interval, the tour rapidly transitions to the colossal red sandstone defensive perimeter and ornate inner palaces of the Agra Fort. These two massive, federally protected UNESCO World Heritage sites deliver a complete, highly concentrated narrative of 17th-century imperial dominance, incredible artistry, and advanced military engineering, maximizing the educational payload of your demanding single-day deployment from the capital."
+      },
+      {
+        question: "Is breakfast included?",
+        answer: "This highly specialized, private package intentionally decouples the cost of meals to provide you with absolute dietary flexibility and strict financial transparency. While breakfast is not included in the base price, a dedicated dining interval is structurally integrated into the morning timeline immediately following your 3-hour [sunrise exploration of Agra](/india/agra/taj-mahal-full-day-tour). Your high-authority guide acts as a localized culinary concierge. They will proactively guide your chauffeur to a rigorously vetted, premium 5-star hotel restaurant or an authentic, highly sanitized establishment that perfectly aligns with your specific dietary and coffee requirements."
+      },
+      {
+        question: "What vehicle is used?",
+        answer: "We strictly deploy a modern, impeccably maintained fleet of deeply sanitized, air-conditioned vehicles to ensure your absolute comfort and security during the extensive, 7-hour round-trip highway transit. For solo travelers or couples, we utilize high-end sedans such as the Toyota Etios or Swift Dzire. For families or small groups (up to six individuals), we automatically upgrade the logistics to an extremely spacious Toyota Innova SUV, providing significantly superior legroom and advanced suspension. Every vehicle is operated by a uniformed, commercially licensed chauffeur highly trained in defensive, pre-dawn highway protocols."
+      },
+      {
+        question: "Is Yamuna Expressway toll included?",
+        answer: "Yes, absolutely. To eliminate all logistical friction and annoying micro-transactions during your intense, pre-dawn transit, this premium rapid-deployment package is entirely comprehensive regarding transport fees. All mandatory infrastructure costs, including the expensive two-way Yamuna Expressway tolls, mandatory interstate commercial taxes, municipal parking fees at the Taj Mahal and Agra Fort, and the chauffeur’s dedicated allowance are fundamentally baked into the overall pricing architecture. You will not experience any hidden demands for cash or surprising transport levies from your driver at any point during your high-speed [journey to Agra](/india/agra/agra-travel-guide-2026)."
+      },
+      {
+        question: "What if there is fog?",
+        answer: "During the intense North Indian winter (late December exclusively through January), dense, paralyzing highway fog frequently introduces a severe operational variable. If visibility on the Yamuna Expressway drops below safe commercial transit parameters, our seasoned chauffeurs will strictly prioritize your absolute safety, radically reducing speed, which inevitably extends the 3.5-hour drive time. If extreme atmospheric conditions compromise the initial sunrise visibility of the mausoleum upon arrival, your high-authority guide will immediately pivot, executing striking, close-up interior architectural photography until the morning sun structurally burns off the dense atmospheric layer."
+      },
+      {
+        question: "Can we upgrade vehicle?",
+        answer: "Absolutely. Because you possess total command over this strictly private, 14-hour multi-city deployment, we seamlessly accommodate premium logistical upgrades. If you demand unparalleled comfort for the extensive highway transit, you can formally request an upgrade to our absolute top-tier luxury models, such as the ultra-premium Toyota Innova Crysta, a high-end luxury minivan, or specific European executive sedans. While these elite vehicles incur a supplementary surcharge, they deeply mitigate highway fatigue, providing exceptional recline, superior acoustics, and a significantly elevated transit experience compared to our standard commercial sedan fleet."
+      },
+      {
+        question: "Is this suitable for kids?",
+        answer: "We must be fiercely transparent: executing a 2:30 AM wake-up protocol followed immediately by 7 hours of high-speed highway transit and extensive walking across two massive UNESCO monuments presents an incredibly severe stamina challenge for toddlers or young children. While our private vehicles offer deep comfort and your seasoned guide dynamically manages the pace, the aggregate physical and sensory exhaustion of a chaotic 14-hour, multi-city deployment is immense. For families traveling with younger children, we urgently mandate evaluating our [overnight Agra itinerary](/india/agra/1-day-agra-itinerary) to structurally divide the immense physical output."
+      },
+      {
+        question: "Are shopping stops included?",
+        answer: "We enforce a rigid, non-negotiable zero-stress policy regarding commerce. Our absolute mandate is high-level historical education and premium architectural appreciation. We will never physically force you or subtly coerce you into visiting high-pressure souvenir emporiums or tourist traps. If you explicitly request to view authentic, multi-generational artisans executing the complex Pietra Dura marble inlay techniques, your guide can successfully facilitate a legitimate, pressure-free demonstration. However, given the incredibly tight timeline of a same-day deployment from Delhi, we strongly recommend aggressively bypassing all specialized commercial sectors to maximize crucial monument time."
+      },
+      {
+        question: "Can we customize itinerary?",
+        answer: "Yes, customization is the fundamental pillar of this elite, private deployment. While our standard high-efficiency route seamlessly links the Taj Mahal at dawn to the Agra Fort, the framework is yours to command. If you wish to rapidly substitute the Fort for the exquisitely detailed Baby Taj, or if you demand an immediate departure back to Delhi to secure an evening flight, your guide and chauffeur will instantaneously integrate your requests on the fly. We act as your dynamic, localized strike team, building the exact 14-hour experience you mathematically specify."
+      },
+      {
+        question: "What is cancellation policy?",
+        answer: "We recognize that premium international travel demands aggressive tactical flexibility, so we execute a highly transparent and discerning cancellation matrix. If you cancel this comprehensive, multi-city private deployment more than 24 hours prior to the designated 2:30 AM pickup time, you will immediately receive a 100% full refund with zero complex administrative friction. Cancellations executed within the strict 24-hour window are subject to deep restrictions specifically to fairly compensate our permanently dedicated [professional chauffeurs](/india/agra/taj-mahal-ticket-price-2026) and senior guides who were removed from active booking rosters to cater exclusively to your pre-dawn itinerary."
+      },
+      {
+        question: "Is this better than train option?",
+        answer: "The private car deployment executing at 2:30 AM is infinitely superior if your absolute, non-negotiable mandate is experiencing the Taj Mahal at sunrise before the crushing 20,000-person crowds arrive. The fastest commercial train from Delhi (the Gatimaan Express) does not physically arrive in Agra until 9:50 AM, guaranteeing you face brutal mid-morning heat, ruined photography lighting, and maximum tourist density. While the high-speed train is smoother during the day, the private pre-dawn car strategy provides the ultimate, unparalleled tactical advantage for serious architectural appreciation and premium, unobstructed digital photography."
+      }
+    ];
+  }
+  if (slug === 'private-taj-mahal-tour-from-delhi') {
+    return [
+      {
+        question: "Is this a fully private car?",
+        answer: "Yes, this entire high-efficiency, multi-city round trip operates as a strictly 100% private, fully enveloped transit experience exclusively designed for you and your specified travel companions. We fundamentally reject the chaotic paradigm of consolidating independent Delhi departures into large, slow-moving group bus tours. Your dedicated, premium air-conditioned vehicle and commercially licensed chauffeur represent an elite strike team dedicated solely to your specific timeline, providing an undisturbed, comfortable 7-hour round-trip journey without strangers or multiple unscheduled stops."
+      },
+      {
+        question: "What vehicle category is included?",
+        answer: "We strictly deploy a modern, impeccably maintained fleet of deeply sanitized, air-conditioned vehicles to ensure your absolute comfort and security during the extensive, 7-hour round-trip highway transit. For solo travelers or couples, we utilize high-end sedans such as the Toyota Etios or Swift Dzire. For families or small groups (up to six individuals), we automatically upgrade the logistics to an extremely spacious Toyota Innova SUV, providing significantly superior legroom, advanced suspension, and robust luggage capacity for your comprehensive full-day deployment."
+      },
+      {
+        question: "Is guide included in Agra?",
+        answer: "Absolutely. This aggressive, high-impact itinerary seamlessly connects your private Delhi transit with the absolute architectural apex of the Mughal Empire. A federally licensed, high-authority [local expert guide](/india/agra) will intercept your designated vehicle precisely upon arrival in Agra. They possess official Ministry of Tourism credentials and deep academic knowledge, completely transforming your rapid 6-hour monumental exploration from a simple visual walk-through into a profound, university-level deconstruction of 17th-century imperial dominance, incredible artistry, and advanced military engineering."
+      },
+      {
+        question: "Are tickets included?",
+        answer: "To enforce absolute financial predictability and strict pricing transparency, this specialized rapid-deployment package covers the provision of your premium private vehicle, all Yamuna Expressway highway tolls, interstate commercial taxes, and your dedicated, highly credentialed historian guide. It intentionally excludes the baseline monument entrance fees. By decoupling these massive variable costs, you avoid all hidden agency markups and pay the exact, uninflated government tier rate. More importantly, your assigned local guide operates as an elite logistical concierge immediately upon arrival."
+      },
+      {
+        question: "Is Agra Fort included?",
+        answer: "Yes. This dense, multi-monument itinerary is laser-focused perfectly on maximizing the educational payload of your demanding single-day deployment from the capital. Following your intensive, detailed exploration of the Taj Mahal and a subsequent scheduled dining interval, the tour rapidly transitions to the colossal red sandstone defensive perimeter and ornate inner palaces of the Agra Fort. These two massive, federally protected UNESCO World Heritage sites deliver a complete, highly concentrated narrative of the staggering power and wealth of the Mughal dynasty."
+      },
+      {
+        question: "Is lunch included?",
+        answer: "This highly specialized, private Delhi departure package intentionally decouples the cost of meals to provide you with absolute dietary flexibility and strict financial transparency. While lunch is not included in the base price, a dedicated dining interval is structurally integrated into the timeline immediately following your primary [Taj Mahal exploration](/india/agra/taj-mahal-full-day-tour). Your high-authority Agra guide acts as a localized culinary concierge, proactively guiding your chauffeur to a rigorously vetted, premium 5-star hotel restaurant or an authentic, highly sanitized establishment aligning with your specific dietary needs."
+      },
+      {
+        question: "Can we start early for sunrise?",
+        answer: "Absolutely. To secure the critical, highly coveted \"golden hour\" light at the Taj Mahal, executing an incredibly aggressive, pre-dawn 2:30 AM to 3:00 AM departure from Delhi is an incredibly popular tactical mandate that we seamlessly execute daily. This precise tactical departure utterly bypasses all crippling morning gridlock within the metropolitan capital, allowing a high-speed, 3.5-hour transit via the Yamuna Expressway and guaranteeing your arrival precisely as the complex gates unlock, ensuring spectacular photography before the destructive mid-day heat peaks."
+      },
+      {
+        question: "What if traffic is heavy?",
+        answer: "While the Yamuna Expressway is generally an incredibly efficient, controlled-access highway, unpredictable gridlock upon re-entering the Delhi National Capital Region in the late evening requires significant tactical flexibility. Our highly experienced, commercially licensed chauffeurs utilize real-time satellite navigation algorithms and possess deep, organic knowledge of secondary arterial routes. If severe friction compromises your 3.5-hour return timeline or threatens an onward flight departure, your dedicated chauffeur will immediately restructure the transit vectors precisely to mitigate delays and secure a safe return."
+      },
+      {
+        question: "Is toll included?",
+        answer: "Yes, absolutely. To eliminate all logistical friction and annoying micro-transactions during your intense highway transit, this premium rapid-deployment package is entirely comprehensive regarding transport fees. All mandatory infrastructure costs, including the expensive two-way Yamuna Expressway tolls, mandatory interstate commercial taxes, municipal parking fees at the [Taj Mahal ticket price 2026](/india/agra/taj-mahal-ticket-price-2026) facilities and the Fort, and the chauffeur’s dedicated allowance are fundamentally baked into the overall pricing architecture. You will not experience any hidden demands for cash or surprising transport levies from your driver."
+      },
+      {
+        question: "Is hotel pickup from Gurgaon included?",
+        answer: "Yes. To eliminate all logistical friction within a sprawling foreign metropolitan environment, we execute seamless, door-to-door transportation. Your designated, air-conditioned luxury vehicle and professionally licensed chauffeur will arrive exactly at your pre-scheduled time at any hotel, homestay, or corporate residential coordinate within Central Delhi, New Delhi, Noida, or specifically the massive technological hub of Gurgaon. We totally insulate you from the chaotic, unpredictable local taxi networks from the exact moment your rigorous 14-hour exploration commences."
+      },
+      {
+        question: "Is this suitable for elderly?",
+        answer: "Because this specific itinerary demands a minimum of 7 hours of high-speed highway transit combined with extensive walking across multiple massive UNESCO monuments within the Agra urban heat index, it presents a significant physical challenge. While our private air-conditioned vehicle and local expert guide proactively manage the pace, utilize ramps, and identify shaded resting areas, the aggregate physical demand of a chaotic 14-hour day is intense. For elderly travelers or those with mobility limitations, we urgently recommend dividing the immense physical output by selecting an overnight itinerary."
+      },
+      {
+        question: "Can we avoid shopping stops?",
+        answer: "We enforce a rigid, non-negotiable zero-stress policy regarding commerce. Our absolute mandate is high-level historical education and premium architectural appreciation. We will never physically force you or subtly coerce you into visiting high-pressure souvenir emporiums or tourist traps. If you explicitly request to view authentic, multi-generational artisans executing the complex Pietra Dura marble inlay techniques, your guide can successfully facilitate a legitimate, pressure-free demonstration. However, given the tight 6-hour monumental timeline, we strongly recommend aggressively bypassing all [specialized commercial sectors](/india/agra/things-to-do-in-agra)."
+      },
+      {
+        question: "Is this customizable?",
+        answer: "Yes, customization is the fundamental pillar of this elite, private deployment. While our standard high-efficiency route seamlessly links the Taj Mahal to the Agra Fort, the 14-hour framework is entirely yours to command. If you wish to rapidly substitute the Fort for the exquisitely detailed Baby Taj, execute an immediate departure back to Delhi to secure an international evening flight, or add a specific culinary detour, your guide and chauffeur will instantaneously integrate your specific requests on the fly."
+      },
+      {
+        question: "What is cancellation policy?",
+        answer: "We recognize that premium international travel demands aggressive tactical flexibility, so we execute a highly transparent and discerning cancellation matrix. If you cancel this highly complex, multi-city private deployment more than 24 hours prior to the designated pickup time, you will immediately receive a 100% full refund with zero complex administrative friction. Cancellations executed within the strict 24-hour window are subject to deep restrictions specifically to fairly compensate our permanently dedicated, premium chauffeurs and senior guides assigned exclusively to your itinerary."
+      },
+      {
+        question: "Is this better than group tour?",
+        answer: "The private car deployment is infinitely superior to any consolidated group bus itinerary if your absolute, non-negotiable mandate is maximizing efficiency, comfort, and personalized intellectual engagement. A group bus typically stops at multiple Delhi hotels to collect 30 passengers, wasting hours of valuable time before even reaching the Yamuna Expressway. Furthermore, your dedicated, [high-authority local expert](/india/agra/agra-travel-guide-2026) operates exactly at your pace once inside the monuments, completely abandoning the slow, frustratingly generic narrative forced upon massive, unwieldy tourist groups."
+      }
+    ];
+  }
+  if (slug === 'agra-overnight-tour') {
+    return [
+      {
+        question: "What hotel category is included?",
+        answer: "Our standard overnight deployment heavily prioritizes superior comfort, rigorous sanitation protocols, and extreme proximity to the UNESCO monuments. We strictly partner with rigorously vetted, premium 4-Star or luxury 5-Star properties—such as the ITC Mughal, Taj Hotel & Convention Centre, or the Courtyard by Marriott—that consistently deliver exceptional service, highly rated international culinary options, and robust, reliable air-conditioning infrastructure. This dedicated overnight recovery interval completely breaks the immense physical exhaustion of completing 7 hours of highway transit in a single day."
+      },
+      {
+        question: "Is Taj Mahal sunrise included?",
+        answer: "Absolutely, and this is the foundational tactical advantage of booking the overnight strategy. By sleeping deeply within a 5-Star property located mere minutes from the East Gate, you systematically bypass the crippling 2:30 AM departure from Delhi. You wake comfortably, deploy immediately to the VIP entry complex at 5:30 AM, and secure the highly coveted \"golden hour\" light for unparalleled digital photography. This guarantees you experience the white marble mausoleum reflecting perfectly in the central pools without the overwhelming background interference of the mid-morning crowds."
+      },
+      {
+        question: "Is this private?",
+        answer: "Yes, this entire high-efficiency, multi-city overnight deployment operates as a strictly 100% private, fully enveloped transit experience exclusively designed for you and your specified travel companions. We fundamentally reject the chaotic paradigm of consolidating independent Delhi departures into large, slow-moving group bus tours. Your dedicated, premium air-conditioned vehicle, your commercially licensed chauffeur, and your [federally licensed Agra guide](/india/agra/1-day-agra-itinerary) represent an elite strike team dedicated entirely to your specific 48-hour timeline, dictating a highly personalized, undisturbed educational narrative."
+      },
+      {
+        question: "Are tickets included?",
+        answer: "To enforce absolute financial predictability and strict pricing transparency, this specialized rapid-deployment package covers the provision of your premium private vehicle, all Yamuna Expressway highway tolls, interstate commercial taxes, luxury hotel accommodation, and your dedicated, highly credentialed historian guide. It intentionally excludes the baseline monument entrance fees. By decoupling these massive variable costs, you avoid all hidden agency markups and pay the exact, uninflated government tier rate. More importantly, your assigned local guide operates as an elite logistical concierge immediately upon arrival."
+      },
+      {
+        question: "Is Agra Fort included?",
+        answer: "Yes. This relaxed, multi-monument itinerary is laser-focused perfectly on maximizing the educational payload of your demanding two-day deployment from the capital without physical exhaustion. Following your arrival on Day 1, we typically deploy to the colossal red sandstone defensive perimeter and ornate inner palaces of the Agra Fort, leaving the magnificent Taj Mahal explicitly reserved for the superior sunrise lighting on Day 2. These massive, federally protected UNESCO World Heritage sites deliver a complete, highly concentrated narrative of imperial domination."
+      },
+      {
+        question: "Is dinner included?",
+        answer: "This highly specialized, private package intentionally decouples the cost of your primary evening meal to provide you with absolute dietary flexibility and strict financial transparency. While dinner is not included in the base overnight pricing architecture, your 4-Star or 5-Star luxury hotel provides phenomenal, highly sanitized international dining options directly on-site. Alternatively, if your culinary preferences require it, your [high-authority local guide](/india/agra) acts as a localized concierge, proactively guiding your chauffeur to a rigorously vetted, authentic Mughlai restaurant in the city center."
+      },
+      {
+        question: "Can we upgrade hotel?",
+        answer: "Absolutely. Because you possess total command over this strictly private, 48-hour multi-city deployment, we seamlessly accommodate ultra-premium logistical upgrades. If you demand unparalleled, world-class luxury, you can formally request an immediate upgrade to the legendary Oberoi Amarvilas. This staggering, ultra-elite property is situated merely 600 meters from the Taj Mahal, guaranteeing that every single room, suite, and restaurant offers an uninterrupted, jaw-dropping view of the white marble mausoleum, providing an exponentially elevated, unforgettable luxury experience compared to our standard premium options."
+      },
+      {
+        question: "What vehicle is used?",
+        answer: "We strictly deploy a modern, impeccably maintained fleet of deeply sanitized, air-conditioned vehicles to ensure your absolute comfort and security during the extensive, 7-hour round-trip highway transit. For solo travelers or couples, we utilize high-end sedans such as the Toyota Etios or Swift Dzire. For families or small groups (up to six individuals), we automatically upgrade the logistics to an extremely spacious Toyota Innova SUV, providing significantly superior legroom, advanced suspension, and robust luggage capacity for your comprehensive overnight deployment."
+      },
+      {
+        question: "Is Yamuna Expressway safe?",
+        answer: "The Yamuna Expressway is a highly modern, controlled-access six-lane concrete highway that drastically reduces transit friction between the National Capital Region and Uttar Pradesh. However, operating vehicles at sustained high speeds mathematically increases baseline risk parameters. To completely mitigate this, we strictly deploy highly experienced, commercially licensed chauffeurs explicitly trained in defensive [highway driving protocols](/india/agra/taj-mahal-ticket-price-2026). Our premium, rigorously maintained, modern fleet ensures absolute mechanical reliability and strict adherence to speed limits, generating a deeply secure, highly comfortable 3.5-hour transit experience."
+      },
+      {
+        question: "Is this suitable for families?",
+        answer: "Yes! This specific, well-paced 48-hour itinerary is the absolute, definitive, strongly mandated recommendation for families traveling with toddlers, young children, or elderly family members. The overnight interval structurally divides the immense, exhausting physical output of transit, radically mitigating massive sensory overload and heat exhaustion. Deploying to the monuments in shorter, manageable blocks across two days ensures your children possess the stamina to actually engage with the historical narrative rather than suffering through a brutal, chaotic 14-hour marathon from Delhi."
+      },
+      {
+        question: "Is guide included both days?",
+        answer: "Yes, your federally licensed, high-authority historian guide is designated exclusively to your booking for the complete duration of your monumental engagement across both operational days. They possess official Ministry of Tourism credentials and deep academic knowledge. They will seamlessly deconstruct the intense political struggles within the Agra Fort on Day 1, and flawlessly orchestrate the critical VIP entry logistics and complex architectural analysis of the Taj Mahal during the highly coveted sunrise deployment on Day 2, delivering unparalleled intellectual consistency."
+      },
+      {
+        question: "Can we customize itinerary?",
+        answer: "Customization is the absolute, fundamental pillar of this elite, highly flexible overnight deployment. Because the 48-hour framework radically expands your on-ground operational window, your high-authority [professional local guide](/india/agra/things-to-do-in-agra) and dedicated chauffeur can instantaneously integrate complex, secondary objectives. If you wish to seamlessly add the incredible abandoned red sandstone city of Fatehpur Sikri, deploy to the Mehtab Bagh (Moonlight Garden) for a spectacular sunset photography session, or add a specific culinary detour, we act as your dynamic, localized strike team."
+      },
+      {
+        question: "Is shopping optional?",
+        answer: "We enforce a rigid, non-negotiable zero-stress policy regarding commerce. Our absolute mandate is high-level historical education and premium architectural appreciation. We will never physically force you or subtly coerce you into visiting high-pressure souvenir emporiums or tourist traps. While the expanded timeline of an overnight deployment allows you to comfortably explore authentic, multi-generational artisans executing the complex Pietra Dura marble inlay techniques if you explicitly request it, this decision rests entirely with you. You possess absolute tactical control over commerce."
+      },
+      {
+        question: "What is cancellation policy?",
+        answer: "We recognize that premium international travel demands aggressive tactical flexibility, so we execute a highly transparent, discerning cancellation matrix. If you cancel this highly complex, hotel-inclusive private deployment more than 48 hours prior to the designated pickup time, you will immediately receive a 100% full refund with zero complex administrative friction. Cancellations executed within the strict 48-hour window are subject to deep restrictions specifically to cover non-refundable hotel room reservations and to fairly compensate our permanently dedicated, premium chauffeurs."
+      },
+      {
+        question: "Is overnight better than same day?",
+        answer: "Without question. For serious architectural appreciation, magazine-quality photography, and absolute physical comfort, the overnight deployment is structurally infinitely superior to the grueling same-day marathon. An overnight stay allows you to comfortably secure the critical, deeply serene sunrise lighting at the Taj Mahal, easily incorporates massive secondary UNESCO sites like Fatehpur Sikri without rushing, and completely eliminates the severe physical exhaustion of enduring seven hours of relentless highway transit and six hours of walking in a single, chaotic 14-hour window."
+      }
+    ];
+  }
+  if (slug === 'taj-mahal-tour-by-train-gatimaan') {
+    return [
+      {
+        question: "What is Gatimaan Express?",
+        answer: "The Gatimaan Express is India's premier, highly specialized semi-high-speed train explicitly built to flawlessly connect the Delhi National Capital Region to the monumental circuit of Agra in an unprecedented 100 minutes. Capable of operating at an intense 160 km/h (99 mph), it structurally bypasses all unpredictable, soul-crushing highway gridlock and localized traffic variables, guaranteeing highly efficient, remarkably precise [transit to the Taj Mahal](/india/agra/agra-travel-guide-2026). This clean, deeply modernized train represents the absolute pinnacle of Indian railway engineering and luxury."
+      },
+      {
+        question: "What class is included?",
+        answer: "Our standard, high-efficiency train deployment automatically guarantees premium, confirmed air-conditioned AC Chair Car (CC) seating. This robust category provides highly comfortable, padded reclining seats, expansive viewing windows, deeply sanitized environments, and highly reliable climate control, completely insulating you from the intense weather and chaotic external environment. This deeply secures a smooth, professional, and entirely stress-free 100-minute journey, setting an exceptionally positive, relaxed physical baseline before you deploy on your demanding 6-hour monumental exploration across the city."
+      },
+      {
+        question: "Is breakfast served?",
+        answer: "Yes, absolutely. The Gatimaan Express is highly unique because its ticket architecture fundamentally includes comprehensive, airline-style onboard catering. During your high-speed 8:10 AM departure from Hazrat Nizamuddin Railway Station, the deeply professional, uniformed train staff will seamlessly serve a highly sanitized, robust breakfast tray directly to your designated seat, offering a choice of standard continental options or deeply authentic, highly flavorful Indian cuisine, complete with tea and coffee. This eliminates the necessity of arranging hotel breakfasts perfectly before your aggressive morning departure."
+      },
+      {
+        question: "Are train tickets included?",
+        answer: "Yes. This tightly integrated, specialized package entirely covers the significant financial and logistical burden of securing confirmed, premium Gatimaan Express tickets for both your aggressive morning departure and your precise evening return. Navigating the incredibly complex, highly saturated Indian Railway (IRCTC) booking portal is notoriously difficult and heavily restricted for international travelers. Our elite operational team completely bypasses this immense friction, guaranteeing your high-speed [Delhi to Agra transit](/india/agra/taj-mahal-ticket-price-2026) is definitively locked in without requiring any complex micro-transactions from you."
+      },
+      {
+        question: "Who meets us at Agra station?",
+        answer: "Because the Agra Cantonment (AGC) railway station is intensely chaotic and heavily populated with aggressive, unregistered touts targeting arriving trains, our federally licensed guide executes a seamless, VIP rendezvous. They will meet you precisely at your designated coach door or immediately at the primary exit, deploying a highly recognizable name board. This strategic synchronization ensures you are completely insulated from all local solicitation and instantly transferred to your waiting, private air-conditioned vehicle to begin your monumental exploration without a single second lost."
+      },
+      {
+        question: "Are entry tickets included?",
+        answer: "To enforce absolute financial predictability and strict pricing transparency, this highly specialized rapid-deployment package covers your confirmed premium train tickets, all private air-conditioned transportation within the city, and your dedicated, highly credentialed historian guide. It intentionally excludes the baseline monument entrance fees. By decoupling these massive variable costs, you avoid all hidden agency markups and pay the exact, uninflated government tier rate. More importantly, your assigned local guide operates as an elite logistical concierge immediately upon [arrival at the UNESCO monuments](/india/agra)."
+      },
+      {
+        question: "Is Agra Fort included?",
+        answer: "Yes. This dense, multi-monument itinerary is laser-focused perfectly on maximizing the educational payload of your demanding single-day deployment from the capital. Following your intensive, deeply focused exploration of the Taj Mahal and a subsequent scheduled dining interval, the tour rapidly transitions to the colossal red sandstone defensive perimeter and ornate inner palaces of the Agra Fort. These two massive, federally protected UNESCO World Heritage sites deliver a complete, highly concentrated narrative of the staggering power, incredible artistry, and advanced engineering of the Mughal dynasty."
+      },
+      {
+        question: "What if train is delayed?",
+        answer: "While the premium Gatimaan Express commands the absolute highest tactical priority on the Indian railway network and is famously celebrated for its razor-sharp punctuality, extreme weather anomalies such as the dense, paralyzing winter fog (late December and January) can introduce minor operational variables. If visibility structurally forces the train to temporarily reduce its aggressive 160 km/h cruising speed, your dedicated, high-authority historian guide will instantaneously restructure the on-ground itinerary. They will dynamically prioritize the most critical architectural elements of the Taj Mahal and the Fort."
+      },
+      {
+        question: "Is return ticket included?",
+        answer: "Yes, absolutely. The structural foundation of this seamless itinerary is the 100% guaranteed confirmation of your return ticket on the Gatimaan Express, aggressively departing Agra Cantonment exactly at 17:50 (5:50 PM). Our elite team precisely reverse-engineers the entire 6-hour monumental timeline, ensuring your dedicated chauffeur and [local expert guide](/india/agra/1-day-agra-itinerary) deposit you securely back at the station well ahead of the scheduled departure. During this smooth, 100-minute evening return, you will again be served high-quality, airline-style snacks directly to your designated seat."
+      },
+      {
+        question: "Is pickup to Delhi station included?",
+        answer: "Yes. To completely eliminate all early-morning logistical friction within a sprawling foreign metropolitan environment, we execute seamless, door-to-door transportation. Your designated, air-conditioned luxury vehicle and professionally licensed chauffeur will arrive exactly at your pre-scheduled time at any hotel in Delhi or Gurgaon to smoothly transfer you to the specific platform at Hazrat Nizamuddin Station. At the conclusion of this demanding 14-hour exploration, another dedicated vehicle will be waiting at the Delhi station to securely return you to your exact starting point."
+      },
+      {
+        question: "Is this faster than car?",
+        answer: "Mathematically, the high-speed Gatimaan Express is vastly superior and significantly faster than executing the highway transit via the Yamuna Expressway. The train strictly requires exactly 100 minutes to complete the transit. Operating a private vehicle, even at maximum legal speeds, requires a massive minimum of 3.5 to 4 hours in each direction. While a car provides ultimate timeline flexibility and allows for ultra-early sunrise deployments, the train drastically mitigates profound physical exhaustion by entirely eliminating devastating, unpredictable highway gridlock."
+      },
+      {
+        question: "Is Executive Class upgrade available?",
+        answer: "Absolutely. Because you possess total command over this elite, high-efficiency deployment, we seamlessly accommodate ultra-premium logistical upgrades. If you demand unparalleled comfort for the 100-minute transit, you can formally request an immediate upgrade to the ultra-elite AC Executive Class (EC). This staggered, highly spacious 2x2 seating configuration provides exceptionally superior legroom, upgraded culinary options, completely localized privacy, and a significantly elevated transit experience compared to the standard AC Chair Car, ensuring you arrive at the [UNESCO monuments](/india/agra/taj-mahal-full-day-tour) deeply rested."
+      },
+      {
+        question: "What ID is required?",
+        answer: "The Indian Railway Catering and Tourism Corporation (IRCTC) operates under extremely strict, uncompromising federal security protocols. To legally board the Gatimaan Express, every single traveler must present a valid, original physical ID matching exactly the name printed on the confirmed e-ticket. For international travelers, your original, physical passport is absolutely non-negotiable; photocopies or digital images on smartphones will result in immediate denial of boarding by the Traveling Ticket Examiner (TTE) and specialized railway police. Ensure this critical documentation is secured before hotel pickup."
+      },
+      {
+        question: "Is this suitable for seniors?",
+        answer: "The high-speed Gatimaan Express deployment is statistically the safest, most physically comfortable, and highly recommended transit method for elderly travelers or those experiencing mild mobility limitations. It completely eliminates the bone-jarring 7-hour highway transit and massive vehicular fatigue associated with a long car journey. While walking across the massive UNESCO monuments still requires stamina, arriving in Agra precisely after an impeccably smooth 100-minute journey drastically improves the overall comfort matrix, allowing our [premium historian guide](/india/agra/things-to-do-in-agra) to execute an unhurried, highly accommodating exploration."
+      },
+      {
+        question: "What is cancellation policy?",
+        answer: "We execute a highly stringent, transparent cancellation matrix for this specialized train deployment due to the incredibly rigid IRCTC refund protocols. Because we heavily invest non-refundable capital to secure the highly coveted Gatimaan Express tickets immediately upon booking, cancellations fundamentally incur specific structural penalties relative to the train's departure window. However, any associated on-ground private vehicles or elite guiding services in Agra are deeply flexible and typically fully refundable if structurally cancelled more than 24 hours prior to the designated monumental operation."
+      }
+    ];
+  }
+  // --- END AUTO-INJECTED FAQS ---
+
   if (
     slug === 'taj-mahal-sunrise-guided-tour' ||
     slug === 'taj-mahal-sunrise-tour' ||
