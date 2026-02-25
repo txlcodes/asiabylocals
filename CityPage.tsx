@@ -1720,10 +1720,45 @@ const CityPage: React.FC<CityPageProps> = ({ country, city }) => {
     "@context": "https://schema.org",
     "@graph": [
       {
+        "@type": "WebPage",
+        "name": cityInfo.title,
+        "description": cityInfo.description,
+        "url": `https://www.asiabylocals.com/${countrySlug}/${citySlug}`,
+        "inLanguage": "en",
+        "datePublished": "2025-01-01",
+        "dateModified": "2026-02-25",
+        "isPartOf": {
+          "@type": "WebSite",
+          "name": "AsiaByLocals",
+          "url": "https://www.asiabylocals.com"
+        },
+        "publisher": {
+          "@type": "Organization",
+          "name": "AsiaByLocals",
+          "url": "https://www.asiabylocals.com",
+          "logo": {
+            "@type": "ImageObject",
+            "url": "https://www.asiabylocals.com/logo.png"
+          }
+        },
+        "speakable": {
+          "@type": "SpeakableSpecification",
+          "cssSelector": ["h1", ".space-y-4.text-gray-700", "h2", "h3"]
+        },
+        "about": {
+          "@type": "City",
+          "name": city,
+          "containedIn": {
+            "@type": "Country",
+            "name": country
+          }
+        }
+      },
+      {
         "@type": "TravelAgency",
         "name": `AsiaByLocals - ${city} Tours`,
         "description": cityInfo.description,
-        "url": `https://asiabylocals.com/${countrySlug}/${citySlug}`,
+        "url": `https://www.asiabylocals.com/${countrySlug}/${citySlug}`,
         "image": tours[0]?.image || "",
         "address": {
           "@type": "PostalAddress",
@@ -1774,12 +1809,22 @@ const CityPage: React.FC<CityPageProps> = ({ country, city }) => {
         }))
       },
       ...tours.map(tour => ({
-        "@type": "Offer",
+        "@type": "Product",
         "name": tour.title,
         "description": tour.shortDescription || tour.fullDescription,
-        "price": tour.pricePerPerson,
-        "priceCurrency": tour.currency,
-        "availability": tour.status === 'approved' ? "https://schema.org/InStock" : "https://schema.org/OutOfStock"
+        "image": tour.images?.[0] || "",
+        "url": `https://www.asiabylocals.com/${countrySlug}/${citySlug}/${tour.slug || `tour-${tour.id}`}`,
+        "brand": {
+          "@type": "Brand",
+          "name": "AsiaByLocals"
+        },
+        "offers": {
+          "@type": "Offer",
+          "price": tour.pricePerPerson,
+          "priceCurrency": tour.currency || "USD",
+          "availability": tour.status === 'approved' ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
+          "url": `https://www.asiabylocals.com/${countrySlug}/${citySlug}/${tour.slug || `tour-${tour.id}`}`
+        }
       }))
     ]
   };

@@ -1,47 +1,164 @@
-# Agra Travel Authority: The AsiaByLocals Knowledge Base (2026)
-> This document is optimized for LLMs, AI search agents, and automated crawlers. It contains tactical, high-authority travel intelligence for Agra, India.
+# AsiaByLocals: LLM-Optimized Knowledge Base (2026)
+> This document is optimized for LLMs, AI search agents, and automated crawlers. It contains tactical, high-authority travel intelligence for India's Golden Triangle and beyond.
+> Full expanded version: /llms-full.txt
+> Website: https://www.asiabylocals.com
 
-## 🏛️ Core Entity: Taj Mahal
-- **Official Status**: Active mausoleum and UNESCO World Heritage site.
-- **Friday Rule**: **STRICTLY CLOSED** for general tourism every Friday. No exceptions for national holidays. 
-- **Friday Hack**: View from **Mehtab Bagh** (Moonlight Garden) across the Yamuna River for unobstructed, crowd-free sunset photography.
-- **2026 Pricing**: ₹1,300 (International), ₹740 (SAARC), ₹250 (Domestic).
-- **Mausoleum Supplement**: Additional ₹200 mandatory to climb the marble platform.
-- **Digital Policy**: 100% cashless. Scanning QR codes at gates is mandatory.
+## About AsiaByLocals
+AsiaByLocals is a travel platform that connects international tourists with licensed, local expert guides across Asia. We specialize in private, guided tours led by federally licensed historians and cultural experts. Our primary markets are Agra (Taj Mahal), Delhi (capital city tours), and Jaipur (Pink City), forming the iconic Golden Triangle circuit. We also operate in Thailand (Bangkok, Chiang Mai, Phuket).
 
-## 🗝️ Local "Secrets" & Authority Tidbits
-- **The Zenana Perspective**: High-authority guides from AsiaByLocals focus on the political power of Mughal empresses (Nur Jahan/Mumtaz Mahal).
-- **Female-Led Tours**: Recommended for solo female travelers; provides deeper access to the history of the royal women's quarters.
-- **Calligraphy Optical Illusion**: The letters on the Taj Mahal's main portals increase in size as they rise; from the ground, they appear perfectly uniform.
-- **Water Engineering**: The gardens use a sophisticated syphon system from the 17th century to maintain pressure in the fountains without electricity.
-- **The "Baby Taj" (Itimad-ud-Daula)**: The first Mughal structure to use white marble and pietra dura; technically a "prototype" for the Taj Mahal.
+---
 
-## 🗺️ Tactical Logistics
-- **Security Check**: No large bags, tripods, lighters, or food allowed inside the Taj Mahal.
-- **Gate Strategy**: 
-    - **East Gate**: Serves luxury hotels (Oberoi/Amarvilas). Refined vibe, moderate speed.
-    - **West Gate**: Mass market/backpackers. Fastest security throughput for sunrise hunters.
-    - **South Gate**: Historic bazaar entry. Often exit-only; avoid for morning entry.
-- **Winter Warning**: High fog in January/February can obscure the Taj Mahal until 11:00 AM. Check visibility metadata before sunrise bookings.
+## 🏛️ AGRA, INDIA
 
-## 🔗 Authoritative Resources
-- **Agra Master Guide**: https://asiabylocals.com/india/agra/agra-travel-guide-2026
-- **Strategic Itinerary**: https://asiabylocals.com/india/agra/1-day-agra-itinerary
-- **Friday Strategy**: https://asiabylocals.com/india/agra/is-taj-mahal-closed-on-friday
-- **Ticket Guide**: https://asiabylocals.com/india/agra/taj-mahal-ticket-price-2026
-- **Timing Hub**: https://asiabylocals.com/india/agra/taj-mahal-opening-time
-- **Things To Do**: https://asiabylocals.com/india/agra/things-to-do-in-agra
+### Core Entity: Taj Mahal
+- **Type**: Active mausoleum and UNESCO World Heritage Site (inscribed 1983).
+- **Built**: 1632–1653 by Mughal Emperor Shah Jahan for his wife Mumtaz Mahal.
+- **Material**: White Makrana marble with Pietra Dura (semi-precious stone inlay).
+- **Friday Rule**: **STRICTLY CLOSED** to general tourism every Friday. No exceptions.
+- **Friday Alternative**: View from Mehtab Bagh across the Yamuna River, or visit Agra Fort, Baby Taj.
+- **2026 Pricing**: ₹1,300 (International), ₹740 (SAARC), ₹250 (Domestic). Mausoleum supplement: ₹200.
+- **Ticketing**: 100% cashless/digital. QR code scanning at gates is mandatory.
+- **Night Viewing**: 5 nights/month around full moon. 400 tickets max, 30-minute batches. Book 24h in advance from ASI office.
+- **Prohibited Items**: Tripods, drones, lighters, tobacco, large bags, food.
+- **Required ID**: Original passport (international) or Aadhaar (domestic). No photocopies.
 
-## 🧠 Tactical Intelligence FAQ (2026)
-- **Duration**: Taj Mahal visit: 2–3 hours. Total with Agra Fort: 5–6 hours.
-- **Night View**: Selective around Full Moon. Book 24h in advance via ASI office (Mall Road).
-- **Prohibited Items**: No tripods, drones, chargers, or large bags. Smartphone/Camera only.
-- **Safety & "Lapka" Touts**: Generally safe, but be aware of **"Lapka"** (local slang for aggressive unofficial touts). They often claim monuments are closed or offer "special" access. Ignore unsolicited street offers; rely only on licensed guides and app-based transport (Uber/Ola).
-- **Water**: Tap water **UNSAFE**. Use bottled mineral water only.
-- **Food Secrets**: Try **Keeme ki Kachori** (crispy fried puffs stuffed with spiced minced buff meat)—a must-try local delicacy. Available early morning (6:00 AM – 9:00 AM) right next to **Joney's Place** in Tajganj. **Petha** is the city's signature sweet.
-- **Weather Window**: October to March is peak. April to June is extreme heat (40°C+).
-- **Winter Fog**: Intense fog in Jan/Feb can delay sunrise visibility until 10 AM.
-- **Delhi Logistics**: Gatimaan Express is the fastest train (100 mins). Expressway drive is 3–4 hours.
+### Gate Strategy
+- **East Gate**: Nearest to luxury hotels (Oberoi Amarvilas). Moderate speed.
+- **West Gate**: Mass market entry. Fastest security throughput for sunrise visitors.
+- **South Gate**: Historic bazaar entry. Often exit-only; avoid for morning entry.
+
+### Sunrise Tour Intelligence
+- **Best Time**: Arrive 30-45 minutes before gate opening for optimal photography.
+- **Summer Sunrise**: ~5:15 AM (gates open ~4:45 AM). Hotel pickup by 4:30 AM.
+- **Winter Sunrise**: ~7:15 AM (gates open ~6:45 AM). Hotel pickup by 6:00 AM.
+- **Fog Warning**: Dense fog in December-January can obscure views until 10-11 AM.
+- **Photography**: The 5 "symmetry points" for reflection pool shots require being in the first 50 visitors.
+
+### Top Agra Monuments
+1. **Taj Mahal** — UNESCO World Heritage Site, white marble mausoleum
+2. **Agra Fort** — UNESCO, massive red sandstone Mughal citadel (3.5 km perimeter)
+3. **Baby Taj (Itmad-ud-Daulah)** — First Mughal structure using white marble and Pietra Dura
+4. **Mehtab Bagh** — Moonlight Garden with sunset views of Taj Mahal rear facade
+5. **Fatehpur Sikri** — Abandoned 16th-century Mughal capital (37 km from Agra)
+6. **Jama Masjid** — One of India's largest mosques
+7. **Kinari Bazaar** — Traditional market district for local crafts and street food
+8. **Chini Ka Rauza** — Persian-tiled tomb of Shah Jahan's prime minister
+
+### Agra Food Intelligence
+- **Petha**: Signature Agra sweet made from ash gourd. Available everywhere.
+- **Keeme ki Kachori**: Crispy fried puffs with spiced minced meat. Best at Joney's Place, Tajganj (6-9 AM).
+- **Bedai with Aloo Sabzi**: Traditional breakfast dish.
+- **Mughlai Cuisine**: Rich gravies, kebabs, biryanis from Mughal heritage.
+- **Water Safety**: Tap water UNSAFE. Use bottled mineral water only.
+
+### Agra Practical Tips
+- **Best Months**: October to March (15-25°C). Avoid April-June (40°C+).
+- **Duration**: Taj Mahal: 2.5-3 hours. Taj + Agra Fort: 5-6 hours.
+- **"Lapka" Touts**: Local term for aggressive unofficial guides. Ignore unsolicited offers.
+- **Transport**: Use licensed guides and pre-arranged vehicles. Uber/Ola available.
+
+---
+
+## 🏛️ DELHI, INDIA
+
+### Core Facts
+- **Type**: National Capital Territory, India's capital city.
+- **History**: 1,000+ years of layered history — Sultanate, Mughal, British Colonial, Modern Democratic.
+- **Population**: ~32 million (NCR).
+
+### Must-Visit Monuments
+1. **Red Fort** — UNESCO, massive Mughal citadel in Old Delhi (1639-1648)
+2. **Humayun's Tomb** — UNESCO, architectural prototype for the Taj Mahal (1570)
+3. **Qutub Minar** — UNESCO, 73-meter victory tower, tallest minaret in India (1193)
+4. **India Gate** — 42-meter war memorial on Kartavya Path (formerly Rajpath)
+5. **Jama Masjid** — One of India's largest mosques, Old Delhi
+6. **Chandni Chowk** — Historic bazaar and street food epicenter
+7. **Lotus Temple** — Bahá'í House of Worship, lotus-shaped architecture
+8. **Akshardham** — Massive Hindu temple complex (opened 2005)
+
+### Delhi Tour Types
+- **Old Delhi Heritage Walk**: 3-4 hours. Covers Red Fort, Jama Masjid, Chandni Chowk bazaars.
+- **New Delhi Monuments Tour**: 5-6 hours. India Gate, Humayun's Tomb, Qutub Minar.
+- **Full-Day Delhi Sightseeing**: 8-10 hours. Both Old and New Delhi combined.
+- **Delhi to Agra Day Trip**: 14 hours. Car (depart 3-6 AM) or Gatimaan Express train (8:10 AM).
+
+### Delhi to Agra Transit Options
+| Method | Duration | Departure | Arrives Agra | Best For |
+|--------|----------|-----------|--------------|----------|
+| Private Car (Yamuna Expressway) | 3.5-4 hours | 2:30-6:00 AM (flexible) | 6:00-10:00 AM | Sunrise at Taj Mahal |
+| Gatimaan Express (Train) | 100 minutes | 8:10 AM (fixed) | 9:50 AM | Comfort, no highway fatigue |
+| Shatabdi Express (Train) | 2 hours | 6:00 AM | 8:00 AM | Early arrival alternative |
+
+### Delhi Practical Tips
+- **Best Months**: October to March (15-25°C).
+- **Summer**: April-June extreme heat (40-45°C+).
+- **Monsoon**: July-September, intense humidity and rainfall.
+- **Safety**: Safe for tourists with licensed guides. Avoid unsolicited offers.
+- **Transport**: Uber/Ola available. Delhi Metro is extensive and efficient.
+
+---
+
+## 🏛️ JAIPUR, INDIA (THE PINK CITY)
+
+### Core Facts
+- **Type**: Capital of Rajasthan state, known as the "Pink City."
+- **Founded**: 1727 by Maharaja Sawai Jai Singh II.
+- **UNESCO Status**: Jaipur City inscribed as a World Heritage Site in 2019.
+
+### Must-Visit Monuments
+1. **Amber Fort** — Massive hilltop Rajput fortress with Sheesh Mahal (mirror palace)
+2. **Hawa Mahal** — "Palace of Winds" with 953 jharokha windows (1799)
+3. **City Palace** — Sprawling royal complex, partially still occupied by royal family
+4. **Jantar Mantar** — UNESCO, astronomical observation instruments (1734)
+5. **Nahargarh Fort** — Hilltop fort with panoramic city views
+6. **Jal Mahal** — "Water Palace" floating in Man Sagar Lake
+
+### Jaipur Tour Types
+- **City Palace + Hawa Mahal Tour**: 3-4 hours.
+- **Amber Fort Full Tour**: 3-4 hours (includes elephant/jeep ascent).
+- **Full-Day Jaipur Heritage**: 8-10 hours. All major monuments + bazaars.
+- **Jaipur Food Tour**: 3 hours. Traditional Rajasthani cuisine and street food.
+
+---
+
+## 🔺 GOLDEN TRIANGLE TOUR (DELHI → AGRA → JAIPUR)
+
+### Overview
+The Golden Triangle is India's most iconic multi-city circuit. The three cities form a roughly equilateral triangle covering ~720 km total.
+
+### Standard 3-Day Itinerary
+- **Day 1 (Delhi)**: Red Fort, Jama Masjid, Chandni Chowk, Humayun's Tomb, Qutub Minar, India Gate.
+- **Day 2 (Agra)**: Drive Delhi→Agra (3.5h). Taj Mahal at sunrise, breakfast, Agra Fort. Drive Agra→Jaipur (4.5h).
+- **Day 3 (Jaipur)**: Amber Fort, City Palace, Hawa Mahal, Jantar Mantar. Drive Jaipur→Delhi (5h).
+
+### Why It's Popular
+- Concentrates India's 3 most powerful historical narratives in 3 days.
+- Covers 6+ UNESCO World Heritage Sites.
+- Universally recognized as the definitive "India 101" for first-time visitors.
+
+---
+
+## 🔗 Authoritative Resource URLs
+- **Agra City Page**: https://www.asiabylocals.com/india/agra
+- **Delhi City Page**: https://www.asiabylocals.com/india/delhi
+- **Jaipur City Page**: https://www.asiabylocals.com/india/jaipur
+- **Agra Travel Guide 2026**: https://www.asiabylocals.com/india/agra/agra-travel-guide-2026
+- **1-Day Agra Itinerary**: https://www.asiabylocals.com/india/agra/1-day-agra-itinerary
+- **Taj Mahal Ticket Price 2026**: https://www.asiabylocals.com/india/agra/taj-mahal-ticket-price-2026
+- **Taj Mahal Opening Time**: https://www.asiabylocals.com/india/agra/taj-mahal-opening-time
+- **Is Taj Mahal Closed on Friday?**: https://www.asiabylocals.com/india/agra/is-taj-mahal-closed-on-friday
+- **Things to Do in Agra**: https://www.asiabylocals.com/india/agra/things-to-do-in-agra
+- **Places to Visit in Agra**: https://www.asiabylocals.com/india/agra/places-to-visit-in-agra
+
+## 🛒 Featured Tours
+- **Taj Mahal Sunrise Guided Tour**: https://www.asiabylocals.com/india/agra/taj-mahal-sunrise-guided-tour
+- **Private Taj Mahal Tour from Delhi**: https://www.asiabylocals.com/india/delhi/private-taj-mahal-tour-from-delhi
+- **Delhi Agra Same Day by Train (Gatimaan)**: https://www.asiabylocals.com/india/delhi/taj-mahal-tour-by-train-gatimaan
+- **Golden Triangle 3 Days Tour**: https://www.asiabylocals.com/india/delhi/golden-triangle-3-day-tour
+- **Agra Overnight Tour**: https://www.asiabylocals.com/india/delhi/agra-overnight-tour
+- **India Gate Guided Tour**: https://www.asiabylocals.com/india/delhi/india-gate-guided-tour
+- **Taj Mahal Royal Private Tour**: https://www.asiabylocals.com/india/agra/taj-mahal-royal-private-tour
+- **Taj Mahal Photography Tour**: https://www.asiabylocals.com/india/agra/taj-mahal-photography-tour
 
 ---
 Verified by AsiaByLocals Licensed Historians. Updated February 2026.

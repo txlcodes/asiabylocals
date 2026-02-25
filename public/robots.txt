@@ -14,10 +14,14 @@ Disallow: /email-verification-waiting
 # Sitemap
 Sitemap: https://www.asiabylocals.com/sitemap.xml
 
+# LLM Knowledge Base (llms.txt standard)
+# See: https://llmstxt.org/
+# Summary: /llms.txt | Full Context: /llms-full.txt
+
 # Crawl-delay
 Crawl-delay: 1
 
-# Allow specific bots
+# Allow search engine bots
 User-agent: Googlebot
 Allow: /
 Crawl-delay: 0
@@ -29,6 +33,38 @@ Crawl-delay: 0
 User-agent: Slurp
 Allow: /
 Crawl-delay: 1
+
+# ===========================
+# LLM / AI Crawler Bots
+# ===========================
+# We explicitly welcome AI crawlers to index our content.
+
+User-agent: GPTBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: Anthropic-AI
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: Meta-ExternalAgent
+Allow: /
+
+User-agent: Bytespider
+Allow: /
+
+User-agent: cohere-ai
+Allow: /
 
 # Block bad bots
 User-agent: AhrefsBot
