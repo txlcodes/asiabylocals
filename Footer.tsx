@@ -51,35 +51,35 @@ const Footer: React.FC = () => {
                     <div className="flex flex-wrap justify-center items-center gap-6">
                         {/* Visa */}
                         <div className="px-3 py-2 flex items-center justify-center" title="Visa">
-                            <img src="/visa-logo.png" alt="Visa" className="h-7 w-auto object-contain brightness-0 invert" />
+                            <img src="/visa-logo.png" alt="Visa" className="h-7 w-auto object-contain" />
                         </div>
                         {/* Mastercard */}
                         <div className="px-3 py-2 flex items-center justify-center" title="Mastercard">
                             <svg viewBox="0 0 131.39 86.9" className="h-7 w-auto" xmlns="http://www.w3.org/2000/svg">
-                                <circle cx="43.45" cy="43.45" r="43.45" fill="white" fillOpacity="0.6" />
-                                <circle cx="87.94" cy="43.45" r="43.45" fill="white" fillOpacity="0.8" />
-                                <path d="M65.7 11.2a43.3 43.3 0 0 0-16.2 32.3A43.3 43.3 0 0 0 65.7 75.7 43.3 43.3 0 0 0 81.8 43.5 43.3 43.3 0 0 0 65.7 11.2z" fill="white" />
+                                <circle cx="43.45" cy="43.45" r="43.45" fill="#EB001B" />
+                                <circle cx="87.94" cy="43.45" r="43.45" fill="#F79E1B" />
+                                <path d="M65.7 11.2a43.3 43.3 0 0 0-16.2 32.3A43.3 43.3 0 0 0 65.7 75.7 43.3 43.3 0 0 0 81.8 43.5 43.3 43.3 0 0 0 65.7 11.2z" fill="#FF5F00" />
                             </svg>
                         </div>
                         {/* Amex */}
                         <div className="px-3 py-2 flex items-center justify-center" title="American Express">
-                            <span className="text-white font-black text-sm tracking-tight">AMEX</span>
+                            <span className="text-[#2E77BB] font-black text-sm tracking-tight">AMEX</span>
                         </div>
                         {/* PayPal */}
                         <div className="px-3 py-2 flex items-center justify-center" title="PayPal">
-                            <span className="font-black text-sm text-white">PayPal</span>
+                            <span className="font-black text-sm"><span style={{ color: '#69b3e7' }}>Pay</span><span style={{ color: '#003087' }}>Pal</span></span>
                         </div>
                         {/* Razorpay */}
                         <div className="px-3 py-2 flex items-center justify-center" title="Razorpay">
-                            <span className="font-black text-sm text-white">Razorpay</span>
+                            <span className="font-black text-sm" style={{ color: '#528FF0' }}>Razorpay</span>
                         </div>
                         {/* UPI */}
                         <div className="px-3 py-2 flex items-center justify-center" title="UPI">
-                            <img src="/upi-logo.png" alt="UPI" className="h-7 w-auto object-contain brightness-0 invert" />
+                            <img src="/upi-logo.png" alt="UPI" className="h-7 w-auto object-contain" />
                         </div>
                         {/* Net Banking */}
                         <div className="px-3 py-2 flex items-center justify-center" title="Net Banking">
-                            <span className="font-black text-xs text-white uppercase tracking-wider">Net Banking</span>
+                            <span className="font-black text-xs text-gray-300 uppercase tracking-wider">Net Banking</span>
                         </div>
                     </div>
                 </div>
