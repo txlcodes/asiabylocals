@@ -51,9 +51,7 @@ const Footer: React.FC = () => {
                     <div className="flex flex-wrap justify-center items-center gap-6">
                         {/* Visa */}
                         <div className="bg-white/10 border border-white/10 rounded-lg px-4 py-2.5 flex items-center justify-center hover:bg-white/15 transition-colors" title="Visa">
-                            <svg viewBox="0 0 780 500" className="h-7 w-auto" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M293.2 348.7L233.4 151.3h-60.7L123 300.8c-3 14.7-6.2 20.4-16.3 26.7-16.5 10.2-43.7 19.7-67.7 25.7l1.6 7.5h97.6c13.5 0 25.6-9 28.7-24.6l24.2-128.6 75.3 153.2h26.8zM412.4 151.3l-47.5 197.4h-56.7l47.5-197.4h56.7zM610.6 260.4c.2-42.8-59.2-45.1-58.8-64.2.1-5.8 5.7-12 17.8-13.6 6-0.8 22.5-1.4 41.3 7.2l7.3-34.3c-10.1-3.7-23-7.2-39.2-7.2-41.4 0-70.5 22-70.7 53.5-.3 23.3 20.8 36.3 36.6 44 16.3 7.8 21.7 12.8 21.7 19.8-.1 10.7-13 15.4-25.1 15.6-21.1.3-33.3-5.7-43.1-10.3l-7.6 35.5c9.8 4.5 27.9 8.4 46.6 8.6 44 0 72.8-21.7 72.9-55.3l.3.7zM710.4 348.7l-10.1-48.3h-67.7l-11.1 48.3h-57.2l79.6-197.4c5.8-13.2 15.8-18.3 29.2-18.3h47.6l44.3 215.7h-54.6z" fill="white" />
-                            </svg>
+                            <img src="/visa-logo.png" alt="Visa" className="h-7 w-auto object-contain" />
                         </div>
                         {/* Mastercard */}
                         <div className="bg-white/10 border border-white/10 rounded-lg px-4 py-2.5 flex items-center justify-center hover:bg-white/15 transition-colors" title="Mastercard">
@@ -77,7 +75,7 @@ const Footer: React.FC = () => {
                         </div>
                         {/* UPI */}
                         <div className="bg-white/10 border border-white/10 rounded-lg px-4 py-2.5 flex items-center justify-center hover:bg-white/15 transition-colors" title="UPI">
-                            <span className="font-black text-sm text-white">UPI</span>
+                            <img src="/upi-logo.png" alt="UPI" className="h-7 w-auto object-contain" />
                         </div>
                         {/* Net Banking */}
                         <div className="bg-white/10 border border-white/10 rounded-lg px-4 py-2.5 flex items-center justify-center hover:bg-white/15 transition-colors" title="Net Banking">
