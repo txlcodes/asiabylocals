@@ -1,5 +1,5 @@
 import React from 'react';
-import { ChevronRight } from 'lucide-react';
+import { ChevronRight, Instagram } from 'lucide-react';
 
 const Footer: React.FC = () => {
     return (
@@ -86,10 +86,18 @@ const Footer: React.FC = () => {
 
                 <div className="pt-10 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-8 text-[11px] font-black uppercase tracking-widest text-gray-500">
                     <span>&copy; {new Date().getFullYear()} AsiaByLocals HQ • Authentic Experiences Only</span>
-                    <div className="flex gap-4">
-                        <span className="hover:text-white cursor-pointer">Instagram</span>
-                        <span className="hover:text-white cursor-pointer">Facebook</span>
-                        <span className="hover:text-white cursor-pointer">LinkedIn</span>
+                    <div className="flex gap-6">
+                        <a
+                            href="https://www.instagram.com/asiabylocals/"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="hover:text-white transition-colors flex items-center gap-2 group"
+                        >
+                            <Instagram size={16} className="group-hover:scale-110 transition-transform" />
+                            <span>Instagram</span>
+                        </a>
+                        <span className="hover:text-white cursor-pointer transition-colors">Facebook</span>
+                        <span className="hover:text-white cursor-pointer transition-colors">LinkedIn</span>
                     </div>
                 </div>
             </div>
