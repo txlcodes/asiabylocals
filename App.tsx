@@ -63,13 +63,12 @@ class ErrorBoundary extends React.Component<{ children: React.ReactNode }, { has
   }
 
   render() {
-    const { hasError, error } = this.state;
-    if (hasError) {
+    if (this.state.hasError) {
       return (
         <div className="min-h-screen bg-white flex items-center justify-center">
           <div className="text-center">
             <h2 className="text-2xl font-black text-[#001A33] mb-4">Error loading tour</h2>
-            <p className="text-gray-500 font-semibold mb-6">{error?.message || 'Please try again later.'}</p>
+            <p className="text-gray-500 font-semibold mb-6">{this.state.error?.message || 'Please try again later.'}</p>
             <button
               onClick={() => {
                 this.setState({ hasError: false, error: null });
@@ -91,6 +90,7 @@ class ErrorBoundary extends React.Component<{ children: React.ReactNode }, { has
 interface ExploreItem {
   name: string;
   count: string;
+  image: string;
 }
 
 interface ExplorationData {
@@ -99,32 +99,36 @@ interface ExplorationData {
 
 const EXPLORATION_DATA: ExplorationData = {
   attractions: [
-    { name: "Taj Mahal, India", count: "112 tours & activities" },
-    { name: "Amber Fort, India", count: "42 tours & activities" },
-    { name: "Hawa Mahal, India", count: "28 tours & activities" },
-    { name: "Red Fort, India", count: "35 tours & activities" },
-    { name: "Qutub Minar, India", count: "22 tours & activities" },
-    { name: "City Palace, Jaipur", count: "18 tours & activities" },
-    { name: "Agra Fort, India", count: "65 tours & activities" },
-    { name: "Humayun's Tomb, India", count: "15 tours & activities" },
-    { name: "Jama Masjid, Delhi", count: "12 tours & activities" },
-    { name: "Fatehpur Sikri, Agra", count: "24 tours & activities" }
+    { name: "Taj Mahal, India", count: "112 tours", image: "/agra-hero.jpg" },
+    { name: "Amber Fort, India", count: "42 tours", image: "https://images.unsplash.com/photo-1596409581890-484bd67634f3?auto=format&fit=crop&q=80&w=400" },
+    { name: "Hawa Mahal, India", count: "28 tours", image: "https://images.unsplash.com/photo-1599661046289-e31897846e41?auto=format&fit=crop&q=80&w=400" },
+    { name: "Red Fort, India", count: "35 tours", image: "https://images.unsplash.com/photo-1587474260584-1f35a4908f9f?auto=format&fit=crop&q=80&w=400" },
+    { name: "Qutub Minar, India", count: "22 tours", image: "https://images.unsplash.com/photo-1548013146-72479768bbaa?auto=format&fit=crop&q=80&w=400" },
+    { name: "City Palace, Jaipur", count: "18 tours", image: "https://images.unsplash.com/photo-1599661046289-e31897846e41?auto=format&fit=crop&q=80&w=400" },
+    { name: "Agra Fort, India", count: "65 tours", image: "/agra-itinerary-hero.jpg" },
+    { name: "Humayun's Tomb, India", count: "15 tours", image: "https://images.unsplash.com/photo-1585135497273-1a85b09fe707?auto=format&fit=crop&q=80&w=400" },
+    { name: "Jama Masjid, Delhi", count: "12 tours", image: "https://images.unsplash.com/photo-1555131336-c671042e76f0?auto=format&fit=crop&q=80&w=400" },
+    { name: "Fatehpur Sikri, Agra", count: "24 tours", image: "https://images.unsplash.com/photo-1588091109312-21917bc04.jpeg?auto=format&fit=crop&q=80&w=400" }
   ],
   destinations: [
-    { name: "Agra, India", count: "145 tours & activities" },
-    { name: "Delhi, India", count: "156 tours & activities" },
-    { name: "Jaipur, India", count: "89 tours & activities" }
+    { name: "Agra, India", count: "145 tours", image: "/agra-hero.jpg" },
+    { name: "Delhi, India", count: "156 tours", image: "/delhi-home.jpg" },
+    { name: "Jaipur, India", count: "89 tours", image: "/jaipur-hero.jpg" },
+    { name: "Phuket, Thailand", count: "124 tours", image: "/phuket-hero.jpg" },
+    { name: "Kyoto, Japan", count: "98 tours", image: "/kyoto-hero.jpg" },
+    { name: "Bangkok, Thailand", count: "210 tours", image: "https://images.unsplash.com/photo-1508009603885-50cf7c579365?auto=format&fit=crop&q=80&w=400" }
   ],
   countries: [
-    { name: "India", count: "512 tours & activities" }
+    { name: "India", count: "512 tours", image: "/delhi-home.jpg" },
+    { name: "Japan", count: "342 tours", image: "/japan-pagoda.jpg" },
+    { name: "Thailand", count: "421 tours", image: "https://images.unsplash.com/photo-1528127269322-539801943592?auto=format&fit=crop&q=80&w=400" },
+    { name: "Vietnam", count: "289 tours", image: "/hanoi-hero.jpg" }
   ],
   categories: [
-    { name: "Heritage Walks", count: "1,245 experiences" },
-    { name: "Street Food Safaris", count: "2,150 experiences" },
-    { name: "Sacred Temple Rituals", count: "560 experiences" },
-    { name: "Historical Scholar Walks", count: "670 experiences" },
-    { name: "Taj Mahal Sunrise Tours", count: "430 experiences" },
-    { name: "Old Delhi Rickshaw Tours", count: "210 experiences" }
+    { name: "Heritage Walks", count: "1,245 tours", image: "https://images.unsplash.com/photo-1524492412937-b28074a5d7da?auto=format&fit=crop&q=80&w=400" },
+    { name: "Street Food Safaris", count: "2,150 tours", image: "https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&q=80&w=400" },
+    { name: "Sacred Temples", count: "560 tours", image: "https://images.unsplash.com/photo-1544735716-392fe2489ffa?auto=format&fit=crop&q=80&w=400" },
+    { name: "Historical Walks", count: "670 tours", image: "https://images.unsplash.com/photo-1564507592333-c60657eea523?auto=format&fit=crop&q=80&w=400" }
   ]
 };
 
@@ -157,7 +161,7 @@ const ExplorationFooter: React.FC = () => {
       </div>
 
       {/* Grid Content */}
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-x-6 gap-y-6">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
         {EXPLORATION_DATA[activeTab]?.map((item, idx) => {
           let href = "#";
           if (activeTab === 'countries') {
@@ -173,14 +177,48 @@ const ExplorationFooter: React.FC = () => {
             <a
               key={`${activeTab}-${idx}`}
               href={href}
-              className="flex flex-col gap-0.5 group"
+              className="relative group h-48 rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-500"
             >
-              <span className="text-[13px] font-bold text-[#001A33] group-hover:text-[#0071EB] transition-colors line-clamp-1">
-                {item.name}
-              </span>
-              <span className="text-[11px] text-gray-400 font-medium">
-                {item.count}
-              </span>
+              {/* Background Image */}
+              <div className="absolute inset-0">
+                <img
+                  src={item.image}
+                  alt={item.name}
+                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 brightness-[0.85] group-hover:brightness-[0.7]"
+                />
+              </div>
+
+              {/* Gradient Overlay */}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-80 group-hover:opacity-95 transition-opacity duration-500" />
+
+              {/* Unique Accents */}
+              <div className="absolute top-4 right-4 h-8 w-8 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-500 transform group-hover:rotate-12 translate-y-2 group-hover:translate-y-0">
+                <ChevronRight size={14} className="text-white" />
+              </div>
+
+              <div className="absolute top-4 left-4 flex flex-col gap-1">
+                <div className="h-[2px] w-4 bg-[#10B981] group-hover:w-8 transition-all duration-500" />
+                <div className="h-[2px] w-2 bg-white/30 group-hover:w-4 transition-all duration-500 delay-75" />
+              </div>
+
+              {/* Content */}
+              <div className="absolute inset-0 p-5 flex flex-col justify-end">
+                <span className="text-white/60 text-[9px] uppercase tracking-[0.2em] font-black mb-1 group-hover:text-[#10B981] transition-colors">
+                  Explore
+                </span>
+                <h6 className="text-white text-[15px] font-black leading-tight mb-2 group-hover:translate-x-1 transition-transform duration-300">
+                  {item.name}
+                </h6>
+                <div className="flex items-center gap-2 bg-white/10 backdrop-blur-md w-fit px-2 py-1 rounded-full border border-white/10">
+                  <span className="relative flex h-1.5 w-1.5">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#10B981] opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-[#10B981]"></span>
+                  </span>
+                  <span className="text-white text-[9px] uppercase tracking-wider font-extrabold">
+                    {item.count}
+                  </span>
+                </div>
+              </div>
             </a>
           );
         })}
