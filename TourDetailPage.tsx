@@ -285,11 +285,19 @@ export const getTourSpecificFAQs = (title: string, slug: string | undefined) => 
   }
 
 
-  if (slug === 'taj-mahal-agra-fort-guided-tour') {
+  if (slug === 'taj-mahal-agra-fort-guided-tour' || slug === 'taj-mahal-and-agra-fort-guided-tour') {
     return [
       {
         question: "How long does the Taj Mahal & Agra Fort tour take?",
         answer: "A comprehensive [Taj Mahal & Agra Fort Guided Tour](/india/agra/taj-mahal-agra-fort-guided-tour) typically requires **4 to 6 hours** of active exploration. This duration is strategically designed to allow for a deep-dive into the architectural nuances and historical narratives of two UNESCO World Heritage sites. We usually dedicate approximately 3 hours to the Taj Mahal to appreciate the light transitions on the marble and the symmetry of the gardens, followed by another 2 hours at the Agra Fort to explore the royal pavilions and military ramparts. By booking this combined experience, you ensure a high-authority educational journey that captures the essence of the Mughal Empire's zenith without the stress of independent navigation."
+      },
+      {
+        question: "Is the Taj Mahal closed on Fridays?",
+        answer: "Yes, the Taj Mahal is entirely, legally **closed every single Friday** for religious reasons. This mandatory closure allows the local Muslim community to utilize the mosque located within the complex for Friday prayers. If you are planning an [Agra travel guide 2026](/india/agra/agra-travel-guide-2026) exploration, ensure you do not schedule your visit for a Friday. However, the Agra Fort, Baby Taj, and Mehtab Bagh remain open. We always meticulously review your [1-day Agra itinerary](/india/agra/1-day-agra-itinerary) to ensure your primary monument visit falls between Saturday and Thursday."
+      },
+      {
+        question: "Is original passport mandatory for entry?",
+        answer: "Yes, carrying a **physical passport is mandatory** for all international tourists at both the Taj Mahal and Agra Fort. The CISF security personnel at the turnstiles frequently demand your original, physical passport to match the name and nationality embedded in your digital [Taj Mahal entry ticket](/india/agra/taj-mahal-entry-ticket). High-quality photocopies or digital phone images are often rejected by security. Do not risk denied entry; always carry your original passport prominently in a secure, hidden travel pouch when heading out for your [Agra guided tour](/india/agra/things-to-do-in-agra)."
       },
       {
         question: "Which monument do we visit first during the combined tour?",
@@ -369,6 +377,7 @@ export const getTourSpecificFAQs = (title: string, slug: string | undefined) => 
       }
     ];
   }
+
 
   if (slug === 'taj-mahal-delhi-guided-tour') {
     return [
@@ -3681,41 +3690,55 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
                       {(() => {
                         /* Using extracted getTourSpecificFAQs */
 
-                        const tourTitle = tour.title || 'this tour';
-                        const specificFAQs = getTourSpecificFAQs(tourTitle, tourSlug || tour?.slug);
+                        const tourFAQs = (() => {
+                          const tourTitle = tour.title || 'this tour';
+                          const specificFAQs = getTourSpecificFAQs(tourTitle, tourSlug || tour?.slug);
+                          const faqs = specificFAQs || [
+                            {
+                              question: `What is specifically included in the ${tourTitle}?`,
+                              answer: tour.included || `The ${tourTitle} includes a professional licensed guide, entry tickets to major monuments as per your selection, and a fully customizable itinerary.`
+                            },
+                            {
+                              question: `How long is the actual ${tourTitle} experience?`,
+                              answer: `The duration of the ${tourTitle} is typically ${tour.duration || 'a few hours'}. We recommend arriving 15 minutes before the scheduled start time for a smooth experience.`
+                            },
+                            {
+                              question: `What is the best time to start the ${tourTitle}?`,
+                              answer: "For most monument visits, we highly recommend a sunrise start. This allows you to avoid the midday heat, bypass the largest crowds, and capture the best lighting for photography."
+                            }
+                          ];
 
-                        const tourFAQs = specificFAQs || [
-                          {
-                            question: `What is specifically included in the ${tourTitle}?`,
-                            answer: tour.included || `The ${tourTitle} includes a professional licensed guide, entry tickets to major monuments as per your selection, and a fully customizable itinerary.`
-                          },
-                          {
-                            question: `How long is the actual ${tourTitle} experience?`,
-                            answer: `The duration of the ${tourTitle} is typically ${tour.duration || 'a few hours'}. We recommend arriving 15 minutes before the scheduled start time for a smooth experience.`
-                          },
-                          {
-                            question: `What is the best time to start the ${tourTitle}?`,
-                            answer: "For most monument visits, we highly recommend a sunrise start. This allows you to avoid the midday heat, bypass the largest crowds, and capture the best lighting for photography."
+                          const isAgraTour = tour.city?.toLowerCase() === 'agra' || tourTitle.toLowerCase().includes('taj-mahal');
+
+                          if (isAgraTour) {
+                            const standardAgraFAQs = [
+                              {
+                                question: "Is the Taj Mahal closed on Friday?",
+                                answer: "Yes, the Taj Mahal is closed every Friday for religious reasons. Please ensure your tour date for the Taj Mahal does not fall on a Friday."
+                              },
+                              {
+                                question: "Is original passport mandatory for entry?",
+                                answer: "Yes, foreign tourists must show their original passport or a high-quality digital photo at the entrance gates for security identification and monument entry."
+                              }
+                            ];
+
+                            // Add if not already present in specific FAQs
+                            standardAgraFAQs.forEach(af => {
+                              if (!faqs.some(f => f.question.toLowerCase() === af.question.toLowerCase())) {
+                                faqs.push(af);
+                              }
+                            });
                           }
-                        ];
 
-                        if ((tour.city?.toLowerCase() === 'agra' || tourTitle.toLowerCase().includes('taj-mahal')) && !specificFAQs) {
-                          tourFAQs.push({
-                            question: "Is the Taj Mahal closed on Friday?",
-                            answer: "Yes, the Taj Mahal is closed every Friday for religious reasons. Please ensure your tour date for the Taj Mahal does not fall on a Friday."
-                          });
-                          tourFAQs.push({
-                            question: "Is original passport mandatory for entry?",
-                            answer: "Yes, foreign tourists must show their original passport or a high-quality digital photo at the entrance gates for security identification and monument entry."
-                          });
-                        }
+                          if (!specificFAQs) {
+                            faqs.push({
+                              question: `Will I receive confirmation after booking the ${tourTitle}?`,
+                              answer: "Yes, once your booking is completed via our secure gateway, you will receive an instant confirmation email with your tour details and guide contact information."
+                            });
+                          }
 
-                        if (!specificFAQs) {
-                          tourFAQs.push({
-                            question: `Will I receive confirmation after booking the ${tourTitle}?`,
-                            answer: "Yes, once your booking is completed via our secure gateway, you will receive an instant confirmation email with your tour details and guide contact information."
-                          });
-                        }
+                          return faqs;
+                        })();
 
                         // Helper to render text with markdown-style links and bolding
                         const renderWithLinks = (text: string) => {
