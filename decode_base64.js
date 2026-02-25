@@ -1,0 +1,3 @@
+import fs from 'fs';
+const base64Data = "iVBORw0KGgoAAAANSUhEUgAAABwAAAAcCAMAAABF0y+mAAAAeFBMVEVHcEz9///+//+QmJiBgYH9/v729vfo6en8/v54d3j7/f39//9GRkXAwMD9//+bnJx7e3z+///9///////9///////zAAD7ycn+9PT3gIH83t75rKz96en5t7f2a2z1Oz34j4/4np72c3T1XF31TU70Gh30DRLzLC4aMmKlAAAAFXRSTlMAotUJIrgpFFcTZMkcJIYtNev6rcQ06/mmAAABC0lEQVQokb3Q226DMAwG4LQcQmhXsVHnTCAcuvd/wzkOaGq1u0n9hSDKFxnHjL0vnFI87dUNpkaDFH3et9u2wfcJvFd9Qivl93TJVmhnEw5hXk4JpYU1Hmgj4ay1yQhg1I7sdrsl1CFEwiiXzR14vYr056rvq5Ya0hb80RArjkP0aZq976cIsS+6rvzHhDj/yyrY87tV5zYyqqimCdiZzuDtaGGhTjjJRcoA7BMGE/wl4brJB6GWCmAziGrWD39HdAbUSOilB1hdQgOjTojiQi67jirKgcrOg6WybjQmI0zjMmDZ6gsDOPd7bp+/XKXIoxWFEHl+nH+kcCa6EoMqyhKfPFLaFK/DeUt+ACAgFuztg/RPAAAAAElFTkSuQmCC";
+fs.writeFileSync('user_provided_logo.png', Buffer.from(base64Data, 'base64'));

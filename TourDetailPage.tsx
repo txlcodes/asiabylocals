@@ -53,7 +53,14 @@ interface TourDetailPageProps {
 export const getTourSpecificFAQs = (title: string, slug: string | undefined) => {
   const t = title.toLowerCase();
 
-  if (slug === 'taj-mahal-sunrise-guided-tour' || slug === 'taj-mahal-sunrise-tour' || slug === 'sunrise-taj-mahal-and-agra-tour-by-car') {
+  if (
+    slug === 'taj-mahal-sunrise-guided-tour' ||
+    slug === 'taj-mahal-sunrise-tour' ||
+    slug === 'sunrise-taj-mahal-and-agra-tour-by-car' ||
+    slug === 'private-taj-mahal-tour-from-delhi' ||
+    slug === 'taj-mahal-tour-by-train-gatimaan' ||
+    slug === 'agra-overnight-tour'
+  ) {
     const isSkipLine = slug === 'taj-mahal-sunrise-tour' || slug === 'sunrise-taj-mahal-and-agra-tour-by-car';
     const tourLabel = isSkipLine ? "Taj Mahal Sunrise Tour (Skip-the-line version)" : "Taj Mahal Sunrise Tour";
     const tourPath = slug === 'sunrise-taj-mahal-and-agra-tour-by-car'
