@@ -2471,15 +2471,26 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
         });
       }
 
+      // Strip markdown syntax from text - Google's structured data validator rejects markdown in Answer text
+      const stripMarkdown = (text: string): string => {
+        return text
+          .replace(/\*\*(.+?)\*\*/g, '$1')   // **bold** → bold
+          .replace(/\*(.+?)\*/g, '$1')         // *italic* → italic
+          .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1') // [link text](url) → link text
+          .replace(/`(.+?)`/g, '$1')           // `code` → code
+          .replace(/#{1,6}\s+/g, '')           // # headings → plain text
+          .trim();
+      };
+
       const faqSchema = {
         "@context": "https://schema.org",
         "@type": "FAQPage",
         "mainEntity": tourFAQs.map(faq => ({
           "@type": "Question",
-          "name": faq.question,
+          "name": stripMarkdown(faq.question),
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": faq.answer
+            "text": stripMarkdown(faq.answer)
           }
         }))
       };
@@ -3393,6 +3404,8 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
     return [];
   })();
 
+  // NOTE: FAQPage schema is injected separately via useEffect (with deduplication).
+  // Do NOT add FAQPage here in @graph — it would create a duplicate and break Google Search Console.
   const structuredData = {
     "@context": "https://schema.org",
     "@graph": [
@@ -3406,18 +3419,7 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
           "price": tour?.pricePerPerson || 0,
           "priceCurrency": tour?.currency || "USD"
         }
-      },
-      ...(tourFAQs.length > 0 ? [{
-        "@type": "FAQPage",
-        "mainEntity": tourFAQs.map(faq => ({
-          "@type": "Question",
-          "name": faq.question,
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": faq.answer
-          }
-        }))
-      }] : [])
+      }
     ]
   };
 
