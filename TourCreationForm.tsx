@@ -97,6 +97,9 @@ const TourCreationForm: React.FC<TourCreationFormProps> = ({
   const [aiGenerating, setAiGenerating] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submissionStatus, setSubmissionStatus] = useState<string>('');
+  // Track the tour ID after a draft has been saved so we can update (not create) on subsequent saves
+  const [draftTourId, setDraftTourId] = useState<number | null>(tour?.id || null);
+  const [draftSaveToast, setDraftSaveToast] = useState<string | null>(null);
   const [transportationSearch, setTransportationSearch] = useState('');
   const [showEnglishNotice, setShowEnglishNotice] = useState(() => {
     // Check if notice was previously dismissed
@@ -644,6 +647,152 @@ ${a(9)}`;
     }
   };
 
+  // Show a temporary toast notification
+  const showToast = (msg: string) => {
+    setDraftSaveToast(msg);
+    setTimeout(() => setDraftSaveToast(null), 3500);
+  };
+
+  // Save as draft — keeps the form open, skips strict validation
+  const handleSaveDraft = async () => {
+    if (!supplierEmail || (!supplierPhone && !supplierWhatsApp)) {
+      alert('❌ Please add your email and phone/WhatsApp to your profile before saving.');
+      if (onProfileRequired) onProfileRequired();
+      return;
+    }
+    if (!formData.country || !formData.city || !formData.title?.trim()) {
+      alert('Please fill in at least Country, City, and Tour Title before saving as draft.');
+      return;
+    }
+
+    setIsSubmitting(true);
+    setSubmissionStatus('Saving draft...');
+
+    try {
+      const API_URL = import.meta.env.VITE_API_URL || (typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3001');
+
+      // Upload any new base64 images first
+      let imageUrls = formData.images;
+      const hasBase64Images = formData.images.some(img => img.startsWith('data:image'));
+      if (hasBase64Images && formData.images.length > 0) {
+        setSubmissionStatus('Uploading images...');
+        try {
+          const uploadResponse = await fetch(`${API_URL}/api/tours/upload-images`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ images: formData.images, city: formData.city })
+          });
+          if (uploadResponse.ok) {
+            const uploadData = await uploadResponse.json();
+            if (uploadData.success && uploadData.urls) imageUrls = uploadData.urls;
+          }
+        } catch (uploadErr) {
+          console.warn('Image upload failed during draft save, will retry on final submit', uploadErr);
+        }
+      }
+
+      setSubmissionStatus('Saving draft...');
+
+      // Build a partial but safe payload
+      let locationsToSave: string[] = [];
+      if (formData.isMultiDayTour) {
+        Object.values(formData.multiCityLocations).forEach((cityLocations: any) => {
+          if (Array.isArray(cityLocations)) locationsToSave.push(...cityLocations);
+        });
+      } else {
+        locationsToSave = formData.locations;
+      }
+
+      const draftPayload: any = {
+        supplierId,
+        status: 'draft',
+        title: formData.title?.trim() || 'Untitled Tour',
+        country: formData.country?.trim() || '',
+        city: formData.city?.trim() || '',
+        category: formData.category?.trim() || 'Guided Tour',
+        locations: JSON.stringify(locationsToSave),
+        duration: formData.duration?.trim() || 'Flexible',
+        pricePerPerson: formData.groupPricingTiers?.length > 0 ? parseFloat(formData.groupPricingTiers[0].price || '0') : 0,
+        currency: formData.currency || 'USD',
+        shortDescription: formData.shortDescription?.trim() || null,
+        fullDescription: formData.fullDescription?.trim() || '(Draft)',
+        highlights: JSON.stringify(formData.highlights.filter(h => h.trim()).map(h => h.trim())),
+        included: formData.included?.trim() || '(Draft)',
+        notIncluded: formData.notIncluded?.trim() || null,
+        meetingPoint: formData.meetingPoint?.trim() || null,
+        images: JSON.stringify(imageUrls),
+        languages: JSON.stringify(formData.languages),
+        tourTypes: formData.tourTypes.length > 0 ? JSON.stringify(formData.tourTypes) : null,
+        pickupIncluded: formData.pickupIncluded || false,
+        locationEntryTickets: JSON.stringify(formData.locationEntryTickets),
+        usesTransportation: formData.usesTransportation || false,
+        transportationTypes: JSON.stringify(formData.transportationTypes),
+        multiCityTravel: formData.multiCityTravel || false,
+        itineraryItems: JSON.stringify(formData.itineraryItems),
+        detailedItinerary: formData.detailedItinerary?.trim() || null,
+        maxGroupSize: formData.maxGroupSize && formData.maxGroupSize >= 1 ? formData.maxGroupSize : null,
+        groupPrice: formData.groupPricingTiers?.length > 0 ? parseFloat(formData.groupPricingTiers[formData.groupPricingTiers.length - 1].price || '0') : null,
+        groupPricingTiers: formData.groupPricingTiers?.length > 0 ? JSON.stringify(formData.groupPricingTiers) : null,
+        unavailableDates: null,
+        unavailableDaysOfWeek: formData.unavailableDaysOfWeek?.length > 0 ? JSON.stringify(formData.unavailableDaysOfWeek) : null,
+        tourOptions: (formData.tourOptions || []).map((opt, idx) => {
+          const { id, tourId, pricingType, pricing_type, ...cleanOpt } = opt;
+          return {
+            optionTitle: cleanOpt.optionTitle?.trim() || `Option ${idx + 1}`,
+            optionDescription: cleanOpt.optionDescription?.trim() || '(Draft)',
+            durationHours: parseFloat(cleanOpt.durationHours) || 3,
+            price: 0,
+            currency: cleanOpt.currency || formData.currency,
+            language: cleanOpt.language || formData.languages?.[0] || 'English',
+            pickupIncluded: cleanOpt.pickupIncluded || false,
+            carIncluded: cleanOpt.carIncluded || false,
+            entryTicketIncluded: cleanOpt.entryTicketIncluded || false,
+            guideIncluded: cleanOpt.guideIncluded !== undefined ? cleanOpt.guideIncluded : true,
+            maxGroupSize: cleanOpt.maxGroupSize && cleanOpt.maxGroupSize >= 1 ? cleanOpt.maxGroupSize : null,
+            groupPrice: null,
+            groupPricingTiers: null,
+            sortOrder: idx
+          };
+        })
+      };
+
+      // If we already have a draft ID, update it. Otherwise create a new one.
+      const isUpdatingDraft = !!draftTourId;
+      const url = isUpdatingDraft ? `${API_URL}/api/tours/${draftTourId}` : `${API_URL}/api/tours`;
+      const method = isUpdatingDraft ? 'PUT' : 'POST';
+
+      const response = await fetch(url, {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(draftPayload)
+      });
+
+      if (!response.ok) {
+        const err = await response.json().catch(() => ({ message: 'Failed to save draft' }));
+        throw new Error(err.message || 'Failed to save draft');
+      }
+
+      const data = await response.json();
+      if (data.success) {
+        const savedId = data.tour?.id || data.tourId;
+        if (savedId && !isUpdatingDraft) {
+          setDraftTourId(savedId);
+        }
+        // Stay on the form — just show a toast
+        showToast('✅ Draft saved! Your progress is kept. Continue editing.');
+        onSuccess(); // Refresh the dashboard list in background, does NOT close
+      } else {
+        throw new Error(data.message || 'Failed to save draft');
+      }
+    } catch (err: any) {
+      console.error('Draft save error:', err);
+      alert('❌ Failed to save draft: ' + err.message);
+    } finally {
+      setIsSubmitting(false);
+      setSubmissionStatus('');
+    }
+  };
+
   const handleSubmit = async (submitForReview: boolean = false) => {
     console.log('🚀 handleSubmit CALLED', { submitForReview, isEditing, step, tourId: tour?.id });
 
@@ -1118,7 +1267,9 @@ ${a(9)}`;
             throw new Error(submitData.message || submitData.error || 'Failed to submit tour for review');
           }
         } else {
-          alert('Tour saved as draft!');
+          // This branch is now only reached from the final "Submit for Review" flow
+          // Draft saving is handled by handleSaveDraft which doesn't close the form
+          showToast('✅ Draft saved! Your progress is kept.');
           onSuccess();
           onClose();
         }
@@ -1186,6 +1337,12 @@ ${a(9)}`;
 
   return (
     <div className="min-h-screen bg-gray-50">
+      {/* Draft Save Toast */}
+      {draftSaveToast && (
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[9999] bg-[#001A33] text-white text-[14px] font-bold px-6 py-3 rounded-full shadow-xl flex items-center gap-2 animate-fade-in">
+          {draftSaveToast}
+        </div>
+      )}
       {/* Header */}
       <header className="bg-white border-b border-gray-200 sticky top-0 z-50">
         <div className="max-w-4xl mx-auto px-6 py-4 flex items-center justify-between">
@@ -3534,8 +3691,8 @@ ${a(9)}`;
               </button>
               <div className="flex items-center gap-3">
                 <button
-                  onClick={() => handleSubmit(false)}
-                  disabled={isSubmitting || !canProceed() || !hasRequiredContactInfo}
+                  onClick={handleSaveDraft}
+                  disabled={isSubmitting || !hasRequiredContactInfo}
                   className="px-6 py-3 border-2 border-[#10B981] bg-white text-[#10B981] font-black rounded-full text-[14px] hover:bg-[#10B981]/5 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
                 >
                   {isSubmitting ? 'Saving...' : 'Save as Draft'}
