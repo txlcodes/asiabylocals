@@ -105,6 +105,18 @@
     <priority>0.8</priority>
   </url>
 
+  <!-- Agra Authority: agra-fort -->
+  <url>
+    <loc>https://www.asiabylocals.com/india/agra/agra-fort</loc>
+    <lastmod>2026-02-26</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://www.asiabylocals.com/agra-fort-authority-hero.jpg</image:loc>
+      <image:title>Agra Fort Imperial Red Fortress</image:title>
+    </image:image>
+  </url>
+
   <!-- Layer 3: Jaipur, India -->
   <url>
     <loc>https://www.asiabylocals.com/india/jaipur</loc>

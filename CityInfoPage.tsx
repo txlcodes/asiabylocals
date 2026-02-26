@@ -155,6 +155,73 @@ const CityInfoPage: React.FC<CityInfoPageProps> = ({ country, city, slug }) => {
                     ]
                 };
 
+            case 'agra-fort':
+                return {
+                    title: "Agra Fort: The Imperial Red Fortress - Ultimate 2026 Guide",
+                    description: "Agra Fort is not just a monument; it is a 94-acre walled city that served as the nerve center of the Mughal Empire for generations. Often overshadowed by the neighboring Taj Mahal, this UNESCO World Heritage site offers a far deeper look into the daily lives, military strategies, and royal intrigues of the emperors. This 2000+ word authority guide covers everything from the fort's architectural evolution to seasonal tactical advice for the 2026 traveler.",
+                    heroImage: "/agra-fort-authority-hero.jpg",
+                    fastFacts: [
+                        { icon: 'History', label: 'Dynasties', value: 'Lodi, Mughal, Maratha, British' },
+                        { icon: 'Star', label: 'UNESCO Status', value: 'Listed since 1983' },
+                        { icon: 'Clock', label: 'Recommended Time', value: '2.5 - 3 Hours' }
+                    ],
+                    sections: [
+                        {
+                            title: "Introduction: More Than a Fortress",
+                            content: "While the Taj Mahal is a monument to love and grief, Agra Fort is a monument to sheer imperial power. Spanning a massive 94 acres along the banks of the Yamuna River, this red sandstone fortress was the primary residence of the Mughal emperors until 1638. It is less a single building and more a 'fortified city' within a city, housing palaces, mosques, audience halls, and treasury rooms that once held the riches of an empire that stretched across the subcontinent. \n\nIn 2026, Agra Fort stands as one of the finest examples of military and domestic architecture in the world. For the discerning traveler, it provides the necessary historical context to understand the Taj Mahal. To see the Taj without seeing the Fort is to see the result without understanding the source. The fort is where the emperors lived, ruled, and in the case of Shah Jahan, spent their final years gazing at the marble masterpiece they created."
+                        },
+                        {
+                            title: "The Historical Chronology of the Red Walls",
+                            image: "/agra-fort-supporting-1.jpg",
+                            content: "The history of Agra Fort is a reflection of the history of India itself. Long before the Mughals, the site was occupied by a brick fort known as **Badalgarh**, held by the Lodi dynasty of the Delhi Sultanate. \n\n**The Akbar Era (1565–1573):** \nWhen the Mughal Emperor Akbar the Great decided to move his capital to Agra, the old brick fort was in ruins. He ordered a massive reconstruction using red sandstone from Rajasthan. Over 4,000 builders worked daily for eight years to complete the exterior walls. Akbar’s architecture was robust, masculine, and primarily defensive, featuring massive bastions and deep moats. \n\n**The Jahangir Era:** \nAkbar’s son, Jahangir, added many of the internal palaces. His style marked the beginning of a transition from the purely defensive to the decorative, blending Hindu and Islamic architectural motifs—a fusion seen most clearly in the Jahangiri Mahal. \n\n**The Shah Jahan Era:** \nIt was Shah Jahan who transformed the fort from a military stronghold into a palace of unparalleled luxury. He demolished several of Akbar's sandstone structures to build his own in white Makrana marble (the same marble used for the Taj Mahal). His additions include the Khas Mahal and the Diwan-i-Khas. \n\n**The Aurangzeb Era & Later:** \nAurangzeb added the final defensive layer—the outer ramparts and the additional moats. Ironically, he also turned the fort into a prison for his own father, Shah Jahan. After the Mughals, the fort changed hands between the Marathas and the British, serving as a pivotal site during the Indian Rebellion of 1857."
+                        },
+                        {
+                            title: "Architectural Layout & Must-See Structures",
+                            content: "The layout of Agra Fort is an architectural puzzle that reveals the changing tastes of different emperors. \n\n- **Amar Singh Gate (The Entrance):** This is the only gate currently open to the public. It is a masterpiece of deception, designed to confuse invaders with a series of sharp turns and steep inclines to prevent elephant-led charges. \n- **Jahangiri Mahal:** Built by Akbar for his son Jahangir, this is the most significant Hindu-Islamic fusion palace. Note the massive stone brackets and the absence of arches—a nod to traditional Indian temple architecture within a Mughal palace. \n- **Khas Mahal:** The imperial bedroom of Shah Jahan. It features gold-painted marble ceilings and narrow slots for the royal ladies to watch the Yamuna River without being seen. \n- **Musamman Burj:** Perhaps the most emotional spot in the fort. This octagonal marble tower is where Shah Jahan was kept under house arrest by Aurangzeb. From the balcony here, you can get a perfectly framed view of the Taj Mahal—the same view the dying emperor lived with for eight years. \n- **Diwan-i-Aam (Hall of Public Audience):** A massive hall where the emperor sat on a throne of precious stones to hear the grievances of commoners. The sheer scale of the sandstone pillars here is awe-inspiring. \n- **Moti Masjid (Pearl Mosque):** Built by Shah Jahan, this mosque is a study in pure white marble, though it is currently restricted for public entry to preserve its delicate structure."
+                        },
+                        {
+                            title: "Guide Strategy: Should You Hire a Guide?",
+                            icon: "Star",
+                            content: "While Agra Fort can be explored independently, a licensed historian can bring the Mughal court to life — especially when combined with the Taj Mahal. For travelers wanting a seamless experience, our [Taj Mahal & Agra Fort Guided Tour](/taj-mahal-agra-fort-guided-tour) connects both monuments in one expertly curated visit. \n\nA guide will help you spot the 'secret' details: the acoustic properties of the Diwan-i-Khas, the hidden plumbing systems of the royal baths, and the exact spots where the Koh-i-Noor diamond was once kept. In a complex this large, a professional ensures you don't miss the historical continuity that makes the Taj Mahal so much more meaningful."
+                        },
+                        {
+                            title: "The Friday Rule & Strategy",
+                            image: "/agra-fort-supporting-2.jpg",
+                            icon: "AlertTriangle",
+                            content: "Since the Taj Mahal is closed every Friday for general tourism, many travelers shift their focus to Agra Fort and other Mughal monuments. If you’re in Agra on a Friday, consider our [Agra Friday Special Tour – Taj Closed Alternative](/agra-friday-tour-taj-closed-alternative), which covers Agra Fort, Baby Taj, and Mehtab Bagh at sunset for a complete Mughal experience. \n\nUnlike the Taj, Agra Fort is **OPEN** on Fridays. This makes it the absolute anchor of any Friday visit. However, be aware that crowds can be larger on this day as all the city's tourists converge on the fort. Arrive as early as 8:00 AM to beat the mid-day rush."
+                        },
+                        {
+                            title: "Agra Fort vs Taj Mahal: The Comparison",
+                            content: "Many travelers ask which is better: the Taj or the Fort? The answer is that they are two sides of the same coin. The Taj Mahal is about a single individual and a single emotion; the Agra Fort is about an entire civilization and its political machinery. \n\nMany travelers prefer experiencing both monuments together in a single curated itinerary. Our [Taj Mahal & Agra Fort Guided Tour](/taj-mahal-agra-fort-guided-tour) is structured to optimize timing, avoid peak crowds, and provide historical continuity between the two UNESCO sites. \n\n**Key Differences:** \n- **Scale:** The Fort is significantly larger and requires much more walking. \n- **Aesthetics:** The Taj is monochromatic and ethereal; the Fort is vibrant and earthly. \n- **Photography:** The Taj is best at sunrise; the Fort is best in the mid-morning when the light hits the red sandstone façades."
+                        },
+                        {
+                            title: "Photography Tips: The 'Taj Views' from the Fort",
+                            content: "For photographers, Agra Fort offers some of the best 'contextual' shots of the Taj Mahal. \n\n- **The Musamman Burj Window:** Look for the small marble arches that frame the distant Taj Mahal. Adjust your aperture to f/11 to keep both the foreground marble and the distant Taj in sharp focus. \n- **The Terrace Views:** From the upper terraces of the Khas Mahal, you can see the Taj Mahal rising from the Yamuna River bank. Use a 70-200mm lens to compress the distance and make the Taj appear massive behind the fort’s red battlements. \n- **The Red Sandstone Arches:** Use the deep shadows of the Diwan-i-Aam's arches to create silhouettes of your companions against the sun-drenched courtyards."
+                        },
+                        {
+                            title: "Strategic FAQs: Deep Dive",
+                            content: "1. **How long does it take to see Agra Fort?** \nAllow at least 2.5 to 3 hours. The distance between the entrance and the furthest palaces is considerable, and there is a lot of ground to cover. \n2. **Is it very hot inside the fort?** \nYes, the red sandstone absorbs heat. In summer (April-June), visit before 10:30 AM. The marble palaces are naturally cooler due to their proximity to the river. \n3. **Are there bathrooms and water inside?** \nThere are limited facilities once you pass the main gate. We recommend utilizing the restrooms near the ticket counter before entering. \n4. **Is the fort wheelchair accessible?** \nPartially. There are ramps at the main gate, but many of the internal palaces have uneven stone flooring and steps. \n5. **What is the best way to get there?** \nUse Uber or an e-rickshaw. Do not attempt to walk from the Taj Mahal (2.5 km) as the road is busy and dusty. \n6. **Can I see the Koh-i-Noor diamond?** \nNo, it is currently part of the British Crown Jewels. However, you can see the throne room where it was once kept."
+                        },
+                        {
+                            title: "Practical Intelligence for 2026",
+                            content: "**Tickets:** Like the Taj Mahal, tickets for Agra Fort are now digital-only. Scan the QR code at the gate or pre-book via the ASI portal. If you bought a 'Combo' ticket elsewhere, ensure you have the correct QR code ready. \n\n**Security:** Airport-style security is in place. No backpacks, tripods, or battery chargers are allowed. Carry only your essentials. \n\n**Footwear:** You will be on your feet for several kilometers. Wear comfortable walking shoes. Unlike the Taj, you do not need to remove your shoes except in some very specific active prayer areas."
+                        }
+                    ],
+                    faqs: [
+                        { q: "Is Agra Fort worth visiting if I've seen the Taj Mahal?", a: "Absolutely. Most travelers find the interior of the Fort more architecturally diverse and fascinating than the Taj. It provides the 'human' side of the Mughal story." },
+                        { q: "Is it open on Fridays?", a: "Yes, Agra Fort is open every day of the week, including Fridays." },
+                        { q: "What is the entry fee?", a: "For 2026, the fee is ₹600 for foreigners and ₹50 for locals. A small additional fee applies for online booking." }
+                    ],
+                    jsonLd: {
+                        "@context": "https://schema.org",
+                        "@type": "Article",
+                        "headline": "Agra Fort: The Imperial Red Fortress - Ultimate 2026 Guide",
+                        "description": "Comprehensive authority guide for visiting Agra Fort in 2026. Includes history, architectural details, and travel strategies.",
+                        "author": { "@type": "Organization", "name": "AsiaByLocals" }
+                    }
+                };
+
+
             case '1-day-agra-itinerary':
                 return {
                     title: '1-Day Agra Itinerary (2026): A Precision Tactical Plan',

@@ -40,7 +40,8 @@ const AGRA_INFO_SLUGS = [
   'taj-mahal-opening-time',
   'is-taj-mahal-closed-on-friday',
   'agra-travel-guide-2026',
-  'taj-mahal'
+  'taj-mahal',
+  'agra-fort'
 ];
 import BookingConfirmation from './BookingConfirmation';
 import PaymentCallback from './PaymentCallback';
@@ -74,6 +75,11 @@ class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundarySta
     console.error('ErrorBoundary caught an error:', error, errorInfo);
   }
 
+  handleReset = () => {
+    this.setState({ hasError: false, error: null });
+    window.location.reload();
+  };
+
   render() {
     if (this.state.hasError) {
       return (
@@ -82,10 +88,7 @@ class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundarySta
             <h2 className="text-2xl font-black text-[#001A33] mb-4">Error loading tour</h2>
             <p className="text-gray-500 font-semibold mb-6">{this.state.error?.message || 'Please try again later.'}</p>
             <button
-              onClick={() => {
-                this.setState({ hasError: false, error: null });
-                window.location.reload();
-              }}
+              onClick={this.handleReset}
               className="px-6 py-2 bg-[#10B981] text-white font-bold rounded-lg hover:bg-[#059669] transition-colors"
             >
               Reload Page
@@ -247,6 +250,8 @@ const ExplorationFooter: React.FC = () => {
             } else if (activeTab === 'attractions') {
               if (item.name.includes('Taj Mahal')) {
                 href = "/india/agra/taj-mahal";
+              } else if (item.name.includes('Agra Fort')) {
+                href = "/india/agra/agra-fort";
               }
             }
 
