@@ -323,19 +323,135 @@ const CITY_DESCRIPTIONS: Record<string, {
     faqs: [
       {
         question: 'How long does a Jaipur palace tour take?',
-        answer: 'A typical City Palace and Hawa Mahal tour takes 3-4 hours. Combined tours with Amber Fort can take 6-8 hours. For those on a [Delhi-Agra-Jaipur circuit](/india/agra), we recommend spending at least 2 nights in the Pink City.'
+        answer: 'A full [Jaipur sightseeing tour](/india/jaipur) covering the major landmarks typically takes a full day of 8 to 10 hours. A focused City Palace and Hawa Mahal tour takes 3 to 4 hours. When you add Amber Fort — the most impressive of Jaipur\'s forts — you should budget a full 6 to 8 hours. For first-time visitors on a [Delhi-Agra-Jaipur Golden Triangle circuit](/india/agra), we strongly recommend spending at least 2 full nights in Jaipur to experience it without rushing.'
       },
       {
-        question: 'Are Jaipur tours suitable for families?',
-        answer: 'Yes, Jaipur tours are exceptionally family-friendly. The majestic palaces and colorful bazaars of the [Pink City](/india/jaipur) are engaging for children, and our guides specialize in making history come alive through royal legends.'
+        question: 'Are Jaipur tours suitable for families with children?',
+        answer: 'Yes, Jaipur is one of the most family-friendly destinations in all of India. The majestic palaces, colorful bazaars, and royal legends of the Pink City are naturally engaging for children of all ages. Elephant rides near Amber Fort (though we recommend ethical alternatives like jeeps), camel rides, puppet shows, and kite-flying demonstrations make for magical experiences. Our [local guides in Jaipur](/india/jaipur) are experienced at making history fun and accessible even for young children, adapting their storytelling to keep everyone engaged throughout the tour.'
       },
       {
         question: 'Do I need a licensed guide in Jaipur?',
-        answer: 'A [licensed local guide](/india/jaipur) is essential to truly understand the architectural genius behind the Jantar Mantar observatory and the hidden history of the royal family. They also help navigate the bustling local markets safely.'
+        answer: 'A licensed, government-approved local guide is essential to truly understand Jaipur\'s layered history. The astronomical instruments at Jantar Mantar, for instance, are cryptic without expert explanation. Similarly, the architectural fusion of Rajput and Mughal styles at structures like Amber Fort and City Palace requires deep contextual knowledge to fully appreciate. Our [licensed guides in Jaipur](/india/jaipur) also help you navigate the bustling local markets like Johari Bazaar safely, know the best-value stalls, and protect you from common tourist scams at major monument entrances.'
       },
       {
-        question: 'Are heritage walks worth it?',
-        answer: 'Absolutely. A [Jaipur heritage walk](/india/jaipur) reveals the city\'s unique urban planning, traditional jewelry workshops, and local storytelling that you simply cannot find on a standard bus tour.'
+        question: 'Are heritage walks in Jaipur worth it?',
+        answer: 'Absolutely — a heritage walk is one of the most rewarding things you can do in Jaipur. The city was planned in 1727 by Maharaja Jai Singh II using ancient Vedic principles (Vastu Shastra), making it one of India\'s first planned cities. A [Jaipur heritage walk](/india/jaipur) through the old walled city reveals this extraordinary urban grid, traditional jewelry and gemstone workshops passed down through generations, indigo dye workshops, and local storytelling that no standard bus tour can offer. You will leave with a genuine understanding of the city\'s soul.'
+      },
+      {
+        question: 'What is the best time of year to visit Jaipur?',
+        answer: 'The best time to visit Jaipur is from October to March, when the weather is genuinely pleasant with temperatures ranging from 12°C to 25°C. This is peak season, and the city vibrates with festivals, outdoor events, and perfect sightseeing conditions. The famous Jaipur Literature Festival (usually January) and the Kite Festival (Makar Sankranti, January 14th) are spectacular events. Avoid visiting in May and June when temperatures regularly exceed 45°C. The monsoon season from July to September brings humid heat, though the landscape turns green and lush.'
+      },
+      {
+        question: 'What is Jaipur famous for?',
+        answer: 'Jaipur, the capital of Rajasthan, is famous worldwide for several things: its stunning pink-washed architecture that earned it the title "Pink City," its magnificent royal palaces like City Palace and Hawa Mahal, its formidable hilltop forts like Amber Fort and Nahargarh Fort, and its vibrant bazaars overflowing with gemstones, textiles, and handicrafts. It is also renowned as a global center for gemstone cutting, particularly for emeralds, rubies, and sapphires. As part of the [Golden Triangle tour circuit](/india/agra), Jaipur is one of the three most-visited destinations in all of India.'
+      },
+      {
+        question: 'How many days should I spend in Jaipur?',
+        answer: 'We recommend spending a minimum of 2 full days in Jaipur to see the key highlights without rushing. On day one, cover the city\'s main landmarks: Amber Fort, Jal Mahal, and the City Palace complex, including Jantar Mantar and Hawa Mahal. On day two, take a slower pace — visit Nahargarh Fort for panoramic views, explore the Johri Bazaar for gems and jewelry, and wander through the old city lanes. If you plan to take a day trip to [Ranthambore National Park](/india/jaipur) for a tiger safari, budget a third day.'
+      },
+      {
+        question: 'Is Jaipur part of the Golden Triangle tour?',
+        answer: 'Yes, Jaipur is the third and final stop on India\'s most iconic travel route, the Golden Triangle. This circuit connects Delhi, Agra, and Jaipur in a roughly triangular geographic loop, covering approximately 750 kilometers in total. The circuit is universally regarded as the best introduction to North India\'s history and culture. From Delhi\'s Mughal monuments, to Agra\'s [Taj Mahal](/india/agra), and finally to Jaipur\'s royal Rajput palaces, the Golden Triangle covers 1,000 years of Indian history in a single, manageable journey that can be completed in as few as 4 to 5 days.'
+      },
+      {
+        question: 'What is the entry fee for Amber Fort in Jaipur?',
+        answer: 'As of 2025, the entry fee for Amber Fort (also called Amer Fort) is ₹100 for Indian nationals and ₹500 for foreign tourists. A combined ticket covering multiple Jaipur monuments — including City Palace, Jantar Mantar, Hawa Mahal, Nahargarh Fort, and Albert Hall — is available for approximately ₹ 1000 for foreign visitors and offers excellent value. Camera and video fees may apply inside some sections. Our [local guides in Jaipur](/india/jaipur) will handle all ticketing logistics so you can walk in without standing in any queues.'
+      },
+      {
+        question: 'What is special about Amber Fort in Jaipur?',
+        answer: 'Amber Fort, located 11 kilometers from Jaipur city center, is considered one of the finest examples of Rajput architecture in all of India. Built predominantly with red sandstone and white marble, the fort\'s dramatic hilltop position above the Maota Lake creates an incredibly photogenic setting. Inside, the Sheesh Mahal (Hall of Mirrors) is arguably its most spectacular feature — thousands of tiny mirrors encrust the ceiling, creating a dazzling effect when lit by candlelight. Our [Jaipur guided tours](/india/jaipur) include expert commentary that brings the fort\'s 1,000-year history alive in extraordinary detail.'
+      },
+      {
+        question: 'How do I get from Delhi to Jaipur?',
+        answer: 'There are three main ways to travel from Delhi to Jaipur, which are located approximately 280 kilometers apart. The fastest and most comfortable option is to travel by high-speed train — the Shatabdi Express or the Vande Bharat Express complete the journey in approximately 4.5 hours. Private car is popular for those on a [Golden Triangle tour](/india/agra), taking about 5 to 6 hours via the Delhi-Jaipur Expressway (NH-48). Premium intercity buses (like the RSRTC Volvo) are a budget-friendly third option, also taking roughly 5 to 6 hours depending on traffic.'
+      },
+      {
+        question: 'Is Jaipur safe for solo female travelers?',
+        answer: 'Jaipur is generally considered one of the safer cities for tourists in North India, and many solo female travelers visit and explore it comfortably every year. However, standard precautions always apply: avoid poorly lit areas at night, use pre-booked transportation rather than negotiating with random auto-rickshaw drivers, and dress modestly when visiting religious sites and traditional neighborhoods. Our [local guides in Jaipur](/india/jaipur) are experienced in ensuring female travelers feel safe and comfortable, and can provide context on which areas and times are best to explore independently and which to avoid.'
+      },
+      {
+        question: 'What should I buy in Jaipur?',
+        answer: 'Jaipur is one of India\'s premier shopping destinations, and the bazaars overflow with unique, high-quality goods. Johari Bazaar is the place for gemstones and jewelry — Jaipur is a world-renowned center for gemstone cutting and setting, particularly emeralds, rubies, sapphires, and precious stones. Bapu Bazaar is famous for textiles, particularly the city\'s distinctive block-printed fabrics and bandhani (tie-dye) wares. Tripolia Bazaar is known for lac bangles and metalwork. Our [Jaipur heritage walk tours](/india/jaipur) take you through the most authentic shops where craftsmen have worked for generations, ensuring you get genuine quality.'
+      },
+      {
+        question: 'What is the Hawa Mahal and why is it famous?',
+        answer: 'Hawa Mahal, which translates to "Palace of Winds," is one of Jaipur\'s most iconic and instantly recognizable structures. Built in 1799 by Maharaja Sawai Pratap Singh, it features 953 small latticework windows (jharokhas) arranged across its distinctive honeycomb-shaped red and pink sandstone facade. The palace was specifically designed to allow royal women living in purdah (seclusion) to observe street festivals and daily life without being seen from below. The interior is deceptively simple — it is mostly a hollow shell of corridors and stairways — making it best appreciated from the outside or from the top-floor viewing windows overlooking the city.'
+      },
+      {
+        question: 'What is Jantar Mantar in Jaipur and is it worth visiting?',
+        answer: 'Jantar Mantar in Jaipur, built by Maharaja Jai Singh II between 1724 and 1734, is a UNESCO World Heritage Site and one of the world\'s largest and best-preserved collections of astronomical instruments. Its 19 giant instruments — built from masonry, marble, and brass — were used to track the movements of celestial bodies with remarkable precision. The most famous is the Samrat Yantra, the world\'s largest stone sundial, which can tell the time accurately to within 2 seconds. Without a knowledgeable [local guide in Jaipur](/india/jaipur), the instruments appear as abstract sculptures; with one, the visit becomes a fascinating lesson in medieval astronomy.'
+      },
+      {
+        question: 'Is the City Palace in Jaipur still lived in by royalty?',
+        answer: 'Yes — Jaipur\'s City Palace is one of the few palace complexes in the world where a portion remains the private residence of the current royal family, the descendants of Maharaja Jai Singh II. The outer sections, including the magnificent Mubarak Mahal, Sheila Devi Temple, the armory, and the Diwan-i-Khas (Hall of Private Audience), are open to the public as a world-class museum. The massive silver urns in the Diwan-i-Khas, recorded in the Guinness World Records as the largest silver objects in the world, are among its most breathtaking exhibits. Our [Jaipur tours](/india/jaipur) include in-depth City Palace walkthroughs.'
+      },
+      {
+        question: 'Can I see a live cultural performance in Jaipur?',
+        answer: 'Yes, Jaipur offers some of India\'s most vivid and authentic cultural performances. The most popular are the daily Rajasthani folk dance and puppet shows held at several heritage hotels and cultural venues, featuring the iconic Kalbeliya snake-charmer dance, Ghoomar, and traditional Rajasthani music. The Sound and Light Show at Amber Fort is a spectacular after-dark experience that narrates the fort\'s history through dramatic lighting and narration. The annual Jaipur Literature Festival (held in January) is one of the world\'s largest free literary events, attracting authors, thinkers, and artists from across the globe.'
+      },
+      {
+        question: 'What are the best day trips from Jaipur?',
+        answer: 'Jaipur is an excellent base for several fascinating day trips around Rajasthan. Ranthambore National Park, one of India\'s best places to spot wild Bengal tigers, is approximately 180 kilometers away and makes for an exciting overnight or day trip. Pushkar, a sacred lake town famous for its annual Camel Fair (November), is just 145 kilometers away. Abhaneri, home to the magnificent 9th-century stepped well Chand Baori, is 95 kilometers from Jaipur and is a photographer\'s paradise. Our [local guides in Jaipur](/india/jaipur) can help arrange any of these excursions with private transportation.'
+      },
+      {
+        question: 'What is the best food to eat in Jaipur?',
+        answer: 'Jaipur\'s cuisine is rich, spiced, and deeply satisfying — a true reflection of Rajasthan\'s bold royal cooking traditions. You absolutely must try Dal Baati Churma, a hearty dish of baked wheat balls served with lentil soup and sweet churma. Laal Maas (fiery red mutton curry) is a Rajasthani specialty not to be missed. For street food, head to Laxmi Misthan Bhandar (LMB) on Johari Bazaar for the famous Pyaaz Kachori (onion-stuffed fried bread). Ghewar, a latticed sweet soaked in saffron syrup, is Jaipur\'s signature dessert. Our [Jaipur food tours](/india/jaipur) cover all the best spots locals actually eat at.'
+      },
+      {
+        question: 'What are the opening hours of Amber Fort?',
+        answer: 'Amber Fort is open to visitors daily from 8:00 AM to 5:30 PM. The fort is illuminated at night and the Sound and Light Show typically runs in the evening from 6:30 PM to 7:45 PM (subject to seasonal changes). The fort closes on some public holidays, so checking in advance with your [local guide in Jaipur](/india/jaipur) is recommended. Morning visits between 8:00 AM and 10:30 AM are strongly advised for the best light for photography, cooler temperatures, and significantly thinner crowds before the tour bus crowds arrive from mid-morning onward.'
+      },
+      {
+        question: 'Is Nahargarh Fort worth visiting?',
+        answer: 'Nahargarh Fort is absolutely worth visiting, particularly for the panoramic views it offers over Jaipur city and the surrounding Aravalli hills. Built in 1734 by Maharaja Jai Singh II as a retreat, its walls and bastions snake dramatically across the ridgeline above the city. The Madhavendra Bhawan inside the fort — a complex of twelve symmetrical suites built for the king\'s twelve queens — is architecturally fascinating. Sunset from Nahargarh\'s ramparts is considered one of the finest views in all of Rajasthan. Many visitors combine it with a [Jaipur sightseeing tour](/india/jaipur) of the main city monuments on the same day.'
+      },
+      {
+        question: 'Is it safe to drink water in Jaipur?',
+        answer: 'Tap water in Jaipur is not safe to drink for visitors unaccustomed to local bacteria strains. Always drink sealed bottled water or water that has been through a certified filtration system. Our [local guides in Jaipur](/india/jaipur) always carry and provide bottled water during tours. At restaurants, request bottled water and avoid raw salads or unpeeled fruit unless you are at a reputable establishment. Common hygiene standards in tourist-facing restaurants have improved significantly, but street food should be approached with selective caution — stick to freshly cooked, hot items from busy stalls.'
+      },
+      {
+        question: 'How do I get around Jaipur during my visit?',
+        answer: 'For maximum comfort and efficiency, the best way to get around Jaipur is in a private, air-conditioned car arranged through your [Jaipur tour operator](/india/jaipur). This is especially important during summer months when temperatures soar. Auto-rickshaws are a fun and authentic way to cover short distances within the walled city but require negotiating fares in advance. App-based cab services (Ola, Uber) work reliably in Jaipur. Cycle rickshaws are excellent for exploring the narrow lanes of the old bazaars. The Jaipur Metro covers a limited route and is generally not convenient for major tourist sites.'
+      },
+      {
+        question: 'What is the Jal Mahal in Jaipur?',
+        answer: 'Jal Mahal, meaning "Water Palace," is a stunning five-storey sandstone palace that appears to float serenely in the middle of Man Sagar Lake, surrounded by the Aravalli hills. Built in the 18th century by Maharaja Jai Singh II as a duck-hunting lodge, four of its five floors are submerged underwater. The palace is currently undergoing restoration and is not open to the public to enter, but it is best viewed and photographed from the lakeside promenade during early morning or sunset, when the reflection creates a magical double-image effect. It is a standard stop on any [Jaipur sightseeing tour](/india/jaipur).'
+      },
+      {
+        question: 'Can I ride an elephant at Amber Fort in Jaipur?',
+        answer: 'Elephant rides at Amber Fort have been a long-running and controversial attraction. While they are still technically available, there has been significant international scrutiny over animal welfare standards. Many responsible travel organizations, including our partners, now strongly recommend the ethical alternative: taking a jeep or walking up the stone pathway to the fort entrance, which is equally, if not more, enjoyable. Our [local guides in Jaipur](/india/jaipur) will be fully transparent about the current situation and will always recommend options that minimize harm to animals, allowing you to make an informed personal choice during your visit.'
+      },
+      {
+        question: 'What is the best way to see the Jaipur forts?',
+        answer: 'The best way to experience Jaipur\'s majestic trio of forts — Amber Fort, Nahargarh Fort, and Jaigarh Fort — is on a full-day private tour with a knowledgeable local guide. All three forts are connected and were part of an integrated 18th-century defensive system. Amber Fort is the most elaborate and grand, taking 2 to 3 hours to explore properly. Jaigarh Fort houses the world\'s largest wheeled cannon (Jaivana) and has spectacular views. Nahargarh is best for sunsets. Our [Jaipur fort tours](/india/jaipur) cover all three in a single, efficiently planned day with private transportation included.'
+      },
+      {
+        question: 'Is Jaipur more expensive than Delhi or Agra for tourists?',
+        answer: 'Jaipur is generally comparable to Agra in terms of tourist costs, and both are slightly less expensive than Delhi. Entry tickets for major monuments (Amber Fort, City Palace, Jantar Mantar) are among the most affordable in India, with combined tickets offering great value. Restaurant meals range from extremely budget-friendly street food (₹50-150) to upscale Rajasthani thali experiences at heritage hotels (₹1,000-3,000). Shopping in Jaipur can be as expensive as you choose — the city\'s gemstone and jewelry market caters to all budgets. Book your [Jaipur tours](/india/jaipur) in advance for the best rates.'
+      },
+      {
+        question: 'What are the top photography spots in Jaipur?',
+        answer: 'Jaipur is an exceptional city for photography. The most iconic shot is the Hawa Mahal facade photographed from the street level, ideally at golden hour (6:00 to 7:30 AM) when the light turns the pink sandstone into warm amber. The Amber Fort reflection in Maota Lake is another classic. The stepped geometry of Panna Meena Ka Kund (a 16th-century stepwell near Amber Fort) creates extraordinary abstract compositions. The rooftop terraces above the old bazaars provide sweeping views of the Pink City\'s roofscape. Nahargarh Fort at sunset above the illuminated city is perhaps the most dramatic shot of all on any [Jaipur tour](/india/jaipur).'
+      },
+      {
+        question: 'Are there shopping restrictions in Jaipur for tourists?',
+        answer: 'There are no legal restrictions on shopping in Jaipur, but there are important practical precautions. The city is famous for gem and jewelry scams where tourist-facing shops attempt to pass off synthetic stones as genuine gemstones with falsified certificates. Always buy from government-certified shops or stores recommended by a trusted [local guide in Jaipur](/india/jaipur). Export of antiques — defined as items over 100 years old — requires a special permit from the Archaeological Survey of India. For textiles, block-print fabrics, and handicrafts, Jaipur offers exceptional authentic quality; Rajasthali government emporiums provide certified, fixed-price shopping without bargaining pressure.'
+      },
+      {
+        question: 'What clothes should I wear when visiting temples and palaces in Jaipur?',
+        answer: 'Modesty is important when visiting religious sites and traditional palaces in Jaipur. For temples, both men and women should cover their shoulders and knees, and footwear must be removed before entering. At heritage palaces and forts, smart casual clothing is perfectly appropriate. During October to March (winter), evenings can be quite cool, so bringing a light jacket or shawl is advisable. During summer visits (April to June), wear light, natural fabrics like cotton and carry a sun hat. Our [Jaipur guides](/india/jaipur) will always remind you of specific dress code requirements before entering each site to avoid any awkward situations.'
+      },
+      {
+        question: 'How do Jaipur\'s forts compare to Agra Fort?',
+        answer: 'Agra Fort and Jaipur\'s forts represent two distinct architectural traditions. [Agra Fort](/india/agra) is primarily a Mughal military citadel built by Emperor Akbar from red sandstone, reflecting Islamic design principles of symmetry and grandeur. Jaipur\'s forts — particularly Amber Fort — are predominantly Rajput in origin, reflecting the warrior clan aesthetic of defensive military architecture blended with ornate palace interiors. Amber Fort\'s Sheesh Mahal (Hall of Mirrors) and complex temple shrines within fortress walls are distinctly Hindu-Rajput features you won\'t find at Agra Fort. Seeing both provides a comprehensive picture of two of India\'s most powerful medieval civilizations side by side.'
+      },
+      {
+        question: 'What is the Jaipur Literature Festival?',
+        answer: 'The Jaipur Literature Festival (JLF), held annually in January, is the world\'s largest free literary festival and one of the most prestigious cultural events in Asia. Held at the spectacular Diggi Palace in Jaipur, it attracts over 400,000 visitors across its five-day run and features hundreds of speakers including Nobel Prize winners, Booker Prize authors, journalists, activists, and thinkers from across the globe. The festival is completely free to attend and runs alongside Jaipur\'s peak tourist season, making January an exceptional time to plan your [visit to Jaipur](/india/jaipur) to experience both the city\'s royal heritage and its contemporary cultural energy.'
+      },
+      {
+        question: 'Can I combine a Jaipur trip with a visit to Ranthambore National Park?',
+        answer: 'Absolutely — and we highly recommend it. Ranthambore National Park, one of India\'s premier tiger reserves, is located approximately 3 hours (180 km) from Jaipur and is the most accessible major wildlife sanctuary from the Pink City. Safari jeeps run dawn and dusk drives into the park, where Bengal tigers can be spotted in relatively open terrain compared to other Indian parks. The Ranthambore Fort, a UNESCO World Heritage Site, sits dramatically within the park boundaries — one of the few medieval forts in the world surrounded by a functioning wildlife reserve. Our [Jaipur tour packages](/india/jaipur) include Ranthambore day and overnight options.'
       }
     ]
   },

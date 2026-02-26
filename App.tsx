@@ -521,7 +521,7 @@ const App: React.FC = () => {
   // Check if we're on the email verification waiting page
   const isEmailVerificationWaitingPage = window.location.pathname === '/email-verification-waiting';
   // Check if we're on the supplier page (from URL)
-  const isSupplierPageFromUrl = window.location.pathname === '/supplier';
+  const isSupplierPageFromUrl = window.location.pathname === '/supplier' || window.location.pathname === '/become-a-supplier';
   // Check if we're on the admin dashboard
   const isAdminPage = window.location.pathname === '/admin' || window.location.pathname === '/secure-panel-abl';
   // Check for policy/legal pages
