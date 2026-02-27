@@ -44,6 +44,18 @@ const AGRA_INFO_SLUGS = [
   'agra-fort',
   'fatehpur-sikri'
 ];
+
+// List of Delhi Authority Page Slugs for Interception
+const DELHI_INFO_SLUGS = [
+  'delhi-travel-guide-2026',
+  'red-fort',
+  'qutub-minar',
+  'humayuns-tomb',
+  'india-gate',
+  'things-to-do-in-delhi',
+  'delhi-1-day-itinerary'
+];
+
 import BookingConfirmation from './BookingConfirmation';
 import PaymentCallback from './PaymentCallback';
 import SafetyGuidelines from './SafetyGuidelines';
@@ -757,6 +769,19 @@ const App: React.FC = () => {
           <CityInfoPage
             country={slugToTitle(tourCountrySlug || 'India')}
             city={slugToTitle(tourCitySlug || 'Agra')}
+            slug={tourSlug}
+          />
+        </ErrorBoundary>
+      );
+    }
+
+    // INTERCEPT: If it's a Delhi Authority Page
+    if (tourCitySlug?.toLowerCase() === 'delhi' && DELHI_INFO_SLUGS.includes(tourSlug)) {
+      return (
+        <ErrorBoundary>
+          <CityInfoPage
+            country={slugToTitle(tourCountrySlug || 'India')}
+            city={slugToTitle(tourCitySlug || 'Delhi')}
             slug={tourSlug}
           />
         </ErrorBoundary>
