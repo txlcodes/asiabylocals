@@ -1454,26 +1454,26 @@ const App: React.FC = () => {
                 {
                   name: "Liz B.",
                   text: "If you want to truly understand the history of the Taj Mahal in the context of how India developed, this tour with Shahnawaz will leave you loving Agra even more than you thought possible. We had a meaningful and memorable time. Shahnawaz added some special photo opportunities along the way knowing what our interests were and we couldn't have been happier.",
-                  tour: "Private Taj Mahal Sunrise Tour",
-                  link: "/india/agra/taj-mahal-sunrise-secrets-with-a-professional-historian"
+                  tour: "Taj Mahal Sunrise Tour",
+                  link: "/india/agra/taj-mahal-sunrise-guided-tour"
                 },
                 {
                   name: "Anthony L W.",
                   text: "Best tour that we have EVER had! We covered so many things from city highlights to the cultural beginnings of the Mughal Empire. Talha told story after story of how Agra came to be and tied it all in with what we were experiencing present day. By the end it became more like seeing the city with a great friend than a tour guide.",
-                  tour: "Agra Fort & Old City Heritage Walk",
-                  link: "/india/agra/agra-fort-guided-walk"
+                  tour: "Agra City Highlights Tour",
+                  link: "/india/agra/agra-city-highlights-tour"
                 },
                 {
                   name: "Joe M.",
                   text: "Great tour with fantastic guide... We were able to customize the tour to our interests, got an early start to beat the crowds. Overall a great day, full of unexpected discoveries. Danish is a wonderful guide, interesting and knowledgeable, with a great sense of humor. We will hire him again in a heartbeat next time we are visiting Agra.",
-                  tour: "Baby Taj & Mehtab Bagh Sunset Tour",
-                  link: "/india/agra/baby-taj-mehtab-bagh-sunset"
+                  tour: "Taj Mahal Photography Tour",
+                  link: "/india/agra/taj-mahal-photography-tour"
                 },
                 {
                   name: "Raghu N.",
                   text: "The highlight of our trip to India for sure! Asif was so knowledgeable and personable - it felt like we were walking around with a longtime friend. In addition to his encyclopedic knowledge of Mughal history and mythology, he also had lots of useful tips and recommendations for the rest of our stay in Agra. I can't recommend taking a tour with Asif highly enough!",
-                  tour: "Taj Mahal & Agra Fort Skip-the-Line Tour",
-                  link: "/india/agra/taj-mahal-agra-fort-skip-the-line"
+                  tour: "Taj Mahal & Agra Fort Guided Tour",
+                  link: "/india/agra/taj-mahal-agra-fort-guided-tour"
                 }
               ].map((t, idx) => (
                 <div key={idx} className="bg-white rounded-2xl p-8 shadow-[0_10px_40px_-15px_rgba(0,0,0,0.08)] border border-gray-50 flex flex-col items-center text-center group hover:border-[#67C1B0]/30 transition-all duration-500 hover:-translate-y-1 hover:shadow-xl">
