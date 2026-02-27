@@ -1845,7 +1845,7 @@ const CityPage: React.FC<CityPageProps> = ({ country, city }) => {
   const todayISO = new Date().toISOString().split('T')[0];
 
   // First approved tour image for og:image / twitter:image fallback
-  const cityOgImage = tours.find(t => t.images?.[0])?.images?.[0] || 'https://www.asiabylocals.com/logo.png';
+  const cityOgImage = tours.find(t => t.images?.[0])?.images?.[0] || 'https://www.asiabylocals.com/favicon-96x96-v7.png';
   const cityPageUrl = `https://www.asiabylocals.com/${countrySlug}/${citySlug}`;
 
   // SEO Structured Data (JSON-LD)
@@ -2025,8 +2025,7 @@ const CityPage: React.FC<CityPageProps> = ({ country, city }) => {
               <img
                 src="/logo.png"
                 alt="Asia By Locals"
-                className="h-[110px] sm:h-[100px] md:h-[105px] lg:h-[110px] xl:h-[120px] w-auto object-contain"
-                style={{ transform: 'translateY(3px)' }}
+                className="h-12 sm:h-14 md:h-16 w-auto object-contain"
               />
             </a>
           </div>

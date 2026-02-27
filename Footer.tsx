@@ -8,7 +8,7 @@ const Footer: React.FC = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 mb-12">
                     <div className="col-span-1 lg:col-span-1">
                         <a href="/" className="inline-block mb-4">
-                            <img src="/logo.png" alt="AsiaByLocals Logo" className="h-14 w-auto invert brightness-0" />
+                            <img src="/logo.png" alt="AsiaByLocals Logo" className="h-20 w-auto invert brightness-0" />
                         </a>
                         <p className="text-gray-400 text-[13px] leading-relaxed">
                             Empowering local experts across Asia to share their heritage directly with curious travelers.
@@ -73,10 +73,7 @@ const Footer: React.FC = () => {
                         <div className="bg-white rounded-md px-2.5 py-1.5 flex items-center justify-center shadow-sm hover:shadow-md transition-shadow" title="Razorpay">
                             <span className="font-black text-sm" style={{ color: '#528FF0' }}>Razorpay</span>
                         </div>
-                        {/* UPI */}
-                        <div className="bg-white rounded-md px-2.5 py-1.5 flex items-center justify-center shadow-sm hover:shadow-md transition-shadow" title="UPI">
-                            <img src="/upi-logo.png" alt="UPI" className="h-6 w-auto object-contain" />
-                        </div>
+
                         {/* Apple Pay */}
                         <div className="bg-white rounded-md px-2.5 py-1.5 flex items-center justify-center shadow-sm hover:shadow-md transition-shadow" title="Apple Pay">
                             <span className="font-black text-sm text-black flex items-center gap-1">

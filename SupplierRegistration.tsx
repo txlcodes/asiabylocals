@@ -634,9 +634,9 @@ const SupplierRegistration: React.FC<SupplierRegistrationProps> = ({ language = 
         <div className="max-w-4xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3">
             <img
-              src="/logo.svg?v=6"
+              src="/logo.png"
               alt="AsiaByLocals"
-              className="h-10 w-10 object-contain"
+              className="h-10 w-auto object-contain invert brightness-0"
             />
             <span className="font-black tracking-tight text-lg">{t('createSupplierAccount')}</span>
           </div>

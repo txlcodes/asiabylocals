@@ -8,6 +8,32 @@ const AdminDashboard: React.FC = () => {
   const [pendingTours, setPendingTours] = useState<any[]>([]);
   const [pendingSuppliers, setPendingSuppliers] = useState<any[]>([]);
   const [approvedSuppliers, setApprovedSuppliers] = useState<any[]>([]);
+  const [toursCount, setToursCount] = useState({ pending: 0, approved: 0, all: 0 });
+
+  const fetchToursCounts = async () => {
+    try {
+      const API_URL = import.meta.env.VITE_API_URL || (typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3001');
+      const [pendingRes, allRes] = await Promise.all([
+        fetch(`${API_URL}/api/admin/tours/pending`, { headers: getAuthHeaders() }),
+        fetch(`${API_URL}/api/admin/tours?status=all`, { headers: getAuthHeaders() })
+      ]);
+
+      const pendingData = await pendingRes.json();
+      const allData = await allRes.json();
+
+      if (pendingData.success && allData.success) {
+        const approved = allData.tours.filter((t: any) => t.status === 'approved').length;
+        setToursCount({
+          pending: pendingData.tours.length,
+          approved: approved,
+          all: allData.tours.length
+        });
+      }
+    } catch (error) {
+      console.error('Error fetching tour counts:', error);
+    }
+  };
+
   const [tourFilter, setTourFilter] = useState<'pending' | 'approved' | 'all'>('pending');
   const [supplierFilter, setSupplierFilter] = useState<'pending' | 'approved' | 'all'>('pending');
   const [bookings, setBookings] = useState<any[]>([]);
@@ -312,8 +338,15 @@ const AdminDashboard: React.FC = () => {
       const data = await response.json();
 
       if (data.suppliers && Array.isArray(data.suppliers)) {
-        setPendingSuppliers(data.suppliers.filter((s: any) => s.status === 'pending'));
-        setApprovedSuppliers(data.suppliers.filter((s: any) => s.status === 'approved'));
+        if (data.suppliers) {
+          const pending = data.suppliers.filter((s: any) => s.status === 'pending');
+          const approved = data.suppliers.filter((s: any) => s.status === 'approved');
+          const rejected = data.suppliers.filter((s: any) => s.status === 'rejected');
+
+          setPendingSuppliers(pending);
+          setApprovedSuppliers(approved);
+          // If we had a rejectedSuppliers state, we'd set it here too
+        }
       } else {
         setPendingSuppliers([]);
         setApprovedSuppliers([]);
@@ -396,10 +429,19 @@ const AdminDashboard: React.FC = () => {
   // Fetch data when authenticated and tab changes
   useEffect(() => {
     if (isAuthenticated) {
+      fetchToursCounts();
+      fetchAllSuppliers();
+      fetchBookings();
+    }
+  }, [isAuthenticated]);
+
+  useEffect(() => {
+    if (isAuthenticated) {
       console.log('🔄 Admin Dashboard - useEffect triggered:', { activeTab, tourFilter, supplierFilter, isAuthenticated });
       if (activeTab === 'tours') {
         console.log('📋 Fetching tours with filter:', tourFilter);
         fetchPendingTours();
+        fetchToursCounts();
       } else if (activeTab === 'suppliers') {
         if (supplierFilter === 'pending') {
           fetchPendingSuppliers();
@@ -700,7 +742,12 @@ const AdminDashboard: React.FC = () => {
             </div>
             <div className="flex items-center gap-4">
               <div className="bg-[#10B981] text-white px-4 py-2 rounded-full text-[14px] font-black">
-                {activeTab === 'tours' ? pendingTours.length : pendingSuppliers.length} Pending Review
+                {(() => {
+                  if (activeTab === 'tours') return `${toursCount.pending} Tours Pending`;
+                  if (activeTab === 'suppliers') return `${pendingSuppliers.length} Suppliers Pending`;
+                  if (activeTab === 'bookings') return `${bookings.filter(b => b.paymentStatus === 'pending').length} Bookings Pending`;
+                  return 'Admin Dashboard';
+                })()}
               </div>
               <button
                 onClick={handleLogout}
@@ -744,7 +791,7 @@ const AdminDashboard: React.FC = () => {
                 : 'border-transparent text-gray-500 hover:text-[#001A33]'
                 }`}
             >
-              Tours ({pendingTours.length})
+              Tours ({toursCount.all})
             </button>
             <button
               onClick={() => {
@@ -1155,108 +1202,264 @@ const AdminDashboard: React.FC = () => {
           </div>
         ) : activeTab === 'tours' ? (
           // Tours Tab
-          pendingTours.length === 0 && !loading ? (
-            <div className="bg-white rounded-2xl p-12 text-center border border-gray-200">
-              <CheckCircle2 className="mx-auto text-gray-300 mb-4" size={64} />
-              <h2 className="text-2xl font-black text-[#001A33] mb-2">All caught up!</h2>
-              <p className="text-[14px] text-gray-500 font-semibold">
-                {tourFilter === 'pending'
-                  ? 'No tours pending review at the moment.'
-                  : tourFilter === 'approved'
-                    ? 'No approved tours found.'
-                    : 'No tours found.'}
-              </p>
-              <div className="mt-4 text-[12px] text-gray-400">
-                Filter: {tourFilter} | Check console for API response details
-              </div>
+          <div className="space-y-6">
+            {/* Tour Filter Tabs */}
+            <div className="flex gap-4 bg-white rounded-2xl p-2 border border-gray-200">
+              <button
+                onClick={() => {
+                  setTourFilter('pending');
+                  setSelectedTour(null);
+                }}
+                className={`flex-1 px-4 py-3 font-black text-[14px] rounded-xl transition-colors ${tourFilter === 'pending'
+                  ? 'bg-yellow-500 text-white'
+                  : 'bg-transparent text-gray-500 hover:text-[#001A33]'
+                  }`}
+              >
+                Pending Review ({toursCount.pending})
+              </button>
+              <button
+                onClick={() => {
+                  setTourFilter('approved');
+                  setSelectedTour(null);
+                }}
+                className={`flex-1 px-4 py-3 font-black text-[14px] rounded-xl transition-colors ${tourFilter === 'approved'
+                  ? 'bg-[#10B981] text-white'
+                  : 'bg-transparent text-gray-500 hover:text-[#001A33]'
+                  }`}
+              >
+                Approved ({toursCount.approved})
+              </button>
+              <button
+                onClick={() => {
+                  setTourFilter('all');
+                  setSelectedTour(null);
+                }}
+                className={`flex-1 px-4 py-3 font-black text-[14px] rounded-xl transition-colors ${tourFilter === 'all'
+                  ? 'bg-[#001A33] text-white'
+                  : 'bg-transparent text-gray-500 hover:text-[#001A33]'
+                  }`}
+              >
+                All ({toursCount.all})
+              </button>
             </div>
-          ) : (
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              {/* Tours List */}
-              <div className="lg:col-span-2 space-y-4">
-                <div className="flex items-center justify-between mb-4">
-                  <h2 className="text-xl font-black text-[#001A33]">
-                    Tours ({pendingTours.length})
-                  </h2>
-                  <div className="flex gap-2">
-                    <button
-                      onClick={() => setTourFilter('pending')}
-                      className={`px-4 py-2 rounded-full text-[12px] font-black transition-all ${tourFilter === 'pending'
-                        ? 'bg-yellow-500 text-white'
-                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                        }`}
-                    >
-                      Pending
-                    </button>
-                    <button
-                      onClick={() => setTourFilter('approved')}
-                      className={`px-4 py-2 rounded-full text-[12px] font-black transition-all ${tourFilter === 'approved'
-                        ? 'bg-[#10B981] text-white'
-                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                        }`}
-                    >
-                      Approved
-                    </button>
-                    <button
-                      onClick={() => setTourFilter('all')}
-                      className={`px-4 py-2 rounded-full text-[12px] font-black transition-all ${tourFilter === 'all'
-                        ? 'bg-[#001A33] text-white'
-                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                        }`}
-                    >
-                      All
-                    </button>
-                  </div>
+
+            {pendingTours.length === 0 && !loading ? (
+              <div className="bg-white rounded-2xl p-12 text-center border border-gray-200">
+                <CheckCircle2 className="mx-auto text-gray-300 mb-4" size={64} />
+                <h2 className="text-2xl font-black text-[#001A33] mb-2">
+                  {tourFilter === 'pending' ? 'All caught up!' : tourFilter === 'approved' ? 'No approved tours' : 'No tours found'}
+                </h2>
+                <p className="text-[14px] text-gray-500 font-semibold">
+                  {tourFilter === 'pending'
+                    ? 'No tours pending review at the moment.'
+                    : tourFilter === 'approved'
+                      ? 'No approved tours found.'
+                      : 'No tours found in the system.'}
+                </p>
+                <div className="mt-4 text-[12px] text-gray-400">
+                  Filter: {tourFilter} | Check console for API response details
                 </div>
-                {pendingTours.map((tour) => (
-                  <div
-                    key={tour.id}
-                    className={`bg-white rounded-2xl p-6 border-2 cursor-pointer transition-all ${selectedTour?.id === tour.id
-                      ? 'border-[#10B981] shadow-lg ring-2 ring-[#10B981]/20'
-                      : 'border-gray-200 hover:border-[#10B981]/30'
-                      }`}
-                    onClick={() => setSelectedTour(tour)}
-                  >
-                    <div className="flex items-start gap-4">
-                      {tour.images && tour.images.length > 0 && (
-                        <img
-                          src={tour.images[0]}
-                          alt={tour.title}
-                          className="w-24 h-24 object-cover rounded-xl"
-                        />
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                {/* Tours List */}
+                <div className="lg:col-span-2 space-y-4">
+                  <h2 className="text-xl font-black text-[#001A33] mb-4">
+                    {tourFilter === 'pending'
+                      ? `Pending Review (${pendingTours.length})`
+                      : tourFilter === 'approved'
+                        ? `Approved Tours (${pendingTours.length})`
+                        : `All Tours (${pendingTours.length})`}
+                  </h2>
+
+                  {pendingTours.map((tour) => (
+                    <div
+                      key={tour.id}
+                      className={`bg-white rounded-2xl p-6 border-2 cursor-pointer transition-all ${selectedTour?.id === tour.id
+                        ? 'border-[#10B981] shadow-lg ring-2 ring-[#10B981]/20'
+                        : 'border-gray-200 hover:border-[#10B981]/30'
+                        }`}
+                      onClick={() => setSelectedTour(tour)}
+                    >
+                      <div className="flex items-start gap-4">
+                        {tour.images && tour.images.length > 0 && (
+                          <img
+                            src={tour.images[0]}
+                            alt={tour.title}
+                            className="w-24 h-24 object-cover rounded-xl"
+                          />
+                        )}
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-1">
+                            <h3 className="text-lg font-black text-[#001A33]">{tour.title}</h3>
+                            <span className="text-[10px] font-mono text-gray-400 bg-gray-100 px-2 py-0.5 rounded">
+                              ID: {tour.id}
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-4 text-[12px] text-gray-500 font-semibold mb-2">
+                            <div className="flex items-center gap-1">
+                              <MapPin size={14} />
+                              <span>{tour.city}, {tour.country}</span>
+                            </div>
+                            <div className="flex items-center gap-1">
+                              <Calendar size={14} />
+                              <span>{new Date(tour.createdAt).toLocaleDateString()}</span>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-2 mb-2">
+                            <span className="px-3 py-1 bg-[#10B981]/10 text-[#10B981] text-[11px] font-black rounded-full border border-[#10B981]/20">
+                              {tour.category}
+                            </span>
+                            <span className="px-3 py-1 bg-[#001A33] text-white text-[11px] font-black rounded-full">
+                              {(() => {
+                                // Get price from first tier of groupPricingTiers (price for 1 person)
+                                let displayPrice = tour.pricePerPerson || 0;
+
+                                // PRIORITY 1: Check tour.groupPricingTiers directly
+                                if (tour.groupPricingTiers) {
+                                  try {
+                                    const tiers = typeof tour.groupPricingTiers === 'string'
+                                      ? JSON.parse(tour.groupPricingTiers)
+                                      : tour.groupPricingTiers;
+                                    if (Array.isArray(tiers) && tiers.length > 0 && tiers[0]?.price) {
+                                      displayPrice = parseFloat(tiers[0].price) || 0;
+                                    }
+                                  } catch (e) {
+                                    console.error('Error parsing tour groupPricingTiers:', e);
+                                  }
+                                }
+
+                                // PRIORITY 2: Check tour options for groupPricingTiers
+                                if (displayPrice === 0 && tour.options && Array.isArray(tour.options) && tour.options.length > 0) {
+                                  for (const opt of tour.options) {
+                                    if (opt.groupPricingTiers) {
+                                      try {
+                                        const tiers = typeof opt.groupPricingTiers === 'string'
+                                          ? JSON.parse(opt.groupPricingTiers)
+                                          : opt.groupPricingTiers;
+                                        if (Array.isArray(tiers) && tiers.length > 0 && tiers[0]?.price) {
+                                          const firstTierPrice = parseFloat(tiers[0].price) || 0;
+                                          if (firstTierPrice > 0) {
+                                            displayPrice = displayPrice === 0 ? firstTierPrice : Math.min(displayPrice, firstTierPrice);
+                                          }
+                                        }
+                                      } catch (e) {
+                                        console.error('Error parsing option groupPricingTiers:', e);
+                                      }
+                                    }
+                                  }
+                                }
+
+                                return `${tour.currency} ${displayPrice.toLocaleString()}`;
+                              })()}
+                            </span>
+                          </div>
+                          <div className="text-[12px] text-gray-500 font-semibold">
+                            By: {tour.supplier?.fullName || tour.supplier?.companyName || 'Unknown'}
+                          </div>
+                        </div>
+                        {tour.status === 'pending' ? (
+                          <div className="flex items-center gap-2 bg-yellow-50 px-3 py-2 rounded-full">
+                            <Clock className="text-yellow-600" size={18} />
+                            <span className="text-[12px] font-black text-yellow-700">Pending</span>
+                          </div>
+                        ) : tour.status === 'draft' ? (
+                          <div className="flex items-center gap-2 bg-blue-50 px-3 py-2 rounded-full">
+                            <Info className="text-blue-600" size={18} />
+                            <span className="text-[12px] font-black text-blue-700">Draft</span>
+                          </div>
+                        ) : tour.status === 'approved' ? (
+                          <div className="flex items-center gap-2 bg-[#10B981]/10 px-3 py-2 rounded-full border border-[#10B981]/20">
+                            <CheckCircle2 className="text-[#10B981]" size={18} />
+                            <span className="text-[12px] font-black text-[#10B981]">Approved</span>
+                          </div>
+                        ) : tour.status === 'rejected' ? (
+                          <div className="flex items-center gap-2 bg-red-50 px-3 py-2 rounded-full">
+                            <XCircle className="text-red-600" size={18} />
+                            <span className="text-[12px] font-black text-red-700">Rejected</span>
+                          </div>
+                        ) : (
+                          <div className="flex items-center gap-2 bg-gray-50 px-3 py-2 rounded-full">
+                            <Info className="text-gray-600" size={18} />
+                            <span className="text-[12px] font-black text-gray-700 capitalize">{tour.status || 'Draft'}</span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Tour Details & Actions */}
+                <div className="lg:col-span-1">
+                  {selectedTour ? (
+                    <div className="bg-white rounded-2xl p-6 border border-gray-200 sticky top-24">
+                      <h3 className="text-xl font-black text-[#001A33] mb-4">Tour Details</h3>
+
+                      {/* Images Gallery */}
+                      {selectedTour.images && selectedTour.images.length > 0 && (
+                        <div className="mb-6">
+                          <div className="text-[11px] font-bold text-gray-500 uppercase mb-3">
+                            Images ({selectedTour.images.length})
+                          </div>
+                          <div className="grid grid-cols-2 gap-3">
+                            {selectedTour.images.map((image: string, index: number) => (
+                              <div key={index} className="relative group">
+                                <img
+                                  src={image}
+                                  alt={`${selectedTour.title} ${index + 1}`}
+                                  className="w-full h-32 object-cover rounded-xl border-2 border-gray-200 hover:border-[#10B981] transition-colors cursor-pointer"
+                                  onClick={() => window.open(image, '_blank')}
+                                />
+                                {index === 0 && (
+                                  <span className="absolute top-2 left-2 bg-[#10B981] text-white text-[10px] font-black px-2 py-1 rounded">
+                                    COVER
+                                  </span>
+                                )}
+                              </div>
+                            ))}
+                          </div>
+                        </div>
                       )}
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-1">
-                          <h3 className="text-lg font-black text-[#001A33]">{tour.title}</h3>
-                          <span className="text-[10px] font-mono text-gray-400 bg-gray-100 px-2 py-0.5 rounded">
-                            ID: {tour.id}
-                          </span>
-                        </div>
-                        <div className="flex items-center gap-4 text-[12px] text-gray-500 font-semibold mb-2">
-                          <div className="flex items-center gap-1">
-                            <MapPin size={14} />
-                            <span>{tour.city}, {tour.country}</span>
-                          </div>
-                          <div className="flex items-center gap-1">
-                            <Calendar size={14} />
-                            <span>{new Date(tour.createdAt).toLocaleDateString()}</span>
+
+                      {/* Details */}
+                      <div className="space-y-3 mb-6">
+                        <div>
+                          <div className="text-[11px] font-bold text-gray-500 uppercase mb-1">Tour ID</div>
+                          <div className="text-[14px] font-mono font-bold text-[#001A33] bg-gray-100 px-3 py-1.5 rounded-lg inline-block">
+                            {selectedTour.id}
                           </div>
                         </div>
-                        <div className="flex items-center gap-2 mb-2">
-                          <span className="px-3 py-1 bg-[#10B981]/10 text-[#10B981] text-[11px] font-black rounded-full border border-[#10B981]/20">
-                            {tour.category}
-                          </span>
-                          <span className="px-3 py-1 bg-[#001A33] text-white text-[11px] font-black rounded-full">
+                        <div>
+                          <div className="text-[11px] font-bold text-gray-500 uppercase mb-1">Title</div>
+                          <div className="text-[16px] font-black text-[#001A33]">{selectedTour.title}</div>
+                        </div>
+                        <div className="grid grid-cols-2 gap-3">
+                          <div>
+                            <div className="text-[11px] font-bold text-gray-500 uppercase mb-1">City</div>
+                            <div className="text-[14px] font-bold text-[#001A33]">{selectedTour.city}</div>
+                          </div>
+                          <div>
+                            <div className="text-[11px] font-bold text-gray-500 uppercase mb-1">Country</div>
+                            <div className="text-[14px] font-bold text-[#001A33]">{selectedTour.country}</div>
+                          </div>
+                        </div>
+                        <div>
+                          <div className="text-[11px] font-bold text-gray-500 uppercase mb-1">Category</div>
+                          <div className="text-[14px] font-bold text-[#001A33]">{selectedTour.category}</div>
+                        </div>
+                        <div>
+                          <div className="text-[11px] font-bold text-gray-500 uppercase mb-1">Price</div>
+                          <div className="text-[14px] font-bold text-[#001A33]">
                             {(() => {
                               // Get price from first tier of groupPricingTiers (price for 1 person)
-                              let displayPrice = tour.pricePerPerson || 0;
+                              let displayPrice = selectedTour.pricePerPerson || 0;
 
                               // PRIORITY 1: Check tour.groupPricingTiers directly
-                              if (tour.groupPricingTiers) {
+                              if (selectedTour.groupPricingTiers) {
                                 try {
-                                  const tiers = typeof tour.groupPricingTiers === 'string'
-                                    ? JSON.parse(tour.groupPricingTiers)
-                                    : tour.groupPricingTiers;
+                                  const tiers = typeof selectedTour.groupPricingTiers === 'string'
+                                    ? JSON.parse(selectedTour.groupPricingTiers)
+                                    : selectedTour.groupPricingTiers;
                                   if (Array.isArray(tiers) && tiers.length > 0 && tiers[0]?.price) {
                                     displayPrice = parseFloat(tiers[0].price) || 0;
                                   }
@@ -1266,8 +1469,8 @@ const AdminDashboard: React.FC = () => {
                               }
 
                               // PRIORITY 2: Check tour options for groupPricingTiers
-                              if (displayPrice === 0 && tour.options && Array.isArray(tour.options) && tour.options.length > 0) {
-                                for (const opt of tour.options) {
+                              if (displayPrice === 0 && selectedTour.options && Array.isArray(selectedTour.options) && selectedTour.options.length > 0) {
+                                for (const opt of selectedTour.options) {
                                   if (opt.groupPricingTiers) {
                                     try {
                                       const tiers = typeof opt.groupPricingTiers === 'string'
@@ -1286,312 +1489,174 @@ const AdminDashboard: React.FC = () => {
                                 }
                               }
 
-                              return `${tour.currency} ${displayPrice.toLocaleString()}`;
+                              return `Starting from ${selectedTour.currency} ${displayPrice.toLocaleString()}`;
                             })()}
-                          </span>
+                          </div>
                         </div>
-                        <div className="text-[12px] text-gray-500 font-semibold">
-                          By: {tour.supplier?.fullName || tour.supplier?.companyName || 'Unknown'}
+                        <div>
+                          <div className="text-[11px] font-bold text-gray-500 uppercase mb-1">Duration</div>
+                          <div className="text-[14px] font-bold text-[#001A33]">{selectedTour.duration}</div>
                         </div>
-                      </div>
-                      {tour.status === 'pending' ? (
-                        <div className="flex items-center gap-2 bg-yellow-50 px-3 py-2 rounded-full">
-                          <Clock className="text-yellow-600" size={18} />
-                          <span className="text-[12px] font-black text-yellow-700">Pending</span>
-                        </div>
-                      ) : tour.status === 'draft' ? (
-                        <div className="flex items-center gap-2 bg-blue-50 px-3 py-2 rounded-full">
-                          <Info className="text-blue-600" size={18} />
-                          <span className="text-[12px] font-black text-blue-700">Draft</span>
-                        </div>
-                      ) : tour.status === 'approved' ? (
-                        <div className="flex items-center gap-2 bg-[#10B981]/10 px-3 py-2 rounded-full border border-[#10B981]/20">
-                          <CheckCircle2 className="text-[#10B981]" size={18} />
-                          <span className="text-[12px] font-black text-[#10B981]">Approved</span>
-                        </div>
-                      ) : tour.status === 'rejected' ? (
-                        <div className="flex items-center gap-2 bg-red-50 px-3 py-2 rounded-full">
-                          <XCircle className="text-red-600" size={18} />
-                          <span className="text-[12px] font-black text-red-700">Rejected</span>
-                        </div>
-                      ) : (
-                        <div className="flex items-center gap-2 bg-gray-50 px-3 py-2 rounded-full">
-                          <Info className="text-gray-600" size={18} />
-                          <span className="text-[12px] font-black text-gray-700 capitalize">{tour.status || 'Draft'}</span>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              {/* Tour Details & Actions */}
-              <div className="lg:col-span-1">
-                {selectedTour ? (
-                  <div className="bg-white rounded-2xl p-6 border border-gray-200 sticky top-24">
-                    <h3 className="text-xl font-black text-[#001A33] mb-4">Tour Details</h3>
-
-                    {/* Images Gallery */}
-                    {selectedTour.images && selectedTour.images.length > 0 && (
-                      <div className="mb-6">
-                        <div className="text-[11px] font-bold text-gray-500 uppercase mb-3">
-                          Images ({selectedTour.images.length})
-                        </div>
-                        <div className="grid grid-cols-2 gap-3">
-                          {selectedTour.images.map((image: string, index: number) => (
-                            <div key={index} className="relative group">
-                              <img
-                                src={image}
-                                alt={`${selectedTour.title} ${index + 1}`}
-                                className="w-full h-32 object-cover rounded-xl border-2 border-gray-200 hover:border-[#10B981] transition-colors cursor-pointer"
-                                onClick={() => window.open(image, '_blank')}
-                              />
-                              {index === 0 && (
-                                <span className="absolute top-2 left-2 bg-[#10B981] text-white text-[10px] font-black px-2 py-1 rounded">
-                                  COVER
-                                </span>
-                              )}
+                        {selectedTour.locations && selectedTour.locations.length > 0 && (
+                          <div>
+                            <div className="text-[11px] font-bold text-gray-500 uppercase mb-1">Locations</div>
+                            <div className="text-[14px] font-semibold text-[#001A33]">
+                              {selectedTour.locations.join(', ')}
                             </div>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Details */}
-                    <div className="space-y-3 mb-6">
-                      <div>
-                        <div className="text-[11px] font-bold text-gray-500 uppercase mb-1">Tour ID</div>
-                        <div className="text-[14px] font-mono font-bold text-[#001A33] bg-gray-100 px-3 py-1.5 rounded-lg inline-block">
-                          {selectedTour.id}
-                        </div>
-                      </div>
-                      <div>
-                        <div className="text-[11px] font-bold text-gray-500 uppercase mb-1">Title</div>
-                        <div className="text-[16px] font-black text-[#001A33]">{selectedTour.title}</div>
-                      </div>
-                      <div className="grid grid-cols-2 gap-3">
-                        <div>
-                          <div className="text-[11px] font-bold text-gray-500 uppercase mb-1">City</div>
-                          <div className="text-[14px] font-bold text-[#001A33]">{selectedTour.city}</div>
-                        </div>
-                        <div>
-                          <div className="text-[11px] font-bold text-gray-500 uppercase mb-1">Country</div>
-                          <div className="text-[14px] font-bold text-[#001A33]">{selectedTour.country}</div>
-                        </div>
-                      </div>
-                      <div>
-                        <div className="text-[11px] font-bold text-gray-500 uppercase mb-1">Category</div>
-                        <div className="text-[14px] font-bold text-[#001A33]">{selectedTour.category}</div>
-                      </div>
-                      <div>
-                        <div className="text-[11px] font-bold text-gray-500 uppercase mb-1">Price</div>
-                        <div className="text-[14px] font-bold text-[#001A33]">
-                          {(() => {
-                            // Get price from first tier of groupPricingTiers (price for 1 person)
-                            let displayPrice = selectedTour.pricePerPerson || 0;
-
-                            // PRIORITY 1: Check tour.groupPricingTiers directly
-                            if (selectedTour.groupPricingTiers) {
-                              try {
-                                const tiers = typeof selectedTour.groupPricingTiers === 'string'
-                                  ? JSON.parse(selectedTour.groupPricingTiers)
-                                  : selectedTour.groupPricingTiers;
-                                if (Array.isArray(tiers) && tiers.length > 0 && tiers[0]?.price) {
-                                  displayPrice = parseFloat(tiers[0].price) || 0;
-                                }
-                              } catch (e) {
-                                console.error('Error parsing tour groupPricingTiers:', e);
-                              }
-                            }
-
-                            // PRIORITY 2: Check tour options for groupPricingTiers
-                            if (displayPrice === 0 && selectedTour.options && Array.isArray(selectedTour.options) && selectedTour.options.length > 0) {
-                              for (const opt of selectedTour.options) {
-                                if (opt.groupPricingTiers) {
-                                  try {
-                                    const tiers = typeof opt.groupPricingTiers === 'string'
-                                      ? JSON.parse(opt.groupPricingTiers)
-                                      : opt.groupPricingTiers;
-                                    if (Array.isArray(tiers) && tiers.length > 0 && tiers[0]?.price) {
-                                      const firstTierPrice = parseFloat(tiers[0].price) || 0;
-                                      if (firstTierPrice > 0) {
-                                        displayPrice = displayPrice === 0 ? firstTierPrice : Math.min(displayPrice, firstTierPrice);
-                                      }
-                                    }
-                                  } catch (e) {
-                                    console.error('Error parsing option groupPricingTiers:', e);
-                                  }
-                                }
-                              }
-                            }
-
-                            return `Starting from ${selectedTour.currency} ${displayPrice.toLocaleString()}`;
-                          })()}
-                        </div>
-                      </div>
-                      <div>
-                        <div className="text-[11px] font-bold text-gray-500 uppercase mb-1">Duration</div>
-                        <div className="text-[14px] font-bold text-[#001A33]">{selectedTour.duration}</div>
-                      </div>
-                      {selectedTour.locations && selectedTour.locations.length > 0 && (
-                        <div>
-                          <div className="text-[11px] font-bold text-gray-500 uppercase mb-1">Locations</div>
-                          <div className="text-[14px] font-semibold text-[#001A33]">
-                            {selectedTour.locations.join(', ')}
                           </div>
-                        </div>
-                      )}
-                      {selectedTour.languages && selectedTour.languages.length > 0 && (
-                        <div>
-                          <div className="text-[11px] font-bold text-gray-500 uppercase mb-1">Languages</div>
-                          <div className="text-[14px] font-semibold text-[#001A33]">
-                            {selectedTour.languages.join(', ')}
+                        )}
+                        {selectedTour.languages && selectedTour.languages.length > 0 && (
+                          <div>
+                            <div className="text-[11px] font-bold text-gray-500 uppercase mb-1">Languages</div>
+                            <div className="text-[14px] font-semibold text-[#001A33]">
+                              {selectedTour.languages.join(', ')}
+                            </div>
                           </div>
-                        </div>
-                      )}
-                      {selectedTour.highlights && (
-                        <div>
-                          <div className="text-[11px] font-bold text-gray-500 uppercase mb-2">Highlights</div>
-                          <ul className="space-y-2">
-                            {(typeof selectedTour.highlights === 'string'
-                              ? JSON.parse(selectedTour.highlights)
-                              : selectedTour.highlights
-                            ).map((highlight: string, index: number) => (
-                              <li key={index} className="flex items-start gap-2">
-                                <span className="text-[#10B981] font-black mt-1">•</span>
-                                <span className="text-[14px] font-semibold text-[#001A33]">{highlight}</span>
-                              </li>
-                            ))}
-                          </ul>
-                        </div>
-                      )}
-                      {selectedTour.shortDescription && (
-                        <div>
-                          <div className="text-[11px] font-bold text-gray-500 uppercase mb-1">Description</div>
-                          <div className="text-[14px] text-gray-700 font-semibold">
-                            {selectedTour.shortDescription}
+                        )}
+                        {selectedTour.highlights && (
+                          <div>
+                            <div className="text-[11px] font-bold text-gray-500 uppercase mb-2">Highlights</div>
+                            <ul className="space-y-2">
+                              {(typeof selectedTour.highlights === 'string'
+                                ? JSON.parse(selectedTour.highlights)
+                                : selectedTour.highlights
+                              ).map((highlight: string, index: number) => (
+                                <li key={index} className="flex items-start gap-2">
+                                  <span className="text-[#10B981] font-black mt-1">•</span>
+                                  <span className="text-[14px] font-semibold text-[#001A33]">{highlight}</span>
+                                </li>
+                              ))}
+                            </ul>
                           </div>
-                        </div>
-                      )}
-                      {selectedTour.fullDescription && (
+                        )}
+                        {selectedTour.shortDescription && (
+                          <div>
+                            <div className="text-[11px] font-bold text-gray-500 uppercase mb-1">Description</div>
+                            <div className="text-[14px] text-gray-700 font-semibold">
+                              {selectedTour.shortDescription}
+                            </div>
+                          </div>
+                        )}
+                        {selectedTour.fullDescription && (
+                          <div>
+                            <div className="text-[11px] font-bold text-gray-500 uppercase mb-1">Full Description</div>
+                            <div className="text-[14px] text-gray-700 font-semibold leading-relaxed">
+                              {selectedTour.fullDescription}
+                            </div>
+                          </div>
+                        )}
                         <div>
-                          <div className="text-[11px] font-bold text-gray-500 uppercase mb-1">Full Description</div>
-                          <div className="text-[14px] text-gray-700 font-semibold leading-relaxed">
-                            {selectedTour.fullDescription}
-                          </div>
-                        </div>
-                      )}
-                      <div>
-                        <div className="text-[11px] font-bold text-gray-500 uppercase mb-1">Supplier Information</div>
-                        <div className="space-y-2">
-                          <div className="text-[14px] font-semibold text-[#001A33]">
-                            {selectedTour.supplier?.fullName || selectedTour.supplier?.companyName || 'Unknown'}
-                          </div>
-                          {selectedTour.supplier?.id && (
+                          <div className="text-[11px] font-bold text-gray-500 uppercase mb-1">Supplier Information</div>
+                          <div className="space-y-2">
+                            <div className="text-[14px] font-semibold text-[#001A33]">
+                              {selectedTour.supplier?.fullName || selectedTour.supplier?.companyName || 'Unknown'}
+                            </div>
+                            {selectedTour.supplier?.id && (
+                              <div className="text-[12px] text-gray-600 font-semibold">
+                                <span className="font-bold">Supplier ID:</span>
+                                <span className="font-mono ml-2 bg-gray-100 px-2 py-0.5 rounded">{selectedTour.supplier.id}</span>
+                              </div>
+                            )}
                             <div className="text-[12px] text-gray-600 font-semibold">
-                              <span className="font-bold">Supplier ID:</span>
-                              <span className="font-mono ml-2 bg-gray-100 px-2 py-0.5 rounded">{selectedTour.supplier.id}</span>
+                              <span className="font-bold">Email:</span> {selectedTour.supplier?.email || 'Not provided'}
                             </div>
-                          )}
-                          <div className="text-[12px] text-gray-600 font-semibold">
-                            <span className="font-bold">Email:</span> {selectedTour.supplier?.email || 'Not provided'}
+                            {selectedTour.supplier?.phone && (
+                              <div className="text-[12px] text-gray-600 font-semibold">
+                                <span className="font-bold">Phone:</span> {selectedTour.supplier.phone}
+                              </div>
+                            )}
+                            {selectedTour.supplier?.whatsapp && (
+                              <div className="text-[12px] text-gray-600 font-semibold">
+                                <span className="font-bold">WhatsApp:</span> {selectedTour.supplier.whatsapp}
+                              </div>
+                            )}
+                            {!selectedTour.supplier?.phone && !selectedTour.supplier?.whatsapp && (
+                              <div className="text-[12px] text-yellow-600 font-semibold">
+                                ⚠️ No phone/WhatsApp provided
+                              </div>
+                            )}
+                            <div className="text-[12px] text-gray-600 font-semibold">
+                              <span className="font-bold">Email Verified:</span> {selectedTour.supplier?.emailVerified ? '✅ Yes' : '❌ No'}
+                            </div>
+                            {selectedTour.supplier?.verificationDocumentUrl && (
+                              <div className="text-[12px] text-gray-600 font-semibold">
+                                <span className="font-bold">License:</span>
+                                <button
+                                  onClick={() => {
+                                    setLicenseUrl(selectedTour.supplier.verificationDocumentUrl);
+                                    setShowLicenseModal(true);
+                                  }}
+                                  className="text-[#0071EB] ml-2 hover:underline cursor-pointer"
+                                >
+                                  View Document
+                                </button>
+                              </div>
+                            )}
+                            {!selectedTour.supplier?.verificationDocumentUrl && (
+                              <div className="text-[12px] text-yellow-600 font-semibold">
+                                ⚠️ No license/document uploaded
+                              </div>
+                            )}
                           </div>
-                          {selectedTour.supplier?.phone && (
-                            <div className="text-[12px] text-gray-600 font-semibold">
-                              <span className="font-bold">Phone:</span> {selectedTour.supplier.phone}
-                            </div>
-                          )}
-                          {selectedTour.supplier?.whatsapp && (
-                            <div className="text-[12px] text-gray-600 font-semibold">
-                              <span className="font-bold">WhatsApp:</span> {selectedTour.supplier.whatsapp}
-                            </div>
-                          )}
-                          {!selectedTour.supplier?.phone && !selectedTour.supplier?.whatsapp && (
-                            <div className="text-[12px] text-yellow-600 font-semibold">
-                              ⚠️ No phone/WhatsApp provided
-                            </div>
-                          )}
-                          <div className="text-[12px] text-gray-600 font-semibold">
-                            <span className="font-bold">Email Verified:</span> {selectedTour.supplier?.emailVerified ? '✅ Yes' : '❌ No'}
-                          </div>
-                          {selectedTour.supplier?.verificationDocumentUrl && (
-                            <div className="text-[12px] text-gray-600 font-semibold">
-                              <span className="font-bold">License:</span>
-                              <button
-                                onClick={() => {
-                                  setLicenseUrl(selectedTour.supplier.verificationDocumentUrl);
-                                  setShowLicenseModal(true);
-                                }}
-                                className="text-[#0071EB] ml-2 hover:underline cursor-pointer"
-                              >
-                                View Document
-                              </button>
-                            </div>
-                          )}
-                          {!selectedTour.supplier?.verificationDocumentUrl && (
-                            <div className="text-[12px] text-yellow-600 font-semibold">
-                              ⚠️ No license/document uploaded
-                            </div>
-                          )}
                         </div>
                       </div>
-                    </div>
 
-                    {/* Actions */}
-                    <div className="space-y-4">
-                      <button
-                        onClick={() => handleApprove(selectedTour.id)}
-                        disabled={isProcessing}
-                        className="w-full bg-[#10B981] hover:bg-[#059669] text-white font-black py-5 rounded-full text-[16px] disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2 shadow-lg"
-                      >
-                        <CheckCircle2 size={20} />
-                        Approve Tour
-                      </button>
-
-                      <div className="border-t border-gray-200 pt-4">
-                        <label className="block text-[14px] font-bold text-[#001A33] mb-2">
-                          Rejection Reason (if rejecting)
-                        </label>
-                        <textarea
-                          value={rejectionReason}
-                          onChange={(e) => setRejectionReason(e.target.value)}
-                          placeholder="Enter reason for rejection..."
-                          className="w-full bg-gray-50 border-2 border-gray-200 rounded-xl p-3 text-[14px] font-semibold text-[#001A33] focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none resize-none mb-3"
-                          rows={3}
-                        />
+                      {/* Actions */}
+                      <div className="space-y-4">
                         <button
-                          onClick={() => handleReject(selectedTour.id)}
-                          disabled={isProcessing || !rejectionReason.trim()}
-                          className="w-full bg-red-500 hover:bg-red-600 text-white font-black py-5 rounded-full text-[16px] disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2 shadow-lg"
-                        >
-                          <XCircle size={20} />
-                          Reject Tour
-                        </button>
-                      </div>
-
-                      <div className="border-t border-gray-200 pt-4">
-                        <button
-                          onClick={() => handleDeleteTour(selectedTour.id)}
+                          onClick={() => handleApprove(selectedTour.id)}
                           disabled={isProcessing}
-                          className="w-full bg-gray-800 hover:bg-gray-900 text-white font-black py-5 rounded-full text-[16px] disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2 shadow-lg"
+                          className="w-full bg-[#10B981] hover:bg-[#059669] text-white font-black py-5 rounded-full text-[16px] disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2 shadow-lg"
                         >
-                          <Trash2 size={20} />
-                          Delete Tour Permanently
+                          <CheckCircle2 size={20} />
+                          Approve Tour
                         </button>
+
+                        <div className="border-t border-gray-200 pt-4">
+                          <label className="block text-[14px] font-bold text-[#001A33] mb-2">
+                            Rejection Reason (if rejecting)
+                          </label>
+                          <textarea
+                            value={rejectionReason}
+                            onChange={(e) => setRejectionReason(e.target.value)}
+                            placeholder="Enter reason for rejection..."
+                            className="w-full bg-gray-50 border-2 border-gray-200 rounded-xl p-3 text-[14px] font-semibold text-[#001A33] focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none resize-none mb-3"
+                            rows={3}
+                          />
+                          <button
+                            onClick={() => handleReject(selectedTour.id)}
+                            disabled={isProcessing || !rejectionReason.trim()}
+                            className="w-full bg-red-500 hover:bg-red-600 text-white font-black py-5 rounded-full text-[16px] disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2 shadow-lg"
+                          >
+                            <XCircle size={20} />
+                            Reject Tour
+                          </button>
+                        </div>
+
+                        <div className="border-t border-gray-200 pt-4">
+                          <button
+                            onClick={() => handleDeleteTour(selectedTour.id)}
+                            disabled={isProcessing}
+                            className="w-full bg-gray-800 hover:bg-gray-900 text-white font-black py-5 rounded-full text-[16px] disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2 shadow-lg"
+                          >
+                            <Trash2 size={20} />
+                            Delete Tour Permanently
+                          </button>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ) : (
-                  <div className="bg-white rounded-2xl p-6 border border-gray-200 text-center">
-                    <Eye className="mx-auto text-gray-300 mb-4" size={48} />
-                    <p className="text-[14px] text-gray-500 font-semibold">
-                      Select a tour to review
-                    </p>
-                  </div>
-                )}
+                  ) : (
+                    <div className="bg-white rounded-2xl p-6 border border-gray-200 text-center">
+                      <Eye className="mx-auto text-gray-300 mb-4" size={48} />
+                      <p className="text-[14px] text-gray-500 font-semibold">
+                        Select a tour to review
+                      </p>
+                    </div>
+                  )}
+                </div>
               </div>
-            </div>
-          )
+            )}
+          </div>
         ) : activeTab === 'payments' ? (
           // Payment Details Tab
           <div className="space-y-6">

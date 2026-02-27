@@ -24,8 +24,7 @@ const AboutUs: React.FC = () => {
             <img
               src="/logo.png"
               alt="Asia By Locals"
-              className="h-[110px] sm:h-[100px] md:h-[105px] lg:h-[110px] xl:h-[120px] w-auto object-contain"
-              style={{ transform: 'translateY(3px)' }}
+              className="h-12 sm:h-14 md:h-16 w-auto object-contain"
             />
           </a>
         </div>
