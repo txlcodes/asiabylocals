@@ -8,7 +8,7 @@ const Footer: React.FC = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 mb-12">
                     <div className="col-span-1 lg:col-span-1">
                         <a href="/" className="inline-block mb-4">
-                            <img src="/logo.png" alt="AsiaByLocals Logo" className="h-20 w-auto invert brightness-0" />
+                            <img src="/logo.png" alt="AsiaByLocals Logo" className="h-32 w-auto invert brightness-0" />
                         </a>
                         <p className="text-gray-400 text-[13px] leading-relaxed">
                             Empowering local experts across Asia to share their heritage directly with curious travelers.

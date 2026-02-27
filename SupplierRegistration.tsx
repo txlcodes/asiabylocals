@@ -630,13 +630,13 @@ const SupplierRegistration: React.FC<SupplierRegistrationProps> = ({ language = 
   return (
     <div className="min-h-screen bg-white flex flex-col">
       {/* Registration Header */}
-      <header className="bg-[#001A33] text-white py-6 px-8 sticky top-0 z-50">
+      <header className="bg-[#001A33] text-white py-8 sm:py-10 px-8 sticky top-0 z-50">
         <div className="max-w-4xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3">
             <img
               src="/logo.png"
               alt="AsiaByLocals"
-              className="h-10 w-auto object-contain invert brightness-0"
+              className="h-16 sm:h-20 md:h-24 w-auto object-contain invert brightness-0"
             />
             <span className="font-black tracking-tight text-lg">{t('createSupplierAccount')}</span>
           </div>

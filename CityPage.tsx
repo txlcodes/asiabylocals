@@ -2017,15 +2017,16 @@ const CityPage: React.FC<CityPageProps> = ({ country, city }) => {
       </Helmet>
 
       {/* Header Navigation */}
-      <header className="sticky top-0 z-50 bg-white border-b border-gray-100 shadow-sm">
-        <div className="w-full h-16 sm:h-20 md:h-24 flex items-center justify-between px-3 sm:px-4 md:px-6">
+      <header className="sticky top-0 z-50 bg-white border-b border-gray-200 shadow-sm">
+        <div className="w-full h-24 sm:h-28 md:h-32 flex items-center justify-between px-3 sm:px-4 md:px-6">
           <div className="flex items-center gap-3 h-full">
             {/* Logo - Clickable to Homepage */}
             <a href="/" className="flex items-center h-full cursor-pointer">
               <img
                 src="/logo.png"
                 alt="Asia By Locals"
-                className="h-12 sm:h-14 md:h-16 w-auto object-contain"
+                className="h-[120px] sm:h-[130px] md:h-[140px] lg:h-[150px] xl:h-[160px] w-auto object-contain"
+                style={{ transform: 'translateY(3px)' }}
               />
             </a>
           </div>

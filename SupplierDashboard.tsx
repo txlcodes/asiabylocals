@@ -1730,13 +1730,13 @@ const SupplierDashboard: React.FC<SupplierDashboardProps> = ({ supplier, onLogou
       {/* Header */}
       <header className="bg-white border-b border-gray-200 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 md:px-6 pt-4 md:pt-6 pb-2 md:pb-0">
-          <div className="flex items-center justify-between relative h-16 md:h-20">
+          <div className="flex items-center justify-between relative h-20 md:h-24">
             {/* Left side - Logo */}
             <div className="flex items-center cursor-pointer z-10">
               <img
                 src="/logo.png"
                 alt="Asia By Locals"
-                className="h-[60px] sm:h-[100px] md:h-[105px] lg:h-[110px] xl:h-[120px] w-auto object-contain"
+                className="h-[80px] sm:h-[130px] md:h-[140px] lg:h-[150px] xl:h-[160px] w-auto object-contain"
                 style={{ transform: 'translateY(3px)' }}
               />
             </div>

@@ -171,7 +171,7 @@ const BookingPage: React.FC = () => {
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="mb-6">
-          <div className="flex items-center justify-between h-16 sm:h-20 md:h-24 bg-white px-6 rounded-2xl shadow-sm mb-4">
+          <div className="flex items-center justify-between h-24 sm:h-28 md:h-32 bg-white px-6 rounded-2xl shadow-sm mb-4">
             <button
               onClick={() => window.location.href = '/'}
               className="flex items-center gap-2 text-[#001A33] font-semibold hover:text-[#10B981] transition-colors"
@@ -183,7 +183,8 @@ const BookingPage: React.FC = () => {
               <img
                 src="/logo.png"
                 alt="Asia By Locals"
-                className="h-12 sm:h-14 md:h-16 w-auto object-contain"
+                className="h-[120px] sm:h-[130px] md:h-[140px] lg:h-[150px] xl:h-[160px] w-auto object-contain"
+                style={{ transform: 'translateY(3px)' }}
               />
             </a>
           </div>

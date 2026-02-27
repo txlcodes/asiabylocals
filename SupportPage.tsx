@@ -6,7 +6,7 @@ const SupportPage: React.FC = () => {
     <div className="min-h-screen bg-white">
       {/* Header */}
       <header className="sticky top-0 z-50 bg-white border-b border-gray-200 shadow-sm">
-        <div className="max-w-4xl mx-auto h-16 sm:h-20 md:h-24 flex items-center justify-between px-6">
+        <div className="max-w-4xl mx-auto h-24 sm:h-28 md:h-32 flex items-center justify-between px-6">
           <button
             onClick={() => {
               if (window.history.length > 1) {
@@ -24,7 +24,7 @@ const SupportPage: React.FC = () => {
             <img
               src="/logo.png"
               alt="Asia By Locals"
-              className="h-[110px] sm:h-[100px] md:h-[105px] lg:h-[110px] xl:h-[120px] w-auto object-contain"
+              className="h-[120px] sm:h-[130px] md:h-[140px] lg:h-[150px] xl:h-[160px] w-auto object-contain"
               style={{ transform: 'translateY(3px)' }}
             />
           </a>

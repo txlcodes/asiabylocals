@@ -217,7 +217,7 @@ const SupplierPage: React.FC<SupplierPageProps> = ({ onClose }) => {
     <div className="bg-white min-h-screen relative font-['Plus_Jakarta_Sans']">
       {/* Header with Back Button */}
       <header className="sticky top-0 z-50 bg-white border-b border-gray-100 shadow-sm">
-        <div className="max-w-[1280px] mx-auto px-8 h-20 md:h-24 flex items-center justify-between">
+        <div className="max-w-[1280px] mx-auto px-8 h-24 md:h-28 flex items-center justify-between">
           {onClose ? (
             <button
               onClick={onClose}
@@ -245,7 +245,7 @@ const SupplierPage: React.FC<SupplierPageProps> = ({ onClose }) => {
             <img
               src="/logo.png"
               alt="Asia By Locals"
-              className="h-[110px] sm:h-[100px] md:h-[105px] lg:h-[110px] xl:h-[120px] w-auto object-contain"
+              className="h-[140px] sm:h-[130px] md:h-[140px] lg:h-[150px] xl:h-[160px] w-auto object-contain"
               style={{ transform: 'translateY(3px)' }}
             />
           </div>
