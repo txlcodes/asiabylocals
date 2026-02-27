@@ -415,25 +415,9 @@ export const sendWelcomeEmail = async (email, fullName) => {
                       </p>
                       
                       <p style="margin: 0 0 20px 0; font-size: 16px; line-height: 1.6; color: #001A33;">
-                        Our team will review your application and get back to you within 48 hours. In the meantime, you can:
+                        🎉 You are now verified! You can start uploading your tours right away. Head to your supplier dashboard to create your first listing.
                       </p>
                       
-                      <ul style="margin: 0 0 30px 0; padding-left: 20px; font-size: 16px; line-height: 1.8; color: #001A33;">
-                        <li style="margin-bottom: 10px;">Complete your business profile</li>
-                        <li style="margin-bottom: 10px;">Explore our partner resources</li>
-                        <li style="margin-bottom: 10px;">Prepare your activity listings</li>
-                      </ul>
-                      
-                      <!-- CTA Button -->
-                      <table role="presentation" style="width: 100%; border-collapse: collapse; margin: 30px 0;">
-                        <tr>
-                          <td align="center" style="padding: 0;">
-                            <a href="${process.env.FRONTEND_URL || 'http://localhost:3000'}/supplier/dashboard" style="display: inline-block; background-color: #10B981; color: #ffffff; text-decoration: none; padding: 16px 40px; border-radius: 6px; font-size: 16px; font-weight: 600; text-align: center;">
-                              Go to Dashboard
-                            </a>
-                          </td>
-                        </tr>
-                      </table>
                       
                       <p style="margin: 30px 0 0 0; font-size: 16px; line-height: 1.6; color: #001A33;">
                         If you have any questions, feel free to reach out to our support team via the <a href="${process.env.FRONTEND_URL || 'http://localhost:3000'}/contact" style="color: #0071EB; text-decoration: none;">contact form</a>.

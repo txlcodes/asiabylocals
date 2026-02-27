@@ -890,14 +890,15 @@ const App: React.FC = () => {
       </Helmet>
       {/* Header Navigation */}
       <header className="sticky top-0 z-50 bg-white border-b border-gray-100 shadow-sm">
-        <div className="w-full h-16 sm:h-20 md:h-24 flex items-center justify-between px-3 sm:px-4 md:px-6">
+        <div className="w-full h-20 sm:h-24 md:h-28 flex items-center justify-between px-3 sm:px-4 md:px-6">
           <div className="flex items-center gap-3 h-full">
             {/* Logo */}
             <div className="cursor-pointer">
               <img
                 src="/logo.png"
                 alt="Asia By Locals"
-                className="h-12 sm:h-14 md:h-16 w-auto object-contain"
+                className="w-auto object-contain"
+                style={{ height: '90px', maxHeight: '90px' }}
               />
             </div>
 

@@ -113,6 +113,43 @@ const TourCreationForm: React.FC<TourCreationFormProps> = ({
   const parseTourData = (tour: any) => {
     if (!tour) return null;
     try {
+      // CRITICAL: Extract groupPricingTiers from tour options if not on tour itself
+      // Most tours store pricing on the main tour option (sortOrder: -1 or 0), not on the tour model
+      let groupPricingTiers = tour.groupPricingTiers
+        ? (typeof tour.groupPricingTiers === 'string' ? JSON.parse(tour.groupPricingTiers) : tour.groupPricingTiers)
+        : [];
+
+      let maxGroupSize = tour.maxGroupSize || undefined;
+
+      // If groupPricingTiers is empty, try to extract from tour options
+      if ((!groupPricingTiers || groupPricingTiers.length === 0) && tour.options && Array.isArray(tour.options) && tour.options.length > 0) {
+        // Try main tour option first (sortOrder: -1), then sortOrder 0, then first option
+        const mainOption = tour.options.find((o: any) => o.sortOrder === -1)
+          || tour.options.find((o: any) => o.sortOrder === 0)
+          || tour.options[0];
+
+        if (mainOption?.groupPricingTiers) {
+          const optionTiers = typeof mainOption.groupPricingTiers === 'string'
+            ? JSON.parse(mainOption.groupPricingTiers)
+            : mainOption.groupPricingTiers;
+          if (Array.isArray(optionTiers) && optionTiers.length > 0) {
+            groupPricingTiers = optionTiers;
+            console.log('✅ Extracted groupPricingTiers from tour option:', optionTiers.length, 'tiers');
+          }
+        }
+
+        // Also extract maxGroupSize from option if not on tour
+        if (!maxGroupSize && mainOption?.maxGroupSize) {
+          maxGroupSize = mainOption.maxGroupSize;
+        }
+      }
+
+      // If still no maxGroupSize, derive from groupPricingTiers
+      if (!maxGroupSize && groupPricingTiers.length > 0) {
+        maxGroupSize = Math.max(...groupPricingTiers.map((t: any) => t.maxPeople || 0));
+        console.log('✅ Derived maxGroupSize from tiers:', maxGroupSize);
+      }
+
       return {
         country: tour.country || '',
         city: tour.city || '',
@@ -122,9 +159,9 @@ const TourCreationForm: React.FC<TourCreationFormProps> = ({
         duration: tour.duration || '',
         pricePerPerson: tour.pricePerPerson?.toString() || '',
         pricingType: 'per_group' as const, // Always per group now
-        maxGroupSize: tour.maxGroupSize || undefined,
+        maxGroupSize: maxGroupSize,
         groupPrice: tour.groupPrice?.toString() || '',
-        groupPricingTiers: tour.groupPricingTiers ? (typeof tour.groupPricingTiers === 'string' ? JSON.parse(tour.groupPricingTiers) : tour.groupPricingTiers) : [],
+        groupPricingTiers: groupPricingTiers,
         unavailableDates: tour.unavailableDates ? (typeof tour.unavailableDates === 'string' ? JSON.parse(tour.unavailableDates) : tour.unavailableDates) : [], // Legacy
         unavailableDaysOfWeek: tour.unavailableDaysOfWeek ? (typeof tour.unavailableDaysOfWeek === 'string' ? JSON.parse(tour.unavailableDaysOfWeek) : tour.unavailableDaysOfWeek) : (tour.unavailableDaysOfWeek ? [] : []),
         currency: tour.currency || 'USD',
@@ -142,7 +179,14 @@ const TourCreationForm: React.FC<TourCreationFormProps> = ({
         transportationTypes: Array.isArray(tour.transportationTypes) ? tour.transportationTypes : (typeof tour.transportationTypes === 'string' ? JSON.parse(tour.transportationTypes || '[]') : []),
         multiCityTravel: tour.multiCityTravel || false,
         pickupIncluded: tour.pickupIncluded || false,
-        tourOptions: tour.options || [],
+        // Filter out system-generated "main tour option" (sortOrder -1 or sortOrder 0 with same title as tour)
+        // The backend auto-creates these to store pricing data — they are NOT user-created options
+        tourOptions: (tour.options || []).filter((o: any) => {
+          if (o.sortOrder === -1) return false; // Always filter main tour option
+          // Filter sortOrder 0 if it matches tour title (system-generated)
+          if (o.sortOrder === 0 && o.optionTitle === tour.title) return false;
+          return true;
+        }),
         itineraryItems: tour.itineraryItems ? (typeof tour.itineraryItems === 'string' ? JSON.parse(tour.itineraryItems) : tour.itineraryItems) : [],
         detailedItinerary: tour.detailedItinerary || ''
       };
@@ -222,6 +266,19 @@ const TourCreationForm: React.FC<TourCreationFormProps> = ({
   const [editingOptionIndex, setEditingOptionIndex] = useState<number | null>(null);
 
   const totalSteps = 9;
+
+  // Step labels for navigation
+  const STEP_LABELS = [
+    { num: 1, label: 'Country', short: 'Country' },
+    { num: 2, label: 'City & Category', short: 'City' },
+    { num: 3, label: 'Title & Locations', short: 'Locations' },
+    { num: 4, label: 'Duration & Pricing', short: 'Pricing' },
+    { num: 5, label: 'Description & Details', short: 'Description' },
+    { num: 6, label: 'Itinerary', short: 'Itinerary' },
+    { num: 7, label: 'Tour Options', short: 'Options' },
+    { num: 8, label: 'Photos & Languages', short: 'Photos' },
+    { num: 9, label: 'Review & Submit', short: 'Review' }
+  ];
 
   // Check if supplier has required contact information
   const hasRequiredContactInfo = !!(supplierEmail && (supplierPhone || supplierWhatsApp));
@@ -810,50 +867,65 @@ ${a(9)}`;
       return;
     }
 
-    if (!canProceed()) {
-      console.warn('Cannot proceed - validation failed', { step, canProceed: canProceed() });
-      alert('Please complete all required fields before submitting.');
-      return;
-    }
-
-    // Additional validation before sending to server
-    const missingFields: string[] = [];
-    if (!supplierId) missingFields.push('supplierId');
-    if (!formData.title || formData.title.trim() === '') missingFields.push('title');
-    if (!formData.country || formData.country.trim() === '') missingFields.push('country');
-    if (!formData.city || formData.city.trim() === '') missingFields.push('city');
-    if (!formData.category || formData.category.trim() === '') missingFields.push('category');
-    if (!formData.fullDescription || formData.fullDescription.trim() === '') missingFields.push('fullDescription');
-    if (!formData.included || formData.included.trim() === '') missingFields.push('included');
-    if (formData.images.length < 4) missingFields.push('images (need at least 4)');
-
-    // Check locations properly for multi-day vs single tours
-    let hasLocations = false;
-    if (formData.isMultiDayTour) {
-      hasLocations = Object.values(formData.multiCityLocations).some((locs: any) => locs.length > 0);
-    } else {
-      hasLocations = formData.locations && formData.locations.length > 0;
-    }
-    if (!hasLocations) missingFields.push('locations');
-    if (!formData.duration || formData.duration.trim() === '') missingFields.push('duration');
-    // Pricing - must have maxGroupSize and at least price for 1 person
-    if (!formData.maxGroupSize || formData.maxGroupSize < 1) {
-      missingFields.push('maxGroupSize (minimum 1)');
-    }
-    if (!formData.groupPricingTiers || formData.groupPricingTiers.length === 0) {
-      missingFields.push('pricing for group sizes');
-    } else {
-      const hasPriceForMin = formData.groupPricingTiers.some(tier => tier.minPeople === 1 && tier.price && tier.price.trim() !== '');
-      if (!hasPriceForMin) {
-        missingFields.push('price for 1 person (required - this shows as "Starting from")');
+    // When editing an existing tour, skip strict step-by-step validation
+    // The tour already passed full validation when it was first created/approved
+    // This allows suppliers to edit just photos, or just description, without re-filling everything
+    if (!isEditing) {
+      if (!canProceed()) {
+        console.warn('Cannot proceed - validation failed', { step, canProceed: canProceed() });
+        alert('Please complete all required fields before submitting.');
+        return;
       }
-    }
-    if (!formData.languages || formData.languages.length === 0) missingFields.push('languages');
-    if (!formData.highlights || formData.highlights.filter(h => h.trim()).length < 3) missingFields.push('highlights (need at least 3)');
 
-    if (missingFields.length > 0) {
-      alert(`Missing required fields:\n${missingFields.join('\n')}\n\nPlease complete all fields before submitting.`);
-      return;
+      // Additional validation before sending to server (only for new tours)
+      const missingFields: string[] = [];
+      if (!supplierId) missingFields.push('supplierId');
+      if (!formData.title || formData.title.trim() === '') missingFields.push('title');
+      if (!formData.country || formData.country.trim() === '') missingFields.push('country');
+      if (!formData.city || formData.city.trim() === '') missingFields.push('city');
+      if (!formData.category || formData.category.trim() === '') missingFields.push('category');
+      if (!formData.fullDescription || formData.fullDescription.trim() === '') missingFields.push('fullDescription');
+      if (!formData.included || formData.included.trim() === '') missingFields.push('included');
+      if (formData.images.length < 4) missingFields.push('images (need at least 4)');
+
+      // Check locations properly for multi-day vs single tours
+      let hasLocations = false;
+      if (formData.isMultiDayTour) {
+        hasLocations = Object.values(formData.multiCityLocations).some((locs: any) => locs.length > 0);
+      } else {
+        hasLocations = formData.locations && formData.locations.length > 0;
+      }
+      if (!hasLocations) missingFields.push('locations');
+      if (!formData.duration || formData.duration.trim() === '') missingFields.push('duration');
+      // Pricing - must have maxGroupSize and at least price for 1 person
+      if (!formData.maxGroupSize || formData.maxGroupSize < 1) {
+        missingFields.push('maxGroupSize (minimum 1)');
+      }
+      if (!formData.groupPricingTiers || formData.groupPricingTiers.length === 0) {
+        missingFields.push('pricing for group sizes');
+      } else {
+        const hasPriceForMin = formData.groupPricingTiers.some(tier => tier.minPeople === 1 && tier.price && tier.price.trim() !== '');
+        if (!hasPriceForMin) {
+          missingFields.push('price for 1 person (required - this shows as "Starting from")');
+        }
+      }
+      if (!formData.languages || formData.languages.length === 0) missingFields.push('languages');
+      if (!formData.highlights || formData.highlights.filter(h => h.trim()).length < 3) missingFields.push('highlights (need at least 3)');
+
+      if (missingFields.length > 0) {
+        alert(`Missing required fields:\n${missingFields.join('\n')}\n\nPlease complete all fields before submitting.`);
+        return;
+      }
+    } else {
+      // For editing: minimal validation - just check essentials
+      if (!supplierId) {
+        alert('Error: Supplier information is missing. Please log in again.');
+        return;
+      }
+      if (!formData.title || formData.title.trim() === '') {
+        alert('Tour title is required.');
+        return;
+      }
     }
 
     setIsSubmitting(true);
@@ -1349,7 +1421,7 @@ ${a(9)}`;
           <div>
             <h1 className="text-2xl font-black text-[#001A33]">{isEditing ? 'Edit Tour' : 'Create a new tour'}</h1>
             <p className="text-[14px] text-gray-500 font-semibold mt-1">
-              Step {step} of {totalSteps}
+              {isEditing ? STEP_LABELS[step - 1]?.label : `Step ${step} of ${totalSteps}`}
             </p>
           </div>
           <button
@@ -1359,13 +1431,32 @@ ${a(9)}`;
             <X size={24} className="text-gray-600" />
           </button>
         </div>
-        {/* Progress bar */}
-        <div className="h-1 bg-gray-200">
-          <div
-            className="h-full bg-[#10B981] transition-all duration-300"
-            style={{ width: `${(step / totalSteps) * 100}%` }}
-          />
-        </div>
+        {/* Step Navigation - Clickable when editing */}
+        {isEditing ? (
+          <div className="max-w-4xl mx-auto px-2 pb-2">
+            <div className="flex gap-1 overflow-x-auto scrollbar-hide">
+              {STEP_LABELS.map((s) => (
+                <button
+                  key={s.num}
+                  onClick={() => setStep(s.num)}
+                  className={`flex-none px-3 py-2 rounded-lg text-[11px] font-bold transition-all whitespace-nowrap ${step === s.num
+                    ? 'bg-[#10B981] text-white shadow-md'
+                    : 'bg-gray-100 text-gray-500 hover:bg-gray-200 hover:text-[#001A33]'
+                    }`}
+                >
+                  {s.short}
+                </button>
+              ))}
+            </div>
+          </div>
+        ) : (
+          <div className="h-1 bg-gray-200">
+            <div
+              className="h-full bg-[#10B981] transition-all duration-300"
+              style={{ width: `${(step / totalSteps) * 100}%` }}
+            />
+          </div>
+        )}
       </header>
 
       {/* Contact Info Warning Banner */}
@@ -3678,7 +3769,60 @@ ${a(9)}`;
 
         {/* Navigation Buttons */}
         <div className="flex items-center justify-between mt-8">
-          {(step === totalSteps) ? (
+          {isEditing && step !== totalSteps ? (
+            /* Editing mode: show Save Changes on every step */
+            <>
+              <button
+                onClick={() => setStep(Math.max(1, step - 1))}
+                disabled={step === 1}
+                className="flex items-center gap-2 px-6 py-3 bg-gray-100 text-gray-600 font-black rounded-full text-[14px] hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+              >
+                <ChevronLeft size={18} />
+                Previous
+              </button>
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={() => {
+                    handleSubmit(true).catch(err => {
+                      console.error('Save changes error:', err);
+                      alert(`Error: ${err.message || 'Failed to save changes'}`);
+                    });
+                  }}
+                  disabled={isSubmitting || !hasRequiredContactInfo}
+                  className={`px-6 py-3 font-black rounded-full text-[14px] transition-all flex items-center gap-2 ${isSubmitting || !hasRequiredContactInfo
+                    ? 'bg-gray-400 cursor-not-allowed opacity-50'
+                    : 'bg-[#10B981] hover:bg-[#059669] text-white cursor-pointer'
+                    }`}
+                >
+                  {isSubmitting ? (
+                    <span className="flex items-center gap-2">
+                      {submissionStatus || 'Saving...'}
+                      <span className="animate-spin">⏳</span>
+                    </span>
+                  ) : (
+                    <>
+                      Save Changes
+                      <CheckCircle2 size={18} />
+                    </>
+                  )}
+                </button>
+                <button
+                  onClick={() => {
+                    if (step === 4 && !formData.duration) {
+                      setShowDurationError(true);
+                      document.getElementById('duration-select')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                      return;
+                    }
+                    setStep(Math.min(totalSteps, step + 1));
+                  }}
+                  className="flex items-center gap-2 px-6 py-3 bg-gray-100 text-gray-600 font-black rounded-full text-[14px] hover:bg-gray-200 transition-all"
+                >
+                  Next
+                  <ChevronRight size={18} />
+                </button>
+              </div>
+            </>
+          ) : (step === totalSteps) ? (
             <>
 
               <button
