@@ -112,7 +112,10 @@ export const EXPERIENCES: SignatureExperience[] = [
 export const ATTRACTIONS: AttractionCard[] = [
   { id: 'a1', title: 'Fushimi Inari Shrine', location: 'Kyoto', whyLocal: 'Hidden pathways & ritual etiquette', experts: 45, image: 'https://images.unsplash.com/photo-1478436127897-769e1b3f0f36?auto=format&fit=crop&q=80&w=800' },
   { id: 'a2', title: 'Grand Palace', location: 'Bangkok', whyLocal: 'Decoding royal symbols with locals', experts: 82, image: 'https://images.unsplash.com/photo-1528127269322-539801943592?auto=format&fit=crop&q=80&w=800' },
-  { id: 'a3', title: 'Angkor Wat', location: 'Siem Reap', whyLocal: 'Stories behind the bas-reliefs', experts: 120, image: 'https://images.unsplash.com/photo-1528181304800-259b08848526?auto=format&fit=crop&q=80&w=800' }
+  { id: 'a3', title: 'Angkor Wat', location: 'Siem Reap', whyLocal: 'Stories behind the bas-reliefs', experts: 120, image: 'https://images.unsplash.com/photo-1528181304800-259b08848526?auto=format&fit=crop&q=80&w=800' },
+  { id: 'a4', title: 'Borobudur Temple', location: 'Java, Indonesia', whyLocal: 'Buddhist cosmology decoded in stone', experts: 67, image: '/borobudur-hero.jpg' },
+  { id: 'a5', title: 'Halong Bay', location: 'Vietnam', whyLocal: 'Limestone karsts & ancient fishing traditions', experts: 54, image: '/halong-bay-hero.jpg' },
+  { id: 'a6', title: 'Sigiriya Rock Fortress', location: 'Sri Lanka', whyLocal: 'Royal citadel frescoes & water gardens', experts: 38, image: '/sigiriya-hero.jpg' }
 ];
 
 // Shared city locations/places - used in both tour creation and city pages

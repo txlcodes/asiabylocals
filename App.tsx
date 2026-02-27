@@ -569,8 +569,6 @@ const App: React.FC = () => {
   const [citiesScrollPosition, setCitiesScrollPosition] = useState(0);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(true);
-  const [showPlacesDropdown, setShowPlacesDropdown] = useState(false);
-  const [showInspirationDropdown, setShowInspirationDropdown] = useState(false);
   const [showMobilePlacesDropdown, setShowMobilePlacesDropdown] = useState(false);
   const [showMobileInspirationDropdown, setShowMobileInspirationDropdown] = useState(false);
   const [showSupplierPage, setShowSupplierPage] = useState(isSupplierPageFromUrl);
@@ -929,36 +927,27 @@ const App: React.FC = () => {
 
             {/* Nav Links */}
             <nav className="hidden lg:flex items-center gap-6 text-[14px] font-semibold text-[#001A33]">
-              <div
-                className="relative flex items-center gap-1 cursor-pointer hover:text-[#10B981]"
-                onMouseEnter={() => setShowPlacesDropdown(true)}
-                onMouseLeave={() => setShowPlacesDropdown(false)}
-              >
-                Places to see <ChevronRight size={14} className="rotate-90" />
-                {showPlacesDropdown && (
-                  <div
-                    className="absolute top-full left-0 mt-2 bg-white rounded-lg shadow-2xl border border-gray-100 p-4 xl:p-6 w-[90vw] max-w-[800px] z-50"
-                    onMouseEnter={() => setShowPlacesDropdown(true)}
-                    onMouseLeave={() => setShowPlacesDropdown(false)}
-                  >
-                    <div className="grid grid-cols-3 gap-6">
+              <div className="relative flex items-center gap-1 cursor-pointer hover:text-[#10B981] group/places">
+                Places to see <ChevronRight size={14} className="rotate-90 group-hover/places:rotate-[270deg] transition-transform duration-150" />
+                <div className="absolute top-full left-0 pt-2 z-50 opacity-0 -translate-y-2 pointer-events-none group-hover/places:opacity-100 group-hover/places:translate-y-0 group-hover/places:pointer-events-auto transition-[opacity,transform] duration-100 ease-out">
+                  <div className="bg-white rounded-xl shadow-2xl border border-gray-100 p-4 xl:p-5 w-[90vw] max-w-[800px] max-h-[70vh] overflow-y-auto no-scrollbar">
+                    <div className="grid grid-cols-3 gap-1">
                       {CITIES.map((city) => {
                         const url = getCityUrl(city.name, city.id);
-                        const citySlug = city.name.toLowerCase().replace(/\s+/g, '-');
                         return (
-                          <div key={city.id} className="space-y-2">
+                          <div key={city.id}>
                             <div
-                              className="flex items-start gap-3 cursor-pointer hover:bg-gray-50 p-2 rounded-lg -m-2 transition-colors"
+                              className="flex items-center gap-3 cursor-pointer hover:bg-[#10B981]/10 p-2 rounded-lg group/item"
                               onClick={() => window.location.href = url}
                             >
                               <img
                                 src={city.image}
-                                alt={`${city.name} tours and cultural experiences - Book local guides in ${city.name}`}
-                                className="w-12 h-12 rounded-lg object-cover flex-shrink-0"
+                                alt={`${city.name} tours and cultural experiences`}
+                                className="w-11 h-11 rounded-lg object-cover flex-shrink-0"
                               />
                               <div className="flex-1 min-w-0">
-                                <div className="font-bold text-[#001A33] text-sm mb-0.5">{city.name} Tours</div>
-                                <div className="text-gray-500 text-xs">City in India</div>
+                                <div className="font-bold text-[#001A33] text-sm group-hover/item:text-[#10B981]">{city.name} Tours</div>
+                                <div className="text-gray-400 text-xs">{city.localAngle}</div>
                               </div>
                             </div>
                           </div>
@@ -966,20 +955,12 @@ const App: React.FC = () => {
                       })}
                     </div>
                   </div>
-                )}
+                </div>
               </div>
-              <div
-                className="relative flex items-center gap-1 cursor-pointer hover:text-[#10B981]"
-                onMouseEnter={() => setShowInspirationDropdown(true)}
-                onMouseLeave={() => setShowInspirationDropdown(false)}
-              >
-                Trip inspiration <ChevronRight size={14} className="rotate-90" />
-                {showInspirationDropdown && (
-                  <div
-                    className="absolute top-full left-0 mt-1 bg-white rounded-lg shadow-2xl border border-gray-100 p-4 w-[90vw] max-w-[750px] z-50"
-                    onMouseEnter={() => setShowInspirationDropdown(true)}
-                    onMouseLeave={() => setShowInspirationDropdown(false)}
-                  >
+              <div className="relative flex items-center gap-1 cursor-pointer hover:text-[#10B981] group/inspiration">
+                Trip inspiration <ChevronRight size={14} className="rotate-90 group-hover/inspiration:rotate-[270deg] transition-transform duration-150" />
+                <div className="absolute top-full left-0 pt-2 z-50 opacity-0 -translate-y-2 pointer-events-none group-hover/inspiration:opacity-100 group-hover/inspiration:translate-y-0 group-hover/inspiration:pointer-events-auto transition-[opacity,transform] duration-100 ease-out">
+                  <div className="bg-white rounded-xl shadow-2xl border border-gray-100 p-4 w-[90vw] max-w-[750px]">
                     <div className="flex gap-6">
                       {/* Left Sidebar */}
                       <div className="flex-shrink-0 w-[140px]">
@@ -1019,13 +1000,13 @@ const App: React.FC = () => {
                           { name: 'Colombo', image: 'https://images.unsplash.com/photo-1559827260-dc66d52bef19?auto=format&fit=crop&q=80&w=200' },
                           { name: 'Kathmandu', image: 'https://images.unsplash.com/photo-1552465011-b4e21bf6e79a?auto=format&fit=crop&q=80&w=200' }
                         ].map((city, idx) => (
-                          <div key={idx} className="flex flex-col items-center gap-1.5 cursor-pointer hover:opacity-80 transition-opacity">
+                          <div key={idx} className="flex flex-col items-center gap-1.5 cursor-pointer p-1.5 rounded-lg hover:bg-[#10B981]/10 group/guide">
                             <img
                               src={city.image}
                               alt={city.name}
                               className="w-12 h-12 rounded-full object-cover"
                             />
-                            <div className="font-semibold text-[#001A33] text-[10px] text-center leading-tight">{city.name} Travel Guide</div>
+                            <div className="font-semibold text-[#001A33] text-[10px] text-center leading-tight group-hover/guide:text-[#10B981]">{city.name} Travel Guide</div>
                           </div>
                         ))}
                       </div>
@@ -1036,7 +1017,7 @@ const App: React.FC = () => {
                       </div>
                     </div>
                   </div>
-                )}
+                </div>
               </div>
             </nav>
           </div>
@@ -1355,11 +1336,11 @@ const App: React.FC = () => {
 
       <main className="flex-1">
         {/* Row 1: Things to do wherever you're going */}
-        <section className="max-w-[1200px] mx-auto px-4 sm:px-6 pt-4 sm:pt-6 md:pt-8 pb-8 sm:pb-12 md:pb-16">
-          <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-[28px] font-black text-[#001A33] mb-6 sm:mb-8">
+        <section className="max-w-[1400px] mx-auto pt-4 sm:pt-6 md:pt-8 pb-8 sm:pb-12 md:pb-16">
+          <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-[28px] font-black text-[#001A33] mb-6 sm:mb-8 px-4 sm:px-6 lg:px-8">
             Things to do wherever you're going
           </h2>
-          <div className="relative">
+          <div className="relative px-4 sm:px-6 lg:px-8">
             {/* Left Arrow */}
             {canScrollLeft && (
               <button
@@ -1372,14 +1353,14 @@ const App: React.FC = () => {
                     scrollContainer.scrollTo({ left: newPosition, behavior: 'smooth' });
                   }
                 }}
-                className="hidden lg:flex absolute left-0 top-[40%] -translate-y-1/2 z-10 w-10 h-10 bg-white/90 backdrop-blur-sm rounded-full shadow-sm hover:shadow-md hover:bg-white transition-all border border-gray-100 items-center justify-center -ml-5"
+                className="hidden lg:flex absolute left-4 top-[40%] -translate-y-1/2 z-10 w-10 h-10 bg-white/90 backdrop-blur-sm rounded-full shadow-sm hover:shadow-md hover:bg-white transition-all border border-gray-100 items-center justify-center"
               >
                 <ChevronLeft className="text-gray-400 group-hover:text-[#10B981] transition-colors" size={20} />
               </button>
             )}
 
             {/* Cards Container */}
-            <div className="relative overflow-hidden px-0 sm:px-12 md:px-16 mx-auto">
+            <div className="relative overflow-hidden">
               <div
                 id="cities-scroll"
                 className="flex gap-4 sm:gap-5 overflow-x-auto no-scrollbar pb-4 scroll-smooth snap-x snap-mandatory"
@@ -1397,13 +1378,13 @@ const App: React.FC = () => {
                   return (
                     <div
                       key={city.id}
-                      className="flex-shrink-0 w-[170px] sm:w-[200px] md:w-[200px] cursor-pointer group snap-start"
+                      className="flex-shrink-0 w-[170px] sm:w-[200px] md:w-[200px] lg:w-[calc((100%-100px)/6)] xl:w-[calc((100%-120px)/6)] cursor-pointer group snap-start"
                       onClick={() => {
                         const url = getCityUrl(city.name, city.id);
                         window.location.href = url;
                       }}
                     >
-                      <div className="relative aspect-[4/5] rounded-2xl sm:rounded-3xl overflow-hidden mb-2 sm:mb-3 shadow-md hover:shadow-xl transition-all duration-300 bg-white border border-gray-100">
+                      <div className="relative aspect-[4/5] lg:aspect-[3/4] rounded-2xl sm:rounded-3xl overflow-hidden mb-2 sm:mb-3 shadow-md hover:shadow-xl transition-all duration-300 bg-white border border-gray-100">
                         <div className="relative w-full h-full">
                           <img
                             src={city.image}
@@ -1435,7 +1416,7 @@ const App: React.FC = () => {
                     scrollContainer.scrollTo({ left: newPosition, behavior: 'smooth' });
                   }
                 }}
-                className="hidden lg:flex absolute right-0 top-[40%] -translate-y-1/2 z-10 w-10 h-10 bg-white/90 backdrop-blur-sm rounded-full shadow-sm hover:shadow-md hover:bg-white transition-all border border-gray-100 items-center justify-center -mr-5"
+                className="hidden lg:flex absolute right-4 top-[40%] -translate-y-1/2 z-10 w-10 h-10 bg-white/90 backdrop-blur-sm rounded-full shadow-sm hover:shadow-md hover:bg-white transition-all border border-gray-100 items-center justify-center"
               >
                 <ChevronRight className="text-gray-400 group-hover:text-[#10B981] transition-colors" size={20} />
               </button>
