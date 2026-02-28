@@ -269,7 +269,7 @@ const AdminDashboard: React.FC = () => {
     setLoading(true);
     try {
       const API_URL = import.meta.env.VITE_API_URL || (typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3001');
-      const url = `${API_URL}/api/suppliers?status=approved`;
+      const url = `${API_URL}/api/suppliers?status=approved&limit=200`;
       console.log('Admin Dashboard - Fetching approved suppliers from:', url);
 
       const response = await fetch(url, {

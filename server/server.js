@@ -7726,12 +7726,12 @@ app.post('/api/tours/:id/submit', async (req, res) => {
 
     console.log(`📝 Updating tour ${tourId} status to pending...`);
 
-    // Update status to pending
+    // Update status to pending (unless already approved)
     const updateStartTime = Date.now();
     const updatedTour = await prisma.tour.update({
       where: { id: tourId },
       data: {
-        status: 'pending'
+        status: existingTour.status === 'approved' ? 'approved' : 'pending' // Approved tours stay approved
       }
     });
     console.log(`   ✅ Status updated (took ${Date.now() - updateStartTime}ms)`);

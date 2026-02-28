@@ -186,7 +186,12 @@ const TourCreationForm: React.FC<TourCreationFormProps> = ({
           // Filter sortOrder 0 if it matches tour title (system-generated)
           if (o.sortOrder === 0 && o.optionTitle === tour.title) return false;
           return true;
-        }),
+        }).map((o: any) => ({
+          ...o,
+          groupPricingTiers: o.groupPricingTiers
+            ? (typeof o.groupPricingTiers === 'string' ? JSON.parse(o.groupPricingTiers) : o.groupPricingTiers)
+            : []
+        })),
         itineraryItems: tour.itineraryItems ? (typeof tour.itineraryItems === 'string' ? JSON.parse(tour.itineraryItems) : tour.itineraryItems) : [],
         detailedItinerary: tour.detailedItinerary || ''
       };
@@ -1236,7 +1241,7 @@ ${a(9)}`;
 
         console.log('📋 Extracted tour ID:', tourId);
 
-        if (isEditing && submitForReview) {
+        if (isEditing && submitForReview && tour?.status !== 'approved') {
           // Tour edited and needs to be submitted for review
           console.log('📤 Tour updated, now submitting for review...', { tourId });
 
@@ -2951,7 +2956,9 @@ ${a(9)}`;
                     const newOption = {
                       optionTitle: '',
                       optionDescription: '',
-                      durationHours: formData.duration.replace(/[^\d.]/g, '') || '3',
+                      durationHours: formData.duration.toLowerCase().includes('day')
+                        ? (parseFloat(formData.duration.replace(/[^\d.]/g, '')) * 24).toString()
+                        : (formData.duration.replace(/[^\d.]/g, '') || '3'),
                       price: formData.groupPricingTiers && formData.groupPricingTiers.length > 0
                         ? formData.groupPricingTiers[0].price
                         : '',
@@ -3372,7 +3379,9 @@ ${a(9)}`;
                     const newOption = {
                       optionTitle: '',
                       optionDescription: '',
-                      durationHours: formData.duration.replace(/[^\d.]/g, '') || '3',
+                      durationHours: formData.duration.toLowerCase().includes('day')
+                        ? (parseFloat(formData.duration.replace(/[^\d.]/g, '')) * 24).toString()
+                        : (formData.duration.replace(/[^\d.]/g, '') || '3'),
                       price: formData.groupPricingTiers && formData.groupPricingTiers.length > 0
                         ? formData.groupPricingTiers[0].price
                         : '',
@@ -3746,14 +3755,18 @@ ${a(9)}`;
                     <CheckCircle2 className="text-yellow-700" size={20} />
                   </div>
                   <div>
-                    <div className="font-black text-[#001A33] text-[16px] mb-2">Ready to submit?</div>
+                    <div className="font-black text-[#001A33] text-[16px] mb-2">
+                      {tour?.status === 'approved' ? 'Update & Keep Live' : 'Ready to submit?'}
+                    </div>
                     {formData.images && formData.images.length >= 4 && (
                       <div className="text-[13px] text-gray-600 mt-2 mb-2">
                         💡 <strong>Note:</strong> Submission may take 10-30 seconds because we're uploading {formData.images.length} images. Please be patient and don't close this page.
                       </div>
                     )}
                     <div className="text-[14px] text-[#001A33] font-semibold leading-relaxed">
-                      Once submitted, your listing will be reviewed within 24–48 hours. You can make edits later.
+                      {tour?.status === 'approved'
+                        ? 'Your changes will be applied instantly to the live page.'
+                        : 'Once submitted, your listing will be reviewed within 24–48 hours. You can make edits later.'}
                     </div>
                     {formData.images && formData.images.length >= 4 && (
                       <div className="text-[13px] text-gray-600 mt-3 p-3 bg-white rounded-lg border border-yellow-300">
@@ -3910,7 +3923,7 @@ ${a(9)}`;
                     </span>
                   ) : (
                     <>
-                      Submit for Review
+                      {tour?.status === 'approved' ? 'Save and Go Live' : 'Submit for Review'}
                       <CheckCircle2 size={18} />
                     </>
                   )}
