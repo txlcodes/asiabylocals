@@ -4412,7 +4412,11 @@ app.post('/api/tours', async (req, res) => {
       const mainTourOption = {
         optionTitle: title,
         optionDescription: shortDescription || fullDescription?.substring(0, 200) || 'Main tour option',
-        durationHours: parseFloat(duration?.replace(/[^0-9.]/g, '')) || 3,
+        durationHours: (() => {
+          const durStr = (duration || '').toLowerCase();
+          const num = parseFloat(durStr.replace(/[^0-9.]/g, '')) || 3;
+          return durStr.includes('day') ? num * 24 : num;
+        })(),
         price: firstTierPrice,
         currency: currency || 'INR',
         language: languagesArray?.[0] || 'English',
@@ -6244,7 +6248,11 @@ app.put('/api/tours/:id', async (req, res) => {
             const mainTourOption = {
               optionTitle: updateData.title || existingTour.title,
               optionDescription: updateData.shortDescription || existingTour.shortDescription || existingTour.fullDescription?.substring(0, 200) || 'Main tour option',
-              durationHours: parseFloat((updateData.duration || existingTour.duration)?.replace(/[^0-9.]/g, '')) || 3,
+              durationHours: (() => {
+                const durStr = (updateData.duration || existingTour.duration || '').toLowerCase();
+                const num = parseFloat(durStr.replace(/[^0-9.]/g, '')) || 3;
+                return durStr.includes('day') ? num * 24 : num;
+              })(),
               price: firstTierPrice, // ALWAYS use first tier (1 person) price
               currency: updateData.currency || existingTour.currency || 'INR',
               language: (updateData.languages ? (typeof updateData.languages === 'string' ? JSON.parse(updateData.languages) : updateData.languages) : JSON.parse(existingTour.languages || '["English"]'))?.[0] || 'English',
