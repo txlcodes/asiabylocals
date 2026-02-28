@@ -2426,6 +2426,45 @@ const CityPage: React.FC<CityPageProps> = ({ country, city }) => {
           </section>
         )}
 
+        {/* Delhi Essential Guides Section */}
+        {city.toLowerCase() === 'delhi' && (
+          <section className="mb-16">
+            <h2 className="text-3xl font-black text-[#001A33] mb-8">
+              Everything You Need to Know Before Visiting Delhi
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {[
+                { title: 'Things to Do in Delhi', slug: 'things-to-do-in-delhi', icon: <Star className="text-[#10B981]" size={20} /> },
+                { title: 'Delhi 1-Day Itinerary', slug: 'delhi-1-day-itinerary', icon: <Calendar className="text-[#10B981]" size={20} /> },
+                { title: 'Red Fort', slug: 'red-fort', icon: <MapPin className="text-[#10B981]" size={20} /> },
+                { title: 'Qutub Minar', slug: 'qutub-minar', icon: <MapPin className="text-[#10B981]" size={20} /> },
+                { title: 'Humayun\'s Tomb', slug: 'humayuns-tomb', icon: <MapPin className="text-[#10B981]" size={20} /> },
+                { title: 'India Gate', slug: 'india-gate', icon: <MapPin className="text-[#10B981]" size={20} /> },
+                { title: 'Delhi Travel Guide 2026', slug: 'delhi-travel-guide-2026', icon: <Globe className="text-[#10B981]" size={20} /> },
+              ].map((guide, idx) => (
+                <a
+                  key={idx}
+                  href={`/india/delhi/${guide.slug}`}
+                  className="flex items-center justify-between p-5 md:p-6 bg-white border border-gray-100 rounded-2xl hover:border-[#10B981]/30 hover:shadow-[0_20px_40px_-15px_rgba(16,185,129,0.15)] transition-all duration-300 group relative overflow-hidden active:scale-[0.98] hover:-translate-y-1.5"
+                >
+                  <div className="absolute inset-0 bg-gradient-to-br from-[#10B981]/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+
+                  <div className="flex items-center gap-4 relative z-10">
+                    <div className="w-12 h-12 bg-[#10B981]/10 rounded-xl flex items-center justify-center group-hover:scale-110 transition-all duration-300 group-hover:rotate-3 shadow-sm group-hover:shadow-[#10B981]/10">
+                      {React.cloneElement(guide.icon as React.ReactElement, { className: "group-hover:text-[#10B981] transition-colors" })}
+                    </div>
+                    <span className="font-black text-[#001A33] group-hover:text-[#10B981] transition-colors text-[17px] tracking-tight">{guide.title}</span>
+                  </div>
+
+                  <div className="relative z-10 flex items-center justify-center w-8 h-8 rounded-full bg-gray-50 group-hover:bg-[#10B981]/10 transition-colors">
+                    <ChevronRight size={18} className="text-gray-300 group-hover:text-[#10B981] transition-all duration-300 transform group-hover:translate-x-1" />
+                  </div>
+                </a>
+              ))}
+            </div>
+          </section>
+        )}
+
         {/* Email Signup Box - Only show for cities with itineraries */}
         <EmailSignupBox city={city} country={country} />
 
