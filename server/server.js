@@ -6359,9 +6359,24 @@ app.put('/api/tours/:id', async (req, res) => {
             return cleanOpt;
           });
 
+          // Strip legacy ghost options: sortOrder 0 whose title matches the tour title
+          // These are system-generated options from old code that should never appear as user options
+          const currentTourTitle = ((updateData.title || existingTour.title) || '').toLowerCase().trim();
+          const oldTourTitle = (existingTour.title || '').toLowerCase().trim();
+          const finalOptionsToCreate = optionsToCreate.filter(opt => {
+            if (opt.sortOrder === 0) {
+              const optTitle = (opt.optionTitle || '').toLowerCase().trim();
+              if (optTitle === currentTourTitle || optTitle === oldTourTitle) {
+                console.log(`🧹 Stripped legacy ghost option at sortOrder 0: "${opt.optionTitle}"`);
+                return false;
+              }
+            }
+            return true;
+          });
+
           // CRITICAL: Log options before saving
-          console.log(`📤 About to create ${optionsToCreate.length} options:`);
-          optionsToCreate.forEach((opt, idx) => {
+          console.log(`📤 About to create ${finalOptionsToCreate.length} options:`);
+          finalOptionsToCreate.forEach((opt, idx) => {
             console.log(`   Option ${idx + 1} (${opt.optionTitle}):`, {
               hasGroupPricingTiers: !!opt.groupPricingTiers,
               groupPricingTiersType: typeof opt.groupPricingTiers,
@@ -6372,7 +6387,7 @@ app.put('/api/tours/:id', async (req, res) => {
           // Use createMany for better performance (batch insert)
           const createStartTime = Date.now();
           await prisma.tourOption.createMany({
-            data: optionsToCreate.map(opt => ({
+            data: finalOptionsToCreate.map(opt => ({
               ...opt,
               tourId: tourId
             }))

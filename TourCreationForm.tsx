@@ -193,10 +193,14 @@ const TourCreationForm: React.FC<TourCreationFormProps> = ({
         pickupIncluded: tour.pickupIncluded || false,
         // Filter out system-generated "main tour option" (sortOrder -1 or sortOrder 0 with same title as tour)
         // The backend auto-creates these to store pricing data — they are NOT user-created options
+        // Use case-insensitive + trimmed comparison to handle title changes on old live tours
         tourOptions: (tour.options || []).filter((o: any) => {
-          if (o.sortOrder === -1) return false; // Always filter main tour option
-          // Filter sortOrder 0 if it matches tour title (system-generated)
-          if (o.sortOrder === 0 && o.optionTitle === tour.title) return false;
+          if (o.sortOrder === -1) return false; // Always filter main tour option (current system)
+          // Filter old-style system options at sortOrder 0: compare titles case-insensitively
+          if (o.sortOrder === 0) {
+            const normalize = (s: string) => (s || '').toLowerCase().trim();
+            if (normalize(o.optionTitle) === normalize(tour.title)) return false;
+          }
           return true;
         }).map((o: any) => ({
           ...o,
@@ -3901,7 +3905,7 @@ ${a(9)}`;
                     }
                     setStep(Math.min(totalSteps, step + 1));
                   }}
-                  className="flex items-center gap-2 px-6 py-3 bg-gray-100 text-gray-600 font-black rounded-full text-[14px] hover:bg-gray-200 transition-all"
+                  className="flex items-center gap-2 px-6 py-3 bg-[#10B981] hover:bg-[#059669] text-white font-black rounded-full text-[14px] transition-all"
                 >
                   Next
                   <ChevronRight size={18} />
