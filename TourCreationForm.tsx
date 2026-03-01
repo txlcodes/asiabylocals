@@ -91,6 +91,18 @@ const TourCreationForm: React.FC<TourCreationFormProps> = ({
   const isEditing = !!tour;
   const [step, setStep] = useState(1);
   const [showDurationError, setShowDurationError] = useState(false);
+  const [showGroupSizeError, setShowGroupSizeError] = useState(false);
+  const [showPricingError, setShowPricingError] = useState(false);
+  const [showCountryError, setShowCountryError] = useState(false);
+  const [showCityError, setShowCityError] = useState(false);
+  const [showCategoryError, setShowCategoryError] = useState(false);
+  const [showTitleError, setShowTitleError] = useState(false);
+  const [showLocationsError, setShowLocationsError] = useState(false);
+  const [showEntryTicketError, setShowEntryTicketError] = useState(false);
+  const [showIncludedError, setShowIncludedError] = useState(false);
+  const [showItineraryItemsError, setShowItineraryItemsError] = useState(false);
+  const [showDetailedItineraryError, setShowDetailedItineraryError] = useState(false);
+  const [showLanguagesError, setShowLanguagesError] = useState(false);
   const [itineraryMode, setItineraryMode] = useState<'choose' | 'manual' | 'ai'>('choose');
   const [aiCurrentQuestion, setAiCurrentQuestion] = useState(0);
   const [aiAnswers, setAiAnswers] = useState<Record<number, string>>({});
@@ -569,12 +581,13 @@ ${a(9)}`;
   };
 
   const handleLanguageToggle = (language: string) => {
-    setFormData(prev => ({
-      ...prev,
-      languages: prev.languages.includes(language)
+    setFormData(prev => {
+      const newLanguages = prev.languages.includes(language)
         ? prev.languages.filter(l => l !== language)
-        : [...prev.languages, language]
-    }));
+        : [...prev.languages, language];
+      if (newLanguages.length > 0) setShowLanguagesError(false);
+      return { ...prev, languages: newLanguages };
+    });
   };
 
   const handleTourTypeToggle = (tourType: string) => {
@@ -1572,10 +1585,12 @@ ${a(9)}`;
                 </label>
                 <div className="relative">
                   <select
+                    id="country-select"
                     value={formData.country}
                     onChange={(e) => {
                       const newCountry = e.target.value;
                       const newCurrency = 'USD';
+                      if (newCountry) setShowCountryError(false);
                       setFormData(prev => ({
                         ...prev,
                         country: newCountry,
@@ -1587,7 +1602,7 @@ ${a(9)}`;
                         }))
                       }));
                     }}
-                    className="w-full bg-white border-2 border-gray-100 rounded-xl py-4 px-4 pr-10 font-bold text-[#001A33] text-[14px] focus:ring-2 focus:ring-[#10B981] focus:border-[#10B981] outline-none appearance-none shadow-sm transition-all hover:border-gray-200"
+                    className={`w-full bg-white border-2 rounded-xl py-4 px-4 pr-10 font-bold text-[#001A33] text-[14px] focus:ring-2 focus:ring-[#10B981] focus:border-[#10B981] outline-none appearance-none shadow-sm transition-all hover:border-gray-200 ${showCountryError && !formData.country ? 'border-red-400' : 'border-gray-100'}`}
                   >
                     <option value="">Select Country</option>
                     {COUNTRIES.map(country => (
@@ -1596,6 +1611,9 @@ ${a(9)}`;
                   </select>
                   <ChevronDown className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none" size={20} />
                 </div>
+                {showCountryError && !formData.country && (
+                  <p className="text-red-500 text-[12px] font-bold mt-2 animate-pulse">Please select a country to continue</p>
+                )}
                 <p className="text-[12px] text-gray-500 font-semibold mt-2">
                   Select the country where you'll offer your tours and activities
                 </p>
@@ -1610,14 +1628,17 @@ ${a(9)}`;
             <h2 className="text-xl font-black text-[#001A33] mb-6">Choose Category & City</h2>
 
             <div className="space-y-6">
-              <div>
+              <div id="category-section">
                 <label className="block text-[14px] font-bold text-[#001A33] mb-3">
                   What type of tour are you creating? *
                 </label>
+                {showCategoryError && !formData.category && (
+                  <p className="text-red-500 text-[12px] font-bold mb-3 animate-pulse">Please select a tour type to continue</p>
+                )}
                 <div className="grid grid-cols-2 gap-4">
                   <button
                     type="button"
-                    onClick={() => handleInputChange('category', 'Entry Ticket')}
+                    onClick={() => { handleInputChange('category', 'Entry Ticket'); setShowCategoryError(false); }}
                     className={`p-6 rounded-2xl border-2 transition-all text-left ${formData.category === 'Entry Ticket'
                       ? 'border-[#10B981] bg-[#10B981]/5'
                       : 'border-gray-200 hover:border-[#10B981]/50'
@@ -1630,7 +1651,7 @@ ${a(9)}`;
                   </button>
                   <button
                     type="button"
-                    onClick={() => handleInputChange('category', 'Guided Tour')}
+                    onClick={() => { handleInputChange('category', 'Guided Tour'); setShowCategoryError(false); }}
                     className={`p-6 rounded-2xl border-2 transition-all text-left ${formData.category === 'Guided Tour'
                       ? 'border-[#10B981] bg-[#10B981]/5'
                       : 'border-gray-200 hover:border-[#10B981]/50'
@@ -1649,16 +1670,16 @@ ${a(9)}`;
                 </div>
               </div>
 
-              <div>
+              <div id="city-select">
                 <label className="block text-[14px] font-bold text-[#001A33] mb-3">
                   Select City *
                 </label>
                 <div className="relative">
                   <select
                     value={formData.city}
-                    onChange={(e) => handleInputChange('city', e.target.value)}
+                    onChange={(e) => { handleInputChange('city', e.target.value); if (e.target.value) setShowCityError(false); }}
                     disabled={!formData.country}
-                    className="w-full bg-white border-2 border-gray-100 rounded-xl py-4 px-4 pr-10 font-bold text-[#001A33] text-[14px] focus:ring-2 focus:ring-[#10B981] focus:border-[#10B981] outline-none disabled:opacity-50 disabled:cursor-not-allowed appearance-none shadow-sm transition-all hover:border-gray-200"
+                    className={`w-full bg-white border-2 rounded-xl py-4 px-4 pr-10 font-bold text-[#001A33] text-[14px] focus:ring-2 focus:ring-[#10B981] focus:border-[#10B981] outline-none disabled:opacity-50 disabled:cursor-not-allowed appearance-none shadow-sm transition-all hover:border-gray-200 ${showCityError && !formData.city ? 'border-red-400' : 'border-gray-100'}`}
                   >
                     <option value="">{formData.country ? 'Select City' : 'Select country first'}</option>
                     {formData.country && COUNTRY_CITIES[formData.country]?.map(city => (
@@ -1667,6 +1688,9 @@ ${a(9)}`;
                   </select>
                   <ChevronDown className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none" size={20} />
                 </div>
+                {showCityError && !formData.city && (
+                  <p className="text-red-500 text-[12px] font-bold mt-2 animate-pulse">Please select a city to continue</p>
+                )}
                 {formData.country && (
                   <p className="text-[12px] text-gray-500 font-semibold mt-2">
                     {COUNTRY_CITIES[formData.country]?.length || 0} cities available in {formData.country}
@@ -1688,13 +1712,17 @@ ${a(9)}`;
                   Tour Title *
                 </label>
                 <input
+                  id="tour-title-input"
                   type="text"
                   value={formData.title}
-                  onChange={(e) => handleInputChange('title', e.target.value)}
+                  onChange={(e) => { handleInputChange('title', e.target.value); if (e.target.value.trim()) setShowTitleError(false); }}
                   placeholder={formData.country === 'Thailand' ? "e.g., Bangkok City Tour with Local Guide" : "e.g., Taj Mahal Sunrise Tour with Local Guide"}
                   maxLength={100}
-                  className="w-full bg-gray-50 border-none rounded-2xl py-4 px-4 font-bold text-[#001A33] text-[14px] focus:ring-2 focus:ring-[#10B981] outline-none"
+                  className={`w-full bg-gray-50 border-none rounded-2xl py-4 px-4 font-bold text-[#001A33] text-[14px] focus:ring-2 focus:ring-[#10B981] outline-none ${showTitleError && !formData.title.trim() ? 'ring-2 ring-red-500' : ''}`}
                 />
+                {showTitleError && !formData.title.trim() && (
+                  <p className="text-red-500 text-[12px] font-bold mt-2 ml-1 animate-pulse">Please enter a tour title to continue</p>
+                )}
                 <p className="text-[12px] text-gray-500 font-semibold mt-2">
                   {formData.title.length} / 100 characters
                 </p>
@@ -1726,7 +1754,7 @@ ${a(9)}`;
 
               {/* Multi-Day Tour: Multiple Cities Selection */}
               {formData.isMultiDayTour ? (
-                <div>
+                <div id="locations-section">
                   <label className="block text-[14px] font-bold text-[#001A33] mb-3">
                     Select Cities & Locations * (Choose multiple cities and their locations)
                   </label>
@@ -1833,10 +1861,13 @@ ${a(9)}`;
                 </div>
               ) : (
                 /* Regular Single City Location Selection */
-                <div>
+                <div id="locations-section">
                   <label className="block text-[14px] font-bold text-[#001A33] mb-3">
                     Select Places to See * (Click to select up to 10 places)
                   </label>
+                  {showLocationsError && formData.locations.length === 0 && (
+                    <p className="text-red-500 text-[12px] font-bold mb-3 animate-pulse">Please select at least one location to continue</p>
+                  )}
                   {formData.city && CITY_LOCATIONS[formData.city] ? (
                     <>
                       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
@@ -1975,8 +2006,11 @@ ${a(9)}`;
                       Specify how entry to each location is handled
                     </p>
                     <div className="space-y-4">
+                      {showEntryTicketError && (
+                        <p className="text-red-500 text-[12px] font-bold animate-pulse">Please select an entry ticket option for all locations to continue</p>
+                      )}
                       {allLocations.map((location) => (
-                        <div key={location} className="bg-gray-50 rounded-xl p-4 border border-gray-200 relative">
+                        <div id={`entry-ticket-${location}`} key={location} className="bg-gray-50 rounded-xl p-4 border border-gray-200 relative">
                           <button
                             type="button"
                             onClick={() => {
@@ -2103,17 +2137,24 @@ ${a(9)}`;
                       Maximum Group Size *
                     </label>
                     <input
+                      id="max-group-size-input"
                       type="number"
                       onWheel={(e) => (e.target as HTMLInputElement).blur()}
                       value={formData.maxGroupSize || ''}
                       onChange={(e) => {
                         const maxSize = e.target.value ? parseInt(e.target.value) : undefined;
                         handleInputChange('maxGroupSize', maxSize);
+                        if (maxSize && maxSize >= 1) setShowGroupSizeError(false);
                       }}
                       placeholder="e.g., 10"
                       min="1"
-                      className="w-full bg-gray-50 border-none rounded-2xl py-4 px-4 font-bold text-[#001A33] text-[14px] focus:ring-2 focus:ring-[#10B981] outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                      className={`w-full bg-gray-50 border-none rounded-2xl py-4 px-4 font-bold text-[#001A33] text-[14px] focus:ring-2 focus:ring-[#10B981] outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none ${showGroupSizeError && (!formData.maxGroupSize || formData.maxGroupSize < 1) ? 'ring-2 ring-red-500' : ''}`}
                     />
+                    {showGroupSizeError && (!formData.maxGroupSize || formData.maxGroupSize < 1) && (
+                      <p className="text-red-500 text-[12px] font-bold mt-2 ml-1 animate-pulse">
+                        Please enter the maximum group size
+                      </p>
+                    )}
                     <p className="text-[11px] text-gray-400 mt-2 font-semibold">
                       Maximum number of people you can guide in one group
                     </p>
@@ -2134,7 +2175,7 @@ ${a(9)}`;
 
                 {/* Pricing for Each Group Size */}
                 {formData.maxGroupSize && formData.maxGroupSize >= 1 && (
-                  <div>
+                  <div id="pricing-tiers-section">
                     <div className="flex items-center justify-between mb-3">
                       <div>
                         <label className="block text-[14px] font-bold text-[#001A33] mb-1">
@@ -2143,6 +2184,11 @@ ${a(9)}`;
                         <p className="text-[11px] text-gray-500">
                           Enter price for 1 person, then we'll suggest prices for others. You can adjust manually.
                         </p>
+                        {showPricingError && !formData.groupPricingTiers?.some((t: any) => t.minPeople === 1 && t.price && t.price.trim() !== '') && (
+                          <p className="text-red-500 text-[12px] font-bold mt-1 animate-pulse">
+                            Please enter a price for at least 1 person to continue
+                          </p>
+                        )}
                       </div>
                       <button
                         type="button"
@@ -2194,6 +2240,7 @@ ${a(9)}`;
                                   value={price}
                                   onChange={(e) => {
                                     const newPrice = e.target.value;
+                                    if (numPeople === 1 && newPrice.trim() !== '') setShowPricingError(false);
                                     setFormData(prev => {
                                       const newTiers = [...(prev.groupPricingTiers || [])];
                                       const tierIndex = newTiers.findIndex(t => t.minPeople === numPeople && t.maxPeople === numPeople);
@@ -2457,17 +2504,20 @@ ${a(9)}`;
                 </div>
               </div>
 
-              <div>
+              <div id="included-textarea">
                 <label className="block text-[14px] font-bold text-[#001A33] mb-3">
                   What's Included * (One item per line)
                 </label>
                 <textarea
                   value={formData.included}
-                  onChange={(e) => handleInputChange('included', e.target.value)}
+                  onChange={(e) => { handleInputChange('included', e.target.value); if (e.target.value.trim()) setShowIncludedError(false); }}
                   placeholder="• Entry ticket&#10;• Professional guide&#10;• Transportation"
                   rows={5}
-                  className="w-full bg-gray-50 border-none rounded-2xl py-4 px-4 font-semibold text-[#001A33] text-[14px] focus:ring-2 focus:ring-[#10B981] outline-none resize-none"
+                  className={`w-full bg-gray-50 border-none rounded-2xl py-4 px-4 font-semibold text-[#001A33] text-[14px] focus:ring-2 focus:ring-[#10B981] outline-none resize-none ${showIncludedError && !formData.included?.trim() ? 'ring-2 ring-red-500' : ''}`}
                 />
+                {showIncludedError && !formData.included?.trim() && (
+                  <p className="text-red-500 text-[12px] font-bold mt-2 animate-pulse">Please fill in what's included in the tour to continue</p>
+                )}
               </div>
 
               <div>
@@ -2516,13 +2566,20 @@ ${a(9)}`;
         {step === 6 && (
           <div className="space-y-8">
             {/* Part 1: Visual Itinerary Builder */}
-            <div className="bg-white rounded-2xl p-8 border border-gray-200">
+            <div id="itinerary-items-section" className="bg-white rounded-2xl p-8 border border-gray-200">
               <div className="flex items-center justify-between mb-6">
                 <div>
                   <h2 className="text-2xl font-black text-[#001A33]">Build Your Itinerary Timeline</h2>
                   <p className="text-[14px] text-gray-500 font-semibold mt-1">
                     Add time slots with activity types to create a visual journey for travelers.
                   </p>
+                  {showItineraryItemsError && (formData.itineraryItems.length === 0 || !formData.itineraryItems.every((item: any) => item.title?.trim() && item.time?.trim() && item.type)) && (
+                    <p className="text-red-500 text-[12px] font-bold mt-2 animate-pulse">
+                      {formData.itineraryItems.length === 0
+                        ? 'Please add at least one itinerary stop to continue'
+                        : 'Please fill in the title, time, and type for all itinerary stops'}
+                    </p>
+                  )}
                 </div>
                 <button
                   type="button"
@@ -2681,11 +2738,24 @@ ${a(9)}`;
             </div>
 
             {/* Part 2: Detailed Text Itinerary */}
-            <div className="bg-white rounded-2xl p-8 border border-gray-200">
+            <div id="detailed-itinerary-section" className="bg-white rounded-2xl p-8 border border-gray-200">
               <h2 className="text-2xl font-black text-[#001A33] mb-2">Detailed Itinerary Description</h2>
-              <p className="text-[14px] text-gray-500 font-semibold mb-6">
+              <p className="text-[14px] text-gray-500 font-semibold mb-1">
                 Write a comprehensive, detailed description of the entire tour experience. <span className="text-[#FF6B35] font-black">Minimum 500 words required.</span>
               </p>
+              {(() => {
+                const wc = formData.detailedItinerary.trim().split(/\s+/).filter((w: string) => w.length > 0).length;
+                return (
+                  <p className={`text-[13px] font-bold mb-4 ${wc >= 500 ? 'text-[#10B981]' : 'text-gray-400'}`}>
+                    {wc} / 500 words{wc >= 500 ? ' ✓' : ''}
+                  </p>
+                );
+              })()}
+              {showDetailedItineraryError && formData.detailedItinerary.trim().split(/\s+/).filter((w: string) => w.length > 0).length < 500 && (
+                <p className="text-red-500 text-[12px] font-bold mb-4 animate-pulse">
+                  Please write at least 500 words in the detailed itinerary to continue ({formData.detailedItinerary.trim().split(/\s+/).filter((w: string) => w.length > 0).length} words so far)
+                </p>
+              )}
 
               {/* Mode Toggle */}
               <div className="flex bg-gray-100 p-1.5 rounded-xl mb-8">
@@ -2866,7 +2936,7 @@ ${a(9)}`;
                     <textarea
                       readOnly={aiGenerating}
                       value={formData.detailedItinerary}
-                      onChange={(e) => handleInputChange('detailedItinerary', e.target.value)}
+                      onChange={(e) => { handleInputChange('detailedItinerary', e.target.value); const wc = e.target.value.trim().split(/\s+/).filter((w: string) => w.length > 0).length; if (wc >= 500) setShowDetailedItineraryError(false); }}
                       placeholder={
                         formData.country === 'Thailand'
                           ? "Tour Overview\nWrite a brief overview of your tour — key highlights, duration, and what makes it special.\n\nPickup & Departure Details\nDescribe pickup time, location, vehicle type, and travel time to the first stop.\n\nGrand Palace Visit\nDescribe this stop in detail — history, what travellers will see, time spent here.\n\nWat Pho Exploration\nDescribe the experience, architecture, and cultural significance.\n\nLunch Break\nMeal arrangements — restaurant type, cuisine options, inclusions.\n\nReturn Journey\nReturn trip details — departure time, route, arrival time.\n\nInsider Tips\nPractical tips — best time to visit, what to wear, what to carry."
@@ -3511,10 +3581,13 @@ ${a(9)}`;
                 )}
               </div>
 
-              <div>
+              <div id="languages-section">
                 <label className="block text-[14px] font-bold text-[#001A33] mb-3">
                   Languages Offered * (Select all that apply)
                 </label>
+                {showLanguagesError && formData.languages.length === 0 && (
+                  <p className="text-red-500 text-[12px] font-bold mb-3 animate-pulse">Please select at least one language to continue</p>
+                )}
                 <div className="grid grid-cols-4 gap-3">
                   {LANGUAGE_OPTIONS.map((lang) => (
                     <label
@@ -3944,16 +4017,105 @@ ${a(9)}`;
               </button>
               <button
                 onClick={() => {
-                  if (step === 4 && !formData.duration) {
-                    setShowDurationError(true);
-                    document.getElementById('duration-select')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                    return;
+                  if (step === 1) {
+                    if (!formData.country) {
+                      setShowCountryError(true);
+                      document.getElementById('country-select')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                      return;
+                    }
+                  }
+                  if (step === 2) {
+                    if (!formData.category) {
+                      setShowCategoryError(true);
+                      document.getElementById('category-section')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                      return;
+                    }
+                    if (!formData.city) {
+                      setShowCityError(true);
+                      document.getElementById('city-select')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                      return;
+                    }
+                  }
+                  if (step === 3) {
+                    if (!formData.title || formData.title.trim() === '') {
+                      setShowTitleError(true);
+                      document.getElementById('tour-title-input')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                      return;
+                    }
+                    if (formData.isMultiDayTour) {
+                      const multiCityKeys = Object.keys(formData.multiCityLocations);
+                      const hasLocations = multiCityKeys.some(city => formData.multiCityLocations[city]?.length > 0);
+                      if (!hasLocations) {
+                        setShowLocationsError(true);
+                        document.getElementById('locations-section')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        return;
+                      }
+                    } else {
+                      if (formData.locations.length === 0) {
+                        setShowLocationsError(true);
+                        document.getElementById('locations-section')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        return;
+                      }
+                      const missingTicket = formData.locations.find(loc => !formData.locationEntryTickets[loc]);
+                      if (missingTicket) {
+                        setShowEntryTicketError(true);
+                        document.getElementById(`entry-ticket-${missingTicket}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        return;
+                      }
+                    }
+                  }
+                  if (step === 4) {
+                    if (!formData.duration) {
+                      setShowDurationError(true);
+                      document.getElementById('duration-select')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                      return;
+                    }
+                    if (!formData.maxGroupSize || formData.maxGroupSize < 1) {
+                      setShowGroupSizeError(true);
+                      document.getElementById('max-group-size-input')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                      return;
+                    }
+                    const hasPriceForMin = formData.groupPricingTiers?.some(
+                      (tier: any) => tier.minPeople === 1 && tier.price && tier.price.trim() !== ''
+                    );
+                    if (!hasPriceForMin) {
+                      setShowPricingError(true);
+                      document.getElementById('pricing-tiers-section')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                      return;
+                    }
+                  }
+                  if (step === 5) {
+                    if (!formData.included || formData.included.trim() === '') {
+                      setShowIncludedError(true);
+                      document.getElementById('included-textarea')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                      return;
+                    }
+                  }
+                  if (step === 6) {
+                    if (formData.itineraryItems.length === 0 || !formData.itineraryItems.every((item: any) => item.title?.trim() && item.time?.trim() && item.type)) {
+                      setShowItineraryItemsError(true);
+                      document.getElementById('itinerary-items-section')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                      return;
+                    }
+                    const wordCount = formData.detailedItinerary.trim().split(/\s+/).filter((w: string) => w.length > 0).length;
+                    if (wordCount < 500) {
+                      setShowDetailedItineraryError(true);
+                      document.getElementById('detailed-itinerary-section')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                      return;
+                    }
+                  }
+                  if (step === 8) {
+                    if (formData.languages.length === 0) {
+                      setShowLanguagesError(true);
+                      document.getElementById('languages-section')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                      return;
+                    }
                   }
                   if (canProceed()) {
                     setStep(Math.min(totalSteps, step + 1));
                   }
                 }}
-                disabled={step === 4 ? false : !canProceed()}
+                disabled={false}
                 className="flex items-center gap-2 px-6 py-3 bg-[#10B981] hover:bg-[#059669] text-white font-black rounded-full text-[14px] disabled:opacity-50 disabled:cursor-not-allowed transition-all"
               >
                 Next
