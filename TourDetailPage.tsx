@@ -4141,7 +4141,16 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
                           <div className="space-y-4">
                             {allOptions.map((option: any) => {
                               const isSelected = selectedOption?.id === option.id;
-                              const currencySymbol = option.currency === 'USD' ? '$' : option.currency === 'EUR' ? '€' : '₹';
+                              // Convert INR prices to USD at 85 INR = 1 USD
+                              const currencySymbol = '$';
+                              // If option has no own groupPricingTiers it falls back to main tour's tiers (which may be INR)
+                              const optTiers = option.groupPricingTiers
+                                ? (typeof option.groupPricingTiers === 'string' ? (() => { try { return JSON.parse(option.groupPricingTiers); } catch { return []; } })() : option.groupPricingTiers)
+                                : [];
+                              const optionHasOwnTiers = Array.isArray(optTiers) && optTiers.length > 0;
+                              // Use option's own currency if it has own tiers; otherwise use main tour's currency (inherited tiers)
+                              const priceCurrency = optionHasOwnTiers ? (option.currency || 'INR') : (tour.currency || 'INR');
+                              const toDisplayPrice = (price: number) => priceCurrency === 'INR' ? Math.round(price / 85) : price;
 
                               return (
                                 <div
@@ -4204,19 +4213,25 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
                                         <div className="font-black text-[#001A33] text-[20px] mb-1">
                                           {(() => {
                                             const currentParticipants = isCustomParticipants ? customParticipants : participants;
-                                            // Always use group pricing logic - calculate from tiers
+
+                                            // If option has its own tiers, use them directly (avoid calculateGroupPrice
+                                            // which always prefers tour.groupPricingTiers over option tiers)
+                                            if (optionHasOwnTiers) {
+                                              const matchingTier = optTiers.find((t: any) =>
+                                                currentParticipants >= (t.minPeople || 1) && currentParticipants <= (t.maxPeople || 999)
+                                              ) || optTiers[optTiers.length - 1];
+                                              const tierPrice = parseFloat(matchingTier?.price || optTiers[0]?.price || option.price || 0);
+                                              return `${currencySymbol}${toDisplayPrice(tierPrice).toLocaleString()}`;
+                                            }
+
+                                            // No own tiers — fall back to main tour tiers (which are in tour.currency)
                                             const groupPrice = calculateGroupPrice(option, currentParticipants);
-
                                             if (groupPrice !== null) {
-                                              return `${currencySymbol}${groupPrice.toLocaleString()}`;
+                                              return `${currencySymbol}${toDisplayPrice(groupPrice).toLocaleString()}`;
                                             }
 
-                                            if (option.groupPrice) {
-                                              return `${currencySymbol}${option.groupPrice.toLocaleString()}`;
-                                            }
-
-                                            // Fallback: use option.price as fixed price
-                                            return `${currencySymbol}${(option.price || 0).toLocaleString()}`;
+                                            // Last fallback: option.price
+                                            return `${currencySymbol}${toDisplayPrice(option.price || 0).toLocaleString()}`;
                                           })()}
                                         </div>
                                       </div>
@@ -4711,8 +4726,10 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
                           <div className="text-[12px] font-bold text-gray-500 uppercase tracking-wider mb-2">Main Tour Price</div>
                           <div className="flex items-baseline gap-3 mb-1">
                             <span className="text-[14px] text-gray-500 font-semibold">
-                              Starting from {tour.currency === 'INR' ? '₹' : '$'}
+                              Starting from $
                               {(() => {
+                                const INR_TO_USD_SIDEBAR = 85;
+                                const sidebarConvert = (p: number) => tour.currency === 'INR' ? Math.round(p / INR_TO_USD_SIDEBAR) : p;
                                 console.log('═══════════════════════════════════════════════════════════');
                                 console.log('🏷 "STARTING FROM" PRICE CALCULATION');
                                 console.log('═══════════════════════════════════════════════════════════');
@@ -4782,11 +4799,11 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
 
                                 console.log('💰 FINAL "STARTING FROM" PRICE:', priceForOne);
                                 console.log('═══════════════════════════════════════════════════════════');
-                                return priceForOne.toLocaleString();
+                                return sidebarConvert(priceForOne).toLocaleString();
                               })()}
                             </span>
                             <div className="text-3xl font-black text-red-600">
-                              {tour.currency === 'INR' ? '₹' : '$'}
+                              $
                               {(() => {
                                 const currentParticipants = isCustomParticipants ? customParticipants : participants;
                                 console.log('═══════════════════════════════════════════════════════════');
@@ -4797,11 +4814,12 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
 
                                 // Always use group pricing logic - calculate from tiers
                                 const groupPrice = calculateGroupPrice(tour, currentParticipants);
+                                const sidebarConvertDynamic = (p: number) => tour.currency === 'INR' ? Math.round(p / 85) : p;
 
                                 if (groupPrice !== null && groupPrice > 0) {
                                   console.log('✅ Using calculated group price:', groupPrice);
                                   console.log('═══════════════════════════════════════════════════════════');
-                                  return groupPrice.toLocaleString();
+                                  return sidebarConvertDynamic(groupPrice).toLocaleString();
                                 }
 
                                 // Check main tour option for group pricing
@@ -4813,7 +4831,7 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
                                     if (optionGroupPrice !== null && optionGroupPrice > 0) {
                                       console.log('✅ Using main tour option price:', optionGroupPrice);
                                       console.log('═══════════════════════════════════════════════════════════════');
-                                      return optionGroupPrice.toLocaleString();
+                                      return sidebarConvertDynamic(optionGroupPrice).toLocaleString();
                                     }
                                   }
                                   // DO NOT use groupPrice - it's the LAST tier price (wrong)
@@ -4822,7 +4840,7 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
                                 // Fallback: use pricePerPerson (should be first tier price)
                                 console.warn('⚠️ Using fallback pricePerPerson:', tour.pricePerPerson);
                                 console.log('═══════════════════════════════════════════════════════════');
-                                return (tour.pricePerPerson || 0).toLocaleString();
+                                return sidebarConvertDynamic(tour.pricePerPerson || 0).toLocaleString();
                               })()}
                             </div>
                           </div>
@@ -4843,9 +4861,16 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
                           </div>
                           <div className="flex items-baseline gap-3 mb-1">
                             <div className="text-3xl font-black text-[#10B981]">
-                              {(selectedOption.currency || tour.currency || 'INR') === 'INR' ? '₹' : '$'}
+                              $
                               {(() => {
                                 const currentParticipants = isCustomParticipants ? customParticipants : participants;
+                                // Same logic: if option has no own tiers, price came from main tour's INR tiers
+                                const selOptTiers = selectedOption.groupPricingTiers
+                                  ? (typeof selectedOption.groupPricingTiers === 'string' ? (() => { try { return JSON.parse(selectedOption.groupPricingTiers); } catch { return []; } })() : selectedOption.groupPricingTiers)
+                                  : [];
+                                const selOptHasOwnTiers = Array.isArray(selOptTiers) && selOptTiers.length > 0;
+                                const selOptPriceCurrency = selOptHasOwnTiers ? (selectedOption.currency || 'INR') : (tour.currency || 'INR');
+                                const convertOpt = (p: number) => selOptPriceCurrency === 'INR' ? Math.round(p / 85) : p;
                                 console.log('═══════════════════════════════════════════════════════════');
                                 console.log('💰 SELECTED OPTION PRICE CALCULATION');
                                 console.log('═══════════════════════════════════════════════════════════');
@@ -4858,27 +4883,23 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
                                 });
                                 console.log('Current participants:', currentParticipants);
 
-                                // ALWAYS use group pricing logic - calculate from tiers
-                                // This will use option's tiers if available, otherwise fall back to main tour's tiers
+                                // If selected option has own tiers, use them directly
+                                if (selOptHasOwnTiers) {
+                                  const matchingTier = selOptTiers.find((t: any) =>
+                                    currentParticipants >= (t.minPeople || 1) && currentParticipants <= (t.maxPeople || 999)
+                                  ) || selOptTiers[selOptTiers.length - 1];
+                                  const tierPrice = parseFloat(matchingTier?.price || selOptTiers[0]?.price || selectedOption.price || 0);
+                                  return convertOpt(tierPrice).toLocaleString();
+                                }
+
+                                // No own tiers — fall back to main tour tiers (INR)
                                 const groupPrice = calculateGroupPrice(selectedOption, currentParticipants);
                                 if (groupPrice !== null && groupPrice > 0) {
-                                  return groupPrice.toLocaleString();
+                                  return convertOpt(groupPrice).toLocaleString();
                                 }
 
-                                // DO NOT use groupPrice fallback - it's the LAST tier price (₹8,200 for 10 people)
-                                // Final fallback: use main tour's pricing tiers
-                                console.log('🔍 Selected option has no groupPricingTiers, falling back to main tour...');
-                                const mainTourPrice = calculateGroupPrice(tour, currentParticipants);
-                                if (mainTourPrice !== null && mainTourPrice > 0) {
-                                  console.log('✅ Using main tour groupPricingTiers:', mainTourPrice);
-                                  console.log('═══════════════════════════════════════════════════════════');
-                                  return mainTourPrice.toLocaleString();
-                                }
-
-                                // Last resort: use option.price (should be first tier price)
-                                console.warn('⚠️ Using option.price fallback:', selectedOption.price);
-                                console.log('═══════════════════════════════════════════════════════════');
-                                return (selectedOption.price || 0).toLocaleString();
+                                // Last resort: option.price
+                                return convertOpt(selectedOption.price || 0).toLocaleString();
                               })()}
                             </div>
                           </div>
