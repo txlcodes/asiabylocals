@@ -4107,7 +4107,8 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
                     const shouldShowMainTourAsOption = mainTourHasGroupPricing;
 
                     // Create main tour option if needed
-                    let allOptions = tour.options || [];
+                    // Filter out the real DB sortOrder:-1 option (system option) — we'll represent it virtually if needed
+                    let allOptions = (tour.options || []).filter((opt: any) => opt.sortOrder !== -1);
                     if (shouldShowMainTourAsOption && !allOptions.find((opt: any) => opt.id === 'main-tour')) {
                       const mainTourOption = {
                         id: 'main-tour',
@@ -5501,7 +5502,7 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
 
               {/* Options List */}
               <div className="space-y-4 max-h-[70vh] overflow-y-auto pr-2">
-                {tour.options.map((option: any) => {
+                {(tour.options || []).filter((opt: any) => opt.sortOrder !== -1).map((option: any) => {
                   const isSelected = selectedOption?.id === option.id;
                   const currencySymbol = option.currency === 'USD' ? '$' : option.currency === 'EUR' ? '€' : '₹';
 
