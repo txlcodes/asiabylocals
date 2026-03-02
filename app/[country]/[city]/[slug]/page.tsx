@@ -38,12 +38,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   // Tour detail page — fetch tour for metadata
   try {
-    const res = await fetch(`${API_URL}/api/tours/city/${encodeURIComponent(cityName)}/slug/${encodeURIComponent(slug)}`, {
+    const res = await fetch(`${API_URL}/api/public/tours/by-slug/${encodeURIComponent(slug)}`, {
       next: { revalidate: 60 },
     });
     if (res.ok) {
-      const tour = await res.json();
-      return {
+      const data = await res.json();
+      const tour = (data.success && data.tour) ? data.tour : (data.title ? data : null);
+      if (tour) return {
         title: `${tour.title} in ${cityName} | AsiaByLocals`,
         description: tour.shortDescription || `Book ${tour.title} in ${cityName} with a licensed local guide. Authentic experience with AsiaByLocals.`,
         alternates: {
@@ -77,11 +78,17 @@ export default async function SlugPage({ params }: Props) {
   // Tour detail page
   let tour = null;
   try {
-    const res = await fetch(`${API_URL}/api/tours/city/${encodeURIComponent(cityName)}/slug/${encodeURIComponent(slug)}`, {
+    const res = await fetch(`${API_URL}/api/public/tours/by-slug/${encodeURIComponent(slug)}`, {
       next: { revalidate: 60 },
     });
     if (res.ok) {
-      tour = await res.json();
+      const data = await res.json();
+      if (data.success && data.tour) {
+        tour = data.tour;
+      } else if (data.title) {
+        // API returns tour object directly
+        tour = data;
+      }
     }
   } catch (e) {
     console.error('Failed to fetch tour:', e);

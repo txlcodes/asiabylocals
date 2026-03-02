@@ -1,4 +1,5 @@
 import { Metadata } from 'next';
+import { Suspense } from 'react';
 import PaymentCallbackClient from '@/components/PaymentCallbackClient';
 
 export const metadata: Metadata = {
@@ -7,5 +8,9 @@ export const metadata: Metadata = {
 };
 
 export default function PaymentCallbackPage() {
-  return <PaymentCallbackClient />;
+  return (
+    <Suspense>
+      <PaymentCallbackClient />
+    </Suspense>
+  );
 }

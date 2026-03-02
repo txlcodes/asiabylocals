@@ -1,4 +1,5 @@
 import { Metadata } from 'next';
+import { Suspense } from 'react';
 import BookingClient from '@/components/BookingClient';
 
 export const metadata: Metadata = {
@@ -12,5 +13,9 @@ interface Props {
 
 export default async function BookingPage({ params }: Props) {
   const { id } = await params;
-  return <BookingClient bookingId={id} />;
+  return (
+    <Suspense>
+      <BookingClient bookingId={id} />
+    </Suspense>
+  );
 }

@@ -1,4 +1,5 @@
 import { Metadata } from 'next';
+import { Suspense } from 'react';
 import SupplierClient from '@/components/SupplierClient';
 
 export const metadata: Metadata = {
@@ -8,5 +9,9 @@ export const metadata: Metadata = {
 };
 
 export default function SupplierPage() {
-  return <SupplierClient />;
+  return (
+    <Suspense>
+      <SupplierClient />
+    </Suspense>
+  );
 }

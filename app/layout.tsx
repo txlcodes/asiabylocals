@@ -1,6 +1,7 @@
-import type { Metadata } from 'next'
+import type { Metadata, Viewport } from 'next'
 import { Plus_Jakarta_Sans } from 'next/font/google'
 import Script from 'next/script'
+import Footer from '@/components/Footer'
 import './globals.css'
 
 const plusJakartaSans = Plus_Jakarta_Sans({
@@ -31,7 +32,6 @@ export const metadata: Metadata = {
     'apple-mobile-web-app-status-bar-style': 'black-translucent',
     'apple-mobile-web-app-title': 'AsiaByLocals',
   },
-  themeColor: '#10B981',
   openGraph: {
     type: 'website',
     url: 'https://www.asiabylocals.com/',
@@ -73,6 +73,10 @@ export const metadata: Metadata = {
     apple: [{ url: '/apple-touch-icon-v7.png', sizes: '180x180' }],
   },
   manifest: '/site.webmanifest?v=7',
+}
+
+export const viewport: Viewport = {
+  themeColor: '#10B981',
 }
 
 const jsonLd = {
@@ -129,6 +133,7 @@ export default function RootLayout({
         />
         <div id="app-root">
           {children}
+          <Footer />
         </div>
       </body>
     </html>
