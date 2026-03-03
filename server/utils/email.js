@@ -2291,8 +2291,7 @@ export const sendGuideConfirmationRequestEmail = async (supplierEmail, supplierN
   const { bookingReference, tourTitle, customerName, customerEmail, customerPhone, bookingDate, numberOfGuests, totalAmount, currency, specialRequests } = bookingDetails;
   const formattedDate = new Date(bookingDate).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
   const frontendUrl = process.env.FRONTEND_URL || process.env.VITE_FRONTEND_URL || 'http://localhost:3000';
-  const backendUrl = process.env.BACKEND_URL || process.env.RENDER_EXTERNAL_URL || process.env.VITE_API_URL || frontendUrl;
-  const confirmUrl = `${backendUrl.replace(/\/$/, '')}/api/bookings/guide-confirm?token=${confirmationToken}`;
+  const confirmUrl = `${frontendUrl.replace(/\/$/, '')}/api/bookings/guide-confirm?token=${confirmationToken}`;
   const fromEmail = (resendApiKey || sendGridApiKey) ? 'info@asiabylocals.com' : (process.env.EMAIL_USER || 'asiabylocals@gmail.com');
 
   const mailOptions = {
@@ -2402,8 +2401,7 @@ export const sendGuideReminderEmail = async (supplierEmail, supplierName, bookin
   const { bookingReference, tourTitle, customerName, customerEmail, customerPhone, bookingDate, numberOfGuests, totalAmount, currency } = bookingDetails;
   const formattedDate = new Date(bookingDate).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
   const frontendUrl = process.env.FRONTEND_URL || process.env.VITE_FRONTEND_URL || 'http://localhost:3000';
-  const backendUrl = process.env.BACKEND_URL || process.env.RENDER_EXTERNAL_URL || process.env.VITE_API_URL || frontendUrl;
-  const confirmUrl = `${backendUrl.replace(/\/$/, '')}/api/bookings/guide-confirm?token=${confirmationToken}`;
+  const confirmUrl = `${frontendUrl.replace(/\/$/, '')}/api/bookings/guide-confirm?token=${confirmationToken}`;
   const fromEmail = (resendApiKey || sendGridApiKey) ? 'info@asiabylocals.com' : (process.env.EMAIL_USER || 'asiabylocals@gmail.com');
 
   const urgencyMap = {
