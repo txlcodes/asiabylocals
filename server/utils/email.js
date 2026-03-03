@@ -2274,5 +2274,453 @@ The AsiaByLocals Team
   }
 };
 
+// ===== GUIDE CONFIRMATION & REMINDER EMAILS =====
+
+/**
+ * Send booking notification with "Confirm Booking" button to guide
+ * This ADDS a confirmation CTA to the standard notification — does NOT replace it
+ */
+export const sendGuideConfirmationRequestEmail = async (supplierEmail, supplierName, bookingDetails, confirmationToken) => {
+  if (!supplierEmail || typeof supplierEmail !== 'string' || !supplierEmail.includes('@')) {
+    console.error('❌ Invalid email address provided:', supplierEmail);
+    throw new Error('Invalid email address');
+  }
+
+  console.log(`📧 Sending guide confirmation request email to: ${supplierEmail}`);
+
+  const { bookingReference, tourTitle, customerName, customerEmail, customerPhone, bookingDate, numberOfGuests, totalAmount, currency, specialRequests } = bookingDetails;
+  const formattedDate = new Date(bookingDate).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
+  const frontendUrl = process.env.FRONTEND_URL || process.env.VITE_FRONTEND_URL || 'http://localhost:3000';
+  const confirmUrl = `${frontendUrl.replace(/\/$/, '')}/api/bookings/guide-confirm?token=${confirmationToken}`;
+  const fromEmail = (resendApiKey || sendGridApiKey) ? 'info@asiabylocals.com' : (process.env.EMAIL_USER || 'asiabylocals@gmail.com');
+
+  const mailOptions = {
+    from: `"AsiaByLocals Bookings" <${fromEmail}>`,
+    to: supplierEmail,
+    subject: `Action Required: New Booking for ${tourTitle}`,
+    html: `
+      <!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>
+      <body style="margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;background-color:#f5f5f5;">
+        <table role="presentation" style="width:100%;border-collapse:collapse;background-color:#f5f5f5;">
+          <tr><td align="center" style="padding:40px 20px;">
+            <table role="presentation" style="width:100%;max-width:600px;background-color:#ffffff;border-collapse:collapse;border-radius:8px;overflow:hidden;">
+              <tr><td style="padding:40px 40px 30px;text-align:center;background-color:#10B981;">
+                <h1 style="margin:0;font-size:28px;font-weight:800;color:#ffffff;">Action Required: New Booking!</h1>
+                <p style="margin:10px 0 0;font-size:14px;color:#ffffff;opacity:0.9;">Please confirm within 4 hours</p>
+              </td></tr>
+              <tr><td style="padding:40px;">
+                <p style="margin:0 0 20px;font-size:16px;line-height:1.6;color:#001A33;">Dear ${supplierName},</p>
+                <p style="margin:0 0 30px;font-size:16px;line-height:1.6;color:#001A33;">You have a new booking! Please review the details and <strong>click the button below to confirm</strong> so we can notify the customer.</p>
+
+                <!-- Confirm Button -->
+                <div style="text-align:center;margin:30px 0;">
+                  <a href="${confirmUrl}" style="display:inline-block;padding:16px 48px;background-color:#10B981;color:#ffffff;font-size:18px;font-weight:800;text-decoration:none;border-radius:12px;">Confirm This Booking</a>
+                </div>
+
+                <!-- Booking Details -->
+                <div style="background-color:#f8f9fa;border-radius:8px;padding:24px;margin:30px 0;">
+                  <h2 style="margin:0 0 20px;font-size:20px;font-weight:700;color:#001A33;">Booking Details</h2>
+                  <table style="width:100%;border-collapse:collapse;">
+                    ${bookingReference ? `<tr><td style="padding:8px 0;font-size:14px;color:#666;">Reference</td><td style="padding:8px 0;font-size:14px;font-weight:700;color:#001A33;text-align:right;">${bookingReference}</td></tr>` : ''}
+                    <tr><td style="padding:8px 0;font-size:14px;color:#666;">Tour</td><td style="padding:8px 0;font-size:14px;font-weight:700;color:#001A33;text-align:right;">${tourTitle}</td></tr>
+                    <tr><td style="padding:8px 0;font-size:14px;color:#666;">Date</td><td style="padding:8px 0;font-size:14px;font-weight:700;color:#001A33;text-align:right;">${formattedDate}</td></tr>
+                    <tr><td style="padding:8px 0;font-size:14px;color:#666;">Guests</td><td style="padding:8px 0;font-size:14px;font-weight:700;color:#001A33;text-align:right;">${numberOfGuests} ${numberOfGuests === 1 ? 'person' : 'people'}</td></tr>
+                    <tr><td style="padding:8px 0;font-size:14px;color:#666;">Amount</td><td style="padding:8px 0;font-size:14px;font-weight:700;color:#10B981;text-align:right;">${currency === 'INR' ? '₹' : '$'}${totalAmount?.toLocaleString()}</td></tr>
+                  </table>
+                </div>
+
+                <!-- Customer Info -->
+                <div style="background-color:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:24px;margin:30px 0;">
+                  <h2 style="margin:0 0 20px;font-size:20px;font-weight:700;color:#001A33;">Customer Information</h2>
+                  <table style="width:100%;border-collapse:collapse;">
+                    <tr><td style="padding:8px 0;font-size:14px;color:#666;">Name</td><td style="padding:8px 0;font-size:14px;font-weight:700;color:#001A33;text-align:right;">${customerName}</td></tr>
+                    <tr><td style="padding:8px 0;font-size:14px;color:#666;">Email</td><td style="padding:8px 0;font-size:14px;font-weight:700;color:#001A33;text-align:right;"><a href="mailto:${customerEmail}" style="color:#10B981;">${customerEmail}</a></td></tr>
+                    ${customerPhone ? `<tr><td style="padding:8px 0;font-size:14px;color:#666;">Phone</td><td style="padding:8px 0;font-size:14px;font-weight:700;color:#001A33;text-align:right;"><a href="tel:${customerPhone}" style="color:#10B981;">${customerPhone}</a></td></tr>` : ''}
+                    ${specialRequests ? `<tr><td style="padding:8px 0;font-size:14px;color:#666;">Requests</td><td style="padding:8px 0;font-size:14px;font-weight:600;color:#001A33;text-align:right;">${specialRequests}</td></tr>` : ''}
+                  </table>
+                </div>
+
+                <!-- Second Confirm Button -->
+                <div style="text-align:center;margin:30px 0;">
+                  <a href="${confirmUrl}" style="display:inline-block;padding:14px 40px;background-color:#10B981;color:#ffffff;font-size:16px;font-weight:700;text-decoration:none;border-radius:10px;">Confirm Booking</a>
+                </div>
+
+                <p style="margin:30px 0 0;font-size:16px;line-height:1.6;color:#001A33;">Best regards,<br><strong>The AsiaByLocals Team</strong></p>
+              </td></tr>
+              <tr><td style="background-color:#10B981;padding:30px;text-align:center;">
+                <p style="margin:0;font-size:12px;color:#ffffff;opacity:0.9;">2025 &copy; AsiaByLocals. All rights reserved.</p>
+              </td></tr>
+            </table>
+          </td></tr>
+        </table>
+      </body></html>
+    `,
+    text: `ACTION REQUIRED: New Booking for ${tourTitle}\n\nDear ${supplierName},\n\nYou have a new booking! Please confirm by visiting:\n${confirmUrl}\n\nBooking Details:\n- Reference: ${bookingReference || 'N/A'}\n- Tour: ${tourTitle}\n- Date: ${formattedDate}\n- Guests: ${numberOfGuests}\n- Amount: ${currency === 'INR' ? 'INR' : 'USD'} ${totalAmount}\n\nCustomer:\n- Name: ${customerName}\n- Email: ${customerEmail}\n${customerPhone ? `- Phone: ${customerPhone}\n` : ''}${specialRequests ? `- Requests: ${specialRequests}\n` : ''}\nPlease confirm within 4 hours.\n\nBest regards,\nThe AsiaByLocals Team`
+  };
+
+  try {
+    if (resendClient) {
+      const resendPayload = {
+        from: `AsiaByLocals Bookings <${fromEmail}>`,
+        to: supplierEmail,
+        subject: mailOptions.subject,
+        html: mailOptions.html,
+        text: mailOptions.text
+      };
+      if (bookingDetails.invoicePDFBase64) {
+        resendPayload.attachments = [{ filename: `AsiaByLocals_Invoice_${bookingReference || 'booking'}.pdf`, content: Buffer.from(bookingDetails.invoicePDFBase64, 'base64') }];
+      }
+      const result = await resendClient.emails.send(resendPayload);
+      if (result.error) throw new Error(`Resend API Error: ${JSON.stringify(result.error)}`);
+      console.log(`✅ Guide confirmation request email sent to ${supplierEmail}`);
+      return { success: true, messageId: result.data?.id };
+    }
+    if (bookingDetails.invoicePDFBase64) {
+      mailOptions.attachments = [{ filename: `AsiaByLocals_Invoice_${bookingReference || 'booking'}.pdf`, content: Buffer.from(bookingDetails.invoicePDFBase64, 'base64'), contentType: 'application/pdf' }];
+    }
+    const info = await transporter.sendMail(mailOptions);
+    console.log(`✅ Guide confirmation request email sent to ${supplierEmail}`);
+    return { success: true, messageId: info.messageId };
+  } catch (error) {
+    console.error(`❌ Error sending guide confirmation request email:`, error);
+    throw error;
+  }
+};
+
+/**
+ * Send reminder email to guide who hasn't confirmed booking
+ */
+export const sendGuideReminderEmail = async (supplierEmail, supplierName, bookingDetails, confirmationToken, reminderNumber) => {
+  if (!supplierEmail || typeof supplierEmail !== 'string' || !supplierEmail.includes('@')) {
+    console.error('❌ Invalid email address provided:', supplierEmail);
+    throw new Error('Invalid email address');
+  }
+
+  console.log(`📧 Sending guide reminder #${reminderNumber} to: ${supplierEmail}`);
+
+  const { bookingReference, tourTitle, customerName, customerEmail, customerPhone, bookingDate, numberOfGuests, totalAmount, currency } = bookingDetails;
+  const formattedDate = new Date(bookingDate).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
+  const frontendUrl = process.env.FRONTEND_URL || process.env.VITE_FRONTEND_URL || 'http://localhost:3000';
+  const confirmUrl = `${frontendUrl.replace(/\/$/, '')}/api/bookings/guide-confirm?token=${confirmationToken}`;
+  const fromEmail = (resendApiKey || sendGridApiKey) ? 'info@asiabylocals.com' : (process.env.EMAIL_USER || 'asiabylocals@gmail.com');
+
+  const urgencyMap = {
+    1: { subject: `Reminder: Please Confirm Booking for ${tourTitle}`, header: 'Booking Awaiting Your Confirmation', color: '#10B981', note: 'The customer is waiting for your confirmation. Please confirm at your earliest convenience.' },
+    2: { subject: `Urgent: Booking Awaiting Confirmation - ${tourTitle}`, header: 'Urgent: Please Confirm Now', color: '#F59E0B', note: 'This booking has been unconfirmed for over 12 hours. The customer needs to know their tour is confirmed.' },
+    3: { subject: `FINAL REMINDER: Booking Requires Confirmation - ${tourTitle}`, header: 'Final Reminder — Action Needed Immediately', color: '#EF4444', note: 'This is your final reminder. If you do not confirm, our admin team will be notified and may need to contact you directly or reassign this booking.' }
+  };
+  const urgency = urgencyMap[reminderNumber] || urgencyMap[1];
+
+  const mailOptions = {
+    from: `"AsiaByLocals Bookings" <${fromEmail}>`,
+    to: supplierEmail,
+    subject: urgency.subject,
+    html: `
+      <!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>
+      <body style="margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;background-color:#f5f5f5;">
+        <table role="presentation" style="width:100%;border-collapse:collapse;background-color:#f5f5f5;">
+          <tr><td align="center" style="padding:40px 20px;">
+            <table role="presentation" style="width:100%;max-width:600px;background-color:#ffffff;border-collapse:collapse;border-radius:8px;overflow:hidden;">
+              <tr><td style="padding:40px 40px 30px;text-align:center;background-color:${urgency.color};">
+                <h1 style="margin:0;font-size:26px;font-weight:800;color:#ffffff;">${urgency.header}</h1>
+                <p style="margin:10px 0 0;font-size:14px;color:#ffffff;opacity:0.9;">Reminder ${reminderNumber} of 3</p>
+              </td></tr>
+              <tr><td style="padding:40px;">
+                <p style="margin:0 0 20px;font-size:16px;line-height:1.6;color:#001A33;">Dear ${supplierName},</p>
+                <p style="margin:0 0 20px;font-size:16px;line-height:1.6;color:#001A33;">${urgency.note}</p>
+
+                <div style="background-color:#f8f9fa;border-radius:8px;padding:20px;margin:20px 0;">
+                  <p style="margin:0;font-size:14px;color:#666;"><strong>Tour:</strong> ${tourTitle}</p>
+                  <p style="margin:8px 0 0;font-size:14px;color:#666;"><strong>Date:</strong> ${formattedDate}</p>
+                  <p style="margin:8px 0 0;font-size:14px;color:#666;"><strong>Guests:</strong> ${numberOfGuests}</p>
+                  <p style="margin:8px 0 0;font-size:14px;color:#666;"><strong>Customer:</strong> ${customerName} (<a href="mailto:${customerEmail}" style="color:#10B981;">${customerEmail}</a>${customerPhone ? `, <a href="tel:${customerPhone}" style="color:#10B981;">${customerPhone}</a>` : ''})</p>
+                  <p style="margin:8px 0 0;font-size:14px;color:#666;"><strong>Amount:</strong> ${currency === 'INR' ? '₹' : '$'}${totalAmount?.toLocaleString()}</p>
+                </div>
+
+                <div style="text-align:center;margin:30px 0;">
+                  <a href="${confirmUrl}" style="display:inline-block;padding:16px 48px;background-color:${urgency.color};color:#ffffff;font-size:18px;font-weight:800;text-decoration:none;border-radius:12px;">Confirm This Booking</a>
+                </div>
+
+                <p style="margin:30px 0 0;font-size:16px;line-height:1.6;color:#001A33;">Best regards,<br><strong>The AsiaByLocals Team</strong></p>
+              </td></tr>
+              <tr><td style="background-color:${urgency.color};padding:30px;text-align:center;">
+                <p style="margin:0;font-size:12px;color:#ffffff;opacity:0.9;">2025 &copy; AsiaByLocals. All rights reserved.</p>
+              </td></tr>
+            </table>
+          </td></tr>
+        </table>
+      </body></html>
+    `,
+    text: `${urgency.subject}\n\nDear ${supplierName},\n\n${urgency.note}\n\nTour: ${tourTitle}\nDate: ${formattedDate}\nGuests: ${numberOfGuests}\nCustomer: ${customerName} (${customerEmail}${customerPhone ? `, ${customerPhone}` : ''})\nAmount: ${currency === 'INR' ? 'INR' : 'USD'} ${totalAmount}\n\nConfirm here: ${confirmUrl}\n\nBest regards,\nThe AsiaByLocals Team`
+  };
+
+  try {
+    if (resendClient) {
+      const result = await resendClient.emails.send({ from: `AsiaByLocals Bookings <${fromEmail}>`, to: supplierEmail, subject: mailOptions.subject, html: mailOptions.html, text: mailOptions.text });
+      if (result.error) throw new Error(`Resend API Error: ${JSON.stringify(result.error)}`);
+      console.log(`✅ Guide reminder #${reminderNumber} sent to ${supplierEmail}`);
+      return { success: true, messageId: result.data?.id };
+    }
+    const info = await transporter.sendMail(mailOptions);
+    console.log(`✅ Guide reminder #${reminderNumber} sent to ${supplierEmail}`);
+    return { success: true, messageId: info.messageId };
+  } catch (error) {
+    console.error(`❌ Error sending guide reminder #${reminderNumber}:`, error);
+    throw error;
+  }
+};
+
+/**
+ * Send email to customer when guide confirms the booking
+ */
+export const sendGuideConfirmedCustomerEmail = async (customerEmail, customerName, bookingDetails) => {
+  if (!customerEmail || typeof customerEmail !== 'string' || !customerEmail.includes('@')) {
+    console.error('❌ Invalid email address provided:', customerEmail);
+    throw new Error('Invalid email address');
+  }
+
+  console.log(`📧 Sending guide-confirmed notification to customer: ${customerEmail}`);
+
+  const { bookingReference, tourTitle, bookingDate, numberOfGuests, supplierName, supplierEmail, supplierPhone, supplierWhatsApp } = bookingDetails;
+  const formattedDate = new Date(bookingDate).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
+  const fromEmail = (resendApiKey || sendGridApiKey) ? 'info@asiabylocals.com' : (process.env.EMAIL_USER || 'asiabylocals@gmail.com');
+
+  const whatsappNumber = supplierWhatsApp || supplierPhone || '';
+  const cleanWA = whatsappNumber.replace(/[^0-9]/g, '');
+  const waLink = cleanWA ? `https://wa.me/${cleanWA}?text=${encodeURIComponent(`Hi ${supplierName}, I have a booking (${bookingReference}) for ${tourTitle} on ${formattedDate}.`)}` : '';
+
+  const mailOptions = {
+    from: `"AsiaByLocals" <${fromEmail}>`,
+    to: customerEmail,
+    subject: `Your Guide Has Confirmed! - ${tourTitle}`,
+    html: `
+      <!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>
+      <body style="margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;background-color:#f5f5f5;">
+        <table role="presentation" style="width:100%;border-collapse:collapse;background-color:#f5f5f5;">
+          <tr><td align="center" style="padding:40px 20px;">
+            <table role="presentation" style="width:100%;max-width:600px;background-color:#ffffff;border-collapse:collapse;border-radius:8px;overflow:hidden;">
+              <tr><td style="padding:40px 40px 30px;text-align:center;background-color:#10B981;">
+                <h1 style="margin:0;font-size:28px;font-weight:800;color:#ffffff;">Your Guide Has Confirmed!</h1>
+                <p style="margin:10px 0 0;font-size:14px;color:#ffffff;opacity:0.9;">Your tour is all set</p>
+              </td></tr>
+              <tr><td style="padding:40px;">
+                <p style="margin:0 0 20px;font-size:16px;line-height:1.6;color:#001A33;">Hi ${customerName},</p>
+                <p style="margin:0 0 20px;font-size:16px;line-height:1.6;color:#001A33;">Great news! Your guide <strong>${supplierName}</strong> has confirmed your booking for <strong>${tourTitle}</strong> on <strong>${formattedDate}</strong>.</p>
+                <p style="margin:0 0 30px;font-size:16px;line-height:1.6;color:#001A33;">Your guide is ready and looking forward to showing you an amazing experience!</p>
+
+                <!-- Guide Contact Card -->
+                <div style="background-color:#f0fdf4;border:2px solid #10B981;border-radius:12px;padding:24px;margin:30px 0;">
+                  <h2 style="margin:0 0 16px;font-size:18px;font-weight:700;color:#001A33;">Your Guide's Contact</h2>
+                  <p style="margin:0 0 8px;font-size:15px;color:#001A33;"><strong>${supplierName}</strong></p>
+                  ${supplierEmail ? `<p style="margin:0 0 8px;font-size:14px;color:#666;">Email: <a href="mailto:${supplierEmail}" style="color:#10B981;font-weight:600;">${supplierEmail}</a></p>` : ''}
+                  ${supplierPhone ? `<p style="margin:0 0 8px;font-size:14px;color:#666;">Phone: <a href="tel:${supplierPhone}" style="color:#10B981;font-weight:600;">${supplierPhone}</a></p>` : ''}
+                  ${waLink ? `<div style="margin-top:16px;"><a href="${waLink}" style="display:inline-block;padding:12px 24px;background-color:#25D366;color:#ffffff;font-size:14px;font-weight:700;text-decoration:none;border-radius:8px;">Contact via WhatsApp</a></div>` : ''}
+                </div>
+
+                <div style="background-color:#f8f9fa;border-radius:8px;padding:20px;margin:20px 0;">
+                  ${bookingReference ? `<p style="margin:0 0 8px;font-size:14px;color:#666;"><strong>Reference:</strong> ${bookingReference}</p>` : ''}
+                  <p style="margin:0 0 8px;font-size:14px;color:#666;"><strong>Tour:</strong> ${tourTitle}</p>
+                  <p style="margin:0 0 8px;font-size:14px;color:#666;"><strong>Date:</strong> ${formattedDate}</p>
+                  <p style="margin:0;font-size:14px;color:#666;"><strong>Guests:</strong> ${numberOfGuests}</p>
+                </div>
+
+                <p style="margin:30px 0 0;font-size:16px;line-height:1.6;color:#001A33;">Have an amazing trip!<br><strong>The AsiaByLocals Team</strong></p>
+              </td></tr>
+              <tr><td style="background-color:#10B981;padding:30px;text-align:center;">
+                <p style="margin:0;font-size:12px;color:#ffffff;opacity:0.9;">2025 &copy; AsiaByLocals. All rights reserved.</p>
+              </td></tr>
+            </table>
+          </td></tr>
+        </table>
+      </body></html>
+    `,
+    text: `Your Guide Has Confirmed!\n\nHi ${customerName},\n\nGreat news! Your guide ${supplierName} has confirmed your booking for ${tourTitle} on ${formattedDate}.\n\nGuide Contact:\n- Name: ${supplierName}\n${supplierEmail ? `- Email: ${supplierEmail}\n` : ''}${supplierPhone ? `- Phone: ${supplierPhone}\n` : ''}${waLink ? `- WhatsApp: ${waLink}\n` : ''}\nBooking: ${bookingReference || 'N/A'}\nDate: ${formattedDate}\nGuests: ${numberOfGuests}\n\nHave an amazing trip!\nThe AsiaByLocals Team`
+  };
+
+  try {
+    if (resendClient) {
+      const result = await resendClient.emails.send({ from: `AsiaByLocals <${fromEmail}>`, to: customerEmail, subject: mailOptions.subject, html: mailOptions.html, text: mailOptions.text });
+      if (result.error) throw new Error(`Resend API Error: ${JSON.stringify(result.error)}`);
+      console.log(`✅ Guide-confirmed email sent to customer ${customerEmail}`);
+      return { success: true, messageId: result.data?.id };
+    }
+    const info = await transporter.sendMail(mailOptions);
+    console.log(`✅ Guide-confirmed email sent to customer ${customerEmail}`);
+    return { success: true, messageId: info.messageId };
+  } catch (error) {
+    console.error(`❌ Error sending guide-confirmed customer email:`, error);
+    throw error;
+  }
+};
+
+/**
+ * Send escalation email to admin when guide is unresponsive
+ */
+export const sendAdminEscalationEmail = async (bookingDetails, guideEmail, reminderCount) => {
+  const adminEmail = process.env.ADMIN_EMAIL || 'info@asiabylocals.com';
+  console.log(`📧 Sending admin escalation email to: ${adminEmail}`);
+
+  const { bookingReference, tourTitle, customerName, customerEmail, customerPhone, bookingDate, numberOfGuests, totalAmount, currency, supplierName } = bookingDetails;
+  const formattedDate = new Date(bookingDate).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
+  const fromEmail = (resendApiKey || sendGridApiKey) ? 'info@asiabylocals.com' : (process.env.EMAIL_USER || 'asiabylocals@gmail.com');
+
+  const mailOptions = {
+    from: `"AsiaByLocals System" <${fromEmail}>`,
+    to: adminEmail,
+    subject: `ESCALATION: Guide Unresponsive - ${bookingReference || tourTitle}`,
+    html: `
+      <!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>
+      <body style="margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;background-color:#f5f5f5;">
+        <table role="presentation" style="width:100%;border-collapse:collapse;background-color:#f5f5f5;">
+          <tr><td align="center" style="padding:40px 20px;">
+            <table role="presentation" style="width:100%;max-width:600px;background-color:#ffffff;border-collapse:collapse;border-radius:8px;overflow:hidden;">
+              <tr><td style="padding:40px 40px 30px;text-align:center;background-color:#EF4444;">
+                <h1 style="margin:0;font-size:26px;font-weight:800;color:#ffffff;">Guide Unresponsive</h1>
+                <p style="margin:10px 0 0;font-size:14px;color:#ffffff;opacity:0.9;">${reminderCount} reminders sent — no confirmation</p>
+              </td></tr>
+              <tr><td style="padding:40px;">
+                <p style="margin:0 0 20px;font-size:16px;line-height:1.6;color:#001A33;">A guide has not confirmed a paid booking after ${reminderCount} reminder emails. Manual intervention may be required.</p>
+
+                <div style="background-color:#fef2f2;border:1px solid #fecaca;border-radius:8px;padding:20px;margin:20px 0;">
+                  <h3 style="margin:0 0 12px;font-size:16px;color:#991B1B;">Guide Information</h3>
+                  <p style="margin:0 0 6px;font-size:14px;color:#666;"><strong>Name:</strong> ${supplierName || 'Unknown'}</p>
+                  <p style="margin:0;font-size:14px;color:#666;"><strong>Email:</strong> <a href="mailto:${guideEmail}" style="color:#EF4444;">${guideEmail}</a></p>
+                </div>
+
+                <div style="background-color:#f8f9fa;border-radius:8px;padding:20px;margin:20px 0;">
+                  <h3 style="margin:0 0 12px;font-size:16px;color:#001A33;">Booking Details</h3>
+                  ${bookingReference ? `<p style="margin:0 0 6px;font-size:14px;color:#666;"><strong>Reference:</strong> ${bookingReference}</p>` : ''}
+                  <p style="margin:0 0 6px;font-size:14px;color:#666;"><strong>Tour:</strong> ${tourTitle}</p>
+                  <p style="margin:0 0 6px;font-size:14px;color:#666;"><strong>Date:</strong> ${formattedDate}</p>
+                  <p style="margin:0 0 6px;font-size:14px;color:#666;"><strong>Guests:</strong> ${numberOfGuests}</p>
+                  <p style="margin:0;font-size:14px;color:#666;"><strong>Amount:</strong> ${currency === 'INR' ? '₹' : '$'}${totalAmount?.toLocaleString()}</p>
+                </div>
+
+                <div style="background-color:#f8f9fa;border-radius:8px;padding:20px;margin:20px 0;">
+                  <h3 style="margin:0 0 12px;font-size:16px;color:#001A33;">Customer Details</h3>
+                  <p style="margin:0 0 6px;font-size:14px;color:#666;"><strong>Name:</strong> ${customerName}</p>
+                  <p style="margin:0 0 6px;font-size:14px;color:#666;"><strong>Email:</strong> <a href="mailto:${customerEmail}" style="color:#10B981;">${customerEmail}</a></p>
+                  ${customerPhone ? `<p style="margin:0;font-size:14px;color:#666;"><strong>Phone:</strong> <a href="tel:${customerPhone}" style="color:#10B981;">${customerPhone}</a></p>` : ''}
+                </div>
+
+                <p style="margin:20px 0 0;font-size:14px;line-height:1.6;color:#666;"><strong>Suggested action:</strong> Call the guide directly or consider reassigning this booking to another supplier.</p>
+              </td></tr>
+              <tr><td style="background-color:#EF4444;padding:30px;text-align:center;">
+                <p style="margin:0;font-size:12px;color:#ffffff;opacity:0.9;">AsiaByLocals System Alert</p>
+              </td></tr>
+            </table>
+          </td></tr>
+        </table>
+      </body></html>
+    `,
+    text: `ESCALATION: Guide Unresponsive\n\n${reminderCount} reminders sent, no confirmation received.\n\nGuide: ${supplierName || 'Unknown'} (${guideEmail})\nBooking: ${bookingReference || 'N/A'}\nTour: ${tourTitle}\nDate: ${formattedDate}\nGuests: ${numberOfGuests}\nAmount: ${currency === 'INR' ? 'INR' : 'USD'} ${totalAmount}\n\nCustomer: ${customerName} (${customerEmail}${customerPhone ? `, ${customerPhone}` : ''})\n\nSuggested action: Call the guide or reassign the booking.`
+  };
+
+  try {
+    if (resendClient) {
+      const result = await resendClient.emails.send({ from: `AsiaByLocals System <${fromEmail}>`, to: adminEmail, subject: mailOptions.subject, html: mailOptions.html, text: mailOptions.text });
+      if (result.error) throw new Error(`Resend API Error: ${JSON.stringify(result.error)}`);
+      console.log(`✅ Admin escalation email sent`);
+      return { success: true, messageId: result.data?.id };
+    }
+    const info = await transporter.sendMail(mailOptions);
+    console.log(`✅ Admin escalation email sent`);
+    return { success: true, messageId: info.messageId };
+  } catch (error) {
+    console.error(`❌ Error sending admin escalation email:`, error);
+    throw error;
+  }
+};
+
+/**
+ * Send pre-tour reminder (24h before tour) to guide or customer
+ */
+export const sendPreTourReminderEmail = async (recipientEmail, recipientName, bookingDetails, recipientType) => {
+  if (!recipientEmail || typeof recipientEmail !== 'string' || !recipientEmail.includes('@')) {
+    console.error('❌ Invalid email address provided:', recipientEmail);
+    throw new Error('Invalid email address');
+  }
+
+  console.log(`📧 Sending pre-tour reminder to ${recipientType}: ${recipientEmail}`);
+
+  const { bookingReference, tourTitle, bookingDate, numberOfGuests, customerName, customerEmail, customerPhone, supplierName, supplierEmail, supplierPhone, supplierWhatsApp, meetingPoint } = bookingDetails;
+  const formattedDate = new Date(bookingDate).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
+  const fromEmail = (resendApiKey || sendGridApiKey) ? 'info@asiabylocals.com' : (process.env.EMAIL_USER || 'asiabylocals@gmail.com');
+
+  const isGuide = recipientType === 'guide';
+  const subject = isGuide
+    ? `Tour Tomorrow: ${tourTitle} - ${formattedDate}`
+    : `Your Tour is Tomorrow! - ${tourTitle}`;
+  const headerText = isGuide ? 'You Have a Tour Tomorrow!' : 'Your Tour is Tomorrow!';
+
+  const contactSection = isGuide
+    ? `<h3 style="margin:0 0 12px;font-size:16px;color:#001A33;">Customer Contact</h3>
+       <p style="margin:0 0 6px;font-size:14px;color:#666;"><strong>${customerName}</strong></p>
+       <p style="margin:0 0 6px;font-size:14px;color:#666;">Email: <a href="mailto:${customerEmail}" style="color:#10B981;">${customerEmail}</a></p>
+       ${customerPhone ? `<p style="margin:0;font-size:14px;color:#666;">Phone: <a href="tel:${customerPhone}" style="color:#10B981;">${customerPhone}</a></p>` : ''}`
+    : `<h3 style="margin:0 0 12px;font-size:16px;color:#001A33;">Your Guide</h3>
+       <p style="margin:0 0 6px;font-size:14px;color:#666;"><strong>${supplierName}</strong></p>
+       ${supplierEmail ? `<p style="margin:0 0 6px;font-size:14px;color:#666;">Email: <a href="mailto:${supplierEmail}" style="color:#10B981;">${supplierEmail}</a></p>` : ''}
+       ${supplierPhone ? `<p style="margin:0 0 6px;font-size:14px;color:#666;">Phone: <a href="tel:${supplierPhone}" style="color:#10B981;">${supplierPhone}</a></p>` : ''}
+       ${(() => { const wa = (supplierWhatsApp || supplierPhone || '').replace(/[^0-9]/g, ''); return wa ? `<div style="margin-top:12px;"><a href="https://wa.me/${wa}" style="display:inline-block;padding:10px 20px;background-color:#25D366;color:#ffffff;font-size:13px;font-weight:700;text-decoration:none;border-radius:8px;">WhatsApp Guide</a></div>` : ''; })()}`;
+
+  const mailOptions = {
+    from: `"AsiaByLocals" <${fromEmail}>`,
+    to: recipientEmail,
+    subject,
+    html: `
+      <!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>
+      <body style="margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;background-color:#f5f5f5;">
+        <table role="presentation" style="width:100%;border-collapse:collapse;background-color:#f5f5f5;">
+          <tr><td align="center" style="padding:40px 20px;">
+            <table role="presentation" style="width:100%;max-width:600px;background-color:#ffffff;border-collapse:collapse;border-radius:8px;overflow:hidden;">
+              <tr><td style="padding:40px 40px 30px;text-align:center;background-color:#10B981;">
+                <h1 style="margin:0;font-size:28px;font-weight:800;color:#ffffff;">${headerText}</h1>
+              </td></tr>
+              <tr><td style="padding:40px;">
+                <p style="margin:0 0 20px;font-size:16px;line-height:1.6;color:#001A33;">Hi ${recipientName},</p>
+                <p style="margin:0 0 30px;font-size:16px;line-height:1.6;color:#001A33;">Just a friendly reminder that your tour <strong>${tourTitle}</strong> is happening tomorrow, <strong>${formattedDate}</strong>.</p>
+
+                <div style="background-color:#f8f9fa;border-radius:8px;padding:20px;margin:20px 0;">
+                  ${bookingReference ? `<p style="margin:0 0 8px;font-size:14px;color:#666;"><strong>Reference:</strong> ${bookingReference}</p>` : ''}
+                  <p style="margin:0 0 8px;font-size:14px;color:#666;"><strong>Tour:</strong> ${tourTitle}</p>
+                  <p style="margin:0 0 8px;font-size:14px;color:#666;"><strong>Date:</strong> ${formattedDate}</p>
+                  <p style="margin:0 0 8px;font-size:14px;color:#666;"><strong>Guests:</strong> ${numberOfGuests}</p>
+                  ${meetingPoint ? `<p style="margin:0;font-size:14px;color:#666;"><strong>Meeting Point:</strong> ${meetingPoint}</p>` : ''}
+                </div>
+
+                <div style="background-color:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:20px;margin:20px 0;">
+                  ${contactSection}
+                </div>
+
+                <p style="margin:30px 0 0;font-size:16px;line-height:1.6;color:#001A33;">${isGuide ? 'Wishing you a great tour!' : 'Have an amazing experience!'}<br><strong>The AsiaByLocals Team</strong></p>
+              </td></tr>
+              <tr><td style="background-color:#10B981;padding:30px;text-align:center;">
+                <p style="margin:0;font-size:12px;color:#ffffff;opacity:0.9;">2025 &copy; AsiaByLocals. All rights reserved.</p>
+              </td></tr>
+            </table>
+          </td></tr>
+        </table>
+      </body></html>
+    `,
+    text: `${headerText}\n\nHi ${recipientName},\n\nYour tour ${tourTitle} is tomorrow, ${formattedDate}.\n\n${bookingReference ? `Reference: ${bookingReference}\n` : ''}Guests: ${numberOfGuests}\n${meetingPoint ? `Meeting Point: ${meetingPoint}\n` : ''}\n${isGuide ? `Customer: ${customerName} (${customerEmail}${customerPhone ? `, ${customerPhone}` : ''})` : `Guide: ${supplierName} (${supplierEmail || ''}${supplierPhone ? `, ${supplierPhone}` : ''})`}\n\nBest regards,\nThe AsiaByLocals Team`
+  };
+
+  try {
+    if (resendClient) {
+      const result = await resendClient.emails.send({ from: `AsiaByLocals <${fromEmail}>`, to: recipientEmail, subject: mailOptions.subject, html: mailOptions.html, text: mailOptions.text });
+      if (result.error) throw new Error(`Resend API Error: ${JSON.stringify(result.error)}`);
+      console.log(`✅ Pre-tour reminder sent to ${recipientType}: ${recipientEmail}`);
+      return { success: true, messageId: result.data?.id };
+    }
+    const info = await transporter.sendMail(mailOptions);
+    console.log(`✅ Pre-tour reminder sent to ${recipientType}: ${recipientEmail}`);
+    return { success: true, messageId: info.messageId };
+  } catch (error) {
+    console.error(`❌ Error sending pre-tour reminder:`, error);
+    throw error;
+  }
+};
+
 export default transporter;
 

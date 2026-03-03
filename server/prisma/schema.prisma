@@ -162,12 +162,21 @@ model Booking {
   createdAt         DateTime    @default(now()) @map("created_at")
   updatedAt         DateTime    @updatedAt @map("updated_at")
 
+  // Guide confirmation workflow
+  guideConfirmationToken   String?   @unique @map("guide_confirmation_token")
+  guideConfirmedAt         DateTime? @map("guide_confirmed_at")
+  guideReminderCount       Int       @default(0) @map("guide_reminder_count")
+  guideLastRemindedAt      DateTime? @map("guide_last_reminded_at")
+  adminEscalatedAt         DateTime? @map("admin_escalated_at")
+  preTourReminderSentAt    DateTime? @map("pre_tour_reminder_sent_at")
+
   messages Message[]
 
   @@index([tourId])
   @@index([tourOptionId])
   @@index([supplierId])
   @@index([customerEmail])
+  @@index([status, guideConfirmedAt])
   @@map("bookings")
 }
 
