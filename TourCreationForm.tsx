@@ -3021,41 +3021,65 @@ ${a(9)}`;
 
                   <div className="border-2 border-gray-200 rounded-2xl overflow-hidden focus-within:border-[#10B981] focus-within:ring-2 focus-within:ring-[#10B981]/20 transition-all">
                     {/* Formatting Toolbar */}
-                    <div className="flex items-center gap-1 px-3 py-2 bg-gray-50 border-b border-gray-200 flex-wrap">
-                      <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mr-1">Format:</span>
-                      <button
-                        type="button"
-                        onMouseDown={(e) => { e.preventDefault(); insertMarkdown('h2'); }}
-                        title="Heading (##)"
-                        className="px-2.5 py-1 text-[12px] font-black text-gray-600 hover:bg-[#10B981]/10 hover:text-[#10B981] rounded-lg transition-all border border-transparent hover:border-[#10B981]/20"
-                      >H2</button>
-                      <button
-                        type="button"
-                        onMouseDown={(e) => { e.preventDefault(); insertMarkdown('h3'); }}
-                        title="Subheading (###)"
-                        className="px-2.5 py-1 text-[12px] font-black text-gray-600 hover:bg-[#10B981]/10 hover:text-[#10B981] rounded-lg transition-all border border-transparent hover:border-[#10B981]/20"
-                      >H3</button>
-                      <div className="w-px h-5 bg-gray-200 mx-1" />
-                      <button
-                        type="button"
-                        onMouseDown={(e) => { e.preventDefault(); insertMarkdown('bold'); }}
-                        title="Bold (**text**)"
-                        className="w-7 h-7 text-[13px] font-black text-gray-600 hover:bg-[#10B981]/10 hover:text-[#10B981] rounded-lg transition-all border border-transparent hover:border-[#10B981]/20 flex items-center justify-center"
-                      ><strong>B</strong></button>
-                      <button
-                        type="button"
-                        onMouseDown={(e) => { e.preventDefault(); insertMarkdown('italic'); }}
-                        title="Italic (*text*)"
-                        className="w-7 h-7 text-[13px] font-black text-gray-600 hover:bg-[#10B981]/10 hover:text-[#10B981] rounded-lg transition-all border border-transparent hover:border-[#10B981]/20 flex items-center justify-center"
-                      ><em>I</em></button>
-                      <div className="w-px h-5 bg-gray-200 mx-1" />
-                      <button
-                        type="button"
-                        onMouseDown={(e) => { e.preventDefault(); insertMarkdown('bullet'); }}
-                        title="Bullet list (- item)"
-                        className="px-2.5 py-1 text-[12px] font-bold text-gray-600 hover:bg-[#10B981]/10 hover:text-[#10B981] rounded-lg transition-all border border-transparent hover:border-[#10B981]/20"
-                      >• List</button>
-                      <div className="ml-auto text-[10px] text-gray-400 font-semibold hidden sm:block">Select text then click a button to format</div>
+                    <div className="flex flex-col bg-gray-50 border-b border-gray-200">
+                      {/* Toolbar buttons row */}
+                      <div className="flex items-center gap-1 px-3 pt-2 pb-1 flex-wrap">
+                        <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mr-1">Format:</span>
+                        <button
+                          type="button"
+                          onMouseDown={(e) => { e.preventDefault(); insertMarkdown('h2'); }}
+                          title="Section heading — inserts ## before the line"
+                          className="flex flex-col items-center px-2.5 py-1 text-[12px] font-black text-gray-600 hover:bg-[#10B981]/10 hover:text-[#10B981] rounded-lg transition-all border border-transparent hover:border-[#10B981]/20 leading-none"
+                        >
+                          <span>H2</span>
+                          <span className="text-[9px] font-bold text-gray-300 mt-0.5">##</span>
+                        </button>
+                        <button
+                          type="button"
+                          onMouseDown={(e) => { e.preventDefault(); insertMarkdown('h3'); }}
+                          title="Sub-section heading — inserts ### before the line"
+                          className="flex flex-col items-center px-2.5 py-1 text-[12px] font-black text-gray-600 hover:bg-[#10B981]/10 hover:text-[#10B981] rounded-lg transition-all border border-transparent hover:border-[#10B981]/20 leading-none"
+                        >
+                          <span>H3</span>
+                          <span className="text-[9px] font-bold text-gray-300 mt-0.5">###</span>
+                        </button>
+                        <div className="w-px h-5 bg-gray-200 mx-1" />
+                        <button
+                          type="button"
+                          onMouseDown={(e) => { e.preventDefault(); insertMarkdown('bold'); }}
+                          title="Bold — wraps selection in **bold**"
+                          className="flex flex-col items-center w-8 py-1 text-[13px] font-black text-gray-600 hover:bg-[#10B981]/10 hover:text-[#10B981] rounded-lg transition-all border border-transparent hover:border-[#10B981]/20 leading-none"
+                        >
+                          <strong>B</strong>
+                          <span className="text-[9px] font-bold text-gray-300 mt-0.5">**</span>
+                        </button>
+                        <button
+                          type="button"
+                          onMouseDown={(e) => { e.preventDefault(); insertMarkdown('italic'); }}
+                          title="Italic — wraps selection in *italic*"
+                          className="flex flex-col items-center w-8 py-1 text-[13px] font-black text-gray-600 hover:bg-[#10B981]/10 hover:text-[#10B981] rounded-lg transition-all border border-transparent hover:border-[#10B981]/20 leading-none"
+                        >
+                          <em>I</em>
+                          <span className="text-[9px] font-bold text-gray-300 mt-0.5">*</span>
+                        </button>
+                        <div className="w-px h-5 bg-gray-200 mx-1" />
+                        <button
+                          type="button"
+                          onMouseDown={(e) => { e.preventDefault(); insertMarkdown('bullet'); }}
+                          title="Bullet list — adds - before the line"
+                          className="flex flex-col items-center px-2.5 py-1 text-[12px] font-bold text-gray-600 hover:bg-[#10B981]/10 hover:text-[#10B981] rounded-lg transition-all border border-transparent hover:border-[#10B981]/20 leading-none"
+                        >
+                          <span>• List</span>
+                          <span className="text-[9px] font-bold text-gray-300 mt-0.5">-</span>
+                        </button>
+                      </div>
+                      {/* Legend row */}
+                      <div className="flex items-center gap-3 px-3 pb-2 flex-wrap">
+                        <span className="text-[10px] text-gray-400 font-semibold">
+                          <span className="font-black text-gray-500">H2</span> = Section heading &nbsp;·&nbsp; <span className="font-black text-gray-500">H3</span> = Smaller sub-heading &nbsp;·&nbsp; <span className="font-black text-gray-500">B</span> = Bold text &nbsp;·&nbsp; <span className="font-black text-gray-500">I</span> = Italic text
+                        </span>
+                        <span className="ml-auto text-[10px] text-gray-400 font-semibold hidden sm:block">Select text, then click a button to apply</span>
+                      </div>
                     </div>
                     {/* Textarea */}
                     <div className="relative">
