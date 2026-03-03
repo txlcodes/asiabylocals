@@ -2307,15 +2307,15 @@ export const sendGuideConfirmationRequestEmail = async (supplierEmail, supplierN
             <table role="presentation" style="width:100%;max-width:600px;background-color:#ffffff;border-collapse:collapse;border-radius:8px;overflow:hidden;">
               <tr><td style="padding:40px 40px 30px;text-align:center;background-color:#10B981;">
                 <h1 style="margin:0;font-size:28px;font-weight:800;color:#ffffff;">Action Required: New Booking!</h1>
-                <p style="margin:10px 0 0;font-size:14px;color:#ffffff;opacity:0.9;">Please confirm within 4 hours</p>
+                <p style="margin:10px 0 0;font-size:14px;color:#ffffff;opacity:0.9;">Please acknowledge within 4 hours</p>
               </td></tr>
               <tr><td style="padding:40px;">
                 <p style="margin:0 0 20px;font-size:16px;line-height:1.6;color:#001A33;">Dear ${supplierName},</p>
-                <p style="margin:0 0 30px;font-size:16px;line-height:1.6;color:#001A33;">You have a new booking! Please review the details and <strong>click the button below to confirm</strong> so we can notify the customer.</p>
+                <p style="margin:0 0 30px;font-size:16px;line-height:1.6;color:#001A33;">You have a new confirmed booking! The customer has already paid. Please review the details below and <strong>click the button to acknowledge</strong> that you're ready for this tour.</p>
 
                 <!-- Confirm Button -->
                 <div style="text-align:center;margin:30px 0;">
-                  <a href="${confirmUrl}" style="display:inline-block;padding:16px 48px;background-color:#10B981;color:#ffffff;font-size:18px;font-weight:800;text-decoration:none;border-radius:12px;">Confirm This Booking</a>
+                  <a href="${confirmUrl}" style="display:inline-block;padding:16px 48px;background-color:#10B981;color:#ffffff;font-size:18px;font-weight:800;text-decoration:none;border-radius:12px;">I'm Ready - Confirm Booking</a>
                 </div>
 
                 <!-- Booking Details -->
@@ -2343,7 +2343,7 @@ export const sendGuideConfirmationRequestEmail = async (supplierEmail, supplierN
 
                 <!-- Second Confirm Button -->
                 <div style="text-align:center;margin:30px 0;">
-                  <a href="${confirmUrl}" style="display:inline-block;padding:14px 40px;background-color:#10B981;color:#ffffff;font-size:16px;font-weight:700;text-decoration:none;border-radius:10px;">Confirm Booking</a>
+                  <a href="${confirmUrl}" style="display:inline-block;padding:14px 40px;background-color:#10B981;color:#ffffff;font-size:16px;font-weight:700;text-decoration:none;border-radius:10px;">I'm Ready - Confirm Booking</a>
                 </div>
 
                 <p style="margin:30px 0 0;font-size:16px;line-height:1.6;color:#001A33;">Best regards,<br><strong>The AsiaByLocals Team</strong></p>
@@ -2356,7 +2356,7 @@ export const sendGuideConfirmationRequestEmail = async (supplierEmail, supplierN
         </table>
       </body></html>
     `,
-    text: `ACTION REQUIRED: New Booking for ${tourTitle}\n\nDear ${supplierName},\n\nYou have a new booking! Please confirm by visiting:\n${confirmUrl}\n\nBooking Details:\n- Reference: ${bookingReference || 'N/A'}\n- Tour: ${tourTitle}\n- Date: ${formattedDate}\n- Guests: ${numberOfGuests}\n- Amount: ${currency === 'INR' ? 'INR' : 'USD'} ${totalAmount}\n\nCustomer:\n- Name: ${customerName}\n- Email: ${customerEmail}\n${customerPhone ? `- Phone: ${customerPhone}\n` : ''}${specialRequests ? `- Requests: ${specialRequests}\n` : ''}\nPlease confirm within 4 hours.\n\nBest regards,\nThe AsiaByLocals Team`
+    text: `ACTION REQUIRED: New Booking for ${tourTitle}\n\nDear ${supplierName},\n\nYou have a new confirmed booking! The customer has already paid. Please acknowledge by visiting:\n${confirmUrl}\n\nBooking Details:\n- Reference: ${bookingReference || 'N/A'}\n- Tour: ${tourTitle}\n- Date: ${formattedDate}\n- Guests: ${numberOfGuests}\n- Amount: ${currency === 'INR' ? 'INR' : 'USD'} ${totalAmount}\n\nCustomer:\n- Name: ${customerName}\n- Email: ${customerEmail}\n${customerPhone ? `- Phone: ${customerPhone}\n` : ''}${specialRequests ? `- Requests: ${specialRequests}\n` : ''}\nPlease acknowledge within 4 hours.\n\nBest regards,\nThe AsiaByLocals Team`
   };
 
   try {
@@ -2494,7 +2494,7 @@ export const sendGuideConfirmedCustomerEmail = async (customerEmail, customerNam
   const mailOptions = {
     from: `"AsiaByLocals" <${fromEmail}>`,
     to: customerEmail,
-    subject: `Your Guide Has Confirmed! - ${tourTitle}`,
+    subject: `Your Guide is Ready! - ${tourTitle}`,
     html: `
       <!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>
       <body style="margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;background-color:#f5f5f5;">
@@ -2502,13 +2502,13 @@ export const sendGuideConfirmedCustomerEmail = async (customerEmail, customerNam
           <tr><td align="center" style="padding:40px 20px;">
             <table role="presentation" style="width:100%;max-width:600px;background-color:#ffffff;border-collapse:collapse;border-radius:8px;overflow:hidden;">
               <tr><td style="padding:40px 40px 30px;text-align:center;background-color:#10B981;">
-                <h1 style="margin:0;font-size:28px;font-weight:800;color:#ffffff;">Your Guide Has Confirmed!</h1>
-                <p style="margin:10px 0 0;font-size:14px;color:#ffffff;opacity:0.9;">Your tour is all set</p>
+                <h1 style="margin:0;font-size:28px;font-weight:800;color:#ffffff;">Your Guide is Ready!</h1>
+                <p style="margin:10px 0 0;font-size:14px;color:#ffffff;opacity:0.9;">Here are your guide's contact details</p>
               </td></tr>
               <tr><td style="padding:40px;">
                 <p style="margin:0 0 20px;font-size:16px;line-height:1.6;color:#001A33;">Hi ${customerName},</p>
-                <p style="margin:0 0 20px;font-size:16px;line-height:1.6;color:#001A33;">Great news! Your guide <strong>${supplierName}</strong> has confirmed your booking for <strong>${tourTitle}</strong> on <strong>${formattedDate}</strong>.</p>
-                <p style="margin:0 0 30px;font-size:16px;line-height:1.6;color:#001A33;">Your guide is ready and looking forward to showing you an amazing experience!</p>
+                <p style="margin:0 0 20px;font-size:16px;line-height:1.6;color:#001A33;">Your guide <strong>${supplierName}</strong> is all set and looking forward to your <strong>${tourTitle}</strong> experience on <strong>${formattedDate}</strong>.</p>
+                <p style="margin:0 0 30px;font-size:16px;line-height:1.6;color:#001A33;">Feel free to reach out to your guide directly if you'd like to coordinate any details before your tour!</p>
 
                 <!-- Guide Contact Card -->
                 <div style="background-color:#f0fdf4;border:2px solid #10B981;border-radius:12px;padding:24px;margin:30px 0;">
@@ -2536,7 +2536,7 @@ export const sendGuideConfirmedCustomerEmail = async (customerEmail, customerNam
         </table>
       </body></html>
     `,
-    text: `Your Guide Has Confirmed!\n\nHi ${customerName},\n\nGreat news! Your guide ${supplierName} has confirmed your booking for ${tourTitle} on ${formattedDate}.\n\nGuide Contact:\n- Name: ${supplierName}\n${supplierEmail ? `- Email: ${supplierEmail}\n` : ''}${supplierPhone ? `- Phone: ${supplierPhone}\n` : ''}${waLink ? `- WhatsApp: ${waLink}\n` : ''}\nBooking: ${bookingReference || 'N/A'}\nDate: ${formattedDate}\nGuests: ${numberOfGuests}\n\nHave an amazing trip!\nThe AsiaByLocals Team`
+    text: `Your Guide is Ready!\n\nHi ${customerName},\n\nYour guide ${supplierName} is all set for your ${tourTitle} experience on ${formattedDate}. Feel free to reach out directly to coordinate any details!\n\nGuide Contact:\n- Name: ${supplierName}\n${supplierEmail ? `- Email: ${supplierEmail}\n` : ''}${supplierPhone ? `- Phone: ${supplierPhone}\n` : ''}${waLink ? `- WhatsApp: ${waLink}\n` : ''}\nBooking: ${bookingReference || 'N/A'}\nDate: ${formattedDate}\nGuests: ${numberOfGuests}\n\nHave an amazing trip!\nThe AsiaByLocals Team`
   };
 
   try {

@@ -24,8 +24,8 @@ const GuideConfirmation: React.FC = () => {
       case 'success':
         return {
           icon: '✅',
-          title: 'Booking Confirmed!',
-          body: 'Thank you for confirming. The customer has been notified and you\'ll receive a reminder 24 hours before the tour.',
+          title: 'You\'re All Set!',
+          body: 'Thank you for acknowledging this booking. The customer will receive your contact details. You\'ll get a reminder 24 hours before the tour.',
           color: '#10B981',
           bgColor: '#ecfdf5',
         };
