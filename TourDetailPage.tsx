@@ -927,6 +927,136 @@ export const getTourSpecificFAQs = (title: string, slug: string | undefined) => 
       }
     ];
   }
+  if (slug === 'hidden-gems-of-agra-heritage-tour') {
+    return [
+      {
+        question: "What hidden gems does this Agra heritage tour cover?",
+        answer: "This tour covers the magnificent but often overlooked monuments that most tourists miss when they focus exclusively on the Taj Mahal. You will explore the exquisite Itimad-ud-Daulah (Baby Taj), which pioneered the Pietra Dura inlay technique later perfected in the [Taj Mahal](/india/agra/taj-mahal-official-guided-tour). You will also visit Mehtab Bagh for a breathtaking cross-river view of the Taj, the historic Jama Masjid, Kinari Bazaar, and centuries-old Mughal-era havelis in the narrow lanes of the old city. These sites provide a layered understanding of Agra's architectural evolution far beyond the mainstream circuit."
+      },
+      {
+        question: "Is a licensed guide included in this heritage tour?",
+        answer: "Yes, your tour is led by a certified, ASI-licensed heritage guide who specializes in Agra's lesser-known architectural history. Unlike standard guides who focus solely on the Taj Mahal narrative, our heritage specialists provide deep-dive commentary on Mughal-era engineering, Persian garden design, and the socio-political context of each monument. This expert guidance transforms your [Agra visit](/india/agra/agra-travel-guide-2026) from a surface-level sightseeing trip into a comprehensive historical education that covers five centuries of craftsmanship."
+      },
+      {
+        question: "How long does the Hidden Gems of Agra tour take?",
+        answer: "The tour is designed to be a comprehensive 3-hour heritage immersion. This duration allows you to explore each hidden gem without feeling rushed while still leaving ample time for a [Taj Mahal visit](/india/agra/taj-mahal-opening-time) or other [things to do in Agra](/india/agra/things-to-do-in-agra). We pace the itinerary to include adequate photography stops, refreshment breaks, and in-depth storytelling at each site, ensuring you absorb the full historical weight of these underappreciated masterpieces."
+      },
+      {
+        question: "Can this tour be combined with a Taj Mahal visit?",
+        answer: "Absolutely. Many discerning travelers book this heritage tour as the perfect complement to their [Taj Mahal guided tour](/india/agra/taj-mahal-agra-fort-guided-tour). The hidden gems provide essential historical context that enriches your understanding of the Taj Mahal's architectural lineage. We recommend scheduling this tour either before or after your Taj visit to create a comprehensive [1-day Agra itinerary](/india/agra/1-day-agra-itinerary) that covers both the iconic landmarks and the authentic, crowd-free heritage sites that define the true soul of Agra."
+      },
+      {
+        question: "Is Itimad-ud-Daulah (Baby Taj) really worth visiting?",
+        answer: "The Itimad-ud-Daulah is considered the architectural prototype of the Taj Mahal and is absolutely essential for any serious traveler. Built 20 years before the Taj, it was the first Mughal structure to use white marble extensively and pioneered the intricate Pietra Dura gemstone inlay technique. With significantly fewer crowds than the Taj, you can examine the delicate lattice screens and semi-precious stone work up close without competition. Art historians consider it a more refined example of Mughal craftsmanship, making it a must-see on any [Agra heritage itinerary](/india/agra/agra-city-highlights-tour)."
+      },
+      {
+        question: "What is the best time of day for this heritage tour?",
+        answer: "The optimal window is early morning (7:00-10:00 AM) or late afternoon (3:00-6:00 PM). The early morning slot pairs perfectly with a [sunrise Taj Mahal tour](/india/agra/taj-mahal-sunrise-guided-tour), allowing you to experience the hidden gems while the light is soft and the crowds are minimal. The late afternoon slot offers the spectacular golden-hour lighting at Mehtab Bagh, where you can photograph the Taj Mahal bathed in warm sunset tones from across the Yamuna River—a perspective most tourists never experience."
+      },
+      {
+        question: "Is this tour suitable for elderly travelers or children?",
+        answer: "Yes, the tour is designed with accessibility in mind. The walking distances between sites are moderate, and we use a comfortable private vehicle for transfers between monuments. Rest stops are built into the itinerary. For elderly travelers, we can adjust the pace and prioritize the most impactful sites. Children benefit enormously from the storytelling approach our guides use, transforming historical facts into engaging narratives about emperors, princesses, and architectural rivalries that captivate young imaginations."
+      },
+      {
+        question: "Are monument entry tickets included?",
+        answer: "Entry tickets to all the heritage sites covered in this tour are included in the package price. This removes the hassle of queuing at multiple ticket windows and ensures seamless transitions between sites. Your guide handles all ticketing logistics, allowing you to focus entirely on the history and architecture. This all-inclusive approach is what separates a premium heritage experience from basic sightseeing, ensuring your [Agra travel guide 2026](/india/agra/agra-travel-guide-2026) journey is completely friction-free."
+      },
+      {
+        question: "What makes this different from a standard Agra city tour?",
+        answer: "Standard city tours typically rush through the Taj Mahal and Agra Fort before depositing you at a marble emporium. Our heritage tour deliberately avoids these tourist traps and instead focuses on the authentic, lesser-visited monuments that reveal Agra's true architectural DNA. You will walk through neighborhoods that haven't changed in centuries, visit tombs that predate the Taj by decades, and gain perspectives that 95% of tourists never access. This is the tour for travelers who have already seen the Taj and want deeper understanding, or those who want a [comprehensive Agra experience](/india/agra/agra-city-highlights-tour)."
+      },
+      {
+        question: "Can we visit Mehtab Bagh during this tour?",
+        answer: "Yes, Mehtab Bagh (Moonlight Garden) is a highlight of this heritage tour. Located directly across the Yamuna River from the Taj Mahal, it offers the most spectacular panoramic view of the monument's rear facade—a perspective that very few tourists ever see. The garden itself is a restored Mughal-era charbagh that was originally designed as a viewing platform for the Taj. During sunset, the white marble glows with amber and pink hues, creating photography opportunities that surpass anything possible from within the Taj complex itself."
+      },
+      {
+        question: "Is photography allowed at all the heritage sites?",
+        answer: "Photography is permitted at all the heritage sites included in this tour. Unlike the Taj Mahal interior where photography is restricted, the hidden gems of Agra allow unrestricted photography both inside and outside the monuments. This is a significant advantage for serious photographers who want to capture the intricate Pietra Dura work, lattice screens, and Mughal calligraphy in detail. Your guide knows the best angles and lighting conditions at each site, effectively serving as your personal photography director throughout the tour."
+      },
+      {
+        question: "How do I reach the starting point of this tour?",
+        answer: "Your guide will meet you directly at your hotel or any designated location in Agra. If you are arriving from Delhi, we recommend taking the [Gatimaan Express train](/india/agra/agra-gatimaan-entry-ticket) or booking a [private car from Delhi](/india/agra/taj-mahal-full-day-tour) for maximum comfort. For travelers already in Agra, the pickup is seamlessly coordinated to align with your schedule, whether you are starting fresh in the morning or continuing after a [sunrise Taj Mahal visit](/india/agra/taj-mahal-sunrise-guided-tour)."
+      },
+      {
+        question: "What should I wear for this heritage walking tour?",
+        answer: "Comfortable walking shoes are essential as you will traverse marble floors, sandstone pathways, and cobblestone lanes in the old city. Modest clothing covering shoulders and knees is recommended, particularly when visiting the Jama Masjid and other religiously significant sites. During summer months (April-June), lightweight breathable fabrics and sunscreen are crucial. In winter (November-February), a light jacket is advisable for the early morning hours. Carry a small water bottle and sunglasses for maximum comfort throughout the 3-hour exploration."
+      },
+      {
+        question: "Can this tour be customized to include specific sites?",
+        answer: "Yes, the itinerary is fully flexible and can be tailored to your interests. If you are particularly interested in Mughal-era cuisine, we can include a stop at a heritage food stall in Kinari Bazaar. If calligraphy fascinates you, we can extend the time at Itimad-ud-Daulah. For architecture enthusiasts, we can add Chini Ka Rauza (China's Tomb) with its extraordinary Persian tile work. Simply communicate your preferences when booking, and your guide will craft a bespoke heritage experience that maximizes your connection with Agra's authentic cultural landscape."
+      },
+      {
+        question: "What is the cancellation policy for this heritage tour?",
+        answer: "We offer a generous cancellation policy: full 100% refund for cancellations made more than 24 hours before the tour start time. Cancellations within 24 hours are subject to a 50% charge to fairly compensate the guide who has reserved their entire schedule for your booking. We recommend checking the weather forecast and confirming your plans the evening before. If your [Agra itinerary](/india/agra/1-day-agra-itinerary) changes unexpectedly, our team is available via WhatsApp to help reschedule rather than cancel outright."
+      }
+    ];
+  }
+
+  if (slug === 'taj-mahal-sunrise-tour') {
+    return [
+      {
+        question: "What does skip-the-line mean for this sunrise tour?",
+        answer: "Our skip-the-line service means your professional guide pre-arranges digital tickets and positions you in the priority entry lane before the gates open. The Archaeological Survey of India (ASI) opens the Taj Mahal gates exactly 30 minutes before sunrise, and the queue can stretch to hundreds of people by that time. With our tactical early positioning at the East Gate, you bypass the chaotic general queue and enter within the first wave of visitors. This ensures you experience the monument in near-silence during the most magical lighting conditions, a privilege that standard ticket holders rarely achieve."
+      },
+      {
+        question: "What time will the guide pick me up for sunrise?",
+        answer: "Your guide will coordinate pickup approximately 60-90 minutes before the official gate opening time. Since sunrise times fluctuate dramatically between seasons—from 5:15 AM in summer to 7:15 AM in winter—the exact pickup time is calibrated the evening before via WhatsApp. This precision timing ensures you arrive at the security checkpoint with enough buffer to clear the CISF screening and position yourself at the front of the entry queue. Our guides monitor the official [Taj Mahal opening time](/india/agra/taj-mahal-opening-time) daily to ensure perfect synchronization."
+      },
+      {
+        question: "Is the Taj Mahal entry ticket included in this tour?",
+        answer: "Yes, the [Taj Mahal entry ticket](/india/agra/taj-mahal-entry-ticket) is fully included in your tour package. This covers the standard ASI admission for foreign nationals, which includes access to the main mausoleum, the Charbagh gardens, the mosque, and the guest house. The mausoleum interior ticket (additional ₹200) can also be arranged if you wish to view the ornamental cenotaphs of Shah Jahan and Mumtaz Mahal up close. Your guide handles all ticketing logistics so you never touch a queue window."
+      },
+      {
+        question: "How long will we spend inside the Taj Mahal complex?",
+        answer: "The guided experience inside the Taj Mahal complex typically lasts 2 to 2.5 hours. This allows comprehensive exploration of the main gateway (Darwaza-i-Rauza), the symmetrical Charbagh gardens, the iconic reflection pool, the main mausoleum platform, and the flanking mosque and guest house. Your guide paces the visit to align with the changing light—starting with the ethereal pre-dawn glow and concluding as the marble transitions to brilliant white under full sunlight. This is significantly more thorough than the rushed 45-minute visits that group tours typically provide."
+      },
+      {
+        question: "What photography tips does the guide provide?",
+        answer: "Our guides are trained in monument photography positioning and know every premium vantage point. They will direct you to the exact symmetry point on the central water channel where the Taj is perfectly reflected, the Diana Bench (where Princess Diana's iconic photo was taken), and lesser-known angles from the mosque courtyard. During sunrise, the guide times your position to capture the marble transitioning from lavender to gold. They will also assist with your camera or smartphone, ensuring you leave with professional-quality memories of your [Agra visit](/india/agra/agra-travel-guide-2026)."
+      },
+      {
+        question: "What if the Taj Mahal is closed on Friday?",
+        answer: "The Taj Mahal is closed every Friday for prayers at the mosque within the complex. If your travel dates fall on a Friday, we strongly recommend our [Agra Friday Special Tour](/india/agra/agra-friday-tour-taj-closed-alternative) which covers Agra Fort, Itimad-ud-Daulah (Baby Taj), and Mehtab Bagh sunset views. Alternatively, you can view the Taj from Mehtab Bagh across the Yamuna River, which remains open on Fridays. We always verify your booking date against the closure schedule to prevent any disappointment."
+      },
+      {
+        question: "Is this tour private or shared with other groups?",
+        answer: "This is a completely private tour exclusively for you and your travel companions. We never merge bookings or add strangers to your group. This exclusivity means your guide tailors the narrative to your interests, adjusts the pace to your comfort level, and provides undivided attention throughout the experience. Whether you want to linger at the calligraphy panels or rush to capture the perfect sunrise shot, the entire schedule revolves around you. This privacy is what distinguishes our service from the crowded group tours offered at the gates."
+      },
+      {
+        question: "What should I bring for the sunrise visit?",
+        answer: "Pack light but strategically: a fully charged phone or camera, a light jacket (temperatures can be 8-10°C cooler at dawn), comfortable walking shoes, and sunglasses for the post-sunrise glare off the white marble. Prohibited items include tripods, food, tobacco, and large bags—all of which must be deposited at the locker facility near the entrance. Your guide will brief you on all prohibited items the evening before to ensure zero delays at the CISF security screening. We also provide shoe covers so you can keep your footwear on the marble platform."
+      },
+      {
+        question: "Can this tour be extended to include Agra Fort?",
+        answer: "Absolutely. Many travelers combine the sunrise Taj Mahal experience with a visit to the magnificent Agra Fort, creating a comprehensive [half-day Agra itinerary](/india/agra/taj-mahal-agra-fort-guided-tour). After completing the Taj visit by approximately 8:30 AM, your guide can escort you to the Agra Fort (just 2 km away), where you will explore the Diwan-i-Am, Diwan-i-Khas, and the poignant Musamman Burj—the octagonal tower where Shah Jahan spent his final years gazing at the Taj. This combination provides a complete Mughal dynasty narrative."
+      },
+      {
+        question: "How does this compare to an afternoon Taj Mahal visit?",
+        answer: "The sunrise visit is categorically superior to an afternoon visit for three critical reasons: first, the crowd density is roughly 80% lower, allowing unobstructed views and photos. Second, the soft directional light creates a warm golden glow on the white marble that is physically impossible to replicate under the harsh midday sun. Third, the temperature is 10-15°C cooler, making the walking experience significantly more comfortable. Afternoon visitors face massive crowds, intense heat, and flat lighting that washes out the marble's subtle warm tones. Every serious traveler and photographer prioritizes the sunrise slot."
+      },
+      {
+        question: "Is this tour suitable for families with young children?",
+        answer: "Yes, the sunrise tour works well for families, though the early wake-up requires preparation. Children under 15 enter the Taj Mahal free of charge with a valid passport. Our guides are skilled at engaging younger visitors with age-appropriate stories about the emperor, the princess, and the magical white palace. The cooler morning temperatures are actually more comfortable for children than the scorching afternoon heat. Strollers are not permitted inside the complex, so children must be able to walk or be carried. We recommend this tour for families who want a meaningful cultural experience without the mid-day chaos."
+      },
+      {
+        question: "What happens if it's foggy during the sunrise?",
+        answer: "Agra experiences significant morning fog from November through February. Rather than being a disadvantage, the fog creates an extraordinarily mystical atmosphere that photographers prize. The Taj Mahal appears to float in a white ethereal haze, gradually revealing itself as the fog lifts—a spectacle that clear-sky visitors never experience. Your guide will adapt the itinerary to work with the fog, positioning you at points where the monument emerges dramatically as visibility improves. Some of the most iconic Taj Mahal photographs ever taken were captured in these exact foggy conditions."
+      },
+      {
+        question: "Can I book this tour if I'm staying in Delhi?",
+        answer: "Yes, we offer seamless [Delhi to Agra day trips](/india/agra/taj-mahal-delhi-guided-tour) with pre-dawn departure from your Delhi hotel. The drive takes approximately 3-3.5 hours via the Yamuna Expressway. For the sunrise tour, this means a 2:00-3:00 AM pickup from Delhi. Alternatively, you can travel by the [Gatimaan Express train](/india/agra/agra-gatimaan-entry-ticket) or stay overnight in Agra to avoid the early drive. Many travelers combine this with a [private car from Delhi](/india/agra/sunrise-taj-mahal-and-agra-tour-by-car) for maximum comfort and flexibility."
+      },
+      {
+        question: "What languages are available for this guided tour?",
+        answer: "We provide ASI-licensed guides fluent in English, Spanish, French, German, Italian, Russian, Japanese, and Hindi. Each guide is specifically certified for the Taj Mahal complex and undergoes regular training to ensure historical accuracy. When you [book your guide](/india/agra/book-guide-for-taj-mahal), simply specify your preferred language, and we will match you with a specialist who delivers the full Mughal dynasty narrative in your native tongue without losing any historical nuance or architectural detail."
+      },
+      {
+        question: "What is the cancellation and refund policy?",
+        answer: "We offer a flexible cancellation policy: 100% full refund for cancellations made more than 24 hours before the scheduled pickup time. Cancellations within 24 hours incur a 50% charge to compensate the guide and driver who have reserved their schedules exclusively for your booking. In cases of extreme weather or government-mandated closures, we offer a full refund or free rescheduling. We recommend confirming your booking the evening before via WhatsApp, where our team provides real-time updates on weather conditions and any ASI announcements affecting your [Taj Mahal visit](/india/agra/taj-mahal-opening-time)."
+      }
+    ];
+  }
+
   // --- END AUTO-INJECTED FAQS ---
 
   // --- DELHI TOUR FAQS ---
@@ -1186,6 +1316,526 @@ export const getTourSpecificFAQs = (title: string, slug: string | undefined) => 
       }
     ];
   }
+  if (slug === 'delhi-guided-shopping-tour-female-expert') {
+    return [
+      {
+        question: "Why is this shopping tour led by a female expert guide?",
+        answer: "Our female expert guide brings a uniquely informed perspective to Delhi's shopping landscape that male guides simply cannot replicate. She has decades of personal shopping experience across every market in the city and understands fabric quality, fair pricing, and negotiation tactics at an instinctive level. For solo female travelers or women's groups, her presence provides an additional layer of comfort and security in crowded bazaars like Chandni Chowk and Sarojini Nagar. She navigates the narrow lanes with authority, identifies genuine artisans versus tourist-trap vendors, and ensures you receive authentic local pricing rather than inflated tourist rates."
+      },
+      {
+        question: "Which Delhi markets does this shopping tour cover?",
+        answer: "The tour covers a curated selection of Delhi's most authentic and high-value shopping destinations. You will explore Chandni Chowk for traditional textiles and spices, Dilli Haat for certified handicrafts from all Indian states, Khan Market for premium boutiques, and Janpath Market for bohemian jewelry and leather goods. Your guide selects markets based on your specific shopping interests—whether that is handwoven silk sarees, Mughal-era miniature paintings, aromatic spice blends, or contemporary Indian designer fashion. This variety ensures your [Delhi experience](/india/delhi/india-gate-guided-tour) extends far beyond the typical tourist souvenir circuit."
+      },
+      {
+        question: "Can the guide help me negotiate prices at the bazaars?",
+        answer: "Absolutely—this is one of the most valuable aspects of having a local female expert by your side. Delhi's bazaars operate on a negotiation culture where initial asking prices are typically 200-400% above the actual market value for foreign visitors. Your guide intervenes as your personal negotiation specialist, leveraging her Hindi fluency, local relationships, and deep market knowledge to secure authentic local prices. She knows the fair wholesale rates for Pashmina shawls, silk fabrics, leather goods, and gemstones, preventing the common tourist experience of overpaying for mediocre quality."
+      },
+      {
+        question: "Is this tour suitable for solo female travelers?",
+        answer: "This tour was specifically designed with solo female travelers in mind. Delhi's bustling markets can be overwhelming and occasionally uncomfortable for women navigating alone. Your female expert guide acts as your cultural shield—handling aggressive vendors, managing rickshaw negotiations, and steering you away from areas that are unnecessarily crowded or uncomfortable. Many of our solo female guests describe this tour as the highlight of their India trip because it allows them to experience authentic Delhi shopping culture with total confidence and zero anxiety."
+      },
+      {
+        question: "How long is the shopping tour?",
+        answer: "The tour runs approximately 4 hours, which is the optimal duration to explore 3-4 markets without fatigue. We pace the experience with strategic tea and refreshment breaks at heritage chai stalls that most tourists never discover. If you wish to extend the experience to a full day to cover additional markets like Lajpat Nagar or the Central Cottage Industries Emporium, we can customize the itinerary. Your guide ensures every minute is productive, avoiding the dead time that self-guided shopping inevitably involves in a chaotic city like Delhi."
+      },
+      {
+        question: "What kind of products can I find on this tour?",
+        answer: "Delhi is a treasure trove of authentic Indian craftsmanship. You will discover hand-block-printed textiles from Rajasthan, pure Pashmina shawls from Kashmir, aromatic spice blends for your kitchen, handcrafted silver and gemstone jewelry, miniature Mughal paintings, premium leather goods, organic Ayurvedic products, and contemporary Indian fashion. Your guide matches your interests to the right vendors, ensuring quality and authenticity. She can also help with international shipping arrangements for larger purchases like furniture or oversized textiles."
+      },
+      {
+        question: "Is hotel pickup and drop-off included?",
+        answer: "Yes, complimentary hotel pickup and drop-off within Delhi is included. Your guide will meet you at your hotel lobby and arrange comfortable transportation to the first market. Between markets, she coordinates auto-rickshaws or private cabs depending on the distance and your comfort preference. At the end of the tour, you are escorted safely back to your hotel with all your purchases. This door-to-door service eliminates the stress of navigating Delhi's complex transportation network while carrying shopping bags."
+      },
+      {
+        question: "Can the shopping tour be combined with Delhi sightseeing?",
+        answer: "Yes, many travelers combine this shopping experience with a [Delhi Old and New Delhi tour](/india/delhi/delhi-old-new-delhi-private-half-day-tour) or an [Old Delhi luxury car tour](/india/delhi/explore-old-new-delhi-city-luxury-car-tour). The Chandni Chowk market area is adjacent to the Red Fort and Jama Masjid, making it natural to weave historical sightseeing into the shopping itinerary. Your guide can create a hybrid experience that balances cultural immersion with retail therapy, ensuring you experience Delhi's heritage alongside its vibrant commercial culture."
+      },
+      {
+        question: "What should I bring on this shopping tour?",
+        answer: "Carry Indian Rupees (cash) as many bazaar vendors do not accept cards—your guide can assist with ATM locations or currency exchange. Wear comfortable walking shoes as you will navigate cobblestone lanes and uneven surfaces. A crossbody bag is recommended for security in crowded markets. Bring a reusable shopping bag for smaller purchases. Your guide will advise on quality indicators for specific products so you can make informed purchasing decisions throughout the experience."
+      },
+      {
+        question: "Is bargaining expected in Delhi markets?",
+        answer: "Bargaining is not just expected—it is a fundamental part of the shopping culture in Delhi's bazaars. Fixed-price shopping exists only in malls and government emporiums. In traditional markets like Chandni Chowk, Sarojini Nagar, and Janpath, negotiation is an art form that both buyers and sellers enjoy. Your female expert guide excels at this craft, ensuring you experience the cultural exchange of bargaining while securing fair prices. She will teach you key Hindi phrases and bargaining strategies that you can use independently throughout your India travels."
+      },
+      {
+        question: "Can I request specific items to shop for?",
+        answer: "Absolutely. When you book, share your shopping wishlist and your guide will pre-plan the route to include the best vendors for each item. Whether you need custom-tailored outfits (24-hour turnaround available in some markets), specific gemstones, particular fabric types, or traditional Indian wedding accessories, your guide curates the itinerary around your priorities. This bespoke approach ensures maximum efficiency—no wasted time wandering markets that do not stock what you are looking for."
+      },
+      {
+        question: "Are food and drink stops included?",
+        answer: "Yes, your guide incorporates authentic food stops at legendary Delhi street food establishments along the route. In Chandni Chowk, you may sample the famous paranthe wali gali (stuffed flatbreads), jalebi from century-old sweet shops, and aromatic chai from heritage tea stalls. These culinary pit stops are carefully selected for hygiene and quality—your guide knows which vendors maintain the highest standards. This transforms the shopping tour into a multi-sensory cultural experience that engages your taste buds alongside your retail instincts."
+      },
+      {
+        question: "Is this tour available on weekends?",
+        answer: "Yes, the tour operates every day of the week. However, market dynamics vary by day—Chandni Chowk is closed on Sundays, while Sarojini Nagar has its famous Tuesday market. Your guide adapts the itinerary based on the day of your booking to ensure every market visited is fully operational and at its most vibrant. Saturday afternoons tend to be the busiest, which some travelers enjoy for the atmosphere while others prefer the calmer weekday mornings for more focused shopping."
+      },
+      {
+        question: "How does this compare to shopping alone in Delhi?",
+        answer: "Shopping independently in Delhi as a foreign visitor typically results in paying 2-4x the local price, visiting tourist-trap shops with inflated margins, and missing the authentic artisan workshops hidden in back lanes. Our guided experience eliminates all these disadvantages. Your expert guide provides quality authentication (she can identify genuine Pashmina from synthetic in seconds), prevents overcharging, and introduces you to family-run workshops that have no online presence. The guide fee effectively pays for itself through the savings on your purchases."
+      },
+      {
+        question: "What is the cancellation policy for this shopping tour?",
+        answer: "We offer a straightforward cancellation policy: 100% full refund for cancellations made more than 24 hours before the tour start time. Cancellations within 24 hours incur a 50% charge to compensate the guide who has blocked her full schedule for your booking. We understand that travel plans change, so we also offer free rescheduling to an alternative date if notified 24 hours in advance. Contact us via WhatsApp for instant assistance with any booking modifications."
+      }
+    ];
+  }
+
+  if (slug === 'from-delhi-same-day-taj-mahal-fastest-train') {
+    return [
+      {
+        question: "Which is India's fastest train used for this Taj Mahal trip?",
+        answer: "This tour utilizes the Gatimaan Express, India's first semi-high-speed train that connects Delhi's Hazrat Nizamuddin station to Agra Cantt in just 100 minutes at speeds up to 160 km/h. This is significantly faster than driving (3-4 hours) and far more comfortable than the older Shatabdi Express. The train features airline-style reclining seats, onboard catering with a complimentary meal, and air-conditioned coaches. This premium rail experience ensures you arrive in Agra refreshed and ready to explore rather than exhausted from a long drive on the Yamuna Expressway."
+      },
+      {
+        question: "Are confirmed Gatimaan Express train tickets included?",
+        answer: "Yes, confirmed Executive Chair Car tickets on the Gatimaan Express are included in both directions. These are premium-class seats with guaranteed confirmation—no waitlisting. We secure these tickets in advance through our priority IRCTC allocation, which is critical because the Gatimaan Express sells out weeks ahead due to its popularity. Your tickets include the complimentary onboard meal service. This eliminates the common frustration of tourists who attempt to book independently and find no availability, especially during the peak October-March travel season."
+      },
+      {
+        question: "What time does the Gatimaan Express depart from Delhi?",
+        answer: "The Gatimaan Express departs from Hazrat Nizamuddin Railway Station in South Delhi at approximately 8:10 AM, arriving at Agra Cantt station by 9:50 AM. The return train departs Agra at approximately 5:50 PM, reaching Delhi by 7:30 PM. This schedule provides you with approximately 7-8 hours in Agra—more than sufficient for a comprehensive [Taj Mahal and Agra Fort guided tour](/india/agra/taj-mahal-agra-fort-guided-tour) with lunch. Your guide will meet you at Agra station with a private vehicle, ensuring zero wasted time on arrival."
+      },
+      {
+        question: "Is a guide and private car included in Agra?",
+        answer: "Yes, a certified ASI-licensed guide and a comfortable air-conditioned private car are waiting for you at Agra Cantt station. The moment you step off the Gatimaan Express, your guide welcomes you and the vehicle takes you directly to the Taj Mahal. The private car remains at your disposal throughout the day for transfers between the [Taj Mahal](/india/agra/taj-mahal-official-guided-tour), Agra Fort, and any other sites you wish to visit. This seamless ground arrangement means you maximize every minute of your limited time in Agra."
+      },
+      {
+        question: "How much time do we get at the Taj Mahal?",
+        answer: "You will have approximately 2-2.5 hours for a comprehensive Taj Mahal exploration, which is the optimal duration recommended by our senior guides. This allows thorough coverage of the main gateway, the Charbagh gardens, the reflecting pool, the main mausoleum platform and interior, and the flanking mosque. After the Taj, you still have ample time for Agra Fort (1.5 hours) and a traditional Mughlai lunch. Your guide paces the visit perfectly to ensure depth without rush, unlike group tours that allow only 45 minutes inside the complex."
+      },
+      {
+        question: "Is this better than driving from Delhi to Agra?",
+        answer: "The train is categorically superior to driving for several reasons: first, the 100-minute journey versus 3-4 hours by road saves you up to 4 hours of total travel time. Second, you avoid the unpredictable Yamuna Expressway traffic, toll queues, and fatigue from a long drive. Third, the Gatimaan Express experience itself is enjoyable—premium seating, meals, and the novelty of India's fastest train. Fourth, you arrive relaxed and alert rather than road-weary. The only scenario where driving is preferable is if you plan to visit Fatehpur Sikri (which is off the train route)."
+      },
+      {
+        question: "Can we add Agra Fort or Baby Taj to this itinerary?",
+        answer: "Absolutely. The standard itinerary includes the Taj Mahal and Agra Fort. For travelers wanting deeper immersion, we can add Itimad-ud-Daulah (Baby Taj) or a visit to the [hidden gems of Agra](/india/agra/hidden-gems-of-agra-heritage-tour). The 7-8 hours in Agra provide enough time for 2-3 major sites plus lunch. Your guide will optimize the routing to minimize transit time between monuments, ensuring maximum time at each site. Simply specify your preferences when booking and we will create a bespoke [1-day Agra itinerary](/india/agra/1-day-agra-itinerary) around the train schedule."
+      },
+      {
+        question: "What if the Gatimaan Express is delayed or cancelled?",
+        answer: "Indian Railways delays are rare on the Gatimaan Express due to its priority scheduling, but we have contingency protocols in place. If a significant delay occurs, our Agra team adjusts your itinerary in real-time to ensure you still visit the Taj Mahal. In the extremely unlikely event of a cancellation, we immediately arrange a private car from Delhi to Agra (approximately 3 hours) at no additional cost. Your guide maintains constant communication via WhatsApp to keep you informed. This operational redundancy ensures your [Taj Mahal visit](/india/agra/taj-mahal-opening-time) happens regardless of any rail disruptions."
+      },
+      {
+        question: "Is hotel pickup in Delhi included?",
+        answer: "Yes, we provide complimentary pickup from your Delhi hotel to Hazrat Nizamuddin Railway Station. The pickup time is calibrated to ensure you arrive at the station with adequate buffer (approximately 30 minutes before departure). Our driver navigates Delhi's morning traffic efficiently using real-time routing. On return, we pick you up from Nizamuddin station and drop you back at your hotel. This complete door-to-door service means you never need to worry about Delhi's complex transportation logistics."
+      },
+      {
+        question: "Is lunch included in this day trip?",
+        answer: "Lunch is included at a carefully selected restaurant in Agra that serves authentic Mughlai cuisine. You will enjoy specialties like butter chicken, biryani, and fresh naan in a clean, air-conditioned environment. The restaurant is chosen for both quality and strategic location between the Taj Mahal and Agra Fort, minimizing travel time. The onboard Gatimaan Express meal (included with your ticket) serves as breakfast, and the Agra lunch ensures you are energized for the afternoon sightseeing before your return train."
+      },
+      {
+        question: "Can solo travelers book this tour?",
+        answer: "Yes, this tour is popular with solo travelers. You receive the same private guide, private car, and confirmed train tickets as any group booking. Solo travelers particularly appreciate the safety and efficiency of having a dedicated guide navigate Agra on their behalf. The pricing is per-person, making it accessible for individuals. Many solo travelers from our [Delhi sightseeing tours](/india/delhi/delhi-old-new-delhi-private-half-day-tour) add this Agra day trip as the perfect complement to their Delhi itinerary."
+      },
+      {
+        question: "What should I carry on the train?",
+        answer: "Travel light for this day trip: a small daypack with your camera, sunscreen, sunglasses, a water bottle, and your passport (required for Taj Mahal foreign national tickets). Leave heavy luggage at your Delhi hotel. The Gatimaan Express has overhead luggage racks and under-seat storage for daypacks. Carry Indian Rupees for any personal shopping in Agra. Your guide handles all ticketing and logistics, so you do not need printed confirmations. Comfortable walking shoes are essential as you will cover 3-4 km on foot at the Taj Mahal complex."
+      },
+      {
+        question: "Is the Taj Mahal entry ticket included?",
+        answer: "Yes, the [Taj Mahal entry ticket](/india/agra/taj-mahal-entry-ticket) for foreign nationals is included in the tour package. This covers the standard ASI admission plus the mausoleum interior access supplement. Your guide pre-arranges the tickets to bypass the manual ticket window queue, which can exceed 45 minutes during peak season. Agra Fort entry is also included. All monument fees are transparently bundled into the tour price with zero hidden charges, ensuring your experience is completely hassle-free."
+      },
+      {
+        question: "How far in advance should I book this tour?",
+        answer: "We strongly recommend booking at least 7-10 days in advance, especially during the peak season (October through March). Gatimaan Express tickets have limited inventory and sell out rapidly. During festivals like Diwali, Christmas, and New Year, booking 2-3 weeks ahead is advisable. Last-minute bookings are sometimes possible but cannot guarantee the Gatimaan Express—we would substitute with the Shatabdi Express or private car if train seats are unavailable. Early booking ensures the premium train experience that makes this tour exceptional."
+      },
+      {
+        question: "What is the cancellation policy for this train tour?",
+        answer: "Due to the non-refundable nature of confirmed IRCTC train tickets, our cancellation policy is stricter than standard tours. Cancellations more than 48 hours before departure receive a 75% refund (25% covers the non-recoverable train ticket costs). Cancellations within 48 hours receive a 25% refund. However, the ground arrangements in Agra (guide, car, lunch) are fully refundable up to 24 hours prior. We recommend travel insurance that covers trip cancellations for complete protection. Rescheduling is possible subject to train availability."
+      }
+    ];
+  }
+
+  if (slug === 'explore-old-new-delhi-city-luxury-car-tour') {
+    return [
+      {
+        question: "What is the difference between Old Delhi and New Delhi on this tour?",
+        answer: "Old Delhi (Shahjahanabad) is the historic Mughal-era walled city built by Emperor Shah Jahan in 1639, featuring narrow lanes, centuries-old bazaars, the Red Fort, and Jama Masjid. New Delhi is the British-designed colonial capital created by Edwin Lutyens in the 1930s, featuring wide boulevards, India Gate, Rashtrapati Bhavan, and Parliament House. This tour uniquely bridges both eras, giving you a comprehensive understanding of Delhi's 1,000-year evolution from a medieval fortress city to a modern global capital. The contrast between the two is one of the most fascinating aspects of [exploring Delhi](/india/delhi/india-gate-guided-tour)."
+      },
+      {
+        question: "What kind of luxury car is used for this tour?",
+        answer: "We deploy premium sedans and SUVs including Toyota Fortuner, Toyota Crysta, or Mercedes-Benz class vehicles depending on your group size and preference. Each vehicle features professional-grade climate control, plush leather interiors, chilled mineral water, and a uniformed chauffeur trained in VIP protocol. The luxury car is essential in Delhi—it provides a climate-controlled sanctuary between monument visits, protecting you from the heat, dust, and traffic chaos. You can specify your vehicle preference when booking to ensure the exact level of comfort you desire."
+      },
+      {
+        question: "Is an official licensed guide included?",
+        answer: "Yes, your tour is led by a Ministry of Tourism-certified guide with deep expertise in both Mughal and British colonial history. These guides undergo rigorous government examinations and are the only professionals legally authorized to provide historical commentary at ASI-protected monuments like the Red Fort and Humayun's Tomb. Their dual knowledge of Old and New Delhi history creates a seamless narrative that connects the Mughal emperors to the British Raj to modern India—an intellectual journey that self-guided exploration simply cannot replicate."
+      },
+      {
+        question: "Which monuments and landmarks are covered?",
+        answer: "The full-day itinerary covers approximately 8-10 major landmarks: Red Fort, Jama Masjid, Chandni Chowk (rickshaw ride), Raj Ghat (Gandhi memorial), Humayun's Tomb, Qutub Minar, India Gate, Parliament House drive-by, Rashtrapati Bhavan, and Lotus Temple. The half-day option covers 4-5 highlights based on your preferences. Your guide customizes the route to match your interests—history buffs may add Purana Qila while architecture enthusiasts might prefer Safdarjung's Tomb. This flexibility is the advantage of a [private Delhi tour](/india/delhi/delhi-old-new-delhi-private-half-day-tour)."
+      },
+      {
+        question: "Can this tour be customized to my interests?",
+        answer: "Absolutely. The itinerary is fully flexible. If you are passionate about Mughal architecture, we can extend time at Humayun's Tomb and the Red Fort. Food enthusiasts can add a heritage food walk through Chandni Chowk's famous paranthe wali gali. Photography lovers can schedule golden-hour visits to India Gate and Humayun's Tomb. If you are combining this with a [Taj Mahal day trip](/india/delhi/delhi-luxury-premium-tour) the next day, we can prioritize Delhi-specific sites that you cannot see in Agra. Simply share your preferences and your guide creates a bespoke experience."
+      },
+      {
+        question: "Is a Chandni Chowk rickshaw ride included?",
+        answer: "Yes, a traditional cycle-rickshaw ride through the narrow, bustling lanes of Chandni Chowk is one of the tour highlights. This 20-30 minute ride takes you through Asia's largest spice market, the famous silver jewelry bazaar, and past centuries-old havelis that most tourists never see from a car window. Your guide accompanies you on the rickshaw, narrating the history of each lane. This immersive experience provides an authentic sensory overload—sights, sounds, and aromas—that captures the true essence of Mughal-era Delhi."
+      },
+      {
+        question: "How long is this Delhi city tour?",
+        answer: "You can choose between a half-day tour (approximately 5-6 hours) or a full-day tour (approximately 8-9 hours including lunch). The full-day option is recommended for first-time Delhi visitors as it covers both Old and New Delhi comprehensively. The half-day option works well for travelers with limited time or those who want to focus on either the Mughal heritage (Old Delhi) or the colonial landmarks (New Delhi). Both options include luxury car transportation and a licensed guide throughout."
+      },
+      {
+        question: "Is lunch included in the full-day tour?",
+        answer: "Yes, the full-day tour includes lunch at a carefully selected restaurant serving authentic North Indian cuisine. The restaurant is chosen for quality, hygiene, and strategic location between Old and New Delhi to minimize travel time. You will enjoy classic dishes like butter chicken, dal makhani, and fresh tandoori bread. For travelers with dietary restrictions, vegetarian, vegan, and Jain options are available. The restaurant provides a comfortable, air-conditioned rest stop that recharges you for the afternoon sightseeing segment."
+      },
+      {
+        question: "Are monument entry tickets included?",
+        answer: "Yes, entry tickets to all monuments on the itinerary are included in the tour price. This covers the Red Fort, Humayun's Tomb, Qutub Minar, and any other ticketed sites. Your guide pre-arranges tickets to minimize queuing time, especially at the Red Fort where lines can exceed 30 minutes during peak season. This all-inclusive pricing ensures zero hidden costs and allows you to focus entirely on the history and architecture rather than logistics."
+      },
+      {
+        question: "Is this tour suitable for first-time visitors to India?",
+        answer: "This tour is specifically designed for first-time India visitors. Delhi can be overwhelming—the traffic, the crowds, the sensory intensity—and having a professional guide with a luxury vehicle transforms what could be a stressful experience into a comfortable, educational adventure. Your guide provides cultural context, safety guidance, and navigation expertise that eliminates the common anxieties of first-time visitors. The luxury car serves as your private sanctuary between sites, allowing you to decompress and process each experience before the next."
+      },
+      {
+        question: "Can we visit the Red Fort interior?",
+        answer: "Yes, the Red Fort interior visit is a highlight of the Old Delhi segment. You will explore the Diwan-i-Am (Hall of Public Audience), Diwan-i-Khas (Hall of Private Audience), the Royal Baths, and the beautifully manicured Mughal gardens. Your guide provides detailed commentary on the fort's role as the seat of Mughal power for nearly 200 years. Note that the Red Fort is closed on Mondays—if your tour falls on a Monday, your guide will substitute with an equally significant alternative like Purana Qila (Old Fort)."
+      },
+      {
+        question: "Is Humayun's Tomb worth visiting if I'm going to see the Taj Mahal?",
+        answer: "Absolutely. Humayun's Tomb is the direct architectural precursor to the Taj Mahal—built 60 years earlier, it established the template of a garden tomb surrounded by symmetrical charbagh gardens. Understanding Humayun's Tomb makes your subsequent [Taj Mahal visit](/india/agra/taj-mahal-opening-time) exponentially more meaningful because you can trace the evolution of Mughal funerary architecture. The recently restored gardens are among the most beautiful in India, and the monument itself is a UNESCO World Heritage Site that rivals the Taj in historical significance if not in scale."
+      },
+      {
+        question: "What is the best time of year for this Delhi tour?",
+        answer: "The optimal months are October through March when Delhi's weather is pleasant (15-25°C). December and January can have morning fog but are otherwise ideal. April through June should be avoided if possible due to extreme heat (40-45°C) that makes outdoor sightseeing uncomfortable. The monsoon months (July-September) bring humidity but also lush green landscapes. For photography, November offers the clearest skies and best visibility of Delhi's architectural landmarks."
+      },
+      {
+        question: "Can this be combined with a Delhi shopping experience?",
+        answer: "Yes, many travelers add our [Delhi Guided Shopping Tour with Female Expert](/india/delhi/delhi-guided-shopping-tour-female-expert) as a complementary experience. The sightseeing tour naturally passes through major shopping districts—Chandni Chowk for traditional goods, Khan Market for premium boutiques, and Dilli Haat for handicrafts. Your guide can incorporate strategic shopping stops into the itinerary or you can book the dedicated shopping tour for the following day to create a comprehensive Delhi experience."
+      },
+      {
+        question: "What is the cancellation policy?",
+        answer: "We offer a generous cancellation policy: 100% full refund for cancellations made more than 24 hours before the scheduled pickup time. Cancellations within 24 hours incur a 50% charge to compensate the guide and chauffeur who have reserved their schedules exclusively for your booking. Free rescheduling is available with 24 hours' notice subject to guide availability. Contact our team via WhatsApp for instant assistance with any booking modifications or travel plan changes."
+      }
+    ];
+  }
+
+  if (slug === 'delhi-private-4-day-golden-triangle-luxury-tour') {
+    return [
+      {
+        question: "What cities does the 4-Day Golden Triangle Luxury Tour cover?",
+        answer: "This premium 4-day itinerary covers India's three most iconic cities: Delhi, Agra, and Jaipur. Day 1 features comprehensive [Delhi sightseeing](/india/delhi/explore-old-new-delhi-city-luxury-car-tour) including the Red Fort, India Gate, and Humayun's Tomb. Day 2 takes you to Agra for the [Taj Mahal](/india/agra/taj-mahal-official-guided-tour) and Agra Fort with an optional Fatehpur Sikri stop. Day 3 transfers you to Jaipur for the Amber Fort and City Palace. Day 4 completes the Jaipur exploration before your return to Delhi. This triangular route represents the essential distillation of India's Mughal and Rajput heritage into a single, luxurious journey."
+      },
+      {
+        question: "What makes this a luxury tour compared to standard Golden Triangle packages?",
+        answer: "The luxury distinction manifests in every detail: 5-star heritage hotel accommodations (such as The Oberoi, ITC Mughal, or Rambagh Palace), premium SUV or sedan transportation with uniformed chauffeurs, Category-A senior historian guides at every monument, curated fine-dining experiences featuring regional specialties, and a dedicated trip coordinator available 24/7 via WhatsApp. Standard packages use budget hotels, shared vehicles, and rushed schedules. Our luxury approach provides unhurried exploration, private access where possible, and the caliber of service that discerning world travelers expect."
+      },
+      {
+        question: "Is a sunrise Taj Mahal visit included?",
+        answer: "Yes, the sunrise Taj Mahal experience is a centerpiece of Day 2. We arrange pre-dawn departure from your Agra hotel so you are among the first visitors when the ASI gates open. Watching the white marble transform from cool lavender to warm gold as the sun rises is an emotional, once-in-a-lifetime experience. Your senior guide positions you at the optimal photography points and provides historical commentary in the peaceful morning atmosphere. After the sunrise visit, you continue to [Agra Fort](/india/agra/taj-mahal-agra-fort-guided-tour) before your transfer to Jaipur."
+      },
+      {
+        question: "What hotel category is included?",
+        answer: "We include 5-star and heritage luxury hotels throughout the itinerary. In Delhi, options include The Oberoi New Delhi or ITC Maurya. In Agra, The Oberoi Amarvilas (with Taj Mahal views from every room) or ITC Mughal. In Jaipur, The Rambagh Palace or The Oberoi Rajvilas. Each property is selected for its heritage significance, service excellence, and strategic proximity to the major monuments. If you have a preferred hotel chain or specific property in mind, we accommodate all requests. Room upgrades to suites are available upon request."
+      },
+      {
+        question: "Are all monument entry tickets and guide fees included?",
+        answer: "Yes, every element is comprehensively included: all ASI monument entry tickets (Red Fort, Humayun's Tomb, Qutub Minar, Taj Mahal, Agra Fort, Amber Fort, City Palace, Jantar Mantar), licensed guide services in all three cities, luxury vehicle with fuel and tolls, hotel accommodations with breakfast, and select meals. There are zero hidden charges. This all-inclusive pricing allows you to enjoy the journey without constantly reaching for your wallet or worrying about unexpected costs. The only additional expenses are personal shopping and gratuities."
+      },
+      {
+        question: "Can the itinerary be customized?",
+        answer: "Absolutely. While the Delhi-Agra-Jaipur routing is fixed, the specific experiences within each city are fully flexible. You can add a [Delhi shopping tour](/india/delhi/delhi-guided-shopping-tour-female-expert), include Fatehpur Sikri between Agra and Jaipur, add a cooking class in Jaipur, or substitute certain monuments based on your interests. Families with children might prefer adding an elephant sanctuary visit in Jaipur, while architecture enthusiasts might want extra time at Humayun's Tomb and Amber Fort. Your trip coordinator tailors every detail to your preferences."
+      },
+      {
+        question: "How are the transfers between cities handled?",
+        answer: "All intercity transfers are by luxury air-conditioned vehicle on the excellent Yamuna Expressway (Delhi-Agra, approximately 3.5 hours) and NH48 (Agra-Jaipur, approximately 4.5 hours via Fatehpur Sikri). The vehicles are equipped with premium amenities including chilled water, snacks, charging ports, and Wi-Fi. Your chauffeur is a professional trained in VIP protocol and defensive driving. The drives themselves offer fascinating glimpses of rural India—mustard fields, village life, and vast agricultural plains—that complement the urban monument experiences perfectly."
+      },
+      {
+        question: "Is this tour suitable for families with children?",
+        answer: "Yes, we regularly host families on this luxury itinerary and our guides excel at engaging young travelers. Children under 15 receive free entry at most ASI monuments. The luxury vehicle provides a comfortable retreat between sites, and the 5-star hotels offer family rooms and children's amenities. Your guide adapts the storytelling to include age-appropriate tales of emperors, battles, and treasure that captivate young imaginations. The pace is adjusted to prevent fatigue, with strategic breaks for ice cream, swimming pools, and playground time at the hotels."
+      },
+      {
+        question: "What happens if I arrive late at Delhi airport?",
+        answer: "Our team monitors your flight in real-time and adjusts the pickup accordingly. A premium airport transfer is included with a dedicated driver holding a name board at the arrivals gate. If your flight is significantly delayed, we restructure the Day 1 Delhi itinerary to prioritize the most important sites. In extreme cases (very late night arrival), we shift the full Delhi sightseeing to Day 4 and begin with Agra on Day 2. This operational flexibility ensures no major experience is compromised regardless of travel disruptions."
+      },
+      {
+        question: "Is Fatehpur Sikri included in this tour?",
+        answer: "Fatehpur Sikri is offered as an included stop on the Agra-to-Jaipur transfer day. This magnificent abandoned Mughal capital, built by Emperor Akbar in 1571, is a UNESCO World Heritage Site featuring the stunning Buland Darwaza (Gate of Magnificence)—the tallest gateway in the world. Your guide provides comprehensive commentary on Akbar's experimental city that was abandoned after just 14 years due to water scarcity. The [Fatehpur Sikri visit](/india/agra/fatehpur-sikri-guided-tour) adds approximately 1.5 hours to the transfer and is highly recommended for history enthusiasts."
+      },
+      {
+        question: "What meals are included in the 4-day package?",
+        answer: "Daily breakfast at your luxury hotel is included throughout the tour. We also include lunch on Day 1 (Delhi), lunch on Day 2 (Agra—authentic Mughlai cuisine), and a farewell dinner on Day 3 (Jaipur—traditional Rajasthani thali). Other meals are kept flexible so you can explore local restaurants at your own pace. Your guide provides curated restaurant recommendations for any non-included meals, ensuring every dining experience is authentic and high-quality. Special dietary requirements (vegetarian, vegan, halal, kosher) are accommodated at all included meals."
+      },
+      {
+        question: "How far in advance should I book this luxury tour?",
+        answer: "We recommend booking at least 2-3 weeks in advance, especially during the peak season (October through March). Premium hotels like The Oberoi Amarvilas in Agra and Rambagh Palace in Jaipur have limited inventory and sell out months ahead during festivals and holidays. For travel during Diwali, Christmas, or New Year, booking 6-8 weeks ahead is strongly advised. Early booking also ensures availability of our top-tier Category-A guides, who are in high demand during peak season."
+      },
+      {
+        question: "Can I extend this tour to include Varanasi or Udaipur?",
+        answer: "Yes, many travelers extend the Golden Triangle with additional destinations. Popular extensions include Varanasi (spiritual capital on the Ganges), Udaipur (City of Lakes in Rajasthan), Jodhpur (Blue City), and Ranthambore (tiger safari). We can add 1-3 days per extension with the same luxury standards. Flights between cities are arranged for time efficiency. Your trip coordinator designs the extended itinerary based on your interests and available time, creating a comprehensive India experience that goes beyond the standard Golden Triangle circuit."
+      },
+      {
+        question: "Is travel insurance recommended for this tour?",
+        answer: "While not mandatory, we strongly recommend comprehensive travel insurance that covers trip cancellation, medical emergencies, and baggage protection. India's healthcare infrastructure varies significantly between cities, and premium insurance ensures access to the best private hospitals if needed. Insurance also protects your investment in this luxury tour against unforeseen cancellations due to illness, family emergencies, or flight disruptions. We can recommend trusted international insurance providers who specialize in India travel coverage."
+      },
+      {
+        question: "What is the cancellation policy for this luxury tour?",
+        answer: "Given the advance hotel reservations and guide commitments, our cancellation policy is: cancellations more than 30 days before departure receive a 90% refund. Cancellations 15-30 days before departure receive a 60% refund. Cancellations 7-14 days before departure receive a 30% refund. Cancellations within 7 days are non-refundable. We strongly recommend travel insurance to mitigate any financial loss from unexpected cancellations. Free date changes are possible up to 30 days before departure, subject to hotel and guide availability."
+      }
+    ];
+  }
+
+  if (slug === 'delhi-luxury-premium-tour') {
+    return [
+      {
+        question: "What luxury car is used for the Delhi to Agra round trip?",
+        answer: "We deploy premium vehicles including Toyota Fortuner, Mercedes-Benz E-Class, BMW 5 Series, or Toyota Crysta depending on your group size and preference. Each vehicle features professional-grade climate control, leather interiors, chilled mineral water, premium snacks, charging ports, and ample legroom for the 3.5-hour highway journey. The chauffeur is a trained professional in formal attire who maintains the vehicle to immaculate standards. This is not a basic taxi service—it is a curated VIP transfer designed to make your [Delhi to Agra journey](/india/agra/taj-mahal-delhi-guided-tour) as comfortable as the destination itself."
+      },
+      {
+        question: "How long is the drive from Delhi to Agra?",
+        answer: "The drive from Delhi to Agra via the Yamuna Expressway takes approximately 3 to 3.5 hours depending on traffic conditions. The Yamuna Expressway is a modern 6-lane highway in excellent condition, making the drive smooth and comfortable. We depart your Delhi hotel between 5:00-6:00 AM for optimal timing at the [Taj Mahal](/india/agra/taj-mahal-opening-time). The return journey departs Agra by approximately 4:00-5:00 PM, getting you back to your Delhi hotel by 8:00-8:30 PM. Strategic rest stops are included at premium highway facilities."
+      },
+      {
+        question: "Is a licensed guide included at the Taj Mahal and Agra Fort?",
+        answer: "Yes, a senior ASI-licensed guide awaits you in Agra with specialized expertise in Mughal architecture and history. This is not a generic city guide—this is a monument specialist who has been guiding at the [Taj Mahal](/india/agra/taj-mahal-official-guided-tour) and Agra Fort for 10+ years. They provide the depth of historical knowledge that transforms your visit from sightseeing into a meaningful educational experience. The guide coordinates with your chauffeur to optimize the itinerary timing, ensuring seamless transitions between monuments."
+      },
+      {
+        question: "What is included in the tour price?",
+        answer: "The all-inclusive package covers: luxury car round-trip Delhi-Agra-Delhi with professional chauffeur, all highway tolls and parking fees, ASI-licensed guide in Agra, Taj Mahal and Agra Fort entry tickets, bottled water and vehicle amenities throughout. Lunch at a premium restaurant is also included. There are absolutely zero hidden charges. The only personal expenses are shopping and optional gratuities. This transparent pricing ensures you can enjoy the experience without constantly calculating additional costs."
+      },
+      {
+        question: "Can we visit Fatehpur Sikri as well?",
+        answer: "Yes, Fatehpur Sikri can be added to the itinerary as it lies on the route approximately 40 km from Agra. This UNESCO World Heritage Site—Emperor Akbar's abandoned capital city—features the magnificent Buland Darwaza and the exquisite tomb of Salim Chishti. Adding [Fatehpur Sikri](/india/agra/fatehpur-sikri-guided-tour) extends the tour by approximately 1.5-2 hours and is highly recommended for travelers who want a comprehensive Mughal heritage experience beyond just the Taj Mahal. Your guide provides equally detailed commentary at this remarkable site."
+      },
+      {
+        question: "What time should we depart Delhi for the best experience?",
+        answer: "We recommend departing between 5:00-6:00 AM to reach Agra by 8:30-9:00 AM, which provides the optimal morning light at the Taj Mahal with manageable crowds. For a [sunrise Taj Mahal experience](/india/agra/sunrise-taj-mahal-and-agra-tour-by-car), departure at 3:00-3:30 AM is necessary. Your chauffeur accommodates any preferred timing. Earlier departures benefit from virtually empty highways and cooler temperatures, while the luxury vehicle ensures you can rest comfortably during the drive. Late departures (after 8 AM) are possible but result in heavier traffic and more crowded monuments."
+      },
+      {
+        question: "Is this tour suitable for elderly travelers?",
+        answer: "This luxury tour is ideal for elderly travelers because the private car eliminates all the physical stress of public transportation and group tours. The vehicle provides a comfortable, air-conditioned retreat between monuments. At the Taj Mahal and Agra Fort, your guide adjusts the walking pace and prioritizes the most impactful viewing areas. Wheelchair accessibility at the Taj Mahal is limited but manageable with guide assistance. The luxury vehicle's low entry height and ample legroom ensure comfortable boarding and exiting. Rest stops and bathroom breaks are scheduled as needed."
+      },
+      {
+        question: "How does this compare to taking the Gatimaan Express train?",
+        answer: "Both options are excellent but serve different preferences. The [Gatimaan Express](/india/delhi/from-delhi-same-day-taj-mahal-fastest-train) is faster (100 minutes vs 3.5 hours) and offers a unique train experience, but has fixed departure times and requires station transfers. The luxury car provides total schedule flexibility—depart when you want, stop where you want, and return when you are ready. The car also allows Fatehpur Sikri and other roadside stops. For families, elderly travelers, or anyone who values complete itinerary control, the luxury car is the superior choice."
+      },
+      {
+        question: "Can we stop for breakfast on the way to Agra?",
+        answer: "Yes, we include a strategic stop at a premium highway restaurant approximately 90 minutes into the journey. These facilities along the Yamuna Expressway offer clean restrooms, fresh breakfast options, and quality coffee. It is an excellent opportunity to stretch your legs, freshen up, and enjoy a meal before arriving in Agra energized and ready for exploration. The stop adds only 20-30 minutes to the journey and significantly enhances your comfort level for the busy sightseeing day ahead."
+      },
+      {
+        question: "Is a car seat available for young children?",
+        answer: "Yes, child car seats and booster seats are available upon request at no additional charge. Please specify your child's age and weight when booking so we can install the appropriate safety equipment in the luxury vehicle. Indian highways are well-maintained but long-distance driving always benefits from proper child restraint systems. Our chauffeurs are trained in car seat installation and ensure your child's safety throughout the journey. Children under 15 also benefit from free entry at most ASI monuments."
+      },
+      {
+        question: "What happens if there is heavy traffic or road closure?",
+        answer: "Our chauffeurs use real-time GPS navigation and maintain communication with our operations team to identify traffic issues before they impact your schedule. Alternative routes are available via the older NH19 highway if the Yamuna Expressway experiences unusual congestion. In the extremely rare event of a road closure, your guide adjusts the Agra itinerary to compensate for any lost time, prioritizing the Taj Mahal as the non-negotiable highlight. Our operational redundancy ensures your monument visits happen as planned regardless of road conditions."
+      },
+      {
+        question: "Can I book a one-way drop to Agra instead of round-trip?",
+        answer: "Yes, one-way transfers are available for travelers who plan to continue from Agra to Jaipur or other destinations. This is popular with [Golden Triangle tour](/india/delhi/delhi-private-4-day-golden-triangle-luxury-tour) travelers. The one-way option includes the same luxury vehicle and chauffeur for the Delhi-to-Agra leg, with full guide service in Agra. We can also arrange your onward transfer from Agra to Jaipur or any other city with the same standard of luxury ground transportation."
+      },
+      {
+        question: "Is this tour available during monsoon season?",
+        answer: "Yes, the tour operates year-round including during the monsoon months (July-September). The Yamuna Expressway is an all-weather highway, and the luxury vehicle provides complete weather protection. Interestingly, monsoon season offers unique advantages: dramatically fewer tourists at the Taj Mahal, lush green landscapes along the highway, and spectacular cloud formations that create moody, atmospheric photography conditions. The marble of the Taj also has a distinctive luminous quality when wet. Your guide carries umbrellas and adjusts the itinerary to work around rain showers."
+      },
+      {
+        question: "Can we include a Taj Mahal sunset view from Mehtab Bagh?",
+        answer: "Yes, adding a sunset view from Mehtab Bagh is an excellent enhancement. This garden across the Yamuna River offers the most spectacular perspective of the Taj Mahal bathed in golden sunset light. We schedule the [Agra Fort](/india/agra/taj-mahal-agra-fort-guided-tour) visit for mid-afternoon, followed by Mehtab Bagh for the 4:00-5:30 PM golden hour window. This extends your return to Delhi by approximately 1.5 hours but provides photography opportunities that are arguably more stunning than the frontal view. Many professional photographers consider the Mehtab Bagh perspective the ultimate Taj Mahal image."
+      },
+      {
+        question: "What is the cancellation policy?",
+        answer: "We offer a fair cancellation policy: 100% refund for cancellations more than 24 hours before the scheduled departure. Cancellations within 24 hours incur a 50% charge to compensate the chauffeur and guide who have blocked their entire day for your exclusive service. Free rescheduling is available with 24 hours' notice subject to vehicle and guide availability. For last-minute changes, contact us via WhatsApp—our team is responsive and will work to find the best solution for your situation."
+      }
+    ];
+  }
+
+  if (slug === 'india-gate-triangle-guided-tour') {
+    return [
+      {
+        question: "What does the 6-Day Golden Triangle tour include?",
+        answer: "This comprehensive 6-day journey covers India's three iconic cities—Delhi, Agra, and Jaipur—with the extended timeline allowing deep exploration that standard 3-day packages rush through. You get 2 full days in Delhi covering [Old and New Delhi](/india/delhi/explore-old-new-delhi-city-luxury-car-tour), 2 days for Agra including the [Taj Mahal at sunrise](/india/agra/taj-mahal-sunrise-guided-tour) and Fatehpur Sikri, and 2 days in Jaipur for the Amber Fort, City Palace, Hawa Mahal, and local bazaars. All hotels, transportation, licensed guides, monument tickets, and select meals are included in the package price."
+      },
+      {
+        question: "Why choose 6 days instead of the standard 3-day Golden Triangle?",
+        answer: "The 3-day Golden Triangle is essentially a highway marathon where you spend more time in a car than at monuments. Our 6-day version provides the pace that India deserves—you can linger at the Taj Mahal for sunset and sunrise, explore the backstreets of Chandni Chowk, enjoy a cooking class in Jaipur, and still have time for unexpected discoveries. This relaxed pace prevents travel fatigue and allows genuine cultural immersion rather than a checklist of photo stops. It is the difference between seeing India and truly experiencing it."
+      },
+      {
+        question: "What hotel category is included?",
+        answer: "We include 4-star and 5-star hotels throughout the circuit. In Delhi, properties like ITC Maurya, The Claridges, or equivalent. In Agra, hotels with Taj Mahal views such as Crystal Sarovar or The Gateway Hotel. In Jaipur, heritage properties like Samode Haveli or Trident Jaipur. All hotels feature air-conditioned rooms, complimentary breakfast, Wi-Fi, and 24-hour room service. Upgrades to luxury 5-star properties like The Oberoi chain are available upon request. Each property is selected for its location, heritage value, and consistent service quality."
+      },
+      {
+        question: "Is Fatehpur Sikri included in this tour?",
+        answer: "Yes, [Fatehpur Sikri](/india/agra/fatehpur-sikri-guided-tour) is included as a key stop between Agra and Jaipur on Day 4. This UNESCO World Heritage Site—Emperor Akbar's magnificent abandoned capital—features the 54-meter Buland Darwaza (the world's tallest gateway), the exquisite tomb of Sufi saint Salim Chishti, and the perfectly preserved Panch Mahal. With the 6-day timeline, you get a thorough 1.5-hour guided exploration rather than the rushed 30-minute drive-by that compressed tours offer. It is one of the most underrated gems of the Golden Triangle circuit."
+      },
+      {
+        question: "Are all monument entry tickets included?",
+        answer: "Yes, every single monument entry ticket across all three cities is included: Red Fort, Humayun's Tomb, Qutub Minar, India Gate (Delhi); Taj Mahal, Agra Fort, Fatehpur Sikri (Agra); Amber Fort, City Palace, Jantar Mantar, Hawa Mahal (Jaipur). This represents significant savings as individual tickets for foreign nationals can total over $100. Your licensed guide handles all ticketing logistics at each monument, ensuring skip-the-line access wherever possible and zero time wasted at ticket windows."
+      },
+      {
+        question: "What transportation is used between cities?",
+        answer: "All intercity transfers are by comfortable, air-conditioned private vehicle (Toyota Crysta, Fortuner, or equivalent). The Delhi-Agra transfer (3.5 hours via Yamuna Expressway) and Agra-Jaipur transfer (5 hours via NH21 with Fatehpur Sikri stop) are both on well-maintained national highways. Your professional chauffeur remains with you throughout the entire 6 days, providing consistent, reliable transportation for both intercity drives and local sightseeing. The vehicle is exclusively yours—no shared rides or group pickups."
+      },
+      {
+        question: "Can the itinerary be customized?",
+        answer: "The itinerary is fully flexible within the Delhi-Agra-Jaipur framework. Popular customizations include adding a [Delhi shopping tour](/india/delhi/delhi-guided-shopping-tour-female-expert), including a sunrise and sunset Taj Mahal visit, adding an elephant sanctuary visit in Jaipur, incorporating a Rajasthani cooking class, or substituting specific monuments based on your interests. If you have visited Delhi before, we can compress the Delhi segment and extend time in Jaipur or Agra. Share your preferences when booking and your trip coordinator will craft the perfect personalized itinerary."
+      },
+      {
+        question: "Is this tour suitable for senior travelers?",
+        answer: "Absolutely. The 6-day pace is specifically recommended for senior travelers because it eliminates the exhausting rush of compressed itineraries. Daily sightseeing is limited to 5-6 hours with comfortable breaks, air-conditioned vehicle between every stop, and hotels with elevators and accessible rooms. Your guide adjusts walking distances and prioritizes the most impactful viewing points at each monument. The private vehicle means no climbing into buses or waiting for group logistics. We have successfully hosted travelers in their 80s who thoroughly enjoyed every moment."
+      },
+      {
+        question: "What meals are included?",
+        answer: "Daily breakfast at your hotel is included throughout the 6 days. Additionally, lunch is included on Days 1, 3, and 5 at carefully curated restaurants serving authentic regional cuisine—Mughlai in Delhi, Awadhi in Agra, and Rajasthani in Jaipur. A special farewell dinner on Day 5 in Jaipur features traditional Rajasthani thali with live folk music. Other meals are kept flexible so you can explore local restaurants independently with recommendations from your guide. All dietary requirements are accommodated including vegetarian, vegan, and halal."
+      },
+      {
+        question: "Do we get the same guide for all three cities?",
+        answer: "You receive specialized licensed guides in each city—a Delhi specialist, an Agra specialist, and a Jaipur specialist. This is superior to having a single guide for all three cities because each specialist possesses deep, focused knowledge of their city's history, architecture, and culture. Your Delhi guide understands Mughal and British colonial history, your Agra guide specializes in [Taj Mahal](/india/agra/taj-mahal-official-guided-tour) and Mughal funerary architecture, and your Jaipur guide is an expert in Rajput warrior culture and palace architecture. Your chauffeur and trip coordinator remain consistent throughout."
+      },
+      {
+        question: "Is the Jaipur Amber Fort elephant ride included?",
+        answer: "The traditional elephant ride up to Amber Fort is available but we recommend the ethical alternative of a jeep ride instead. Many international travelers prefer the jeep option due to animal welfare concerns, and it is actually faster and more comfortable. Both options are included in the tour price. Your guide will discuss the choices with you and respect your preference. The Amber Fort itself is the crown jewel of Jaipur—the Sheesh Mahal (Mirror Palace), Ganesh Pol gateway, and panoramic views from the ramparts are absolutely spectacular regardless of how you ascend."
+      },
+      {
+        question: "What is the best season for the Golden Triangle tour?",
+        answer: "October through March is the ideal season with pleasant daytime temperatures (15-28°C) and minimal rainfall. November and February are considered the sweet spot—clear skies, comfortable weather, and vibrant festival culture. December-January can have morning fog in Agra that creates mystical Taj Mahal photographs. April-June experiences extreme heat (38-45°C) and is not recommended for outdoor sightseeing. The monsoon season (July-September) brings humidity but also the greenest landscapes, fewer tourists, and lower hotel prices."
+      },
+      {
+        question: "Can this tour be extended to Ranthambore or Varanasi?",
+        answer: "Yes, we offer popular extensions including the [Ranthambore Tiger Safari](/india/delhi/5-days-golden-triangle-ranthambore-tiger-safari) (2 days, accessible from Jaipur), Varanasi spiritual experience (2 days, by flight from Delhi or Jaipur), Udaipur City of Lakes (2 days from Jaipur), and Jodhpur Blue City (1-2 days from Jaipur). Each extension maintains the same quality standards of hotels, guides, and transportation. The most popular combination is the Golden Triangle + Ranthambore for wildlife enthusiasts who want to spot Bengal tigers in their natural habitat."
+      },
+      {
+        question: "How far in advance should I book?",
+        answer: "We recommend booking 2-4 weeks in advance during peak season (October-March) and at least 1-2 weeks during off-peak months. During major festivals (Diwali, Holi, Christmas) and long weekends, booking 4-6 weeks ahead is essential as both hotels and premium guides are in high demand. Early booking ensures the best hotel room categories and our top-tier guides. Last-minute bookings (under 1 week) are sometimes possible but may require substitutions in hotel properties."
+      },
+      {
+        question: "What is the cancellation policy?",
+        answer: "For this multi-day tour with advance hotel reservations: cancellations more than 21 days before departure receive an 85% refund. Cancellations 14-21 days before receive a 60% refund. Cancellations 7-14 days before receive a 30% refund. Cancellations within 7 days are non-refundable due to committed hotel and guide costs. Free date changes are available up to 21 days before departure subject to availability. We strongly recommend comprehensive travel insurance that covers trip cancellation for complete financial protection."
+      }
+    ];
+  }
+
+  if (slug === 'delhi-old-new-delhi-private-half-day-tour') {
+    return [
+      {
+        question: "Can I choose between a half-day and full-day Delhi tour?",
+        answer: "Yes, this tour offers both options. The half-day tour (approximately 5-6 hours) covers either Old Delhi or New Delhi highlights, while the full-day tour (approximately 8-9 hours) comprehensively covers both. For first-time Delhi visitors, we strongly recommend the full-day option to experience the dramatic contrast between the Mughal-era walled city and the British colonial capital. If your time is limited, the half-day Old Delhi option provides the most culturally immersive experience, while the half-day New Delhi option covers the iconic landmarks like [India Gate](/india/delhi/india-gate-guided-tour) and Humayun's Tomb."
+      },
+      {
+        question: "What does the Old Delhi segment cover?",
+        answer: "The Old Delhi exploration includes the magnificent Red Fort (UNESCO World Heritage Site), Jama Masjid (India's largest mosque with stunning panoramic views from its minaret), a traditional rickshaw ride through the chaotic and colorful lanes of Chandni Chowk, the serene Raj Ghat (Mahatma Gandhi's memorial), and optional stops at the Gurudwara Sis Ganj Sahib and Fatehpuri Masjid. Your guide reveals the hidden stories of Shahjahanabad—the walled city Emperor Shah Jahan built in 1639—that most tourists never learn about."
+      },
+      {
+        question: "What does the New Delhi segment cover?",
+        answer: "The New Delhi segment showcases the colonial and modern face of India's capital: India Gate (the national war memorial), a scenic drive past Rashtrapati Bhavan (President's House) and Parliament House on Rajpath, Humayun's Tomb (the architectural precursor to the [Taj Mahal](/india/agra/taj-mahal-opening-time)), Qutub Minar (the 73-meter UNESCO-listed victory tower), and the Lotus Temple (Bahá'í House of Worship). This segment reveals how the British deliberately designed New Delhi as a statement of imperial power, with wide boulevards and monumental architecture that contrasts sharply with Old Delhi's organic medieval layout."
+      },
+      {
+        question: "Is a licensed guide and private car included?",
+        answer: "Yes, both a Ministry of Tourism-certified guide and a comfortable air-conditioned private car are included throughout the tour. The guide provides expert historical commentary that connects the dots between Delhi's various ruling dynasties—from the Delhi Sultanate to the Mughals to the British Raj to modern independent India. The private car ensures comfortable, climate-controlled transfers between all sites with zero waiting for public transport. This combination of expert knowledge and logistical comfort is what makes this tour superior to self-guided exploration."
+      },
+      {
+        question: "Is this tour suitable for first-time India visitors?",
+        answer: "This tour is specifically designed for first-time visitors to India. Delhi can be sensory overload—the sounds, smells, traffic, and crowds can be overwhelming without a knowledgeable companion. Your guide and driver create a protective bubble that allows you to experience Delhi's intensity at a comfortable pace. The guide explains cultural contexts, helps you navigate crowded spaces, and ensures you never feel lost or unsafe. The private car serves as your sanctuary between sites. Many first-time visitors describe this tour as essential for building confidence before exploring India independently."
+      },
+      {
+        question: "Are monument entry tickets included?",
+        answer: "Yes, all monument entry tickets are included in the tour price. This covers Red Fort, Humayun's Tomb, Qutub Minar, and any other ticketed sites on the itinerary. Your guide handles all ticketing logistics to minimize waiting time. The inclusive pricing means zero hidden costs—what you pay at booking is what you pay in total. The only personal expenses are meals (lunch is included in the full-day option), shopping, and optional gratuities."
+      },
+      {
+        question: "How does this tour handle Delhi's extreme heat?",
+        answer: "Your air-conditioned private car is the key heat management tool. Between every monument visit (typically 30-60 minutes of outdoor exploration), you return to the cool car for the transfer to the next site. Your guide strategically sequences the itinerary to visit outdoor monuments during cooler morning hours and indoor or shaded sites during peak afternoon heat. We provide complimentary chilled water throughout. During extreme summer months (May-June), we recommend the early morning start (7:00 AM) to maximize comfortable sightseeing before noon temperatures peak."
+      },
+      {
+        question: "Is a Chandni Chowk rickshaw ride included?",
+        answer: "Yes, a traditional cycle-rickshaw ride through Chandni Chowk's narrow lanes is included in the Old Delhi segment. This 20-30 minute ride is one of the most exhilarating cultural experiences in Delhi—weaving through centuries-old bazaars, past spice merchants, silver shops, and street food vendors in lanes barely wide enough for two rickshaws to pass. Your guide accompanies you, providing running commentary on the history and specialties of each lane. It is the single best way to experience the authentic energy of Mughal-era Delhi."
+      },
+      {
+        question: "Can this be combined with a shopping experience?",
+        answer: "Absolutely. The tour naturally passes through some of Delhi's best shopping areas. Chandni Chowk is famous for traditional textiles, spices, and jewelry. Khan Market (near Humayun's Tomb) is Delhi's premium boutique district. For a dedicated shopping experience, we recommend adding our [Delhi Guided Shopping Tour with Female Expert](/india/delhi/delhi-guided-shopping-tour-female-expert) on the same day or the following day. Your guide can also incorporate brief shopping stops at curated artisan workshops during the sightseeing tour itself."
+      },
+      {
+        question: "What is the best time of year for Delhi sightseeing?",
+        answer: "October through March offers the most pleasant weather (15-25°C) for outdoor sightseeing. November and February are ideal with clear skies and comfortable temperatures. December-January mornings can be foggy but afternoons are pleasant. April through June experiences extreme heat (38-45°C) and is not recommended for extended outdoor exploration. The monsoon season (July-September) brings rain showers but also lush green landscapes at Humayun's Tomb and Qutub Minar. Your guide adapts the pace and itinerary based on the season."
+      },
+      {
+        question: "Is this tour wheelchair accessible?",
+        answer: "Most Delhi monuments have limited wheelchair accessibility due to their historical construction. However, our guide and driver provide maximum assistance to make the experience as comfortable as possible. The Red Fort has relatively flat pathways on the main level. Humayun's Tomb has a ramp to the main platform. Qutub Minar is viewable from the base without climbing. The private car provides comfortable, easy-entry transportation between all sites. Please inform us of any mobility requirements when booking so we can customize the itinerary to prioritize the most accessible monuments."
+      },
+      {
+        question: "Can I visit a Sikh temple (Gurudwara) on this tour?",
+        answer: "Yes, visiting Gurudwara Bangla Sahib or Gurudwara Sis Ganj Sahib can be included in the itinerary. These are among Delhi's most beautiful and spiritually significant sites. The Gurudwaras welcome visitors of all faiths and offer a profound cultural experience—including the community kitchen (langar) that feeds thousands of people daily for free. Your guide explains the history and customs, and assists with the requirement to cover your head and remove shoes. It is a deeply moving experience that adds an important spiritual dimension to your Delhi understanding."
+      },
+      {
+        question: "Is food or street food tasting included?",
+        answer: "The full-day tour includes lunch at a quality restaurant. Additionally, your guide incorporates optional street food stops during the Chandni Chowk segment—famous paranthe wali gali (stuffed flatbreads), century-old jalebi shops, and aromatic chai from heritage stalls. These food experiences are carefully selected for hygiene and quality. For travelers concerned about street food safety, the guide identifies the most trusted vendors that have served for generations. The culinary element transforms this from a standard sightseeing tour into a multi-sensory cultural immersion."
+      },
+      {
+        question: "How does this compare to a hop-on-hop-off bus tour?",
+        answer: "A private guided tour is categorically superior to hop-on-hop-off buses in Delhi. The private car navigates Delhi's chaotic traffic efficiently while the bus follows fixed routes at the mercy of congestion. You get an expert guide providing personalized historical commentary versus a recorded audio guide. You control the pace—spending more time at sites that interest you and skipping those that do not. The air-conditioned car provides comfort that open-top buses cannot in Delhi's extreme weather. And you experience places like Chandni Chowk by rickshaw, which no bus tour can replicate."
+      },
+      {
+        question: "What is the cancellation policy?",
+        answer: "We offer a generous cancellation policy: 100% full refund for cancellations made more than 24 hours before the scheduled pickup time. Cancellations within 24 hours incur a 50% charge to compensate the guide and chauffeur who reserved their day exclusively for you. Free rescheduling is available with 24 hours' notice subject to guide and vehicle availability. Contact our team via WhatsApp for instant assistance with any changes to your booking."
+      }
+    ];
+  }
+
+  if (slug === 'sunrise-taj-mahal-tour-delhi-all-inclusive') {
+    return [
+      {
+        question: "What does 'all inclusive' mean in this sunrise Taj Mahal tour?",
+        answer: "All inclusive means every single expense is covered: pre-dawn hotel pickup from Delhi, luxury air-conditioned car round-trip to Agra, all highway tolls and parking, ASI-licensed guide in Agra, [Taj Mahal entry ticket](/india/agra/taj-mahal-entry-ticket) including mausoleum interior access, Agra Fort entry, breakfast, lunch at a premium restaurant, and hotel drop-off in Delhi. There are zero hidden charges or surprise costs. The only personal expenses are shopping and optional gratuities. This truly all-inclusive approach means you can focus entirely on the experience without worrying about logistics or budgeting during the day."
+      },
+      {
+        question: "What time is the pickup from Delhi for the sunrise tour?",
+        answer: "For the sunrise experience, we pick you up from your Delhi hotel between 2:30-3:30 AM depending on the season. The drive to Agra takes approximately 3-3.5 hours via the Yamuna Expressway, putting you at the Taj Mahal East Gate approximately 30 minutes before the ASI opens the gates. This early departure is essential—the [Taj Mahal opens at sunrise](/india/agra/taj-mahal-opening-time) and being in the first wave of visitors is the only way to experience the monument in near-silence. Your luxury vehicle is comfortable enough for resting during the pre-dawn drive."
+      },
+      {
+        question: "Is the sunrise Taj Mahal experience really worth the early wake-up?",
+        answer: "Absolutely—it is the single most magical way to experience the Taj Mahal. At sunrise, the white marble transitions through an extraordinary spectrum of colors: from cool lavender-grey in the pre-dawn light, through soft pink as the first rays appear, to a warm golden glow as the sun climbs. With only a fraction of the daily 40,000+ visitors present, you have unobstructed views of the reflecting pools, the gardens, and the mausoleum. The atmosphere is profoundly peaceful—the only sounds are birdsong and your guide's whispered historical commentary. Every photographer and serious traveler prioritizes this timing."
+      },
+      {
+        question: "Is a professional guide included at the Taj Mahal?",
+        answer: "Yes, a senior ASI-licensed guide with 10+ years of Taj Mahal specialization is included. This is not a generic city guide—this is a monument expert who understands the complex Pietra Dura inlay techniques, the calligraphy program, the optical illusions in the architecture, and the romantic and political history of the Mughal dynasty. They know every premium photography position and time their commentary to align with the changing sunrise light. Having this caliber of guide transforms your visit from sightseeing into a profound historical education that makes the [Taj Mahal](/india/agra/taj-mahal-official-guided-tour) truly meaningful."
+      },
+      {
+        question: "Is Agra Fort included in this tour?",
+        answer: "Yes, after the Taj Mahal visit, your guide escorts you to the magnificent Agra Fort (just 2 km away). This UNESCO World Heritage Site served as the main residence of the Mughal emperors for nearly a century. You will explore the Diwan-i-Am, Diwan-i-Khas, the Royal Baths, and the poignant Musamman Burj—the octagonal tower where a imprisoned Shah Jahan spent his final years gazing across the Yamuna at his beloved wife's [Taj Mahal](/india/agra/taj-mahal-agra-fort-guided-tour). The Agra Fort visit provides the crucial second chapter of the Taj Mahal story that most sunrise-only tours miss."
+      },
+      {
+        question: "What meals are included?",
+        answer: "Both breakfast and lunch are included. Breakfast is served at a quality restaurant in Agra after your Taj Mahal visit—the perfect way to refuel after the early morning. Lunch features authentic Mughlai cuisine at a premium restaurant between the Agra Fort visit and your return journey. Both restaurants are selected for quality, hygiene, and air-conditioned comfort. Vegetarian, vegan, and other dietary requirements are accommodated with advance notice. The included meals eliminate any need to search for food in an unfamiliar city."
+      },
+      {
+        question: "What kind of car is used for this tour?",
+        answer: "We use premium air-conditioned vehicles including Toyota Crysta, Toyota Fortuner, or equivalent SUVs. The vehicle is equipped with reclining seats (essential for the pre-dawn drive), chilled mineral water, charging ports, and ample space for your camera equipment and personal items. The chauffeur is a trained professional who drives the Delhi-Agra route regularly and maintains the vehicle to immaculate standards. For the 3:00 AM pickup, the comfortable vehicle effectively serves as a mobile bedroom for the first hour of the journey."
+      },
+      {
+        question: "How long is the complete day trip?",
+        answer: "The complete round-trip from Delhi typically runs 14-16 hours: approximately 3.5 hours driving each way, 2-2.5 hours at the Taj Mahal, 1.5 hours at Agra Fort, and 1-1.5 hours for breakfast and lunch combined. With a 3:00 AM departure, you return to your Delhi hotel between 5:00-7:00 PM depending on traffic conditions. This timeline provides comprehensive coverage without rushing, unlike many operators who compress the experience into 12 hours with minimal monument time."
+      },
+      {
+        question: "Can we add Fatehpur Sikri or Baby Taj to this tour?",
+        answer: "Yes, both can be added to create a more comprehensive [Agra experience](/india/agra/agra-city-highlights-tour). Fatehpur Sikri lies on the route back to Delhi and adds approximately 1.5 hours. Itimad-ud-Daulah (Baby Taj) is within Agra city and adds approximately 45 minutes. Adding both is possible but extends the return to Delhi by 2-3 hours. For travelers who want the most complete Agra experience in a single day, adding at least one of these sites is highly recommended as they provide crucial historical context for the [Taj Mahal](/india/agra/taj-mahal-opening-time)."
+      },
+      {
+        question: "Is this tour available on Fridays?",
+        answer: "The Taj Mahal is closed every Friday for prayers at the mosque within the complex. We do not operate this specific sunrise tour on Fridays. If your only available day is Friday, we recommend our [Agra Friday Special Tour](/india/agra/agra-friday-tour-taj-closed-alternative) which covers Agra Fort, Baby Taj, and Mehtab Bagh sunset views. Alternatively, we can reschedule your Taj Mahal visit to Saturday or another day. We always verify the closure schedule before confirming your booking to prevent any disappointment."
+      },
+      {
+        question: "How does this compare to taking the Gatimaan Express train?",
+        answer: "Both are excellent options. The [Gatimaan Express](/india/delhi/from-delhi-same-day-taj-mahal-fastest-train) arrives in Agra by 9:50 AM, which misses the sunrise entirely. For the sunrise experience, the private car is the only viable option from Delhi. The car also offers complete schedule flexibility, the ability to stop at Fatehpur Sikri, and door-to-door hotel service. The Gatimaan Express wins on speed for non-sunrise visits. For travelers who specifically want the sunrise magical lighting and photography conditions, this all-inclusive car tour is the definitive choice."
+      },
+      {
+        question: "Is this tour suitable for elderly travelers?",
+        answer: "Yes, the all-inclusive format is actually ideal for elderly travelers because it eliminates every logistical stress. The luxury car provides a comfortable, climate-controlled environment for the highway journey with stops as needed. At the monuments, your guide adjusts the pace and walking distances to your comfort level. The included meals mean no searching for restaurants. The sunrise timing actually works well for early risers who naturally wake early. The private car allows rest during the return journey. We have successfully hosted travelers in their 70s and 80s on this tour."
+      },
+      {
+        question: "What should I wear for the sunrise visit?",
+        answer: "Layer strategically: the pre-dawn temperature can be 10-15°C cooler than afternoon. A light jacket or shawl is essential for the early hours, which you can remove as the sun warms. Comfortable closed-toe walking shoes are necessary as you will walk 3-4 km on marble and sandstone surfaces. Dress modestly (shoulders and knees covered) to respect the monument's sanctity. Sunglasses are essential once the sun rises—the white marble creates intense glare. We provide shoe covers so you can keep footwear on the marble platform. A hat or cap is recommended for sun protection."
+      },
+      {
+        question: "Can solo travelers book this tour?",
+        answer: "Absolutely. Solo travelers receive the same premium experience—private car, private guide, all meals, and all tickets included. Solo female travelers particularly appreciate the security and comfort of having a dedicated guide and chauffeur throughout the day. The pricing is per-person and remains excellent value given the comprehensive inclusions. Many solo travelers from our [Delhi city tours](/india/delhi/delhi-old-new-delhi-private-half-day-tour) add this Agra day trip as the natural complement to their Delhi itinerary."
+      },
+      {
+        question: "What is the cancellation policy?",
+        answer: "We offer a clear cancellation policy: 100% full refund for cancellations made more than 24 hours before the scheduled pickup time. Cancellations within 24 hours incur a 50% charge to compensate the driver and guide who reserved their full day for your exclusive booking. In cases of extreme weather or government-mandated Taj Mahal closures, we offer a full refund or free rescheduling. Contact us via WhatsApp for instant assistance—our team is available around the clock to help with any booking modifications."
+      }
+    ];
+  }
+
   // --- END DELHI TOUR FAQS ---
 
   if (
