@@ -7,7 +7,7 @@ import prisma from './db.js';
 import bcrypt from 'bcrypt';
 import { randomBytes, createHmac } from 'crypto';
 import Razorpay from 'razorpay';
-import { sendVerificationEmail, sendWelcomeEmail, sendBookingNotificationEmail, sendBookingConfirmationEmail, sendAdminPaymentNotificationEmail, sendTourApprovalEmail, sendTourRejectionEmail, sendGuideConfirmationRequestEmail, sendGuideConfirmedCustomerEmail } from './utils/email.js';
+import { sendVerificationEmail, sendWelcomeEmail, sendBookingNotificationEmail, sendBookingConfirmationEmail, sendAdminPaymentNotificationEmail, sendTourApprovalEmail, sendTourRejectionEmail, sendGuideBookingNotificationEmail } from './utils/email.js';
 import { startBookingCrons } from './cron/bookingReminders.js';
 import { uploadMultipleImages } from './utils/cloudinary.js';
 import { generateInvoicePDF } from './utils/invoice.js';
@@ -8307,21 +8307,17 @@ app.post('/api/verify-payment', async (req, res) => {
       // Don't fail payment verification if invoice generation fails
     }
 
-    // Generate guide confirmation token
-    const guideConfirmationToken = randomBytes(32).toString('hex');
-
     const booking = await prisma.booking.update({
       where: { id: parseInt(bookingId) },
       data: {
         razorpayPaymentId: razorpay_payment_id,
         razorpaySignature: razorpay_signature,
-        razorpayOrderId: razorpay_order_id, // Ensure order ID is stored
+        razorpayOrderId: razorpay_order_id,
         paymentStatus: 'paid',
         status: 'confirmed',
         confirmedAt: new Date(),
         invoiceUrl: invoiceUrl,
-        guideConfirmationToken: guideConfirmationToken,
-        updatedAt: new Date() // Explicitly update timestamp
+        updatedAt: new Date()
       },
       include: {
         tour: {
@@ -8387,9 +8383,9 @@ app.post('/api/verify-payment', async (req, res) => {
       // Don't fail payment verification if email fails
     }
 
-    // Send notification email to supplier/guide with confirmation button
+    // Send notification email to supplier/guide
     try {
-      await sendGuideConfirmationRequestEmail(
+      await sendGuideBookingNotificationEmail(
         booking.supplier.email,
         booking.supplier.fullName || booking.supplier.companyName || 'Supplier',
         {
@@ -8406,10 +8402,9 @@ app.post('/api/verify-payment', async (req, res) => {
           specialRequests: existingBooking.specialRequests,
           invoiceUrl: invoiceUrl,
           invoicePDFBase64: invoicePDFBase64
-        },
-        guideConfirmationToken
+        }
       );
-      console.log(`✅ Booking confirmation request email sent to supplier/guide`);
+      console.log(`✅ Booking notification email sent to supplier/guide`);
       // Add delay to avoid Resend rate limit (2 req/sec)
       await new Promise(resolve => setTimeout(resolve, 1000));
     } catch (emailError) {
@@ -8478,85 +8473,10 @@ app.post('/api/verify-payment', async (req, res) => {
   }
 });
 
-// Guide confirms a booking via email link
+// Legacy guide-confirm endpoint (no longer used - guides are auto-confirmed)
 app.get('/api/bookings/guide-confirm', async (req, res) => {
   const frontendUrl = process.env.FRONTEND_URL || process.env.VITE_FRONTEND_URL || 'http://localhost:3000';
-  try {
-    const { token } = req.query;
-
-    if (!token) {
-      return res.redirect(`${frontendUrl}/guide-confirmation?status=error&message=Missing+token`);
-    }
-
-    const booking = await prisma.booking.findFirst({
-      where: { guideConfirmationToken: token },
-      include: {
-        tour: { select: { title: true, city: true } },
-        supplier: { select: { fullName: true, email: true, phone: true, whatsapp: true } },
-      },
-    });
-
-    if (!booking) {
-      return res.redirect(`${frontendUrl}/guide-confirmation?status=error&message=Invalid+or+expired+token`);
-    }
-
-    // Build query params with booking details for the confirmation page
-    const bookingParams = new URLSearchParams({
-      tour: booking.tour.title,
-      date: booking.bookingDate,
-      guests: String(booking.numberOfGuests),
-      customer: booking.customerName,
-      amount: String(booking.totalAmount),
-      currency: booking.currency || 'USD',
-      bookingId: String(booking.id),
-    });
-    if (booking.invoiceUrl) bookingParams.set('invoice', booking.invoiceUrl);
-    if (booking.customerEmail) bookingParams.set('customerEmail', booking.customerEmail);
-    if (booking.customerPhone) bookingParams.set('customerPhone', booking.customerPhone);
-
-    if (booking.guideConfirmedAt) {
-      bookingParams.set('status', 'already-confirmed');
-      return res.redirect(`${frontendUrl}/guide-confirmation?${bookingParams.toString()}`);
-    }
-
-    // Mark as confirmed
-    await prisma.booking.update({
-      where: { id: booking.id },
-      data: {
-        guideConfirmedAt: new Date(),
-        guideConfirmationToken: null, // Invalidate token
-      },
-    });
-
-    console.log(`✅ Guide confirmed booking #${booking.id} (${booking.supplier.fullName})`);
-
-    // Notify customer that guide confirmed
-    try {
-      await sendGuideConfirmedCustomerEmail(
-        booking.customerEmail,
-        booking.customerName,
-        {
-          bookingId: booking.id,
-          tourTitle: booking.tour.title,
-          bookingDate: booking.bookingDate,
-          numberOfGuests: booking.numberOfGuests,
-          guideName: booking.supplier.fullName,
-          guideEmail: booking.supplier.email,
-          guidePhone: booking.supplier.phone || 'Not provided',
-          guideWhatsapp: booking.supplier.whatsapp || booking.supplier.phone || null,
-        }
-      );
-      console.log(`✅ Guide-confirmed notification sent to customer ${booking.customerEmail}`);
-    } catch (emailErr) {
-      console.error('❌ Failed to send guide-confirmed email to customer:', emailErr.message);
-    }
-
-    bookingParams.set('status', 'success');
-    return res.redirect(`${frontendUrl}/guide-confirmation?${bookingParams.toString()}`);
-  } catch (error) {
-    console.error('❌ Guide confirmation error:', error);
-    return res.redirect(`${frontendUrl}/guide-confirmation?status=error&message=Something+went+wrong`);
-  }
+  return res.redirect(`${frontendUrl}`);
 });
 
 // Mark booking as payment_failed when user closes Razorpay modal without paying

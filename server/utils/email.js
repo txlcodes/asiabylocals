@@ -2280,24 +2280,22 @@ The AsiaByLocals Team
  * Send booking notification with "Confirm Booking" button to guide
  * This ADDS a confirmation CTA to the standard notification — does NOT replace it
  */
-export const sendGuideConfirmationRequestEmail = async (supplierEmail, supplierName, bookingDetails, confirmationToken) => {
+export const sendGuideBookingNotificationEmail = async (supplierEmail, supplierName, bookingDetails) => {
   if (!supplierEmail || typeof supplierEmail !== 'string' || !supplierEmail.includes('@')) {
     console.error('❌ Invalid email address provided:', supplierEmail);
     throw new Error('Invalid email address');
   }
 
-  console.log(`📧 Sending guide confirmation request email to: ${supplierEmail}`);
+  console.log(`📧 Sending guide booking notification email to: ${supplierEmail}`);
 
   const { bookingReference, tourTitle, customerName, customerEmail, customerPhone, bookingDate, numberOfGuests, totalAmount, currency, specialRequests } = bookingDetails;
   const formattedDate = new Date(bookingDate).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
-  const frontendUrl = process.env.FRONTEND_URL || process.env.VITE_FRONTEND_URL || 'http://localhost:3000';
-  const confirmUrl = `${frontendUrl.replace(/\/$/, '')}/api/bookings/guide-confirm?token=${confirmationToken}`;
   const fromEmail = (resendApiKey || sendGridApiKey) ? 'info@asiabylocals.com' : (process.env.EMAIL_USER || 'asiabylocals@gmail.com');
 
   const mailOptions = {
     from: `"AsiaByLocals Bookings" <${fromEmail}>`,
     to: supplierEmail,
-    subject: `Action Required: New Booking for ${tourTitle}`,
+    subject: `New Booking Confirmed: ${tourTitle}`,
     html: `
       <!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>
       <body style="margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;background-color:#f5f5f5;">
@@ -2305,17 +2303,12 @@ export const sendGuideConfirmationRequestEmail = async (supplierEmail, supplierN
           <tr><td align="center" style="padding:40px 20px;">
             <table role="presentation" style="width:100%;max-width:600px;background-color:#ffffff;border-collapse:collapse;border-radius:8px;overflow:hidden;">
               <tr><td style="padding:40px 40px 30px;text-align:center;background-color:#10B981;">
-                <h1 style="margin:0;font-size:28px;font-weight:800;color:#ffffff;">Action Required: New Booking!</h1>
-                <p style="margin:10px 0 0;font-size:14px;color:#ffffff;opacity:0.9;">Please acknowledge within 4 hours</p>
+                <h1 style="margin:0;font-size:28px;font-weight:800;color:#ffffff;">New Booking Confirmed!</h1>
+                <p style="margin:10px 0 0;font-size:14px;color:#ffffff;opacity:0.9;">A customer has booked your tour</p>
               </td></tr>
               <tr><td style="padding:40px;">
                 <p style="margin:0 0 20px;font-size:16px;line-height:1.6;color:#001A33;">Dear ${supplierName},</p>
-                <p style="margin:0 0 30px;font-size:16px;line-height:1.6;color:#001A33;">You have a new confirmed booking! The customer has already paid. Please review the details below and <strong>click the button to acknowledge</strong> that you're ready for this tour.</p>
-
-                <!-- Confirm Button -->
-                <div style="text-align:center;margin:30px 0;">
-                  <a href="${confirmUrl}" style="display:inline-block;padding:16px 48px;background-color:#10B981;color:#ffffff;font-size:18px;font-weight:800;text-decoration:none;border-radius:12px;">I'm Ready - Confirm Booking</a>
-                </div>
+                <p style="margin:0 0 30px;font-size:16px;line-height:1.6;color:#001A33;">Great news! You have a new confirmed booking. The customer has already paid. Please review the details below and reach out to the customer to coordinate.</p>
 
                 <!-- Booking Details -->
                 <div style="background-color:#f8f9fa;border-radius:8px;padding:24px;margin:30px 0;">
@@ -2340,11 +2333,6 @@ export const sendGuideConfirmationRequestEmail = async (supplierEmail, supplierN
                   </table>
                 </div>
 
-                <!-- Second Confirm Button -->
-                <div style="text-align:center;margin:30px 0;">
-                  <a href="${confirmUrl}" style="display:inline-block;padding:14px 40px;background-color:#10B981;color:#ffffff;font-size:16px;font-weight:700;text-decoration:none;border-radius:10px;">I'm Ready - Confirm Booking</a>
-                </div>
-
                 <p style="margin:30px 0 0;font-size:16px;line-height:1.6;color:#001A33;">Best regards,<br><strong>The AsiaByLocals Team</strong></p>
               </td></tr>
               <tr><td style="background-color:#10B981;padding:30px;text-align:center;">
@@ -2355,7 +2343,7 @@ export const sendGuideConfirmationRequestEmail = async (supplierEmail, supplierN
         </table>
       </body></html>
     `,
-    text: `ACTION REQUIRED: New Booking for ${tourTitle}\n\nDear ${supplierName},\n\nYou have a new confirmed booking! The customer has already paid. Please acknowledge by visiting:\n${confirmUrl}\n\nBooking Details:\n- Reference: ${bookingReference || 'N/A'}\n- Tour: ${tourTitle}\n- Date: ${formattedDate}\n- Guests: ${numberOfGuests}\n- Amount: ${currency === 'INR' ? 'INR' : 'USD'} ${totalAmount}\n\nCustomer:\n- Name: ${customerName}\n- Email: ${customerEmail}\n${customerPhone ? `- Phone: ${customerPhone}\n` : ''}${specialRequests ? `- Requests: ${specialRequests}\n` : ''}\nPlease acknowledge within 4 hours.\n\nBest regards,\nThe AsiaByLocals Team`
+    text: `New Booking Confirmed: ${tourTitle}\n\nDear ${supplierName},\n\nGreat news! You have a new confirmed booking. The customer has already paid.\n\nBooking Details:\n- Reference: ${bookingReference || 'N/A'}\n- Tour: ${tourTitle}\n- Date: ${formattedDate}\n- Guests: ${numberOfGuests}\n- Amount: ${currency === 'INR' ? 'INR' : 'USD'} ${totalAmount}\n\nCustomer:\n- Name: ${customerName}\n- Email: ${customerEmail}\n${customerPhone ? `- Phone: ${customerPhone}\n` : ''}${specialRequests ? `- Requests: ${specialRequests}\n` : ''}\nPlease reach out to the customer to coordinate.\n\nBest regards,\nThe AsiaByLocals Team`
   };
 
   try {
@@ -2372,17 +2360,17 @@ export const sendGuideConfirmationRequestEmail = async (supplierEmail, supplierN
       }
       const result = await resendClient.emails.send(resendPayload);
       if (result.error) throw new Error(`Resend API Error: ${JSON.stringify(result.error)}`);
-      console.log(`✅ Guide confirmation request email sent to ${supplierEmail}`);
+      console.log(`✅ Guide booking notification email sent to ${supplierEmail}`);
       return { success: true, messageId: result.data?.id };
     }
     if (bookingDetails.invoicePDFBase64) {
       mailOptions.attachments = [{ filename: `AsiaByLocals_Invoice_${bookingReference || 'booking'}.pdf`, content: Buffer.from(bookingDetails.invoicePDFBase64, 'base64'), contentType: 'application/pdf' }];
     }
     const info = await transporter.sendMail(mailOptions);
-    console.log(`✅ Guide confirmation request email sent to ${supplierEmail}`);
+    console.log(`✅ Guide booking notification email sent to ${supplierEmail}`);
     return { success: true, messageId: info.messageId };
   } catch (error) {
-    console.error(`❌ Error sending guide confirmation request email:`, error);
+    console.error(`❌ Error sending guide booking notification email:`, error);
     throw error;
   }
 };

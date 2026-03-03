@@ -65,7 +65,7 @@ import SupportPage from './SupportPage';
 import AboutUs from './AboutUs';
 import TouristLogin from './TouristLogin';
 import TouristSignup from './TouristSignup';
-import GuideConfirmation from './GuideConfirmation';
+
 
 interface ErrorBoundaryProps {
   children: React.ReactNode;
@@ -543,7 +543,7 @@ const App: React.FC = () => {
   const isTermsAndConditionsPage = window.location.pathname === '/terms-and-conditions';
   const isSupportPage = window.location.pathname === '/support';
   const isAboutUsPage = window.location.pathname === '/about-us' || window.location.pathname === '/about';
-  const isGuideConfirmationPage = window.location.pathname === '/guide-confirmation';
+
 
   // Check for city page: /india/agra, /thailand/bangkok, etc.
   const cityPageMatch = window.location.pathname.match(/^\/([^\/]+)\/([^\/]+)$/);
@@ -730,11 +730,6 @@ const App: React.FC = () => {
   // Show About Us page
   if (isAboutUsPage) {
     return <AboutUs />;
-  }
-
-  // Show Guide Confirmation page (guide clicks confirm link in email)
-  if (isGuideConfirmationPage) {
-    return <GuideConfirmation />;
   }
 
   // Show payment callback page

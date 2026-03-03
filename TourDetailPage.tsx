@@ -2114,7 +2114,21 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
   const [expandedOptions, setExpandedOptions] = useState<Set<number>>(new Set());
   const [expandedFAQs, setExpandedFAQs] = useState<Set<number>>(new Set([0, 1, 2])); // First 3 open by default
 
-  const effectiveMaxGroupSize = Number(selectedOption?.maxGroupSize || tour?.maxGroupSize || 10);
+  // Derive max group size from pricing tiers if available, otherwise fall back to maxGroupSize
+  const effectiveMaxGroupSize = (() => {
+    // Check pricing tiers to derive max participants
+    const tiersSource = tour?.groupPricingTiers || selectedOption?.groupPricingTiers;
+    if (tiersSource) {
+      try {
+        const tiers = typeof tiersSource === 'string' ? JSON.parse(tiersSource) : tiersSource;
+        if (Array.isArray(tiers) && tiers.length > 0) {
+          const maxFromTiers = Math.max(...tiers.map((t: any) => Number(t.maxPeople) || 0));
+          if (maxFromTiers > 0) return maxFromTiers;
+        }
+      } catch (e) { /* fall through to defaults */ }
+    }
+    return Number(selectedOption?.maxGroupSize || tour?.maxGroupSize || 10);
+  })();
 
   // Re-validate participants if maxGroupSize changes (e.g. when changing options)
   useEffect(() => {
