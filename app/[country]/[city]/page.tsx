@@ -4,6 +4,9 @@ import CityPageClient from '@/components/CityPageClient';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:3001';
 
+// Cache the rendered page for 60s — bypasses the 2MB fetch cache limit
+export const revalidate = 60;
+
 interface Props {
   params: Promise<{ country: string; city: string }>;
 }
@@ -79,7 +82,7 @@ export default async function CityPage({ params }: Props) {
   try {
     const res = await fetch(
       `${API_URL}/api/public/tours?country=${encodeURIComponent(countryName)}&city=${encodeURIComponent(cityName)}&status=approved`,
-      { next: { revalidate: 60 } }
+      { cache: 'no-store' }  // Don't cache raw API (can exceed 2MB); page-level ISR handles caching
     );
     if (res.ok) {
       const data = await res.json();
@@ -92,17 +95,36 @@ export default async function CityPage({ params }: Props) {
             toursArray = data.tours.tours;
           }
         }
+        // Only send fields the listing page actually uses — keeps payload small & ISR-cacheable
         tours = toursArray.map((tour: any) => ({
-          ...tour,
+          id: tour.id,
+          title: tour.title,
           slug: tour.slug || `tour-${tour.id}`,
-          // Strip base64 images to keep response under 2MB for ISR cache
+          city: tour.city,
+          country: tour.country,
+          category: tour.category,
+          duration: tour.duration,
+          pricePerPerson: tour.pricePerPerson,
+          currency: tour.currency,
+          status: tour.status,
+          shortDescription: tour.shortDescription,
+          included: tour.included,
+          meetingPoint: tour.meetingPoint,
+          tourTypes: tour.tourTypes,
+          // Only keep Cloudinary URLs, drop base64 blobs
           images: Array.isArray(tour.images)
-            ? tour.images.map((img: any) =>
-                typeof img === 'string' && img.startsWith('data:')
-                  ? '' // drop base64 blobs — Cloudinary URLs pass through
-                  : img
-              ).filter(Boolean)
+            ? tour.images
+                .map((img: any) => (typeof img === 'string' && img.startsWith('data:') ? '' : img))
+                .filter(Boolean)
             : tour.images,
+          // Slim down options — listing only needs price info
+          options: Array.isArray(tour.options)
+            ? tour.options.map((opt: any) => ({
+                title: opt.title,
+                pricePerPerson: opt.pricePerPerson,
+                groupPricingTiers: opt.groupPricingTiers,
+              }))
+            : tour.options,
         }));
       }
     }

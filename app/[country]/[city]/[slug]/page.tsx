@@ -6,6 +6,8 @@ import CityInfoClient from '@/components/CityInfoClient';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:3001';
 
+export const revalidate = 60;
+
 interface Props {
   params: Promise<{ country: string; city: string; slug: string }>;
 }
@@ -39,7 +41,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   // Tour detail page — fetch tour for metadata
   try {
     const res = await fetch(`${API_URL}/api/public/tours/by-slug/${encodeURIComponent(slug)}`, {
-      next: { revalidate: 60 },
+      cache: 'no-store',
     });
     if (res.ok) {
       const data = await res.json();
@@ -79,7 +81,7 @@ export default async function SlugPage({ params }: Props) {
   let tour = null;
   try {
     const res = await fetch(`${API_URL}/api/public/tours/by-slug/${encodeURIComponent(slug)}`, {
-      next: { revalidate: 60 },
+      cache: 'no-store',
     });
     if (res.ok) {
       const data = await res.json();
