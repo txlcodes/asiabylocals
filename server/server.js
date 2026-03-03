@@ -8500,8 +8500,23 @@ app.get('/api/bookings/guide-confirm', async (req, res) => {
       return res.redirect(`${frontendUrl}/guide-confirmation?status=error&message=Invalid+or+expired+token`);
     }
 
+    // Build query params with booking details for the confirmation page
+    const bookingParams = new URLSearchParams({
+      tour: booking.tour.title,
+      date: booking.bookingDate,
+      guests: String(booking.numberOfGuests),
+      customer: booking.customerName,
+      amount: String(booking.totalAmount),
+      currency: booking.currency || 'USD',
+      bookingId: String(booking.id),
+    });
+    if (booking.invoiceUrl) bookingParams.set('invoice', booking.invoiceUrl);
+    if (booking.customerEmail) bookingParams.set('customerEmail', booking.customerEmail);
+    if (booking.customerPhone) bookingParams.set('customerPhone', booking.customerPhone);
+
     if (booking.guideConfirmedAt) {
-      return res.redirect(`${frontendUrl}/guide-confirmation?status=already-confirmed`);
+      bookingParams.set('status', 'already-confirmed');
+      return res.redirect(`${frontendUrl}/guide-confirmation?${bookingParams.toString()}`);
     }
 
     // Mark as confirmed
@@ -8536,7 +8551,8 @@ app.get('/api/bookings/guide-confirm', async (req, res) => {
       console.error('❌ Failed to send guide-confirmed email to customer:', emailErr.message);
     }
 
-    return res.redirect(`${frontendUrl}/guide-confirmation?status=success`);
+    bookingParams.set('status', 'success');
+    return res.redirect(`${frontendUrl}/guide-confirmation?${bookingParams.toString()}`);
   } catch (error) {
     console.error('❌ Guide confirmation error:', error);
     return res.redirect(`${frontendUrl}/guide-confirmation?status=error&message=Something+went+wrong`);
