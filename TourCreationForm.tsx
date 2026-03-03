@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { X, ChevronRight, ChevronLeft, ChevronDown, Upload, ArrowUp, ArrowDown, Trash2, CheckCircle2, AlertCircle, Phone, Mail, Plus, MapPin, Clock, Shield, Info, Car, Landmark, UtensilsCrossed, Star, CircleDot, Flag, FileText, Sparkles, PenLine, Loader2, Lightbulb } from 'lucide-react';
 import { CITY_LOCATIONS, TRANSPORTATION_TYPES, ENTRY_TICKET_OPTIONS, EntryTicketOption } from './constants';
 import { COUNTRIES, COUNTRY_CITIES } from './src/locations';
@@ -108,6 +108,7 @@ const TourCreationForm: React.FC<TourCreationFormProps> = ({
   const [aiAnswers, setAiAnswers] = useState<Record<number, string>>({});
   const [aiGenerating, setAiGenerating] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const itineraryTextareaRef = useRef<HTMLTextAreaElement>(null);
   const [submissionStatus, setSubmissionStatus] = useState<string>('');
   // Track the tour ID after a draft has been saved so we can update (not create) on subsequent saves
   const [draftTourId, setDraftTourId] = useState<number | null>(tour?.id || null);
@@ -558,6 +559,93 @@ ${a(9)}`;
 
   const handleInputChange = (field: string, value: any) => {
     setFormData(prev => ({ ...prev, [field]: value }));
+  };
+
+  // Insert markdown formatting at cursor position in the detailed itinerary textarea
+  const insertMarkdown = (type: 'h2' | 'h3' | 'bold' | 'italic' | 'bullet' | 'link') => {
+    const textarea = itineraryTextareaRef.current;
+    if (!textarea) return;
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+    const text = formData.detailedItinerary;
+    const selected = text.substring(start, end);
+
+    let before = text.substring(0, start);
+    let after = text.substring(end);
+    let newText = '';
+    let newCursorStart = start;
+    let newCursorEnd = end;
+
+    if (type === 'h2') {
+      // Insert ## at the start of the current line
+      const lineStart = before.lastIndexOf('\n') + 1;
+      const linePrefix = before.substring(lineStart);
+      // Remove existing heading markers if any
+      const cleanPrefix = linePrefix.replace(/^#{1,6}\s*/, '');
+      before = before.substring(0, lineStart) + '## ' + cleanPrefix;
+      newText = before + selected + after;
+      newCursorStart = start + (before.length - text.substring(0, start).length);
+      newCursorEnd = newCursorStart + selected.length;
+    } else if (type === 'h3') {
+      const lineStart = before.lastIndexOf('\n') + 1;
+      const linePrefix = before.substring(lineStart);
+      const cleanPrefix = linePrefix.replace(/^#{1,6}\s*/, '');
+      before = before.substring(0, lineStart) + '### ' + cleanPrefix;
+      newText = before + selected + after;
+      newCursorStart = start + (before.length - text.substring(0, start).length);
+      newCursorEnd = newCursorStart + selected.length;
+    } else if (type === 'bold') {
+      if (selected) {
+        newText = before + '**' + selected + '**' + after;
+        newCursorStart = start + 2;
+        newCursorEnd = end + 2;
+      } else {
+        newText = before + '****' + after;
+        newCursorStart = start + 2;
+        newCursorEnd = start + 2;
+      }
+    } else if (type === 'italic') {
+      if (selected) {
+        newText = before + '*' + selected + '*' + after;
+        newCursorStart = start + 1;
+        newCursorEnd = end + 1;
+      } else {
+        newText = before + '**' + after;
+        newCursorStart = start + 1;
+        newCursorEnd = start + 1;
+      }
+    } else if (type === 'bullet') {
+      const lineStart = before.lastIndexOf('\n') + 1;
+      const linePrefix = before.substring(lineStart);
+      if (linePrefix.startsWith('- ')) {
+        // Remove bullet
+        before = before.substring(0, lineStart) + linePrefix.substring(2);
+      } else {
+        before = before.substring(0, lineStart) + '- ' + linePrefix;
+      }
+      newText = before + selected + after;
+      newCursorStart = start + (before.length - text.substring(0, start).length);
+      newCursorEnd = newCursorStart + selected.length;
+    } else if (type === 'link') {
+      if (selected) {
+        newText = before + '[' + selected + '](url)' + after;
+        newCursorStart = end + 3;
+        newCursorEnd = end + 6;
+      } else {
+        newText = before + '[link text](url)' + after;
+        newCursorStart = start + 1;
+        newCursorEnd = start + 10;
+      }
+    }
+
+    handleInputChange('detailedItinerary', newText);
+    // Restore cursor after React re-render
+    setTimeout(() => {
+      if (textarea) {
+        textarea.focus();
+        textarea.setSelectionRange(newCursorStart, newCursorEnd);
+      }
+    }, 0);
   };
 
   const handleLocationToggle = (location: string) => {
@@ -2931,26 +3019,68 @@ ${a(9)}`;
                     </p>
                   </div>
 
-                  <div className="relative">
-                    {aiGenerating && (
-                      <div className="absolute top-4 right-4 z-20 bg-[#10B981] text-white px-3 py-1.5 rounded-full shadow-lg flex items-center gap-2 text-xs font-bold animate-pulse">
-                        <Sparkles size={14} /> AI Writing...
-                      </div>
-                    )}
-                    <textarea
-                      readOnly={aiGenerating}
-                      value={formData.detailedItinerary}
-                      onChange={(e) => { handleInputChange('detailedItinerary', e.target.value); const wc = e.target.value.trim().split(/\s+/).filter((w: string) => w.length > 0).length; if (wc >= 500) setShowDetailedItineraryError(false); }}
-                      placeholder={
-                        formData.country === 'Thailand'
-                          ? "Tour Overview\nWrite a brief overview of your tour — key highlights, duration, and what makes it special.\n\nPickup & Departure Details\nDescribe pickup time, location, vehicle type, and travel time to the first stop.\n\nGrand Palace Visit\nDescribe this stop in detail — history, what travellers will see, time spent here.\n\nWat Pho Exploration\nDescribe the experience, architecture, and cultural significance.\n\nLunch Break\nMeal arrangements — restaurant type, cuisine options, inclusions.\n\nReturn Journey\nReturn trip details — departure time, route, arrival time.\n\nInsider Tips\nPractical tips — best time to visit, what to wear, what to carry."
-                          : formData.country === 'Japan'
-                            ? "Tour Overview\nWrite a brief overview of your tour — key highlights, duration, and what makes it special.\n\nPickup & Departure Details\nDescribe pickup time, location, vehicle type, and travel time to the first stop.\n\nFushimi Inari Shrine Visit\nDescribe this stop in detail — history, what travellers will see, time spent here.\n\nKiyomizu-dera Temple Exploration\nDescribe the experience, architecture, and cultural significance.\n\nLunch Break\nMeal arrangements — restaurant type, cuisine options, exclusions.\n\nReturn Journey\nReturn trip details — departure time, route, arrival time.\n\nInsider Tips\nPractical tips — best time to visit, what to wear, what to carry."
-                            : "Tour Overview\nWrite a brief overview of your tour — key highlights, duration, and what makes it special.\n\nPickup & Departure Details\nDescribe pickup time, location, vehicle type, and travel time to the first stop.\n\nTaj Mahal Visit\nDescribe this stop in detail — history, what travellers will see, time spent here.\n\nAgra Fort Exploration\nDescribe the experience, architecture, and cultural significance.\n\nLunch Break\nMeal arrangements — restaurant type, cuisine options, inclusions.\n\nReturn Journey\nReturn trip details — departure time, route, arrival time.\n\nInsider Tips\nPractical tips — best time to visit, what to wear, what to carry."
-                      }
-                      rows={16}
-                      className={`w-full bg-gray-50 border-2 border-gray-200 rounded-2xl py-5 px-6 font-semibold text-gray-700 text-[15px] focus:ring-2 focus:ring-[#10B981] focus:border-[#10B981] outline-none resize-y leading-relaxed ${aiGenerating ? 'cursor-not-allowed opacity-80' : ''}`}
-                    />
+                  <div className="border-2 border-gray-200 rounded-2xl overflow-hidden focus-within:border-[#10B981] focus-within:ring-2 focus-within:ring-[#10B981]/20 transition-all">
+                    {/* Formatting Toolbar */}
+                    <div className="flex items-center gap-1 px-3 py-2 bg-gray-50 border-b border-gray-200 flex-wrap">
+                      <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mr-1">Format:</span>
+                      <button
+                        type="button"
+                        onMouseDown={(e) => { e.preventDefault(); insertMarkdown('h2'); }}
+                        title="Heading (##)"
+                        className="px-2.5 py-1 text-[12px] font-black text-gray-600 hover:bg-[#10B981]/10 hover:text-[#10B981] rounded-lg transition-all border border-transparent hover:border-[#10B981]/20"
+                      >H2</button>
+                      <button
+                        type="button"
+                        onMouseDown={(e) => { e.preventDefault(); insertMarkdown('h3'); }}
+                        title="Subheading (###)"
+                        className="px-2.5 py-1 text-[12px] font-black text-gray-600 hover:bg-[#10B981]/10 hover:text-[#10B981] rounded-lg transition-all border border-transparent hover:border-[#10B981]/20"
+                      >H3</button>
+                      <div className="w-px h-5 bg-gray-200 mx-1" />
+                      <button
+                        type="button"
+                        onMouseDown={(e) => { e.preventDefault(); insertMarkdown('bold'); }}
+                        title="Bold (**text**)"
+                        className="w-7 h-7 text-[13px] font-black text-gray-600 hover:bg-[#10B981]/10 hover:text-[#10B981] rounded-lg transition-all border border-transparent hover:border-[#10B981]/20 flex items-center justify-center"
+                      ><strong>B</strong></button>
+                      <button
+                        type="button"
+                        onMouseDown={(e) => { e.preventDefault(); insertMarkdown('italic'); }}
+                        title="Italic (*text*)"
+                        className="w-7 h-7 text-[13px] font-black text-gray-600 hover:bg-[#10B981]/10 hover:text-[#10B981] rounded-lg transition-all border border-transparent hover:border-[#10B981]/20 flex items-center justify-center"
+                      ><em>I</em></button>
+                      <div className="w-px h-5 bg-gray-200 mx-1" />
+                      <button
+                        type="button"
+                        onMouseDown={(e) => { e.preventDefault(); insertMarkdown('bullet'); }}
+                        title="Bullet list (- item)"
+                        className="px-2.5 py-1 text-[12px] font-bold text-gray-600 hover:bg-[#10B981]/10 hover:text-[#10B981] rounded-lg transition-all border border-transparent hover:border-[#10B981]/20"
+                      >• List</button>
+                      <div className="ml-auto text-[10px] text-gray-400 font-semibold hidden sm:block">Select text then click a button to format</div>
+                    </div>
+                    {/* Textarea */}
+                    <div className="relative">
+                      {aiGenerating && (
+                        <div className="absolute top-4 right-4 z-20 bg-[#10B981] text-white px-3 py-1.5 rounded-full shadow-lg flex items-center gap-2 text-xs font-bold animate-pulse">
+                          <Sparkles size={14} /> AI Writing...
+                        </div>
+                      )}
+                      <textarea
+                        ref={itineraryTextareaRef}
+                        readOnly={aiGenerating}
+                        value={formData.detailedItinerary}
+                        onChange={(e) => { handleInputChange('detailedItinerary', e.target.value); const wc = e.target.value.trim().split(/\s+/).filter((w: string) => w.length > 0).length; if (wc >= 500) setShowDetailedItineraryError(false); }}
+                        placeholder={
+                          formData.country === 'Thailand'
+                            ? "Tour Overview\nWrite a brief overview of your tour — key highlights, duration, and what makes it special.\n\nPickup & Departure Details\nDescribe pickup time, location, vehicle type, and travel time to the first stop.\n\nGrand Palace Visit\nDescribe this stop in detail — history, what travellers will see, time spent here.\n\nWat Pho Exploration\nDescribe the experience, architecture, and cultural significance.\n\nLunch Break\nMeal arrangements — restaurant type, cuisine options, inclusions.\n\nReturn Journey\nReturn trip details — departure time, route, arrival time.\n\nInsider Tips\nPractical tips — best time to visit, what to wear, what to carry."
+                            : formData.country === 'Japan'
+                              ? "Tour Overview\nWrite a brief overview of your tour — key highlights, duration, and what makes it special.\n\nPickup & Departure Details\nDescribe pickup time, location, vehicle type, and travel time to the first stop.\n\nFushimi Inari Shrine Visit\nDescribe this stop in detail — history, what travellers will see, time spent here.\n\nKiyomizu-dera Temple Exploration\nDescribe the experience, architecture, and cultural significance.\n\nLunch Break\nMeal arrangements — restaurant type, cuisine options, exclusions.\n\nReturn Journey\nReturn trip details — departure time, route, arrival time.\n\nInsider Tips\nPractical tips — best time to visit, what to wear, what to carry."
+                              : "Tour Overview\nWrite a brief overview of your tour — key highlights, duration, and what makes it special.\n\nPickup & Departure Details\nDescribe pickup time, location, vehicle type, and travel time to the first stop.\n\nTaj Mahal Visit\nDescribe this stop in detail — history, what travellers will see, time spent here.\n\nAgra Fort Exploration\nDescribe the experience, architecture, and cultural significance.\n\nLunch Break\nMeal arrangements — restaurant type, cuisine options, inclusions.\n\nReturn Journey\nReturn trip details — departure time, route, arrival time.\n\nInsider Tips\nPractical tips — best time to visit, what to wear, what to carry."
+                        }
+                        rows={16}
+                        spellCheck={true}
+                        className={`w-full bg-white border-none py-5 px-6 font-semibold text-gray-700 text-[15px] outline-none resize-y leading-relaxed ${aiGenerating ? 'cursor-not-allowed opacity-80' : ''}`}
+                      />
+                    </div>
                   </div>
 
                   {/* Re-generate with AI button */}
