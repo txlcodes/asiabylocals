@@ -1739,7 +1739,7 @@ const CityInfoPage: React.FC<CityInfoPageProps> = ({ country, city, slug }) => {
             <Helmet>
                 <title>{data.title} | AsiaByLocals Official Guide</title>
                 <meta name="description" content={data.description} />
-                {!['Agra', 'Delhi', 'Jaipur'].includes(city) && (
+                {!['Agra', 'Delhi', 'Jaipur', 'Phuket'].includes(city) && (
                     <meta name="robots" content="noindex, follow" />
                 )}
                 {/* Canonical */}

@@ -4498,7 +4498,7 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
       <Helmet>
         <title>{tour?.title ? `${tour.title} | ${city || 'Tour'} | AsiaByLocals` : 'AsiaByLocals'}</title>
         <meta name="description" content={tour?.shortDescription || `Book your next adventure in ${city || 'Asia'} with AsiaByLocals.`} />
-        {!['Agra', 'Delhi', 'Jaipur'].includes(city || '') && (
+        {!['Agra', 'Delhi', 'Jaipur', 'Phuket'].includes(city || '') && (
           <meta name="robots" content="noindex, follow" />
         )}
         {/* Dynamic Canonical Link for SEO */}

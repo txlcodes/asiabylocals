@@ -2106,7 +2106,7 @@ const CityPage: React.FC<CityPageProps> = ({ country, city }) => {
       <Helmet>
         <title>{cityInfo.title}</title>
         <meta name="description" content={cityInfo.description} />
-        {!['Agra', 'Delhi', 'Jaipur'].includes(city) && (
+        {!['Agra', 'Delhi', 'Jaipur', 'Phuket'].includes(city) && (
           <meta name="robots" content="noindex, follow" />
         )}
         <meta name="language" content="en" />
