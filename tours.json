@@ -376,5 +376,12 @@
     "city": "Jaisalmer",
     "country": "India",
     "updatedAt": "2026-03-03T05:35:16.537Z"
+  },
+  {
+    "id": 244,
+    "slug": "james-bond-island-speedboat-tour-phuket",
+    "city": "Phuket",
+    "country": "Thailand",
+    "updatedAt": "2026-03-04T21:43:54.435Z"
   }
 ]
