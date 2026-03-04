@@ -35,6 +35,20 @@
     "updatedAt": "2026-02-26T17:27:27.288Z"
   },
   {
+    "id": 240,
+    "slug": "hawa-mahal-full-day-tour",
+    "city": "Jaipur",
+    "country": "India",
+    "updatedAt": "2026-03-04T16:10:59.359Z"
+  },
+  {
+    "id": 239,
+    "slug": "delhi-agra-private-tour",
+    "city": "Delhi",
+    "country": "India",
+    "updatedAt": "2026-03-04T16:11:11.433Z"
+  },
+  {
     "id": 10,
     "slug": "india-gate-guided-tour",
     "city": "Delhi",
@@ -189,18 +203,18 @@
     "updatedAt": "2026-03-04T10:45:16.809Z"
   },
   {
+    "id": 242,
+    "slug": "phi-phi-khai-islands-speedboat-tour-with-lunch",
+    "city": "Phuket",
+    "country": "Thailand",
+    "updatedAt": "2026-03-04T20:22:57.630Z"
+  },
+  {
     "id": 202,
     "slug": "jaipur-city-highlights-tour-with-amber-fort-hawa-mahal",
     "city": "Jaipur",
     "country": "India",
     "updatedAt": "2026-02-23T08:57:07.379Z"
-  },
-  {
-    "id": 216,
-    "slug": "5-days-golden-triangle-ranthambore-tiger-safari",
-    "city": "Delhi",
-    "country": "India",
-    "updatedAt": "2026-02-28T19:37:11.237Z"
   },
   {
     "id": 224,
@@ -253,10 +267,10 @@
   },
   {
     "id": 238,
-    "slug": "phi-phi-islands-half-day-tour",
+    "slug": "phi-phi-islands-private-yacht-cruise-maya-bay",
     "city": "Phuket",
     "country": "Thailand",
-    "updatedAt": "2026-03-04T11:43:13.936Z"
+    "updatedAt": "2026-03-04T20:22:58.506Z"
   },
   {
     "id": 214,
@@ -271,6 +285,13 @@
     "city": "Jodhpur",
     "country": "India",
     "updatedAt": "2026-03-03T18:07:20.286Z"
+  },
+  {
+    "id": 216,
+    "slug": "5-days-golden-triangle-ranthambore-tiger-safari",
+    "city": "Delhi",
+    "country": "India",
+    "updatedAt": "2026-03-04T12:16:09.066Z"
   },
   {
     "id": 219,
@@ -299,6 +320,13 @@
     "city": "Delhi",
     "country": "India",
     "updatedAt": "2026-02-27T20:32:24.720Z"
+  },
+  {
+    "id": 241,
+    "slug": "phi-phi-islands-speedboat-tour-maya-bay-snorkeling",
+    "city": "Phuket",
+    "country": "Thailand",
+    "updatedAt": "2026-03-04T20:22:58.250Z"
   },
   {
     "id": 223,
