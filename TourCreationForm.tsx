@@ -691,6 +691,9 @@ ${a(9)}`;
     }));
   };
 
+  // Ref storing File objects keyed by their blob URL — keeps base64 OUT of React state
+  const imageFilesRef = useRef<Map<string, File>>(new Map());
+
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files) return;
@@ -718,23 +721,43 @@ ${a(9)}`;
         return;
       }
 
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const result = e.target?.result as string;
-        setFormData(prev => ({
-          ...prev,
-          images: [...prev.images, result]
-        }));
-      };
-      reader.readAsDataURL(file as unknown as Blob);
+      // Store a lightweight blob URL in state (not base64!) — massively reduces memory
+      const blobUrl = URL.createObjectURL(file as unknown as Blob);
+      imageFilesRef.current.set(blobUrl, file);
+
+      setFormData(prev => ({
+        ...prev,
+        images: [...prev.images, blobUrl]
+      }));
     });
   };
 
   const removeImage = (index: number) => {
-    setFormData(prev => ({
-      ...prev,
-      images: prev.images.filter((_, i) => i !== index)
-    }));
+    setFormData(prev => {
+      const removed = prev.images[index];
+      // Revoke blob URL to free browser memory
+      if (removed?.startsWith('blob:')) {
+        URL.revokeObjectURL(removed);
+        imageFilesRef.current.delete(removed);
+      }
+      return { ...prev, images: prev.images.filter((_, i) => i !== index) };
+    });
+  };
+
+  // Convert blob URLs back to base64 at upload time (not kept in state)
+  const resolveBlobUrls = (images: string[]): Promise<string[]> => {
+    return Promise.all(
+      images.map(img => {
+        if (!img.startsWith('blob:')) return Promise.resolve(img);
+        const file = imageFilesRef.current.get(img);
+        if (!file) return Promise.resolve(img);
+        return new Promise<string>((resolve) => {
+          const reader = new FileReader();
+          reader.onload = (e) => resolve(e.target?.result as string);
+          reader.readAsDataURL(file);
+        });
+      })
+    );
   };
 
   const moveImage = (index: number, direction: 'up' | 'down') => {
@@ -838,16 +861,17 @@ ${a(9)}`;
     try {
       const API_URL = import.meta.env.VITE_API_URL || (typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3001');
 
-      // Upload any new base64 images first
+      // Upload any new images first (resolve blob URLs → base64 only at upload time)
       let imageUrls = formData.images;
-      const hasBase64Images = formData.images.some(img => img.startsWith('data:image'));
-      if (hasBase64Images && formData.images.length > 0) {
+      const hasNewImages = formData.images.some(img => img.startsWith('data:image') || img.startsWith('blob:'));
+      if (hasNewImages && formData.images.length > 0) {
         setSubmissionStatus('Uploading images...');
         try {
+          const resolvedImages = await resolveBlobUrls(formData.images);
           const uploadResponse = await fetch(`${API_URL}/api/tours/upload-images`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ images: formData.images, city: formData.city })
+            body: JSON.stringify({ images: resolvedImages, city: formData.city })
           });
           if (uploadResponse.ok) {
             const uploadData = await uploadResponse.json();
@@ -1044,22 +1068,23 @@ ${a(9)}`;
     try {
       const API_URL = import.meta.env.VITE_API_URL || (typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3001');
 
-      // STEP 1: Upload images to Cloudinary FIRST (if they're base64)
-      // This makes tour creation MUCH faster (small payload instead of 10-20MB)
+      // STEP 1: Upload images to Cloudinary FIRST (resolve blob URLs → base64 only here)
+      // Blob URLs are stored in state (not base64) to keep the page responsive
       let imageUrls = formData.images;
-      const hasBase64Images = formData.images.some(img => img.startsWith('data:image'));
+      const hasNewImages = formData.images.some(img => img.startsWith('data:image') || img.startsWith('blob:'));
 
-      if (hasBase64Images && formData.images.length > 0) {
+      if (hasNewImages && formData.images.length > 0) {
         setSubmissionStatus(`Uploading ${formData.images.length} images to Cloudinary...`);
         console.log(`📤 Step 1: Uploading ${formData.images.length} images to Cloudinary...`);
         const uploadStartTime = Date.now();
 
         try {
+          const resolvedImages = await resolveBlobUrls(formData.images);
           const uploadResponse = await fetch(`${API_URL}/api/tours/upload-images`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-              images: formData.images,
+              images: resolvedImages,
               city: formData.city
             })
           });
@@ -1083,9 +1108,9 @@ ${a(9)}`;
           }
         } catch (uploadError: any) {
           console.error('❌ Image upload failed:', uploadError);
-          // Fallback: continue with base64 images (backend will handle it)
-          console.warn('⚠️ Continuing with base64 images (backend will upload in background)');
-          imageUrls = formData.images;
+          // Fallback: resolve blobs → base64 and let backend handle upload
+          console.warn('⚠️ Resolving blobs for fallback upload...');
+          imageUrls = await resolveBlobUrls(formData.images);
           setSubmissionStatus('Creating tour with images...');
         }
       } else {
