@@ -1,10 +1,10 @@
 [
   {
-    "id": 10,
-    "slug": "india-gate-india-guided-tour",
-    "city": "Delhi",
+    "id": 209,
+    "slug": "taj-mahal-royal-private-tour",
+    "city": "Agra",
     "country": "India",
-    "updatedAt": "2026-02-24T13:53:54.354Z"
+    "updatedAt": "2026-02-26T17:23:58.101Z"
   },
   {
     "id": 190,
@@ -14,25 +14,11 @@
     "updatedAt": "2026-02-15T09:48:23.271Z"
   },
   {
-    "id": 209,
-    "slug": "taj-mahal-royal-private-tour",
-    "city": "Agra",
-    "country": "India",
-    "updatedAt": "2026-02-24T19:33:50.702Z"
-  },
-  {
     "id": 201,
     "slug": "city-palace-full-day-tour",
     "city": "Udaipur",
     "country": "India",
     "updatedAt": "2026-02-22T10:32:21.188Z"
-  },
-  {
-    "id": 180,
-    "slug": "taj-mahal-entry-ticket",
-    "city": "Agra",
-    "country": "India",
-    "updatedAt": "2026-02-22T20:10:21.495Z"
   },
   {
     "id": 17,
@@ -42,67 +28,95 @@
     "updatedAt": "2026-02-23T09:01:47.477Z"
   },
   {
-    "id": 207,
-    "slug": "6-day-golden-triangle-tour",
-    "city": "Delhi",
-    "country": "India",
-    "updatedAt": "2026-02-24T18:21:21.769Z"
-  },
-  {
-    "id": 203,
-    "slug": "taj-mahal-agra-fort-guided-tour",
+    "id": 180,
+    "slug": "taj-mahal-entry-ticket",
     "city": "Agra",
     "country": "India",
-    "updatedAt": "2026-02-23T08:29:57.788Z"
+    "updatedAt": "2026-02-26T17:27:27.288Z"
+  },
+  {
+    "id": 10,
+    "slug": "india-gate-guided-tour",
+    "city": "Delhi",
+    "country": "India",
+    "updatedAt": "2026-02-25T09:53:25.835Z"
+  },
+  {
+    "id": 232,
+    "slug": "delhi-guided-shopping-tour-female-expert",
+    "city": "Delhi",
+    "country": "India",
+    "updatedAt": "2026-03-03T18:07:19.513Z"
+  },
+  {
+    "id": 213,
+    "slug": "taj-mahal-sunrise-sunrise-tour",
+    "city": "Agra",
+    "country": "India",
+    "updatedAt": "2026-03-03T16:53:47.606Z"
   },
   {
     "id": 183,
     "slug": "taj-mahal-sunrise-tour",
     "city": "Agra",
     "country": "India",
-    "updatedAt": "2026-02-24T10:06:36.249Z"
+    "updatedAt": "2026-02-26T17:27:28.790Z"
   },
   {
     "id": 179,
     "slug": "taj-mahal-official-guided-tour",
     "city": "Agra",
     "country": "India",
-    "updatedAt": "2026-02-17T14:01:31.838Z"
+    "updatedAt": "2026-03-04T09:33:46.957Z"
+  },
+  {
+    "id": 203,
+    "slug": "taj-mahal-agra-fort-guided-tour",
+    "city": "Agra",
+    "country": "India",
+    "updatedAt": "2026-02-26T17:27:28.514Z"
   },
   {
     "id": 186,
     "slug": "taj-mahal-delhi-guided-tour",
     "city": "Agra",
     "country": "India",
-    "updatedAt": "2026-02-13T15:00:59.728Z"
-  },
-  {
-    "id": 182,
-    "slug": "india-gate-full-day-tour",
-    "city": "Delhi",
-    "country": "India",
-    "updatedAt": "2026-02-20T06:31:01.351Z"
-  },
-  {
-    "id": 204,
-    "slug": "india-gate-express-tour",
-    "city": "Delhi",
-    "country": "India",
-    "updatedAt": "2026-02-23T16:15:32.352Z"
+    "updatedAt": "2026-02-26T17:27:29.045Z"
   },
   {
     "id": 185,
     "slug": "female-guide-for-taj-mahal",
     "city": "Agra",
     "country": "India",
-    "updatedAt": "2026-02-24T11:48:02.671Z"
+    "updatedAt": "2026-02-26T17:27:29.920Z"
   },
   {
     "id": 181,
     "slug": "taj-mahal-full-day-tour",
     "city": "Agra",
     "country": "India",
-    "updatedAt": "2026-02-02T06:33:13.709Z"
+    "updatedAt": "2026-02-26T17:27:30.372Z"
+  },
+  {
+    "id": 182,
+    "slug": "private-taj-mahal-tour-from-delhi",
+    "city": "Delhi",
+    "country": "India",
+    "updatedAt": "2026-02-26T17:27:29.558Z"
+  },
+  {
+    "id": 236,
+    "slug": "gateway-of-india-private-tour",
+    "city": "Mumbai",
+    "country": "India",
+    "updatedAt": "2026-03-04T07:42:22.564Z"
+  },
+  {
+    "id": 220,
+    "slug": "india-gate-triangle-guided-tour",
+    "city": "Delhi",
+    "country": "India",
+    "updatedAt": "2026-02-28T06:59:26.983Z"
   },
   {
     "id": 188,
@@ -110,6 +124,27 @@
     "city": "Jaipur",
     "country": "India",
     "updatedAt": "2026-02-15T06:13:29.276Z"
+  },
+  {
+    "id": 221,
+    "slug": "amber-fort-official-guided-tour",
+    "city": "Jaipur",
+    "country": "India",
+    "updatedAt": "2026-02-28T13:46:01.803Z"
+  },
+  {
+    "id": 225,
+    "slug": "delhi-old-new-delhi-private-half-day-tour",
+    "city": "Delhi",
+    "country": "India",
+    "updatedAt": "2026-03-01T19:19:33.622Z"
+  },
+  {
+    "id": 217,
+    "slug": "agra-gatimaan-entry-ticket",
+    "city": "Agra",
+    "country": "India",
+    "updatedAt": "2026-02-27T07:33:11.888Z"
   },
   {
     "id": 189,
@@ -140,11 +175,18 @@
     "updatedAt": "2026-02-24T10:35:25.392Z"
   },
   {
+    "id": 237,
+    "slug": "gateway-of-india-sightseeing-private-tour",
+    "city": "Mumbai",
+    "country": "India",
+    "updatedAt": "2026-03-04T08:25:04.854Z"
+  },
+  {
     "id": 198,
     "slug": "fatehpur-sikri-guided-tour",
     "city": "Agra",
     "country": "India",
-    "updatedAt": "2026-02-21T14:01:23.109Z"
+    "updatedAt": "2026-03-04T10:45:16.809Z"
   },
   {
     "id": 202,
@@ -154,10 +196,150 @@
     "updatedAt": "2026-02-23T08:57:07.379Z"
   },
   {
+    "id": 216,
+    "slug": "5-days-golden-triangle-ranthambore-tiger-safari",
+    "city": "Delhi",
+    "country": "India",
+    "updatedAt": "2026-02-28T19:37:11.237Z"
+  },
+  {
+    "id": 224,
+    "slug": "explore-old-new-delhi-city-luxury-car-tour",
+    "city": "Delhi",
+    "country": "India",
+    "updatedAt": "2026-03-01T19:19:33.361Z"
+  },
+  {
+    "id": 211,
+    "slug": "sunrise-taj-mahal-and-agra-tour-by-car",
+    "city": "Agra",
+    "country": "India",
+    "updatedAt": "2026-02-26T17:43:52.113Z"
+  },
+  {
     "id": 210,
     "slug": "agra-friday-tour-taj-closed-alternative",
     "city": "Agra",
     "country": "India",
-    "updatedAt": "2026-02-24T21:39:00.602Z"
+    "updatedAt": "2026-02-27T14:53:01.373Z"
+  },
+  {
+    "id": 207,
+    "slug": "golden-triangle-3-day-tour",
+    "city": "Delhi",
+    "country": "India",
+    "updatedAt": "2026-03-01T05:37:19.094Z"
+  },
+  {
+    "id": 228,
+    "slug": "khajuraho-group-of-monuments-guided-tour",
+    "city": "Khajuraho",
+    "country": "India",
+    "updatedAt": "2026-03-02T09:49:44.824Z"
+  },
+  {
+    "id": 212,
+    "slug": "agra-overnight-tour",
+    "city": "Delhi",
+    "country": "India",
+    "updatedAt": "2026-02-25T09:52:36.649Z"
+  },
+  {
+    "id": 204,
+    "slug": "taj-mahal-tour-by-train-gatimaan",
+    "city": "Delhi",
+    "country": "India",
+    "updatedAt": "2026-02-25T09:52:37.983Z"
+  },
+  {
+    "id": 238,
+    "slug": "phi-phi-islands-half-day-tour",
+    "city": "Phuket",
+    "country": "Thailand",
+    "updatedAt": "2026-03-04T11:43:13.936Z"
+  },
+  {
+    "id": 214,
+    "slug": "agra-city-highlights-tour",
+    "city": "Agra",
+    "country": "India",
+    "updatedAt": "2026-02-25T18:50:17.288Z"
+  },
+  {
+    "id": 230,
+    "slug": "jodhpur-blue-city-tour-car-guide",
+    "city": "Jodhpur",
+    "country": "India",
+    "updatedAt": "2026-03-03T18:07:20.286Z"
+  },
+  {
+    "id": 219,
+    "slug": "jaipur-enjoy-private-tour",
+    "city": "Jaipur",
+    "country": "India",
+    "updatedAt": "2026-02-27T21:00:15.502Z"
+  },
+  {
+    "id": 233,
+    "slug": "junagarh-fort-spiritual-tour",
+    "city": "Bikaner",
+    "country": "India",
+    "updatedAt": "2026-03-03T16:05:27.045Z"
+  },
+  {
+    "id": 215,
+    "slug": "taj-mahal-fatehpur-full-day-tour",
+    "city": "Agra",
+    "country": "India",
+    "updatedAt": "2026-02-25T17:51:30.337Z"
+  },
+  {
+    "id": 218,
+    "slug": "private-taj-mahal-agra-day-tour-from-delhi",
+    "city": "Delhi",
+    "country": "India",
+    "updatedAt": "2026-02-27T20:32:24.720Z"
+  },
+  {
+    "id": 223,
+    "slug": "hidden-gems-of-agra-heritage-tour",
+    "city": "Agra",
+    "country": "India",
+    "updatedAt": "2026-03-01T16:45:41.890Z"
+  },
+  {
+    "id": 227,
+    "slug": "delhi-luxury-premium-tour",
+    "city": "Delhi",
+    "country": "India",
+    "updatedAt": "2026-03-01T17:19:23.723Z"
+  },
+  {
+    "id": 226,
+    "slug": "sunrise-taj-mahal-tour-delhi-all-inclusive",
+    "city": "Delhi",
+    "country": "India",
+    "updatedAt": "2026-03-01T19:19:32.655Z"
+  },
+  {
+    "id": 222,
+    "slug": "from-delhi-same-day-taj-mahal-fastest-train",
+    "city": "Delhi",
+    "country": "India",
+    "updatedAt": "2026-03-03T16:55:13.966Z"
+  },
+  {
+    "id": 229,
+    "slug": "delhi-private-4-day-golden-triangle-luxury-tour",
+    "city": "Delhi",
+    "country": "India",
+    "updatedAt": "2026-03-03T18:07:20.541Z"
+  },
+  {
+    "id": 231,
+    "slug": "jaisalmer-fort-walking-tour",
+    "city": "Jaisalmer",
+    "country": "India",
+    "updatedAt": "2026-03-03T05:35:16.537Z"
   }
 ]

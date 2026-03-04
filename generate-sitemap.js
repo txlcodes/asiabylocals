@@ -1,6 +1,5 @@
 // Sitemap Generator for AsiaByLocals
 // INTELLIGENT MODE: Only generates URLs for countries and cities that have approved tours.
-// Currently focused on India (Golden Triangle) as requested.
 
 import fs from 'fs';
 import path from 'path';
@@ -36,7 +35,7 @@ function getCountrySlug(country) {
   return countrySlugs[country] || toSlug(country);
 }
 
-// Special information pages for specific cities (Agra Authority Pages)
+// Special information pages for specific cities
 const cityInfoPages = {
   'agra': [
     'things-to-do-in-agra',
@@ -46,6 +45,16 @@ const cityInfoPages = {
     'taj-mahal-opening-time',
     'is-taj-mahal-closed-on-friday',
     'agra-travel-guide-2026'
+  ],
+  'phuket': [
+    'things-to-do-in-phuket',
+    'phuket-travel-guide-2026',
+    'phi-phi-islands',
+    'phang-nga-bay',
+    'big-buddha-phuket',
+    'wat-chalong',
+    'phuket-old-town',
+    'phuket-1-day-itinerary'
   ]
 };
 
@@ -112,7 +121,7 @@ function generateSitemap() {
   // Layer 3: Cities (Only those with tours)
   citiesWithTours.forEach(cityName => {
     // Only include cities that are explicitly indexed
-    const isIndexed = ['Agra', 'Delhi', 'Jaipur'].includes(cityName);
+    const isIndexed = ['Agra', 'Delhi', 'Jaipur', 'Phuket'].includes(cityName);
     if (!isIndexed) return;
 
     // Find the country for this city
@@ -134,10 +143,10 @@ function generateSitemap() {
     <priority>${priority}</priority>
   </url>\n\n`;
 
-    // Add Agra Sub-pages
-    if (citySlug === 'agra') {
-      cityInfoPages['agra'].forEach(infoSlug => {
-        xml += `  <!-- Agra Authority: ${infoSlug} -->
+    // Add city authority/info sub-pages
+    if (cityInfoPages[citySlug]) {
+      cityInfoPages[citySlug].forEach(infoSlug => {
+        xml += `  <!-- ${cityName} Authority: ${infoSlug} -->
   <url>
     <loc>https://www.asiabylocals.com/${countrySlug}/${citySlug}/${infoSlug}</loc>
     <lastmod>${today}</lastmod>
@@ -152,7 +161,7 @@ function generateSitemap() {
   xml += `  <!-- Layer 4: Specific Tours -->\n`;
   liveTours.forEach(tour => {
     // Only include tours from indexed cities
-    const isIndexed = ['Agra', 'Delhi', 'Jaipur'].includes(tour.city);
+    const isIndexed = ['Agra', 'Delhi', 'Jaipur', 'Phuket'].includes(tour.city);
     if (!isIndexed) return;
 
     const countrySlug = getCountrySlug(tour.country);

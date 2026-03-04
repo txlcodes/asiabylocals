@@ -8,429 +8,508 @@
   <!-- Layer 1: Homepage -->
   <url>
     <loc>https://www.asiabylocals.com/</loc>
-    <lastmod>2026-03-01</lastmod>
+    <lastmod>2026-03-04</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
     <image:image>
-      <image:loc>https://www.asiabylocals.com/logo.png</image:loc>
+      <image:loc>https://www.asiabylocals.com/logo.svg</image:loc>
       <image:title>AsiaByLocals Logo</image:title>
     </image:image>
   </url>
   
-  <!-- About Us -->
-  <url>
-    <loc>https://www.asiabylocals.com/about-us</loc>
-    <lastmod>2026-03-01</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
-
-  <!-- Safety Guidelines -->
-  <url>
-    <loc>https://www.asiabylocals.com/safety-guidelines</loc>
-    <lastmod>2026-03-01</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
-
-  <!-- Support Page -->
-  <url>
-    <loc>https://www.asiabylocals.com/support</loc>
-    <lastmod>2026-03-01</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
-
   <!-- Supplier Registration -->
   <url>
     <loc>https://www.asiabylocals.com/supplier</loc>
-    <lastmod>2026-03-01</lastmod>
+    <lastmod>2026-03-04</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
 
-  <!-- Layer 2: Countries -->
+  <!-- Layer 2: India -->
   <url>
     <loc>https://www.asiabylocals.com/india</loc>
-    <lastmod>2026-03-01</lastmod>
+    <lastmod>2026-03-04</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
 
-  <!-- Layer 3: Cities -->
+  <!-- Layer 2: Thailand -->
   <url>
-    <loc>https://www.asiabylocals.com/india/delhi</loc>
-    <lastmod>2026-03-01</lastmod>
-    <changefreq>daily</changefreq>
+    <loc>https://www.asiabylocals.com/thailand</loc>
+    <lastmod>2026-03-04</lastmod>
+    <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
+
+  <!-- Layer 3: Agra, India -->
   <url>
     <loc>https://www.asiabylocals.com/india/agra</loc>
-    <lastmod>2026-03-01</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.9</priority>
-  </url>
-  <url>
-    <loc>https://www.asiabylocals.com/india/jaipur</loc>
-    <lastmod>2026-03-01</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.9</priority>
-  </url>
-  <url>
-    <loc>https://www.asiabylocals.com/india/varanasi</loc>
-    <lastmod>2026-03-01</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.9</priority>
-  </url>
-  <url>
-    <loc>https://www.asiabylocals.com/india/udaipur</loc>
-    <lastmod>2026-03-01</lastmod>
+    <lastmod>2026-03-04</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
   </url>
 
-  <!-- Delhi Authority Pages -->
-  <url>
-    <loc>https://www.asiabylocals.com/india/delhi/delhi-travel-guide-2026</loc>
-    <lastmod>2026-03-01</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.9</priority>
-  </url>
-  <url>
-    <loc>https://www.asiabylocals.com/india/delhi/red-fort</loc>
-    <lastmod>2026-03-01</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.85</priority>
-  </url>
-  <url>
-    <loc>https://www.asiabylocals.com/india/delhi/qutub-minar</loc>
-    <lastmod>2026-03-01</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.85</priority>
-  </url>
-  <url>
-    <loc>https://www.asiabylocals.com/india/delhi/humayuns-tomb</loc>
-    <lastmod>2026-03-01</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.85</priority>
-  </url>
-  <url>
-    <loc>https://www.asiabylocals.com/india/delhi/india-gate</loc>
-    <lastmod>2026-03-01</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.85</priority>
-  </url>
-  <url>
-    <loc>https://www.asiabylocals.com/india/delhi/things-to-do-in-delhi</loc>
-    <lastmod>2026-03-01</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.85</priority>
-  </url>
-  <url>
-    <loc>https://www.asiabylocals.com/india/delhi/delhi-1-day-itinerary</loc>
-    <lastmod>2026-03-01</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-
-  <!-- Agra Authority Pages -->
+  <!-- Agra Authority: things-to-do-in-agra -->
   <url>
     <loc>https://www.asiabylocals.com/india/agra/things-to-do-in-agra</loc>
-    <lastmod>2026-03-01</lastmod>
+    <lastmod>2026-03-04</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.8</priority>
   </url>
+
+  <!-- Agra Authority: places-to-visit-in-agra -->
   <url>
     <loc>https://www.asiabylocals.com/india/agra/places-to-visit-in-agra</loc>
-    <lastmod>2026-03-01</lastmod>
+    <lastmod>2026-03-04</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.8</priority>
   </url>
+
+  <!-- Agra Authority: 1-day-agra-itinerary -->
   <url>
     <loc>https://www.asiabylocals.com/india/agra/1-day-agra-itinerary</loc>
-    <lastmod>2026-03-01</lastmod>
+    <lastmod>2026-03-04</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.8</priority>
   </url>
+
+  <!-- Agra Authority: taj-mahal-ticket-price-2026 -->
   <url>
     <loc>https://www.asiabylocals.com/india/agra/taj-mahal-ticket-price-2026</loc>
-    <lastmod>2026-03-01</lastmod>
+    <lastmod>2026-03-04</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.8</priority>
   </url>
+
+  <!-- Agra Authority: taj-mahal-opening-time -->
   <url>
     <loc>https://www.asiabylocals.com/india/agra/taj-mahal-opening-time</loc>
-    <lastmod>2026-03-01</lastmod>
+    <lastmod>2026-03-04</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.8</priority>
   </url>
+
+  <!-- Agra Authority: is-taj-mahal-closed-on-friday -->
   <url>
     <loc>https://www.asiabylocals.com/india/agra/is-taj-mahal-closed-on-friday</loc>
-    <lastmod>2026-03-01</lastmod>
+    <lastmod>2026-03-04</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.8</priority>
   </url>
+
+  <!-- Agra Authority: agra-travel-guide-2026 -->
   <url>
     <loc>https://www.asiabylocals.com/india/agra/agra-travel-guide-2026</loc>
-    <lastmod>2026-03-01</lastmod>
+    <lastmod>2026-03-04</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.8</priority>
   </url>
+
+  <!-- Layer 3: Jaipur, India -->
   <url>
-    <loc>https://www.asiabylocals.com/india/agra/taj-mahal</loc>
-    <lastmod>2026-03-01</lastmod>
+    <loc>https://www.asiabylocals.com/india/jaipur</loc>
+    <lastmod>2026-03-04</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
   </url>
+
+  <!-- Layer 3: Delhi, India -->
   <url>
-    <loc>https://www.asiabylocals.com/india/agra/agra-fort</loc>
-    <lastmod>2026-03-01</lastmod>
+    <loc>https://www.asiabylocals.com/india/delhi</loc>
+    <lastmod>2026-03-04</lastmod>
     <changefreq>daily</changefreq>
-    <priority>0.85</priority>
-  </url>
-  <url>
-    <loc>https://www.asiabylocals.com/india/agra/fatehpur-sikri</loc>
-    <lastmod>2026-03-01</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.85</priority>
+    <priority>0.9</priority>
   </url>
 
-  <!-- Approved Tours -->
-  <!-- Tour 209: Private Royal Luxury Taj Mahal Tour – Experience Timeless Elegance -->
+  <!-- Layer 3: Phuket, Thailand -->
+  <url>
+    <loc>https://www.asiabylocals.com/thailand/phuket</loc>
+    <lastmod>2026-03-04</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <!-- Phuket Authority: things-to-do-in-phuket -->
+  <url>
+    <loc>https://www.asiabylocals.com/thailand/phuket/things-to-do-in-phuket</loc>
+    <lastmod>2026-03-04</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Phuket Authority: phuket-travel-guide-2026 -->
+  <url>
+    <loc>https://www.asiabylocals.com/thailand/phuket/phuket-travel-guide-2026</loc>
+    <lastmod>2026-03-04</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Phuket Authority: phi-phi-islands -->
+  <url>
+    <loc>https://www.asiabylocals.com/thailand/phuket/phi-phi-islands</loc>
+    <lastmod>2026-03-04</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Phuket Authority: phang-nga-bay -->
+  <url>
+    <loc>https://www.asiabylocals.com/thailand/phuket/phang-nga-bay</loc>
+    <lastmod>2026-03-04</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Phuket Authority: big-buddha-phuket -->
+  <url>
+    <loc>https://www.asiabylocals.com/thailand/phuket/big-buddha-phuket</loc>
+    <lastmod>2026-03-04</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Phuket Authority: wat-chalong -->
+  <url>
+    <loc>https://www.asiabylocals.com/thailand/phuket/wat-chalong</loc>
+    <lastmod>2026-03-04</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Phuket Authority: phuket-old-town -->
+  <url>
+    <loc>https://www.asiabylocals.com/thailand/phuket/phuket-old-town</loc>
+    <lastmod>2026-03-04</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Phuket Authority: phuket-1-day-itinerary -->
+  <url>
+    <loc>https://www.asiabylocals.com/thailand/phuket/phuket-1-day-itinerary</loc>
+    <lastmod>2026-03-04</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Layer 4: Specific Tours -->
+  <!-- Layer 4: Tour 209 - taj-mahal-royal-private-tour -->
   <url>
     <loc>https://www.asiabylocals.com/india/agra/taj-mahal-royal-private-tour</loc>
-    <lastmod>2026-03-01</lastmod>
+    <lastmod>2026-02-26</lastmod>
     <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
+    <priority>0.9</priority>
   </url>
-  <!-- Tour 190: Varanasi : Full Day Priavte Tour -->
-  <url>
-    <loc>https://www.asiabylocals.com/india/varanasi/kashi-vishwanath-temple-full-day-tour</loc>
-    <lastmod>2026-03-01</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <!-- Tour 201: Udaipur: Full-Day Sightseeing Tour with Official Tour Guide -->
-  <url>
-    <loc>https://www.asiabylocals.com/india/udaipur/city-palace-full-day-tour</loc>
-    <lastmod>2026-03-01</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <!-- Tour 17: Jaipur: Private Full Day Sightseeing Tour By Car with Guide -->
+
+  <!-- Layer 4: Tour 17 - hawa-mahal-private-tour -->
   <url>
     <loc>https://www.asiabylocals.com/india/jaipur/hawa-mahal-private-tour</loc>
-    <lastmod>2026-03-01</lastmod>
+    <lastmod>2026-02-23</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
-  <!-- Tour 180: Taj Mahal Entry Ticket 2026 – Skip-the-Line Official Admission for Foreigners -->
+
+  <!-- Layer 4: Tour 180 - taj-mahal-entry-ticket -->
   <url>
     <loc>https://www.asiabylocals.com/india/agra/taj-mahal-entry-ticket</loc>
-    <lastmod>2026-03-01</lastmod>
+    <lastmod>2026-02-26</lastmod>
     <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
+    <priority>0.9</priority>
   </url>
-  <!-- Tour 10: India Gate Guided Tour -->
+
+  <!-- Layer 4: Tour 10 - india-gate-guided-tour -->
   <url>
     <loc>https://www.asiabylocals.com/india/delhi/india-gate-guided-tour</loc>
-    <lastmod>2026-03-01</lastmod>
+    <lastmod>2026-02-25</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
-  <!-- Tour 213: Private Sunrise Taj Mahal & Agra Fort -->
+
+  <!-- Layer 4: Tour 232 - delhi-guided-shopping-tour-female-expert -->
+  <url>
+    <loc>https://www.asiabylocals.com/india/delhi/delhi-guided-shopping-tour-female-expert</loc>
+    <lastmod>2026-03-03</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Layer 4: Tour 213 - taj-mahal-sunrise-sunrise-tour -->
   <url>
     <loc>https://www.asiabylocals.com/india/agra/taj-mahal-sunrise-sunrise-tour</loc>
+    <lastmod>2026-03-03</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <!-- Layer 4: Tour 183 - taj-mahal-sunrise-tour -->
+  <url>
+    <loc>https://www.asiabylocals.com/india/agra/taj-mahal-sunrise-tour</loc>
+    <lastmod>2026-02-26</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <!-- Layer 4: Tour 179 - taj-mahal-official-guided-tour -->
+  <url>
+    <loc>https://www.asiabylocals.com/india/agra/taj-mahal-official-guided-tour</loc>
+    <lastmod>2026-03-04</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <!-- Layer 4: Tour 203 - taj-mahal-agra-fort-guided-tour -->
+  <url>
+    <loc>https://www.asiabylocals.com/india/agra/taj-mahal-agra-fort-guided-tour</loc>
+    <lastmod>2026-02-26</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <!-- Layer 4: Tour 186 - taj-mahal-delhi-guided-tour -->
+  <url>
+    <loc>https://www.asiabylocals.com/india/agra/taj-mahal-delhi-guided-tour</loc>
+    <lastmod>2026-02-26</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <!-- Layer 4: Tour 185 - female-guide-for-taj-mahal -->
+  <url>
+    <loc>https://www.asiabylocals.com/india/agra/female-guide-for-taj-mahal</loc>
+    <lastmod>2026-02-26</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <!-- Layer 4: Tour 181 - taj-mahal-full-day-tour -->
+  <url>
+    <loc>https://www.asiabylocals.com/india/agra/taj-mahal-full-day-tour</loc>
+    <lastmod>2026-02-26</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <!-- Layer 4: Tour 182 - private-taj-mahal-tour-from-delhi -->
+  <url>
+    <loc>https://www.asiabylocals.com/india/delhi/private-taj-mahal-tour-from-delhi</loc>
+    <lastmod>2026-02-26</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Layer 4: Tour 220 - india-gate-triangle-guided-tour -->
+  <url>
+    <loc>https://www.asiabylocals.com/india/delhi/india-gate-triangle-guided-tour</loc>
+    <lastmod>2026-02-28</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Layer 4: Tour 188 - amber-fort-guided-tour -->
+  <url>
+    <loc>https://www.asiabylocals.com/india/jaipur/amber-fort-guided-tour</loc>
+    <lastmod>2026-02-15</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Layer 4: Tour 221 - amber-fort-official-guided-tour -->
+  <url>
+    <loc>https://www.asiabylocals.com/india/jaipur/amber-fort-official-guided-tour</loc>
+    <lastmod>2026-02-28</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Layer 4: Tour 225 - delhi-old-new-delhi-private-half-day-tour -->
+  <url>
+    <loc>https://www.asiabylocals.com/india/delhi/delhi-old-new-delhi-private-half-day-tour</loc>
     <lastmod>2026-03-01</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
-  <!-- Tour 207: Golden Triangle 3 Days Tour -->
+
+  <!-- Layer 4: Tour 217 - agra-gatimaan-entry-ticket -->
+  <url>
+    <loc>https://www.asiabylocals.com/india/agra/agra-gatimaan-entry-ticket</loc>
+    <lastmod>2026-02-27</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <!-- Layer 4: Tour 208 - taj-mahal-photography-tour -->
+  <url>
+    <loc>https://www.asiabylocals.com/india/agra/taj-mahal-photography-tour</loc>
+    <lastmod>2026-02-24</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <!-- Layer 4: Tour 197 - agra-same-guided-tour -->
+  <url>
+    <loc>https://www.asiabylocals.com/india/agra/agra-same-guided-tour</loc>
+    <lastmod>2026-02-20</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <!-- Layer 4: Tour 200 - taj-mahal-sunrise-guided-tour -->
+  <url>
+    <loc>https://www.asiabylocals.com/india/agra/taj-mahal-sunrise-guided-tour</loc>
+    <lastmod>2026-02-24</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <!-- Layer 4: Tour 198 - fatehpur-sikri-guided-tour -->
+  <url>
+    <loc>https://www.asiabylocals.com/india/agra/fatehpur-sikri-guided-tour</loc>
+    <lastmod>2026-03-04</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <!-- Layer 4: Tour 202 - jaipur-city-highlights-tour-with-amber-fort-hawa-mahal -->
+  <url>
+    <loc>https://www.asiabylocals.com/india/jaipur/jaipur-city-highlights-tour-with-amber-fort-hawa-mahal</loc>
+    <lastmod>2026-02-23</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Layer 4: Tour 216 - 5-days-golden-triangle-ranthambore-tiger-safari -->
+  <url>
+    <loc>https://www.asiabylocals.com/india/delhi/5-days-golden-triangle-ranthambore-tiger-safari</loc>
+    <lastmod>2026-02-28</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Layer 4: Tour 224 - explore-old-new-delhi-city-luxury-car-tour -->
+  <url>
+    <loc>https://www.asiabylocals.com/india/delhi/explore-old-new-delhi-city-luxury-car-tour</loc>
+    <lastmod>2026-03-01</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Layer 4: Tour 211 - sunrise-taj-mahal-and-agra-tour-by-car -->
+  <url>
+    <loc>https://www.asiabylocals.com/india/agra/sunrise-taj-mahal-and-agra-tour-by-car</loc>
+    <lastmod>2026-02-26</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <!-- Layer 4: Tour 210 - agra-friday-tour-taj-closed-alternative -->
+  <url>
+    <loc>https://www.asiabylocals.com/india/agra/agra-friday-tour-taj-closed-alternative</loc>
+    <lastmod>2026-02-27</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <!-- Layer 4: Tour 207 - golden-triangle-3-day-tour -->
   <url>
     <loc>https://www.asiabylocals.com/india/delhi/golden-triangle-3-day-tour</loc>
     <lastmod>2026-03-01</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
-  <!-- Tour 179: Book Official Tour Guide for Taj Mahal -->
-  <url>
-    <loc>https://www.asiabylocals.com/india/agra/taj-mahal-official-guided-tour</loc>
-    <lastmod>2026-03-01</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <!-- Tour 183: Skip-The-Line Tajmahal Sunrise Tour With Guide -->
-  <url>
-    <loc>https://www.asiabylocals.com/india/agra/taj-mahal-sunrise-tour</loc>
-    <lastmod>2026-03-01</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <!-- Tour 203: Taj Mahal & Agra Fort Guided Tour -->
-  <url>
-    <loc>https://www.asiabylocals.com/india/agra/taj-mahal-agra-fort-guided-tour</loc>
-    <lastmod>2026-03-01</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <!-- Tour 186: From Delhi Taj Mahal Same Day Tour -->
-  <url>
-    <loc>https://www.asiabylocals.com/india/agra/taj-mahal-delhi-guided-tour</loc>
-    <lastmod>2026-03-01</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <!-- Tour 185: Female Guide For Taj Mahal -->
-  <url>
-    <loc>https://www.asiabylocals.com/india/agra/female-guide-for-taj-mahal</loc>
-    <lastmod>2026-03-01</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <!-- Tour 181: From Delhi: Taj Mahal & Agra Private Day Trip with Transfers -->
-  <url>
-    <loc>https://www.asiabylocals.com/india/agra/taj-mahal-full-day-tour</loc>
-    <lastmod>2026-03-01</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <!-- Tour 182: From Delhi: Private Delhi - Agra, Same Day Trip By Car -->
-  <url>
-    <loc>https://www.asiabylocals.com/india/delhi/private-taj-mahal-tour-from-delhi</loc>
-    <lastmod>2026-03-01</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <!-- Tour 220: From Delhi: 6-Days Golden Triangle, Delhi - Agra - Jaipur Tour. -->
-  <url>
-    <loc>https://www.asiabylocals.com/india/delhi/india-gate-triangle-guided-tour</loc>
-    <lastmod>2026-03-01</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <!-- Tour 188: Jaipur : Explore With Official Tour Guide. -->
-  <url>
-    <loc>https://www.asiabylocals.com/india/jaipur/amber-fort-guided-tour</loc>
-    <lastmod>2026-03-01</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <!-- Tour 221: Book Official Tour Guide for Jaipur City Tour – Govt. Approved Local Expert -->
-  <url>
-    <loc>https://www.asiabylocals.com/india/jaipur/amber-fort-official-guided-tour</loc>
-    <lastmod>2026-03-01</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <!-- Tour 217: Delhi Agra Round Trip By Gatimaan Train With CNF Tickets. -->
-  <url>
-    <loc>https://www.asiabylocals.com/india/agra/agra-gatimaan-entry-ticket</loc>
-    <lastmod>2026-03-01</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <!-- Tour 189: Udaipur: Private Full-Day Sightseeing Tour with a Tour Guide -->
-  <url>
-    <loc>https://www.asiabylocals.com/india/udaipur/lake-pichola-full-day-tour</loc>
-    <lastmod>2026-03-01</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <!-- Tour 208: Taj Mahal Photography Tour - with Professional Guide -->
-  <url>
-    <loc>https://www.asiabylocals.com/india/agra/taj-mahal-photography-tour</loc>
-    <lastmod>2026-03-01</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <!-- Tour 197: Same Day Delhi To Agra -->
-  <url>
-    <loc>https://www.asiabylocals.com/india/agra/agra-same-guided-tour</loc>
-    <lastmod>2026-03-01</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <!-- Tour 200: Taj Mahal Sunrise Tour -->
-  <url>
-    <loc>https://www.asiabylocals.com/india/agra/taj-mahal-sunrise-guided-tour</loc>
-    <lastmod>2026-03-01</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <!-- Tour 198: Book Tour Guide for Fatehpur Sikri Visit. -->
-  <url>
-    <loc>https://www.asiabylocals.com/india/agra/fatehpur-sikri-guided-tour</loc>
-    <lastmod>2026-03-01</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <!-- Tour 202: Jaipur City Highlights Tour with Amber Fort & Hawa Mahal -->
-  <url>
-    <loc>https://www.asiabylocals.com/india/jaipur/jaipur-city-highlights-tour-with-amber-fort-hawa-mahal</loc>
-    <lastmod>2026-03-01</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <!-- Tour 216: 5 Days Golden Triangle Tour with Ranthambore Tiger Safari from Delhi -->
-  <url>
-    <loc>https://www.asiabylocals.com/india/delhi/5-days-golden-triangle-ranthambore-tiger-safari</loc>
-    <lastmod>2026-03-01</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <!-- Tour 211: From Delhi: Sunrise Taj Mahal and Agra Guided Tour by Car with Options -->
-  <url>
-    <loc>https://www.asiabylocals.com/india/agra/sunrise-taj-mahal-and-agra-tour-by-car</loc>
-    <lastmod>2026-03-01</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <!-- Tour 210: Agra Friday Special Tour – Fort, Baby Taj & Mehtab Bagh Sunset -->
-  <url>
-    <loc>https://www.asiabylocals.com/india/agra/agra-friday-tour-taj-closed-alternative</loc>
-    <lastmod>2026-03-01</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <!-- Tour 212: From Delhi: Agra Overnight Tour (01 Night Experience) -->
+
+  <!-- Layer 4: Tour 212 - agra-overnight-tour -->
   <url>
     <loc>https://www.asiabylocals.com/india/delhi/agra-overnight-tour</loc>
-    <lastmod>2026-03-01</lastmod>
+    <lastmod>2026-02-25</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
-  <!-- Tour 204: Delhi  Agra Same Day Tour By Train (Gatimaan Express) -->
+
+  <!-- Layer 4: Tour 204 - taj-mahal-tour-by-train-gatimaan -->
   <url>
     <loc>https://www.asiabylocals.com/india/delhi/taj-mahal-tour-by-train-gatimaan</loc>
-    <lastmod>2026-03-01</lastmod>
+    <lastmod>2026-02-25</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
-  <!-- Tour 214: Agra City Highlights Tour -->
+
+  <!-- Layer 4: Tour 238 - phi-phi-islands-half-day-tour -->
+  <url>
+    <loc>https://www.asiabylocals.com/thailand/phuket/phi-phi-islands-half-day-tour</loc>
+    <lastmod>2026-03-04</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Layer 4: Tour 214 - agra-city-highlights-tour -->
   <url>
     <loc>https://www.asiabylocals.com/india/agra/agra-city-highlights-tour</loc>
-    <lastmod>2026-03-01</lastmod>
+    <lastmod>2026-02-25</lastmod>
     <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
+    <priority>0.9</priority>
   </url>
-  <!-- Tour 219: From Jaipur :  Enjoy Taj mahal in Agra By Private  Day Round Trip By Car -->
+
+  <!-- Layer 4: Tour 219 - jaipur-enjoy-private-tour -->
   <url>
     <loc>https://www.asiabylocals.com/india/jaipur/jaipur-enjoy-private-tour</loc>
-    <lastmod>2026-03-01</lastmod>
+    <lastmod>2026-02-27</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
-  <!-- Tour 215: Agra & Fatehpur Sikri Day Trip -->
+
+  <!-- Layer 4: Tour 215 - taj-mahal-fatehpur-full-day-tour -->
   <url>
     <loc>https://www.asiabylocals.com/india/agra/taj-mahal-fatehpur-full-day-tour</loc>
+    <lastmod>2026-02-25</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <!-- Layer 4: Tour 218 - private-taj-mahal-agra-day-tour-from-delhi -->
+  <url>
+    <loc>https://www.asiabylocals.com/india/delhi/private-taj-mahal-agra-day-tour-from-delhi</loc>
+    <lastmod>2026-02-27</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Layer 4: Tour 223 - hidden-gems-of-agra-heritage-tour -->
+  <url>
+    <loc>https://www.asiabylocals.com/india/agra/hidden-gems-of-agra-heritage-tour</loc>
+    <lastmod>2026-03-01</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <!-- Layer 4: Tour 227 - delhi-luxury-premium-tour -->
+  <url>
+    <loc>https://www.asiabylocals.com/india/delhi/delhi-luxury-premium-tour</loc>
     <lastmod>2026-03-01</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
-  <!-- Tour 218: From Delhi: Private Taj Mahal and Agra Day Tour by Car -->
+
+  <!-- Layer 4: Tour 226 - sunrise-taj-mahal-tour-delhi-all-inclusive -->
   <url>
-    <loc>https://www.asiabylocals.com/india/delhi/private-taj-mahal-agra-day-tour-from-delhi</loc>
+    <loc>https://www.asiabylocals.com/india/delhi/sunrise-taj-mahal-tour-delhi-all-inclusive</loc>
     <lastmod>2026-03-01</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Layer 4: Tour 222 - from-delhi-same-day-taj-mahal-fastest-train -->
+  <url>
+    <loc>https://www.asiabylocals.com/india/delhi/from-delhi-same-day-taj-mahal-fastest-train</loc>
+    <lastmod>2026-03-03</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Layer 4: Tour 229 - delhi-private-4-day-golden-triangle-luxury-tour -->
+  <url>
+    <loc>https://www.asiabylocals.com/india/delhi/delhi-private-4-day-golden-triangle-luxury-tour</loc>
+    <lastmod>2026-03-03</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
