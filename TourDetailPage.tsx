@@ -2720,6 +2720,22 @@ export const getTourSpecificFAQs = (title: string, slug: string | undefined) => 
     ];
   }
 
+  if (slug === 'phi-phi-islands-half-day-tour') {
+    return [
+      { question: "What is included in the Private Half-Day Phuket Yacht Cruise?", answer: "This [private Phi Phi Islands half-day yacht cruise](/thailand/phuket/phi-phi-islands-half-day-tour) includes exclusive use of a premium 52-foot private yacht, a professional captain and crew, snorkeling equipment, life jackets, drinks and snacks onboard, and hotel pickup and drop-off from selected Phuket locations. The itinerary covers Maya Bay, Loh Sama Bay, Bamboo Island, and Monkey Beach — four of the Andaman Sea's most iconic destinations — in a single seamlessly orchestrated half-day departure. The yacht accommodates a maximum of 20 guests, ensuring a genuine private experience with no shared passengers." },
+      { question: "How long does the yacht cruise last?", answer: "This [half-day Phi Phi Islands cruise](/thailand/phuket/phi-phi-islands-half-day-tour) operates over approximately 5 to 6 hours from departure to return. Morning departures typically leave Phuket between 7:00 AM and 8:00 AM and return by early afternoon, while afternoon departures leave around 1:00 PM and return by sunset. The cruise time is spent navigating between Maya Bay, Loh Sama Bay, Bamboo Island, and Monkey Beach, with generous snorkeling stops and beach time at each location. Your captain optimizes the route based on sea conditions and tide timing to maximize access to each site." },
+      { question: "Is Maya Bay actually accessible now?", answer: "Yes, Maya Bay — made globally famous by the film The Beach — has been fully reopened to visitors following its ecological restoration period. However, access is now strictly regulated by the Thai National Park authorities to protect the recovering coral ecosystem. Only a limited number of boats may enter Maya Bay during specific hours, and anchoring inside the bay is prohibited. Our [private yacht tour](/thailand/phuket/phi-phi-islands-half-day-tour) captain has extensive experience navigating these regulations and ensures your group enters Maya Bay during the optimal window for maximum time inside this legendary cove with minimal crowds." },
+      { question: "What is the best time of year for this Phi Phi Islands cruise?", answer: "The optimal season for this [Phuket yacht cruise to Phi Phi Islands](/thailand/phuket/phi-phi-islands-half-day-tour) runs from November through April when the Andaman Sea is at its calmest, visibility for snorkeling is at its peak exceeding 15 meters, and the famous emerald and turquoise water colors are most vivid. The period from December to March offers the most consistently perfect conditions. May through October is the southwest monsoon season, during which sea conditions can be rough and some routes around the Phi Phi archipelago may be inaccessible on certain days due to weather. We monitor conditions daily and communicate in advance if any adjustments are required." },
+      { question: "How many people can join this private yacht tour?", answer: "This is a strictly private charter accommodating a maximum of 20 guests on the 52-foot yacht. The vessel is not shared with any other group or strangers — your booking covers the entire boat for your party. This private format means departure times, snorkeling stop durations, and route sequencing are all customizable around your group's preferences. Whether you are a couple celebrating a honeymoon, a family with children, or a corporate group seeking an exclusive sea experience, the [private Phi Phi half-day tour](/thailand/phuket/phi-phi-islands-half-day-tour) provides a fully personalized Andaman Sea adventure." },
+      { question: "Is snorkeling experience required for this tour?", answer: "No prior snorkeling experience is required. This [Phi Phi Islands yacht cruise](/thailand/phuket/phi-phi-islands-half-day-tour) caters to all swimming ability levels. Full snorkeling equipment including masks, fins, and life vests is provided onboard. Your crew provides a brief snorkeling orientation before the first water stop, covering breathing techniques and how to equalize ear pressure. The snorkeling sites around Phi Phi are renowned for their shallow, calm bays ideal for beginners — particularly Loh Sama Bay and Bamboo Island — while more experienced snorkelers will find abundant coral gardens and marine life at slightly deeper sections. Non-swimmers can comfortably enjoy the cruise from the boat deck." },
+      { question: "What marine life will we see while snorkeling?", answer: "The waters surrounding the Phi Phi Islands support extraordinary marine biodiversity. During your [Phuket yacht snorkeling cruise](/thailand/phuket/phi-phi-islands-half-day-tour), you can expect to encounter vibrant coral formations, schools of tropical fish including clownfish, parrotfish, and angelfish, moray eels, and sea turtles which are frequently sighted in the area. The post-restoration recovery of Maya Bay's coral is visibly accelerating, with young coral colonies re-establishing throughout the bay. Blacktip reef sharks are occasionally spotted in shallow waters around Monkey Beach — a thrilling encounter that poses no danger as these small sharks are non-aggressive toward humans." },
+      { question: "Is hotel pickup from all Phuket areas included?", answer: "Hotel pickup and drop-off is included from most major hotel zones in Phuket including Patong Beach, Kata Beach, Karon Beach, Bang Tao Beach, Surin Beach, Rawai, and Phuket Town. Your dedicated vehicle will collect your group at the hotel lobby at a pre-arranged time and transfer you directly to the yacht departure pier. After the [half-day Phi Phi cruise](/thailand/phuket/phi-phi-islands-half-day-tour) concludes, you are returned directly to your hotel. For guests staying on outlying islands or in very remote areas, our team will coordinate the most efficient collection logistics and communicate any necessary meeting point adjustments in advance." },
+      { question: "Can we customize the route and stops?", answer: "Absolutely. One of the primary advantages of this private charter format is complete itinerary flexibility. While our standard [Phi Phi Islands half-day route](/thailand/phuket/phi-phi-islands-half-day-tour) covers Maya Bay, Loh Sama Bay, Bamboo Island, and Monkey Beach, your captain can adjust the sequence, extend time at preferred locations, or substitute alternative bays based on sea conditions and your group's interests. If certain guests are particularly passionate about snorkeling, the captain can extend the coral exploration stops. If your priority is photography inside Maya Bay, additional time can be allocated there. The route belongs to you — the captain's expertise simply ensures you maximize every minute on the water." },
+      { question: "What should we bring on the yacht cruise?", answer: "For the most comfortable experience on this [Phuket yacht tour](/thailand/phuket/phi-phi-islands-half-day-tour), pack high-SPF waterproof sunscreen — the Andaman sun at sea is significantly more intense than on land — along with a beach towel, swimwear, a change of dry clothes, and cash for optional purchases at the islands. A rash guard or UV protection shirt is highly recommended for extended snorkeling sessions. The yacht provides fresh water, snacks, and soft drinks, but if you have specific dietary requirements or prefer alcoholic beverages, you may bring your own. Waterproof phone cases or action cameras are excellent for capturing underwater footage at the snorkeling sites." },
+      { question: "What is the cancellation and weather policy?", answer: "We operate a clear and fair cancellation framework for this [private Phi Phi Islands yacht cruise](/thailand/phuket/phi-phi-islands-half-day-tour). Cancellations made more than 24 hours prior to the scheduled departure receive a complete 100% full refund. In the event that the Thai Marine Department issues a navigation warning or sea conditions are officially deemed unsafe on your departure day, your cruise will be rescheduled to the next available date at no additional cost, or a complete refund is issued. Your safety is the absolute priority, and our captains will not depart if conditions present any risk to passengers. We monitor official marine weather forecasts daily and communicate proactively if any concern arises." }
+    ];
+  }
+
   if (t.includes('delhi') && t.includes('agra') && t.includes('day trip')) {
     return [
       { question: "What time do we leave Delhi for a Taj Mahal day tour?", answer: "To maximize your day and experience the Taj Mahal at its most tranquil, we typically recommend a **3:00 AM or 4:00 AM departure** from Delhi. This early start allows you to reach Agra just as the gates open for sunrise, avoiding the heavy morning traffic on the Yamuna Expressway." },
@@ -2784,9 +2800,7 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
   useEffect(() => {
     if (tour && participants > effectiveMaxGroupSize) {
       setParticipants(effectiveMaxGroupSize);
-      if (isCustomParticipants && effectiveMaxGroupSize <= 10) {
-        setIsCustomParticipants(false);
-      }
+      setIsCustomParticipants(false);
     }
   }, [effectiveMaxGroupSize, tour]);
 
@@ -5659,24 +5673,16 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
                     <div className="space-y-4 mb-6">
                       <div className="relative">
                         <select
-                          value={isCustomParticipants ? 'custom' : participants}
+                          value={participants}
                           onChange={(e) => {
-                            if (e.target.value === 'custom') {
-                              setIsCustomParticipants(true);
-                              setParticipants(customParticipants);
-                            } else {
-                              setIsCustomParticipants(false);
-                              setParticipants(parseInt(e.target.value));
-                            }
+                            setIsCustomParticipants(false);
+                            setParticipants(parseInt(e.target.value));
                           }}
                           className="w-full bg-white border-2 border-gray-200 rounded-2xl py-4 px-4 pr-10 font-bold text-[#001A33] text-[14px] focus:ring-2 focus:ring-[#10B981] focus:border-[#10B981] outline-none appearance-none"
                         >
-                          {Array.from({ length: Math.min(effectiveMaxGroupSize, 10) }, (_, i) => i + 1).map(num => (
+                          {Array.from({ length: effectiveMaxGroupSize }, (_, i) => i + 1).map(num => (
                             <option key={num} value={num}>Adult x {num}</option>
                           ))}
-                          {effectiveMaxGroupSize > 10 && (
-                            <option value="custom">Custom</option>
-                          )}
                         </select>
                         <Users className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" size={20} />
                       </div>

@@ -56,6 +56,18 @@ const DELHI_INFO_SLUGS = [
   'delhi-1-day-itinerary'
 ];
 
+// List of Phuket Authority Page Slugs for Interception
+const PHUKET_INFO_SLUGS = [
+  'things-to-do-in-phuket',
+  'phuket-travel-guide-2026',
+  'phi-phi-islands',
+  'phang-nga-bay',
+  'big-buddha-phuket',
+  'wat-chalong',
+  'phuket-old-town',
+  'phuket-1-day-itinerary'
+];
+
 import BookingConfirmation from './BookingConfirmation';
 import PaymentCallback from './PaymentCallback';
 import SafetyGuidelines from './SafetyGuidelines';
@@ -666,7 +678,8 @@ const App: React.FC = () => {
     { url: '/yu-kato-hero.jpg', city: 'Asia' },
     { url: '/tianshu-liu-hero.jpg', city: 'Asia' },
     { url: '/rafa-prada-hero.jpg', city: 'Asia' },
-    { url: '/soroush-zargarbashi-hero.jpg', city: 'Asia' }
+    { url: '/soroush-zargarbashi-hero.jpg', city: 'Asia' },
+    { url: '/things-to-do/phuket-maya-bay-hero.jpg', city: 'Phuket' }
   ];
 
   // Shuffle function (Fisher-Yates algorithm)
@@ -782,6 +795,19 @@ const App: React.FC = () => {
           <CityInfoPage
             country={slugToTitle(tourCountrySlug || 'India')}
             city={slugToTitle(tourCitySlug || 'Delhi')}
+            slug={tourSlug}
+          />
+        </ErrorBoundary>
+      );
+    }
+
+    // INTERCEPT: If it's a Phuket Authority Page
+    if (tourCitySlug?.toLowerCase() === 'phuket' && PHUKET_INFO_SLUGS.includes(tourSlug)) {
+      return (
+        <ErrorBoundary>
+          <CityInfoPage
+            country={slugToTitle(tourCountrySlug || 'Thailand')}
+            city={slugToTitle(tourCitySlug || 'Phuket')}
             slug={tourSlug}
           />
         </ErrorBoundary>
