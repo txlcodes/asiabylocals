@@ -1465,7 +1465,7 @@ const ThingsToDoSection: React.FC<ThingsToDoSectionProps> = ({ city }) => {
                   <img
                     src={item.image}
                     alt={`${item.title} in ${city} `}
-                    className="w-full h-52 md:h-full object-cover"
+                    className="w-full h-52 md:h-52 object-cover"
                     style={{ objectFit: 'cover', objectPosition: 'center' }}
                     onError={(e) => {
                       // Fallback to placeholder if image not found
