@@ -1402,6 +1402,10 @@ const CityPage: React.FC<CityPageProps> = ({ country, city }) => {
 
                 // Get lowest price from first tier of groupPricingTiers (price for 1 person)
                 let lowestPrice = 0;
+                let lowestCurrency = tour.currency || 'USD';
+
+                // Helper: convert any price to USD for cross-currency comparison
+                const toUSD = (price: number, curr: string) => curr === 'INR' ? price / 85 : price;
 
                 // PRIORITY 1: Check tour.groupPricingTiers directly (most reliable)
                 if (tour.groupPricingTiers) {
@@ -1411,6 +1415,7 @@ const CityPage: React.FC<CityPageProps> = ({ country, city }) => {
                       : tour.groupPricingTiers;
                     if (Array.isArray(tiers) && tiers.length > 0 && tiers[0]?.price) {
                       lowestPrice = parseFloat(tiers[0].price) || 0;
+                      lowestCurrency = tour.currency || 'USD';
                     }
                   } catch (e) {
                     console.error('Error parsing tour groupPricingTiers:', e);
@@ -1427,8 +1432,12 @@ const CityPage: React.FC<CityPageProps> = ({ country, city }) => {
                           : opt.groupPricingTiers;
                         if (Array.isArray(tiers) && tiers.length > 0 && tiers[0]?.price) {
                           const firstTierPrice = parseFloat(tiers[0].price) || 0;
+                          const optCurrency = opt.currency || tour.currency || 'USD';
                           if (firstTierPrice > 0) {
-                            lowestPrice = lowestPrice === 0 ? firstTierPrice : Math.min(lowestPrice, firstTierPrice);
+                            if (lowestPrice === 0 || toUSD(firstTierPrice, optCurrency) < toUSD(lowestPrice, lowestCurrency)) {
+                              lowestPrice = firstTierPrice;
+                              lowestCurrency = optCurrency;
+                            }
                           }
                         }
                       } catch (e) {
@@ -1441,6 +1450,7 @@ const CityPage: React.FC<CityPageProps> = ({ country, city }) => {
                 // FALLBACK: Use pricePerPerson only if no tiers found
                 if (lowestPrice === 0) {
                   lowestPrice = tour.pricePerPerson || 0;
+                  lowestCurrency = tour.currency || 'USD';
                 }
 
                 return (
@@ -1559,7 +1569,7 @@ const CityPage: React.FC<CityPageProps> = ({ country, city }) => {
                       <div className="flex items-center justify-between pt-2 border-t border-gray-100">
                         <div className="text-right w-full">
                           <div className="text-[18px] font-black text-[#001A33]">
-                            Starting from {tour.currency === 'INR' ? '₹' : '$'}{lowestPrice.toLocaleString()}
+                            Starting from {lowestCurrency === 'INR' ? '₹' : '$'}{lowestPrice.toLocaleString()}
                           </div>
                         </div>
                       </div>
