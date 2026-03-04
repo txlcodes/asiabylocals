@@ -277,8 +277,8 @@ const CityInfoPage: React.FC<CityInfoPageProps> = ({ country, city, slug }) => {
 
             case 'taj-mahal-ticket-price-2026':
                 return {
-                    title: 'Taj Mahal Ticket Price 2026 (Official Updated Entry Fees)',
-                    description: 'Planning a visit in 2026 requires understanding the new digital-only ticketing policy and updated fee structures for international and domestic travelers. This guide provides the complete price breakdown and how to avoid overpaying for your entry.',
+                    title: 'Taj Mahal Ticket Price 2026 — Entry Fee for Indians & Foreigners',
+                    description: 'Complete Taj Mahal entry fee guide for 2026. Foreigners pay ₹1,300, Indians pay ₹250. Includes sunrise ticket timings, mausoleum supplement, digital booking rules, and licensed guide rates.',
                     heroImage: 'https://images.unsplash.com/photo-1524492412937-b28074a5d7da?auto=format&fit=crop&q=80&w=1500',
                     sections: [
                         {
@@ -328,6 +328,16 @@ const CityInfoPage: React.FC<CityInfoPageProps> = ({ country, city, slug }) => {
                             title: "Operational Rules & Gate Validity",
                             icon: "AlertTriangle",
                             content: "1. **Gate Specificity:** Your ticket is tied to the specific gate you selected during booking (East or West). You cannot enter through the West Gate if you purchased an East Gate ticket. \n2. **Time-Slotted Entry:** Tickets are now valid for specific 3-hour windows. If you arrive after your slot has expired, you may be denied entry. \n3. **Single Entry Only:** The Taj Mahal maintains a strict single-entry policy. Once you scan your QR code and exit the turnstiles, your ticket becomes void. Re-entry for lunch or rest is not allowed. \n4. **Restricted Items:** Avoid bringing large backpacks, tripods, cigarette lighters, or any food items. There are no safe locker facilities for these items at the gate; you will be asked to return to your vehicle or hotel to deposit them."
+                        },
+                        {
+                            title: "Taj Mahal Sunrise Entry — The Best Time Slot",
+                            icon: "Sun",
+                            content: "The **sunrise slot** is unquestionably the best time to visit the Taj Mahal. This is not a travel cliché — it is a quantifiable improvement in every aspect of the experience.\n\n**Why sunrise is worth it:**\n- **Crowd density:** Only 5–10% of a midday crowd. The iconic Diana Bench reflection shot requires zero queuing before 7:30 AM.\n- **Light quality:** The white Makrana marble responds dynamically to early light, shifting from soft pink at first light to translucent gold as the sun rises, before bleaching to pure white by 10:00 AM.\n- **Temperature:** 20–25°C at sunrise vs 38–42°C at midday in peak summer. The marble platform is not scorching hot underfoot.\n- **Photography:** Professional travel photographers universally choose sunrise for the dynamic sky, soft shadows, and dramatic reflections in the central pool.\n\n**Sunrise slot logistics:**\n\n| Detail | Info |\n|--------|------|\n| Gate opens | 30 minutes before official sunrise |\n| Recommended arrival | 30–45 minutes before gate opening |\n| Typical alarm time | 4:30 AM |\n| Best months for colour | October–February (misty, golden light) |\n| Season to avoid | May–July (haze reduces colour drama) |\n\n**Pro strategy:** Book the first available time slot for your chosen gate. Set your alarm for 4:30 AM. Arrive at the West Gate by 5:15 AM to be in the first 20–30 people through security. Walk directly to the central reflecting pool — do not stop at the gateway. You will have approximately 30–40 minutes of near-empty Taj before the second wave of tourists arrives at 7:00 AM."
+                        },
+                        {
+                            title: "Licensed Guide Rates at the Taj Mahal 2026",
+                            icon: "Users",
+                            content: "Hiring the right guide transforms a 2-hour walk into a 400-year story. The Taj Mahal has a well-regulated licensed guide system through the Ministry of Tourism — but it requires knowing who to trust.\n\n**Official 2026 Guide Rates:**\n\n| Tour Type | Duration | Approx. Rate |\n|-----------|----------|--------------|\n| Individual / couple | 2 hours | ₹1,000 – ₹1,500 |\n| Small group (3–6 people) | 2 hours | ₹1,500 – ₹2,000 |\n| Family group (7–12 people) | 2.5 hours | ₹2,000 – ₹3,000 |\n| Private full-day (Taj + Fort) | 6–7 hours | ₹4,000 – ₹6,000 |\n\n**How to identify a licensed guide:**\n- They carry a **laminated ID card** issued by the Ministry of Tourism with a photograph\n- Their ID clearly states their license number and expiry date\n- They speak in a measured, informative tone — not aggressively soliciting\n- They can describe the difference between the Pietra Dura inlay work and its historical context\n\n**What a good guide covers:**\n- The full Mughal construction story (22 years, 20,000 artisans)\n- Hidden optical illusions built into the architecture (the minarets lean slightly outward so they fall away from the tomb if an earthquake strikes)\n- The semi-precious stones embedded in the marble (lapis lazuli, jade, cornelian, crystal)\n- The acoustic properties of the inner chamber dome\n\n**Warning:** Unlicensed touts near the gate are extremely aggressive. They often follow tourists and begin an unsolicited commentary then demand payment. The simplest approach: arrange a guide in advance through a trusted platform like [AsiaByLocals](/india/agra) to avoid gate-side negotiations entirely."
                         }
                     ],
                     faqs: [
@@ -341,8 +351,8 @@ const CityInfoPage: React.FC<CityInfoPageProps> = ({ country, city, slug }) => {
                         "@graph": [
                             {
                                 "@type": "Article",
-                                "headline": "Taj Mahal Ticket Price 2026 (Official Updated Entry Fees)",
-                                "description": "Official 2026 Taj Mahal ticket price guide. Includes fees for foreign tourists (₹1,300), Indians (₹250), SAARC citizens, and important digital booking rules.",
+                                "headline": "Taj Mahal Ticket Price 2026 — Entry Fee for Indians & Foreigners",
+                                "description": "Official 2026 Taj Mahal entry fee guide. Foreigners ₹1,300, Indians ₹250, SAARC ₹740. Includes sunrise ticket, mausoleum supplement, digital booking rules, and guide rates.",
                                 "image": "https://images.unsplash.com/photo-1524492412937-b28074a5d7da?auto=format&fit=crop&q=80&w=1500",
                                 "datePublished": "2026-01-01T08:00:00+05:30",
                                 "dateModified": "2026-02-25T02:22:00+05:30",
@@ -467,23 +477,59 @@ const CityInfoPage: React.FC<CityInfoPageProps> = ({ country, city, slug }) => {
                         {
                             title: "Full Friday Itinerary: The 'Everything Except Taj' Plan",
                             content: "Agra is far more than just one building. Use your Friday to explore the sites that usually get overshadowed. \n\n- **08:30 AM – Agra Fort:** This remains open on Fridays. Spend a full 3 hours here. It is a world-class UNESCO site in its own right and twice the size of the Taj complex. \n- **12:00 PM – Lunch at Sadar Bazaar:** Explore the local food scene. Try the authentic 'Petha' and spicy 'Bedai'. \n- **02:00 PM – The Baby Taj (Itimad-ud-Daula):** Often ignored by day-trippers, this is a gem of Mughal architecture and is open on Fridays. \n- **04:30 PM – Mehtab Bagh Sunset:** Cap off the day with the riverview of the Taj Mahal you missed in the morning."
+                        },
+                        {
+                            title: "Why Does the Taj Mahal Close on Friday?",
+                            content: "The Taj Mahal is not purely a tourist monument — it is a living religious complex. When Emperor Shah Jahan commissioned the Taj in 1632, he designed it as a complete Mughal garden complex that included a **functioning mosque** (the western red sandstone building flanking the main mausoleum). This mosque, known simply as the **Taj Mahal Mosque**, has been in continuous religious use for nearly 400 years.\n\nIn Islam, **Jumu'ah** (Friday congregational prayer) is one of the most important religious obligations for Muslim men. Unlike regular daily prayers, Jumu'ah is mandatory and held in congregation. The Taj Mahal Mosque serves the local Muslim community of Agra every Friday.\n\nThe Archaeological Survey of India closes the entire monument complex — not just the mosque — to general tourists on Fridays. This ensures worshippers can pray without the distraction and noise of thousands of tourists, and maintains the sanctity of an active place of worship.\n\n**Key facts:**\n- The mosque is one of only three buildings in the Taj complex that was built for function, not symmetry (the eastern 'Mihman Khana' is its mirror-image twin, built purely for visual balance and never used for prayer)\n- Friday closures have been enforced continuously since the Taj opened to tourism\n- The ASI cannot override this policy as the mosque operates under a separate religious trust\n- No amount of money or political influence can gain a tourist entry on Fridays — this is enforced by armed CISF personnel"
+                        },
+                        {
+                            title: "Best Day of the Week to Visit the Taj Mahal",
+                            content: "With Friday eliminated from your options, here is exactly how to rank the remaining six days based on crowd density, light quality, and overall experience:\n\n**🥇 Tuesday & Wednesday (Best Days)**\nMid-week days see the fewest domestic and international visitors. Queue times at security are minimal — typically 10–15 minutes even during peak season. These days offer the most relaxed, unhurried experience.\n\n**🥈 Thursday**\nSlightly busier than Tue/Wed but still manageable. The advantage: if you visit Thursday afternoon, the Friday closure means the monument gets a 'reset' — cleaning crews work overnight and the gardens are freshly maintained for Saturday.\n\n**🥉 Monday**\nAgra Fort is closed on Fridays (like the Taj), so many tourists who skip Friday do both monuments on Monday. This creates a small spike. Still significantly quieter than weekends.\n\n**⚠️ Saturday & Sunday (Avoid)**\nThe worst days. Domestic tourists from Delhi, Jaipur, and Mathura flood Agra on weekends. Queues at the security check can stretch to 45–60 minutes. The main reflection pool area becomes so crowded that the iconic 'Diana Bench' shot requires waiting in a queue of its own.\n\n**🌅 Time of Day Matters More Than Day of Week**\nRegardless of which day you choose, **arriving at the gate 30 minutes before official sunrise** transforms the experience. The first 60–90 minutes after opening have roughly 10% of the crowd density of midday. This is more impactful than choosing a specific day.\n\nFor complete timing details, see our [Taj Mahal Opening Time guide](/india/agra/taj-mahal-opening-time)."
                         }
                     ],
                     faqs: [
-                        { q: "Is the Taj Mahal really closed every Friday?", a: "Yes, the monument is closed every Friday for general visitors. Only worshippers are allowed for mid-day prayers." },
-                        { q: "Can I still see the Taj Mahal on a Friday?", a: "Yes, from Mehtab Bagh across the river or from a rooftop restaurant in Taj Ganj." }
+                        { q: "Is the Taj Mahal really closed every Friday?", a: "Yes, the monument is closed every Friday for general visitors. Only local Muslim worshippers are permitted entry for Jumu'ah (Friday congregational prayers) between 12:00 PM and 2:00 PM. This policy has been enforced continuously and applies in 2026 without exception." },
+                        { q: "Can I still see the Taj Mahal on a Friday?", a: "Yes, from two excellent viewpoints. First, Mehtab Bagh directly across the Yamuna River offers a perfect symmetrical view of the rear of the monument — often a better photograph than the front. Second, several rooftop restaurants in the Taj Ganj neighbourhood offer clear frontal views. Both are completely free." },
+                        { q: "Are there any exceptions to the Friday closure rule?", a: "No. The Friday closure is absolute and has never had documented exceptions for general tourists. Touts near the gates sometimes claim they can arrange entry for a fee — this is a scam. The CISF (Central Industrial Security Force) enforces the closure, and no amount of payment or influence bypasses it. Do not be deceived." },
+                        { q: "What is the best day of the week to visit the Taj Mahal?", a: "Tuesday and Wednesday are the quietest days. Mid-week visits see the shortest queues (10–15 minutes vs 45–60 minutes on weekends). Saturday and Sunday are the busiest due to domestic tourists from Delhi and Jaipur. Time of day matters even more than the day — arriving at sunrise on any day beats a Saturday midday visit significantly." },
+                        { q: "Is the Taj Mahal closed on any days other than Friday?", a: "No other weekly closures. The Taj Mahal is open every other day of the week from sunrise to sunset, including public holidays and national holidays. Night viewing (on full-moon nights) is available on select dates — check the ASI website. The monument has never fully closed for weather." },
+                        { q: "What time does the Taj Mahal open on other days?", a: "The Taj Mahal opens 30 minutes before official sunrise and closes 30 minutes before sunset, every day except Friday. In 2026, this means approximately 6:00 AM opening in summer and 6:30 AM in winter. For exact daily times, see our dedicated [Taj Mahal Opening Time guide](/india/agra/taj-mahal-opening-time)." }
                     ],
                     jsonLd: {
                         "@context": "https://schema.org",
                         "@type": "FAQPage",
-                        "mainEntity": [{
-                            "@type": "Question",
-                            "name": "Is the Taj Mahal closed on Friday?",
-                            "acceptedAnswer": {
-                                "@type": "Answer",
-                                "text": "Yes, the Taj Mahal is closed every Friday for congregational prayers. Mehtab Bagh remains open for views."
+                        "mainEntity": [
+                            {
+                                "@type": "Question",
+                                "name": "Is the Taj Mahal closed on Friday?",
+                                "acceptedAnswer": { "@type": "Answer", "text": "Yes, the Taj Mahal is closed every Friday for congregational Jumu'ah prayers. Only local Muslim worshippers are permitted entry. This applies year-round including in 2026 with no exceptions." }
+                            },
+                            {
+                                "@type": "Question",
+                                "name": "Why is the Taj Mahal closed on Friday?",
+                                "acceptedAnswer": { "@type": "Answer", "text": "The Taj Mahal complex contains an active functioning mosque built by Emperor Shah Jahan in 1632. Friday is the day of Jumu'ah (obligatory congregational prayer) in Islam. The Archaeological Survey of India closes the entire complex to tourists every Friday to preserve the sanctity of worship." }
+                            },
+                            {
+                                "@type": "Question",
+                                "name": "Can I see the Taj Mahal on a Friday?",
+                                "acceptedAnswer": { "@type": "Answer", "text": "Yes, from outside the complex. Mehtab Bagh garden across the Yamuna River offers a perfect unobstructed view of the rear of the Taj Mahal. Rooftop restaurants in Taj Ganj offer frontal views. Both are free." }
+                            },
+                            {
+                                "@type": "Question",
+                                "name": "What is the best day to visit the Taj Mahal?",
+                                "acceptedAnswer": { "@type": "Answer", "text": "Tuesday and Wednesday are the quietest days with the shortest queues (10–15 minutes). Saturday and Sunday are the busiest. Regardless of day, arriving at sunrise dramatically reduces crowds — the first 90 minutes have roughly 10% of the crowd density of midday." }
+                            },
+                            {
+                                "@type": "Question",
+                                "name": "Is the Taj Mahal closed on any other days?",
+                                "acceptedAnswer": { "@type": "Answer", "text": "No other weekly closures. The Taj Mahal is open every day except Friday, including public holidays. Night viewing is available on select full-moon nights (except Fridays and Ramadan) — separate tickets required." }
+                            },
+                            {
+                                "@type": "Question",
+                                "name": "Are there exceptions to the Taj Mahal Friday closure?",
+                                "acceptedAnswer": { "@type": "Answer", "text": "No exceptions exist. The closure is enforced by armed CISF personnel. Touts claiming to arrange entry for a fee are running a scam. No payment or influence bypasses this policy." }
                             }
-                        }]
+                        ]
                     },
                     fastFacts: [
                         { icon: 'AlertTriangle', label: 'Closure', value: 'Every single Friday' },
@@ -1698,6 +1744,134 @@ const CityInfoPage: React.FC<CityInfoPageProps> = ({ country, city, slug }) => {
                         "description": "Hour-by-hour 1-day Phuket itinerary covering Big Buddha, Wat Chalong, Old Town, beach time, and Promthep Cape sunset.",
                         "author": { "@type": "Organization", "name": "AsiaByLocals" },
                         "dateModified": "2026-03-01"
+                    }
+                };
+
+            case "james-bond-island-phuket":
+                return {
+                    title: "James Bond Island Phuket — Complete Tour Guide 2026 (Phang Nga Bay)",
+                    description: "Everything you need to know about visiting James Bond Island from Phuket in 2026. Covers how to get there, best tours, sea cave canoeing, Koh Panyee floating village, and the famous Ko Tapu needle rock.",
+                    heroImage: "/things-to-do/phuket-james-bond-island.jpg",
+                    fastFacts: [
+                        { icon: 'Map', label: 'Location', value: 'Phang Nga Bay, 100km from Phuket' },
+                        { icon: 'Clock', label: 'Travel Time', value: '~2 hrs by speedboat' },
+                        { icon: 'Ticket', label: 'Park Fee', value: '฿300 (foreign adult)' },
+                        { icon: 'Star', label: 'Film', value: 'The Man with the Golden Gun (1974)' },
+                        { icon: 'Sun', label: 'Best Season', value: 'November–April' }
+                    ],
+                    sections: [
+                        {
+                            title: "What Is James Bond Island?",
+                            content: "**James Bond Island** is the popular name for **Khao Phing Kan**, a limestone formation in Phang Nga Bay, approximately 100 km northeast of Phuket. The island became globally famous after appearing in the 1974 James Bond film *The Man with the Golden Gun*, starring Roger Moore. Since then, it has become one of Thailand's most iconic and photographed landmarks.\n\nThe true star of the island is not Khao Phing Kan itself, but the **Ko Tapu** ('nail rock') — a needle-thin limestone pillar rising 20 metres from the shallow water just offshore. Its precarious appearance (an extremely narrow base supporting a mushroom-shaped top) makes it one of the most dramatic geological formations in Southeast Asia.\n\nKo Tapu translates to 'nail' in Thai — an apt description for a rock that appears to have been hammered into the seabed by a giant hand.\n\nJames Bond Island is located within **Ao Phang Nga National Park**, a protected marine area covering 400 sq km of the bay. The park protects over 40 limestone karst islands, mangrove forests, and one of the world's most diverse coastal ecosystems."
+                        },
+                        {
+                            title: "James Bond Island Tour from Phuket — Your Options",
+                            image: "/things-to-do/phuket-james-bond-island.jpg",
+                            content: "James Bond Island is exclusively visited as part of a **Phang Nga Bay full-day tour** from Phuket — there is no direct boat service from Phuket to the island alone.\n\n**Option 1: Group speedboat tour (most popular)**\nDeparture from Phuket: 7:30–8:00 AM. Return: 5:00–5:30 PM. Price: ฿2,500–฿3,500 per person. Typically includes: James Bond Island, sea cave canoeing (hongs), Koh Panyee floating village, swimming stop, lunch. Groups of 20–40 people.\n\n**Option 2: Private speedboat tour (recommended)**\nSame itinerary, private boat for your group (2–12 people). Price: ฿20,000–฿35,000 total (split between group). Advantages: flexible timing, longer stops at each site, private canoeing experience, more intimate atmosphere. Our [Phang Nga Bay private tours](/thailand/phuket) depart from Ao Po Grand Marina.\n\n**Option 3: Long-tail boat (budget option)**\nDepart from Surakul Pier in Phuket Town. Slower journey (3+ hours one way). ฿600–฿800 per person. Covers only James Bond Island and basic stops — no sea caves. Suitable for budget travelers who prioritise the James Bond Island photograph.\n\n**Best tour combination**: The ideal Phang Nga Bay experience pairs James Bond Island with **sea cave canoeing through hongs** (hidden lagoons inside collapsed limestone chambers). These can only be explored by kayak at specific tides — the most extraordinary natural experience in the region."
+                        },
+                        {
+                            title: "The Sea Caves (Hongs) — The Real Highlight",
+                            content: "While James Bond Island is the famous attraction, experienced travelers consistently rate the **sea cave canoeing** as the most remarkable experience in Phang Nga Bay.\n\n**What are hongs?**\nHongs (meaning 'rooms' in Thai) are **collapsed limestone chambers** — essentially caves where the roof has partially fallen, creating hidden lagoons accessible only through low sea-level openings in the cliff face. These openings are typically 1–2 metres high at low tide, requiring visitors to lie flat in the kayak and drift through in darkness before emerging into a private cathedral of rock, jungle, and sky.\n\n**The experience inside:**\nThe contrast is extraordinary. One moment you are paddling through a narrow, dark passage with rock inches above your face. The next moment you emerge into a perfectly enclosed circular lagoon, surrounded by 30–50 metre vertical limestone walls draped in hanging vegetation, with birds visible as specks above. The silence is absolute — no engines, no voices from outside.\n\n**Key hong sites in Phang Nga Bay:**\n- **Hong Island (Ko Hong)**: The most famous, with three interconnected lagoons accessible in sequence at low tide\n- **Bat Cave Hong**: Home to thousands of cave-dwelling bats visible at dusk\n- **Lod Cave**: An extended cavern system with stalactites and stalagmites\n\n**Tide sensitivity**: Hongs are only accessible during a 2–3 hour window around low tide. A well-organised tour times the canoeing section precisely. Ask your tour operator what time you will reach the hong section to confirm it aligns with low tide."
+                        },
+                        {
+                            title: "Koh Panyee — The Floating Muslim Village",
+                            content: "One of the most surprising stops on a Phang Nga Bay tour is **Koh Panyee** — a village of approximately 2,000 people built entirely on stilts over the water, with virtually no land connection.\n\nThe village was founded over 200 years ago by Malay fishermen from what is now Indonesia, who were prohibited from owning land on Thai territory but received permission to settle on the water. Generations later, the community has built an extraordinary floating infrastructure: stilted wooden houses, a mosque, a school, shops, restaurants, and even a football pitch built on wooden platforms over the sea.\n\nVisiting Koh Panyee offers:\n- **The most authentic cultural stop** on any Phang Nga Bay tour\n- Fresh seafood lunch directly over the water (included in most tours)\n- A perspective on a way of life found nowhere else in Thailand\n- The floating football pitch — famously the subject of a Thai television commercial that inspired a generation\n\n**Photography tip**: The view from the boat as you approach Koh Panyee — the cluster of stilted buildings rising from the flat bay with limestone karsts behind — is one of the most visually striking compositions in the entire region."
+                        },
+                        {
+                            title: "What to Expect on the Day — Full Schedule",
+                            content: "A typical full-day Phang Nga Bay tour from Phuket follows this schedule:\n\n| Time | Activity |\n|------|----------|\n| 7:30 AM | Hotel pickup from Phuket |\n| 9:00 AM | Arrive Ao Po Marina, board speedboat |\n| 9:45 AM | First hong (sea cave canoeing) at low tide |\n| 11:00 AM | James Bond Island — Ko Tapu photograph, explore Khao Phing Kan |\n| 12:00 PM | Koh Panyee floating village + seafood lunch |\n| 2:00 PM | Second canoeing stop or swimming at secret beach |\n| 3:30 PM | Return journey to Phuket |\n| 5:00 PM | Back at hotel |\n\n**Bring:** Reef-safe sunscreen, waterproof bag for phone/camera, motion sickness medication if prone, swimwear and towel, light layer for air-conditioned boat cabin, cash for souvenir stalls at Koh Panyee.\n\n**Sea conditions**: Phang Nga Bay is sheltered by land on most sides — the water is calmer than the open Andaman Sea. Even during early monsoon, conditions in the bay are often manageable when the outer sea is rough. Best conditions: November–April."
+                        }
+                    ],
+                    faqs: [
+                        { q: "How far is James Bond Island from Phuket?", a: "James Bond Island (Khao Phing Kan) is approximately 100 km from Phuket by water. By speedboat it takes roughly 1.5–2 hours from Ao Po Grand Marina (the closest departure point, 45 minutes drive north of Phuket Town). Some tours depart from Bang Rong Pier, which adds 15 minutes of travel time. By slow boat it is 3+ hours each way." },
+                        { q: "Is James Bond Island worth visiting?", a: "Yes, especially as part of a full Phang Nga Bay tour. The island itself is beautiful and the Ko Tapu needle rock photograph is genuinely iconic. But the real highlight is the sea cave canoeing through hongs — an extraordinary natural experience found nowhere else in Thailand. Most visitors rate the hong canoeing as the best experience of their entire Phuket trip. Plan a full day — James Bond Island alone is not enough to justify the journey." },
+                        { q: "Can I visit James Bond Island without a tour?", a: "Practically, no. There is no scheduled public boat service from Phuket directly to Khao Phing Kan. You can hire a private long-tail boat from Surakul Pier in Phuket Town, but negotiating this independently is complex, and you will miss the sea caves without a knowledgeable guide who knows the tide schedule. A structured tour is far more efficient and typically better value than independent boat hire." },
+                        { q: "What is the best James Bond Island tour from Phuket?", a: "Look for a tour that includes: (1) sea cave canoeing through at least one hong, timed to low tide; (2) James Bond Island; (3) Koh Panyee floating village; (4) a swimming stop. Private tours are significantly better than group tours for the canoeing experience — a private kayak means you can linger inside the hong rather than being pushed through quickly. Our [Phang Nga Bay tours](/thailand/phuket) are designed around the optimal tide schedule." },
+                        { q: "What is the best time of year to visit James Bond Island?", a: "November to April (dry season) offers the best conditions: clear skies, calm bay, excellent photography light, and reliable tour availability. May to October (monsoon) brings afternoon thunderstorms but the bay remains relatively protected. Some tours run year-round, but early November through late March offers the peak experience. December to February is peak season — book tours 2–3 days in advance." }
+                    ],
+                    jsonLd: {
+                        "@context": "https://schema.org",
+                        "@graph": [
+                            {
+                                "@type": "Article",
+                                "headline": "James Bond Island Phuket — Complete Tour Guide 2026",
+                                "description": "Complete guide to visiting James Bond Island from Phuket. Covers tours, sea cave canoeing, Koh Panyee, and the iconic Ko Tapu needle rock.",
+                                "author": { "@type": "Organization", "name": "AsiaByLocals" },
+                                "dateModified": "2026-03-01"
+                            },
+                            {
+                                "@type": "FAQPage",
+                                "mainEntity": [
+                                    { "@type": "Question", "name": "How far is James Bond Island from Phuket?", "acceptedAnswer": { "@type": "Answer", "text": "James Bond Island is approximately 100 km from Phuket. By speedboat from Ao Po Grand Marina it takes 1.5–2 hours." } },
+                                    { "@type": "Question", "name": "Is James Bond Island worth visiting?", "acceptedAnswer": { "@type": "Answer", "text": "Yes, especially as part of a full Phang Nga Bay tour that includes sea cave canoeing through hongs. Most visitors rate the hong canoeing as the best experience of their Phuket trip." } },
+                                    { "@type": "Question", "name": "Can I visit James Bond Island without a tour?", "acceptedAnswer": { "@type": "Answer", "text": "Practically no — there is no scheduled public service. A private long-tail from Surakul Pier is possible but complex. A structured tour is far more efficient and includes the sea caves." } }
+                                ]
+                            }
+                        ]
+                    }
+                };
+
+            case "phuket-island-hopping":
+                return {
+                    title: "Phuket Island Hopping 2026 — Best Tours, Islands & Complete Guide",
+                    description: "The complete guide to island hopping from Phuket in 2026. Covers Phi Phi Islands, Phang Nga Bay, Racha Islands, Similan Islands, and how to choose the right tour for your budget and interests.",
+                    heroImage: "/things-to-do/phuket-phi-phi-aerial.jpg",
+                    fastFacts: [
+                        { icon: 'Map', label: 'Islands accessible', value: '50+ from Phuket' },
+                        { icon: 'Clock', label: 'Typical tour', value: '7:00 AM – 5:00 PM' },
+                        { icon: 'Ticket', label: 'Price range', value: '฿2,000–฿5,000/person' },
+                        { icon: 'Star', label: 'Best route', value: 'Phi Phi + Bamboo Island' },
+                        { icon: 'Sun', label: 'Best season', value: 'November–April' }
+                    ],
+                    sections: [
+                        {
+                            title: "Which Islands Can You Visit from Phuket?",
+                            content: "Phuket sits at the northern end of the Andaman Sea's most spectacular island archipelago. Within a 2-hour speedboat radius, you can access over 50 islands ranging from world-famous destinations to uninhabited beaches with no facilities whatsoever.\n\n**The 'Big Three' island destinations:**\n\n**1. [Phi Phi Islands](/thailand/phuket/phi-phi-islands)** (~45 km southeast)\nThe most popular destination. Two main islands: Phi Phi Don (inhabited, beaches, snorkelling) and Phi Phi Leh (uninhabited, containing Maya Bay). The best overall island experience — turquoise water, white sand, dramatic limestone cliffs, and excellent snorkelling. Full day required. See our [complete Phi Phi guide](/thailand/phuket/phi-phi-islands).\n\n**2. [Phang Nga Bay](/thailand/phuket/phang-nga-bay) (~70 km north)**\nNot a beach destination — a geological wonder. Over 40 limestone karst islands, sea cave canoeing through hongs, [James Bond Island](/thailand/phuket/james-bond-island-phuket), and Koh Panyee floating village. The most intellectually and visually stimulating island experience in the region. Full day required.\n\n**3. Racha Islands (Racha Yai & Racha Noi) (~15 km south)**\nThe closest islands to Phuket. Excellent for diving and snorkelling. Racha Yai has a beautiful sandy bay with calm water. Racha Noi is uninhabited with advanced dive sites including encounters with manta rays and whale sharks (seasonal). Half or full day trip."
+                        },
+                        {
+                            title: "Comparing Island Hopping Tours — Which Is Best For You?",
+                            content: "**For first-time visitors:** Phi Phi Islands full-day speedboat tour. This is the quintessential Phuket island experience and covers the most visually stunning scenery. Maya Bay, Pileh Lagoon, snorkelling, Bamboo Island beach, and views of the limestone cliffs provide a complete introduction to the Andaman Sea.\n\n**For culture and photography:** Phang Nga Bay full-day tour with sea cave canoeing. James Bond Island is photogenic, but the hongs (sea caves) and Koh Panyee provide experiences unavailable anywhere else. Best for travelers who want something beyond beaches.\n\n**For diving and marine life:** Racha Islands half-day trip or Similan Islands liveaboard. Racha is perfect for beginners and snorkellers; Similan (further, 3+ hours north) is one of the top 10 dive sites in the world, accessible only by overnight boat.\n\n**For maximum islands in one day:** 4-Island Tour (Ko Kaeo Noi, Ko Aew, Ko Bon, Ko Hei/Coral Island). A half-day option hitting four smaller islands south of Phuket. Best for families with young children — calm, sheltered waters and shorter travel times.\n\n**For exclusivity:** Private yacht charter. Charter a catamaran or speedboat for a group of 4–12 people and design your own island hopping itinerary. Prices from ฿25,000–฿80,000 per day depending on boat type."
+                        },
+                        {
+                            title: "Phi Phi + Phang Nga — The Ultimate 2-Day Island Combo",
+                            image: "/things-to-do/phuket-phi-phi.jpg",
+                            content: "The most rewarding island hopping strategy for visitors with 2+ days is combining Phi Phi Islands and Phang Nga Bay on separate days — these two destinations are completely different experiences and both deserve a full day.\n\n**Day 1 — Phi Phi Islands (beach & snorkelling)**\nWake at 6:30 AM, depart marina by 8:00 AM. Visit Maya Bay (10:00–11:00 AM), snorkel Pileh Lagoon and Loh Samah Bay, lunch on Phi Phi Don, swim at Bamboo Island, return to Phuket by 5:00 PM. This day is physically active — swimming, snorkelling, walking. Bring underwater camera and reef-safe sunscreen.\n\n**Day 2 — Phang Nga Bay (geology & culture)**\nDepart at 7:30 AM via minivan to Ao Po Marina. Sea cave canoeing at low tide (best experience), James Bond Island (iconic photograph), Koh Panyee seafood lunch, return by 5:00 PM. This day is less physical but more visually and culturally stimulating. Bring a wide-angle camera lens.\n\nTogether, these two days represent the full range of what the Andaman Sea offers — tropical paradise beaches (Phi Phi) and geological spectacle (Phang Nga). Most travelers who do both consistently rate them as the two best days of their entire Thailand trip."
+                        },
+                        {
+                            title: "Similan Islands — Worth the Extra Distance?",
+                            content: "The **Similan Islands** (Ko Similan National Park) lie approximately 80 km northwest of Phuket — too far for a standard day trip by speedboat. The journey from the mainland pier takes 1.5–2 hours by speedboat from Tab Lamu Pier (2 hours north of Phuket).\n\nDespite the distance, the Similans are frequently listed among the **top 10 dive sites in the world** and deserve serious consideration for the right type of traveler.\n\n**Why the Similans are exceptional:**\n- Crystal clear water with 30–40m visibility during peak season\n- Diverse marine life: leopard sharks, hawksbill turtles, manta rays (seasonal), whale sharks (rare)\n- Both soft and hard coral in excellent condition\n- Two distinct dive environments: the eastern side has gentle slopes with coral gardens; the western side has dramatic granite boulder formations\n\n**Practical options:**\n- **Day trip**: Feasible but very long (12+ hour day). Depart 5:00 AM, return 8:00 PM. Best for those staying north of Phuket.\n- **2-day liveaboard (recommended)**: Sleep aboard the boat anchored at the islands. Allows 5–6 dives and snorkelling, proper exploration of multiple sites, and sunrise photography from the beach. Prices from ฿6,000–฿15,000 per person.\n\n**Season**: Similan Islands are **closed May–October** (national park closure for conservation). Open November–April only."
+                        },
+                        {
+                            title: "Practical Tips: What to Know Before You Book",
+                            content: "**Book in advance**: During peak season (December–February), the best Phi Phi and Phang Nga tours sell out 2–3 days ahead. Last-minute bookings often end up on overloaded boats with poor organisation.\n\n**Group vs private**: Group speedboat tours are good value and well-organised. However, if there are 4+ people in your party, pricing for a private boat often becomes comparable — and the experience is dramatically better (flexible timing, fewer people in the water during snorkelling).\n\n**Motion sickness**: The crossing to Phi Phi Islands can be rough if there is any swell. Take medication (antihistamine-based like Dramamine or prescription patches) 30–60 minutes before departure if you are prone. Eat a light breakfast — neither an empty stomach nor a full one is comfortable on a moving boat.\n\n**Reef-safe sunscreen is not optional**: Chemical sunscreens containing oxybenzone and octinoxate are banned in marine national parks and actively damage the coral you are visiting. Use mineral-based (zinc oxide or titanium dioxide) sunscreen only. Many tour boats now check sunscreen at the dock.\n\n**Photography**: Waterproof phone case or GoPro are the most practical choices. Full-frame camera systems are manageable in calm conditions but vulnerable to spray. Drone flying is **prohibited** in national parks without a permit (enforceable fine: ฿100,000+)."
+                        }
+                    ],
+                    faqs: [
+                        { q: "What is the best island hopping tour from Phuket?", a: "For most visitors, the **Phi Phi Islands full-day speedboat tour** is the best single island hopping experience — it covers Maya Bay, Pileh Lagoon, snorkelling, and Bamboo Island in one well-paced day. If you have a second day, add a **Phang Nga Bay tour** for James Bond Island and sea cave canoeing. Together, these two tours represent the definitive Phuket island experience." },
+                        { q: "How much does island hopping cost in Phuket?", a: "Group speedboat tours: **฿2,500–฿4,000 per person** for Phi Phi Islands, **฿2,500–฿3,500** for Phang Nga Bay. Private speedboat charters: **฿25,000–฿45,000 total** (divide by group size — often comparable to group rates for 4+ people). Half-day Racha Islands: **฿1,800–฿2,500**. Similan Islands liveaboard: **฿6,000–฿15,000** per person for 2 days. Prices include park fees, lunch, and snorkelling equipment in most cases." },
+                        { q: "Can I do island hopping from Phuket on a budget?", a: "Yes. The most affordable option is the **4-Island Tour** south of Phuket (฿1,500–฿2,000/person, half-day). For Phi Phi, public ferries run at ฿400–฿700 one-way from Rassada Pier — you arrive on Phi Phi Don but cannot access Maya Bay (which requires a speedboat). Phang Nga Bay long-tail tours from Surakul Pier cost ฿600–฿800/person but are very slow (3+ hours) and miss the sea caves." },
+                        { q: "What is the best time of day to start island hopping?", a: "Depart as early as possible — ideally 7:00–8:00 AM. This gets you to Maya Bay (Phi Phi) or the sea caves (Phang Nga) shortly after they open at 10:00 AM, with the fewest other visitors. Early departure also means calmer sea conditions before the afternoon wind picks up, and you return to Phuket with enough energy for a sunset dinner. Tours that depart at 10:00 AM or later have measurably worse experiences at all destinations." },
+                        { q: "Are the Similan Islands better than Phi Phi for snorkelling?", a: "For pure underwater experience, yes — the Similan Islands have better visibility (30–40m vs 10–20m at Phi Phi), more diverse marine life, and healthier coral. However, the logistical commitment is significantly greater (requires an early departure from north of Phuket or a liveaboard). For most visitors on a standard Phuket holiday, [Phi Phi Islands](/thailand/phuket/phi-phi-islands) snorkelling is outstanding and more accessible. Choose Similan if diving or snorkelling is the primary purpose of your trip." }
+                    ],
+                    jsonLd: {
+                        "@context": "https://schema.org",
+                        "@graph": [
+                            {
+                                "@type": "Article",
+                                "headline": "Phuket Island Hopping 2026 — Best Tours, Islands & Complete Guide",
+                                "description": "Complete guide to island hopping from Phuket. Covers Phi Phi Islands, Phang Nga Bay, Racha Islands, Similan Islands, and how to choose the right tour.",
+                                "author": { "@type": "Organization", "name": "AsiaByLocals" },
+                                "dateModified": "2026-03-01"
+                            },
+                            {
+                                "@type": "FAQPage",
+                                "mainEntity": [
+                                    { "@type": "Question", "name": "What is the best island hopping tour from Phuket?", "acceptedAnswer": { "@type": "Answer", "text": "The Phi Phi Islands full-day speedboat tour is the best single island hopping experience, covering Maya Bay, Pileh Lagoon, snorkelling, and Bamboo Island. Add a Phang Nga Bay tour for James Bond Island and sea cave canoeing." } },
+                                    { "@type": "Question", "name": "How much does island hopping cost in Phuket?", "acceptedAnswer": { "@type": "Answer", "text": "Group speedboat tours: ฿2,500–฿4,000/person for Phi Phi Islands. Private charters: ฿25,000–฿45,000 total. Half-day Racha Islands: ฿1,800–฿2,500. Similan Islands liveaboard: ฿6,000–฿15,000 for 2 days." } },
+                                    { "@type": "Question", "name": "What is the best time of day to start island hopping?", "acceptedAnswer": { "@type": "Answer", "text": "Depart as early as possible — ideally 7:00–8:00 AM. This gets you to destinations shortly after they open, with the fewest other visitors and calmer sea conditions." } }
+                                ]
+                            }
+                        ]
                     }
                 };
 

@@ -54,7 +54,9 @@ const cityInfoPages = {
     'big-buddha-phuket',
     'wat-chalong',
     'phuket-old-town',
-    'phuket-1-day-itinerary'
+    'phuket-1-day-itinerary',
+    'james-bond-island-phuket',
+    'phuket-island-hopping'
   ]
 };
 

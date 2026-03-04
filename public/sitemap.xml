@@ -193,6 +193,22 @@
     <priority>0.8</priority>
   </url>
 
+  <!-- Phuket Authority: james-bond-island-phuket -->
+  <url>
+    <loc>https://www.asiabylocals.com/thailand/phuket/james-bond-island-phuket</loc>
+    <lastmod>2026-03-04</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Phuket Authority: phuket-island-hopping -->
+  <url>
+    <loc>https://www.asiabylocals.com/thailand/phuket/phuket-island-hopping</loc>
+    <lastmod>2026-03-04</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+
   <!-- Layer 4: Specific Tours -->
   <!-- Layer 4: Tour 209 - taj-mahal-royal-private-tour -->
   <url>
