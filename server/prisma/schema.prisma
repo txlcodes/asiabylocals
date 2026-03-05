@@ -127,6 +127,7 @@ model TourOption {
   // Uncomment after running migration: npx prisma migrate deploy
   // maxGroupSize        Int?      @map("max_group_size") // Max people per group (1-20). If set with groupPrice, indicates per-group pricing
   // groupPrice          Float?    @map("group_price") // Price for entire group. If set with maxGroupSize, indicates per-group pricing
+  images              String?   @map("images") // JSON array of image URLs for this specific option (e.g. boat photos)
   sortOrder           Int       @default(0) @map("sort_order")
   createdAt           DateTime  @default(now()) @map("created_at")
   updatedAt           DateTime  @updatedAt @map("updated_at")
