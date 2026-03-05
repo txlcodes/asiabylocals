@@ -2339,10 +2339,19 @@ const CityPage: React.FC<CityPageProps> = ({ country, city }) => {
 
                         {/* Top Rated Badge */}
                         {isTopRated && (
-                          <div className="absolute top-3 left-3">
+                          <div className="absolute top-3 left-3 flex flex-col gap-1.5">
                             <span className="px-2.5 py-1 bg-[#10B981] text-white text-[10px] font-black rounded-md">
                               Top rated
                             </span>
+                            {tour.options && tour.options.length >= 5 && (tour.title.toLowerCase().includes('yacht') || tour.title.toLowerCase().includes('charter') || tour.title.toLowerCase().includes('catamaran')) && (() => {
+                              const match = tour.title.match(/\|?\s*(\d+)\s+Boats?\s+Available/i);
+                              const count = match ? match[1] : tour.options.length;
+                              return (
+                                <span className="px-2 py-1 bg-[#0071EB] text-white text-[10px] font-black rounded-md flex items-center gap-1">
+                                  ⚓ {count} Boats Available
+                                </span>
+                              );
+                            })()}
                           </div>
                         )}
                         {/* Wishlist Heart */}

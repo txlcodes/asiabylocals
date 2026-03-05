@@ -31,7 +31,8 @@ import {
   Landmark,
   Utensils,
   Activity,
-  Home
+  Home,
+  Anchor
 } from 'lucide-react';
 import BookingForm from './BookingForm';
 import RelatedTours from './RelatedTours';
@@ -4628,6 +4629,12 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
                         <span className="px-2 py-1 bg-[#10B981] text-white text-[12px] font-black rounded">
                           Top rated
                         </span>
+                        {/* Special badge for yacht/boat charter tours with multiple options */}
+                        {tour.options && tour.options.length >= 5 && (tour.title.toLowerCase().includes('yacht') || tour.title.toLowerCase().includes('charter') || tour.title.toLowerCase().includes('catamaran')) && (
+                          <span className="px-2 py-1 bg-[#0071EB] text-white text-[12px] font-black rounded flex items-center gap-1">
+                            <Anchor size={12} /> {tour.options.length} Options Available
+                          </span>
+                        )}
                         <div className="flex items-center gap-1">
                           {[...Array(5)].map((_, i) => (
                             <Star key={i} size={16} className="text-yellow-400 fill-yellow-400" />
@@ -4677,6 +4684,39 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
                           <div>
                             <div className="text-[13px] font-black text-[#001A33]">Official Admission</div>
                             <div className="text-[11px] text-gray-500 font-semibold">100% Guaranteed Entry</div>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* High-Conversion Feature Bar for Yacht/Boat Charters */}
+                    {tour.options && tour.options.length >= 5 && (tour.title.toLowerCase().includes('yacht') || tour.title.toLowerCase().includes('charter') || tour.title.toLowerCase().includes('catamaran')) && (
+                      <div className="mt-6 grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        <div className="flex items-center gap-3 p-3 bg-[#0071EB]/5 border border-[#0071EB]/20 rounded-xl">
+                          <div className="w-8 h-8 rounded-full bg-[#0071EB] flex items-center justify-center text-white shrink-0">
+                            <Anchor size={16} />
+                          </div>
+                          <div>
+                            <div className="text-[13px] font-black text-[#001A33]">{tour.options.length} Private Boats</div>
+                            <div className="text-[11px] text-gray-500 font-semibold">Choose your perfect vessel</div>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-3 p-3 bg-[#0071EB]/5 border border-[#0071EB]/20 rounded-xl">
+                          <div className="w-8 h-8 rounded-full bg-[#0071EB] flex items-center justify-center text-white shrink-0">
+                            <Users size={16} />
+                          </div>
+                          <div>
+                            <div className="text-[13px] font-black text-[#001A33]">Private Charter</div>
+                            <div className="text-[11px] text-gray-500 font-semibold">Entire boat for your group</div>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-3 p-3 bg-[#0071EB]/5 border border-[#0071EB]/20 rounded-xl">
+                          <div className="w-8 h-8 rounded-full bg-[#0071EB] flex items-center justify-center text-white shrink-0">
+                            <ShieldCheck size={16} />
+                          </div>
+                          <div>
+                            <div className="text-[13px] font-black text-[#001A33]">Captain + Crew</div>
+                            <div className="text-[11px] text-gray-500 font-semibold">Fully staffed experience</div>
                           </div>
                         </div>
                       </div>
@@ -4813,6 +4853,294 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
                     allOptions = allOptions.sort((a: any, b: any) => (a.sortOrder || 0) - (b.sortOrder || 0));
 
                     if (allOptions.length > 0) {
+                      // Detect special yacht/charter tour for horizontal card layout
+                      const isYachtCharter = allOptions.length >= 5 && (tour.title.toLowerCase().includes('yacht') || tour.title.toLowerCase().includes('charter') || tour.title.toLowerCase().includes('catamaran'));
+
+                      // Shared price calculation helper
+                      const getOptionPrice = (option: any) => {
+                        const optTiers = option.groupPricingTiers
+                          ? (typeof option.groupPricingTiers === 'string' ? (() => { try { return JSON.parse(option.groupPricingTiers); } catch { return []; } })() : option.groupPricingTiers)
+                          : [];
+                        const optionHasOwnTiers = Array.isArray(optTiers) && optTiers.length > 0;
+                        const priceCurrency = optionHasOwnTiers ? (option.currency || 'INR') : (tour.currency || 'INR');
+                        const toDisplayPrice = (price: number) => priceCurrency === 'INR' ? Math.round(price / 85) : price;
+                        const currencySymbol = '$';
+                        const currentParticipants = isCustomParticipants ? customParticipants : participants;
+
+                        if (optionHasOwnTiers) {
+                          const matchingTier = optTiers.find((t: any) =>
+                            currentParticipants >= (t.minPeople || 1) && currentParticipants <= (t.maxPeople || 999)
+                          ) || optTiers[optTiers.length - 1];
+                          const tierPrice = parseFloat(matchingTier?.price || optTiers[0]?.price || option.price || 0);
+                          return `${currencySymbol}${toDisplayPrice(tierPrice).toLocaleString()}`;
+                        }
+                        const groupPrice = calculateGroupPrice(option, currentParticipants);
+                        if (groupPrice !== null) {
+                          return `${currencySymbol}${toDisplayPrice(groupPrice).toLocaleString()}`;
+                        }
+                        return `${currencySymbol}${toDisplayPrice(option.price || 0).toLocaleString()}`;
+                      };
+
+                      // Extract max guests from option title (e.g. "Up to 15 Guests")
+                      const getMaxGuests = (title: string) => {
+                        const match = title.match(/up to (\d+)/i);
+                        return match ? match[1] : null;
+                      };
+
+                      if (isYachtCharter) {
+                        // === SPECIAL HORIZONTAL CARD LAYOUT FOR YACHT/CHARTER TOURS ===
+                        return (
+                          <div className="mb-8" ref={optionsRef}>
+                            <h2 className="text-2xl font-black text-[#001A33] mb-2">Choose Your Vessel</h2>
+                            <p className="text-[14px] text-gray-500 font-semibold mb-6">{allOptions.length} private boats available — scroll to explore</p>
+                            <div className="flex gap-4 overflow-x-auto pb-4 snap-x snap-mandatory -mx-4 px-4 sm:mx-0 sm:px-0 sm:gap-5" style={{ scrollbarWidth: 'thin' }}>
+                              {allOptions.map((option: any) => {
+                                const isSelected = selectedOption?.id === option.id;
+                                const isExpanded = expandedOptions.has(option.id);
+                                const maxGuests = getMaxGuests(option.optionTitle);
+                                const boatName = option.optionTitle.split('—')[0]?.trim() || option.optionTitle;
+                                const boatSpec = option.optionTitle.split('—')[1]?.trim() || '';
+
+                                // Parse option images
+                                let optionImages: string[] = [];
+                                if (option.images) {
+                                  try {
+                                    optionImages = typeof option.images === 'string' ? JSON.parse(option.images) : (Array.isArray(option.images) ? option.images : []);
+                                  } catch { optionImages = []; }
+                                }
+
+                                return (
+                                  <div
+                                    key={option.id}
+                                    className={`snap-start shrink-0 bg-white border-2 rounded-2xl overflow-hidden transition-all flex flex-col ${isExpanded ? 'w-[92vw] sm:w-[380px]' : 'w-[85vw] sm:w-[320px]'} ${isSelected
+                                      ? 'border-[#10B981] shadow-lg ring-2 ring-[#10B981]/20'
+                                      : 'border-gray-200 hover:border-[#10B981]/40 hover:shadow-md'
+                                      }`}
+                                  >
+                                    {/* Boat Image */}
+                                    {optionImages.length > 0 ? (
+                                      <div className="relative h-[180px] overflow-hidden">
+                                        <img
+                                          src={optionImages[0]}
+                                          alt={boatName}
+                                          className="w-full h-full object-cover"
+                                          loading="lazy"
+                                        />
+                                        <div className="absolute top-3 left-3">
+                                          <span className="px-2.5 py-1 bg-[#10B981] text-white text-[11px] font-black rounded-md shadow-sm">
+                                            Private Charter
+                                          </span>
+                                        </div>
+                                        {maxGuests && (
+                                          <div className="absolute top-3 right-3">
+                                            <span className="px-2.5 py-1 bg-white/90 text-[#001A33] text-[11px] font-black rounded-md shadow-sm flex items-center gap-1">
+                                              <Users size={11} /> Up to {maxGuests}
+                                            </span>
+                                          </div>
+                                        )}
+                                      </div>
+                                    ) : (
+                                      <div className="relative h-[100px] bg-gradient-to-br from-[#10B981] to-[#059669] flex items-center justify-center">
+                                        <Anchor size={40} className="text-white/30" />
+                                        <div className="absolute top-3 left-3">
+                                          <span className="px-2.5 py-1 bg-white/20 text-white text-[11px] font-black rounded-md">
+                                            Private Charter
+                                          </span>
+                                        </div>
+                                        {maxGuests && (
+                                          <div className="absolute top-3 right-3">
+                                            <span className="px-2.5 py-1 bg-white/20 text-white text-[11px] font-black rounded-md flex items-center gap-1">
+                                              <Users size={11} /> Up to {maxGuests}
+                                            </span>
+                                          </div>
+                                        )}
+                                      </div>
+                                    )}
+
+                                    {/* Card Header - Green themed */}
+                                    <div className="px-5 pt-4 pb-2">
+                                      <div className="flex items-center gap-2 mb-1">
+                                        <Anchor size={15} className="text-[#10B981] shrink-0" />
+                                        <h3 className="font-black text-[#001A33] text-[16px] truncate">{boatName}</h3>
+                                      </div>
+                                      {boatSpec && (
+                                        <p className="text-gray-500 text-[12px] font-semibold ml-[23px]">{boatSpec}</p>
+                                      )}
+                                    </div>
+
+                                    {/* Card Body */}
+                                    <div className="px-5 pb-5 flex-1 flex flex-col">
+                                      {/* Description - clamped when collapsed */}
+                                      {!isExpanded && (
+                                        <p className="text-[13px] text-gray-600 font-medium leading-relaxed mb-3 line-clamp-2">
+                                          {option.optionDescription || ''}
+                                        </p>
+                                      )}
+
+                                      {/* Quick Specs Badges */}
+                                      <div className="flex flex-wrap gap-1.5 mb-3">
+                                        <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-[#10B981]/10 rounded-full text-[11px] font-bold text-[#10B981]">
+                                          <Clock size={11} /> {formatDurationHours(option.durationHours)}
+                                        </span>
+                                        {option.pickupIncluded && (
+                                          <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-[#10B981]/10 rounded-full text-[11px] font-bold text-[#10B981]">
+                                            <Bus size={11} /> Transfer
+                                          </span>
+                                        )}
+                                        <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-[#10B981]/10 rounded-full text-[11px] font-bold text-[#10B981]">
+                                          <CheckCircle2 size={11} /> Free cancel
+                                        </span>
+                                      </div>
+
+                                      {/* Expandable Details Button - prominent */}
+                                      <button
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          toggleOptionExpand(option.id);
+                                        }}
+                                        className="flex items-center justify-center gap-1.5 w-full py-2.5 rounded-lg text-[13px] font-black text-[#10B981] bg-[#10B981]/5 hover:bg-[#10B981]/10 border border-[#10B981]/20 mb-3 transition-colors"
+                                      >
+                                        {isExpanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                                        {isExpanded ? 'Hide Details' : 'View Full Details'}
+                                      </button>
+
+                                      {/* Expanded Details */}
+                                      {isExpanded && (
+                                        <div className="mb-4 space-y-3 text-[12px] animate-in fade-in duration-200">
+                                          {/* Full Description */}
+                                          <div>
+                                            <div className="font-black text-[#001A33] text-[11px] uppercase tracking-wide mb-1">About this vessel</div>
+                                            <p className="text-gray-600 font-medium leading-relaxed">{option.optionDescription}</p>
+                                          </div>
+
+                                          {/* Specs extracted from description */}
+                                          {option.optionDescription && (
+                                            <div>
+                                              <div className="font-black text-[#001A33] text-[11px] uppercase tracking-wide mb-2">Key Features</div>
+                                              <div className="grid grid-cols-2 gap-1.5">
+                                                {maxGuests && (
+                                                  <div className="flex items-center gap-1.5 text-gray-600">
+                                                    <Users size={11} className="text-[#10B981] shrink-0" />
+                                                    <span className="font-semibold">Up to {maxGuests} guests</span>
+                                                  </div>
+                                                )}
+                                                <div className="flex items-center gap-1.5 text-gray-600">
+                                                  <Clock size={11} className="text-[#10B981] shrink-0" />
+                                                  <span className="font-semibold">{formatDurationHours(option.durationHours)}</span>
+                                                </div>
+                                                {option.optionDescription?.toLowerCase().includes('crew') && (
+                                                  <div className="flex items-center gap-1.5 text-gray-600">
+                                                    <ShieldCheck size={11} className="text-[#10B981] shrink-0" />
+                                                    <span className="font-semibold">Professional crew</span>
+                                                  </div>
+                                                )}
+                                                {option.optionDescription?.toLowerCase().includes('air-condition') && (
+                                                  <div className="flex items-center gap-1.5 text-gray-600">
+                                                    <CheckCircle2 size={11} className="text-[#10B981] shrink-0" />
+                                                    <span className="font-semibold">Air-conditioned</span>
+                                                  </div>
+                                                )}
+                                                {option.optionDescription?.toLowerCase().includes('wifi') && (
+                                                  <div className="flex items-center gap-1.5 text-gray-600">
+                                                    <Globe size={11} className="text-[#10B981] shrink-0" />
+                                                    <span className="font-semibold">WiFi onboard</span>
+                                                  </div>
+                                                )}
+                                                {option.pickupIncluded && (
+                                                  <div className="flex items-center gap-1.5 text-gray-600">
+                                                    <Bus size={11} className="text-[#10B981] shrink-0" />
+                                                    <span className="font-semibold">Hotel transfer</span>
+                                                  </div>
+                                                )}
+                                              </div>
+                                            </div>
+                                          )}
+
+                                          {/* Inclusions parsed from description */}
+                                          <div>
+                                            <div className="font-black text-[#001A33] text-[11px] uppercase tracking-wide mb-2">What's Included</div>
+                                            <div className="space-y-1">
+                                              {option.optionDescription?.split(/[.,]/).filter((s: string) => s.toLowerCase().includes('includ') || s.toLowerCase().includes('crew') || s.toLowerCase().includes('lunch') || s.toLowerCase().includes('drink') || s.toLowerCase().includes('gear') || s.toLowerCase().includes('snorkel') || s.toLowerCase().includes('kayak') || s.toLowerCase().includes('sup') || s.toLowerCase().includes('towel') || s.toLowerCase().includes('fruit')).length > 0 ? (
+                                                // Extract inclusion items from description
+                                                (() => {
+                                                  const desc = option.optionDescription || '';
+                                                  const items: string[] = [];
+                                                  if (desc.toLowerCase().includes('crew')) items.push('Professional captain & crew');
+                                                  if (desc.toLowerCase().includes('lunch')) items.push('Thai lunch');
+                                                  if (desc.toLowerCase().includes('beer')) items.push('Beers included');
+                                                  if (desc.toLowerCase().includes('soft drink') || desc.toLowerCase().includes('water')) items.push('Soft drinks & water');
+                                                  if (desc.toLowerCase().includes('fruit')) items.push('Fresh fruits');
+                                                  if (desc.toLowerCase().includes('welcome drink')) items.push('Welcome drink');
+                                                  if (desc.toLowerCase().includes('snorkel')) items.push('Snorkeling gear');
+                                                  if (desc.toLowerCase().includes('kayak')) items.push('Kayak');
+                                                  if (desc.toLowerCase().includes('sup') || desc.toLowerCase().includes('paddle')) items.push('Stand-up paddleboard');
+                                                  if (desc.toLowerCase().includes('towel')) items.push('Towels');
+                                                  if (desc.toLowerCase().includes('slide')) items.push('Inflatable slide');
+                                                  if (desc.toLowerCase().includes('jacuzzi')) items.push('Floating jacuzzi');
+                                                  if (desc.toLowerCase().includes('fishing')) items.push('Fishing gear');
+                                                  if (desc.toLowerCase().includes('wifi')) items.push('WiFi & Smart TV');
+                                                  if (desc.toLowerCase().includes('floating mat')) items.push('Floating mat');
+                                                  if (desc.toLowerCase().includes('tube')) items.push('Inflatable tube');
+                                                  if (desc.toLowerCase().includes('snuba')) items.push('SNUBA (on request)');
+                                                  if (desc.toLowerCase().includes('insurance') || true) items.push('Accident insurance');
+                                                  return items.map((item, i) => (
+                                                    <div key={i} className="flex items-center gap-1.5 text-gray-600">
+                                                      <CheckCircle size={10} className="text-[#10B981] shrink-0" />
+                                                      <span className="font-medium">{item}</span>
+                                                    </div>
+                                                  ));
+                                                })()
+                                              ) : (
+                                                <span className="text-gray-400 italic">Details coming soon</span>
+                                              )}
+                                            </div>
+                                          </div>
+                                        </div>
+                                      )}
+
+                                      {/* Spacer */}
+                                      <div className="flex-1" />
+
+                                      {/* Price & Action */}
+                                      <div className="border-t border-gray-100 pt-4 mt-2">
+                                        <div className="flex items-end justify-between mb-3">
+                                          <div>
+                                            <div className="text-[11px] text-gray-400 font-semibold uppercase">Private charter</div>
+                                            <div className="font-black text-[#001A33] text-[24px] leading-tight">{getOptionPrice(option)}</div>
+                                          </div>
+                                        </div>
+                                        <button
+                                          onClick={(e) => {
+                                            e.stopPropagation();
+                                            if (isSelected) {
+                                              setSelectedOption(null);
+                                            } else {
+                                              setSelectedOption(option);
+                                              if (window.innerWidth < 1024 && bookingBoxRef.current) {
+                                                setTimeout(() => {
+                                                  bookingBoxRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                                                }, 100);
+                                              }
+                                            }
+                                          }}
+                                          className={`w-full text-center py-3 rounded-xl font-black text-[14px] transition-all ${isSelected
+                                            ? 'bg-[#10B981] text-white shadow-md'
+                                            : 'bg-[#10B981] text-white hover:bg-[#059669] shadow-sm hover:shadow-md'
+                                          }`}
+                                        >
+                                          {isSelected ? 'Selected' : 'Select This Boat'}
+                                        </button>
+                                      </div>
+                                    </div>
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        );
+                      }
+
+                      // === STANDARD VERTICAL LAYOUT FOR OTHER TOURS ===
                       return (
                         <div className="mb-8" ref={optionsRef}>
                           <h2 className="text-2xl font-black text-[#001A33] mb-6">Choose from {allOptions.length} available option{allOptions.length > 1 ? 's' : ''}</h2>
