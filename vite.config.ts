@@ -29,8 +29,27 @@ export default defineConfig(({ mode }) => {
     // Ensure all routes serve index.html for client-side routing
     build: {
       rollupOptions: {
-        input: './index.html'
-      }
+        input: './index.html',
+        output: {
+          // Split vendor libraries into separate cacheable chunks
+          manualChunks: (id) => {
+            if (id.includes('node_modules/react/') || id.includes('node_modules/react-dom/')) {
+              return 'vendor-react';
+            }
+            if (id.includes('node_modules/react-helmet-async')) {
+              return 'vendor-helmet';
+            }
+            if (id.includes('node_modules/lucide-react')) {
+              return 'vendor-icons';
+            }
+            if (id.includes('node_modules/@prisma') || id.includes('node_modules/prisma')) {
+              return 'vendor-prisma';
+            }
+          }
+        }
+      },
+      // Raise warning threshold — 2MB bundle needs lazy loading (Next.js migration will fix this)
+      chunkSizeWarningLimit: 3000
     }
   };
 });

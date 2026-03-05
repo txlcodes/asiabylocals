@@ -121,6 +121,50 @@
     <priority>0.9</priority>
   </url>
 
+  <!-- Layer 2b: Delhi Authority Pages -->
+  <url>
+    <loc>https://www.asiabylocals.com/india/delhi/delhi-travel-guide-2026</loc>
+    <lastmod>2026-03-06</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.asiabylocals.com/india/delhi/things-to-do-in-delhi</loc>
+    <lastmod>2026-03-06</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.asiabylocals.com/india/delhi/delhi-1-day-itinerary</loc>
+    <lastmod>2026-03-06</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.asiabylocals.com/india/delhi/red-fort</loc>
+    <lastmod>2026-03-06</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.asiabylocals.com/india/delhi/qutub-minar</loc>
+    <lastmod>2026-03-06</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.asiabylocals.com/india/delhi/humayuns-tomb</loc>
+    <lastmod>2026-03-06</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.asiabylocals.com/india/delhi/india-gate</loc>
+    <lastmod>2026-03-06</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
   <!-- Layer 3: Phuket, Thailand -->
   <url>
     <loc>https://www.asiabylocals.com/thailand/phuket</loc>

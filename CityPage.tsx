@@ -2118,6 +2118,8 @@ const CityPage: React.FC<CityPageProps> = ({ country, city }) => {
         <meta property="og:url" content={cityPageUrl} />
         <meta property="og:type" content="website" />
         <meta property="og:image" content={cityOgImage} />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
         <meta property="og:image:alt" content={`${city} Tours — AsiaByLocals`} />
         <meta property="og:site_name" content="AsiaByLocals" />
         <meta property="og:locale" content="en_US" />
@@ -2126,6 +2128,7 @@ const CityPage: React.FC<CityPageProps> = ({ country, city }) => {
         <meta name="twitter:title" content={cityInfo.title} />
         <meta name="twitter:description" content={cityInfo.description} />
         <meta name="twitter:image" content={cityOgImage} />
+        <meta name="twitter:image:alt" content={`${city} Tours — AsiaByLocals`} />
         <meta name="twitter:site" content="@asiabylocals" />
         <script type="application/ld+json">
           {JSON.stringify(structuredData)}

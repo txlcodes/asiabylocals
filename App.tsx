@@ -21,15 +21,19 @@ import {
 } from 'lucide-react';
 import { CITIES, EXPERIENCES, ATTRACTIONS } from './constants';
 import { ASIAN_CITIES_DATABASE } from './citiesDatabase';
-import SupplierPage from './SupplierPage';
+import Footer from './Footer';
+
+// Heavy page components — lazy loaded so they don't bloat the initial bundle
+const TourDetailPage = React.lazy(() => import('./TourDetailPage'));
+const CityPage = React.lazy(() => import('./CityPage'));
+const CityInfoPage = React.lazy(() => import('./CityInfoPage'));
+const AdminDashboard = React.lazy(() => import('./AdminDashboard'));
+const BookingPage = React.lazy(() => import('./BookingPage'));
+const SupplierPage = React.lazy(() => import('./SupplierPage'));
+
+// Lighter pages — kept as static imports
 import VerifyEmail from './VerifyEmail';
 import EmailVerificationWaiting from './EmailVerificationWaiting';
-import TourDetailPage from './TourDetailPage';
-import CityPage from './CityPage';
-import AdminDashboard from './AdminDashboard';
-import CityInfoPage from './CityInfoPage';
-import BookingPage from './BookingPage';
-import Footer from './Footer';
 
 // List of Agra Authority Page Slugs for Interception
 const AGRA_INFO_SLUGS = [
@@ -889,6 +893,14 @@ const App: React.FC = () => {
   }
 
   return (
+    <React.Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center bg-white">
+        <div className="text-center">
+          <div className="w-12 h-12 border-4 border-[#10B981] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-500 font-semibold text-sm">Loading...</p>
+        </div>
+      </div>
+    }>
     <div className="flex flex-col min-h-screen">
       <Helmet>
         <title>AsiaByLocals - Authentic Local Tours & Cultural Experiences Across Asia</title>
@@ -1754,6 +1766,7 @@ const App: React.FC = () => {
         )
       }
     </div >
+    </React.Suspense>
   );
 };
 

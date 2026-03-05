@@ -1,4 +1,5 @@
 import React from 'react';
+import Breadcrumbs from './Breadcrumbs';
 import {
     ArrowLeft,
     Clock,
@@ -2028,7 +2029,9 @@ const CityInfoPage: React.FC<CityInfoPageProps> = ({ country, city, slug }) => {
                 <meta property="og:description" content={data.description} />
                 <meta property="og:url" content={`https://www.asiabylocals.com/${country.toLowerCase()}/${city.toLowerCase()}/${slug}`} />
                 <meta property="og:type" content="article" />
-                <meta property="og:image" content={data.heroImage || 'https://www.asiabylocals.com/logo.png'} />
+                <meta property="og:image" content={data.heroImage || 'https://www.asiabylocals.com/og-social.jpg'} />
+                <meta property="og:image:width" content="1200" />
+                <meta property="og:image:height" content="630" />
                 <meta property="og:image:alt" content={data.title} />
                 <meta property="og:site_name" content="AsiaByLocals" />
                 <meta property="og:locale" content="en_US" />
@@ -2036,7 +2039,8 @@ const CityInfoPage: React.FC<CityInfoPageProps> = ({ country, city, slug }) => {
                 <meta name="twitter:card" content="summary_large_image" />
                 <meta name="twitter:title" content={`${data.title} | AsiaByLocals`} />
                 <meta name="twitter:description" content={data.description} />
-                <meta name="twitter:image" content={data.heroImage || 'https://www.asiabylocals.com/logo.png'} />
+                <meta name="twitter:image" content={data.heroImage || 'https://www.asiabylocals.com/og-social.jpg'} />
+                <meta name="twitter:image:alt" content={data.title} />
                 <meta name="twitter:site" content="@asiabylocals" />
                 {data.jsonLd && (
                     <script type="application/ld+json">
@@ -2080,6 +2084,10 @@ const CityInfoPage: React.FC<CityInfoPageProps> = ({ country, city, slug }) => {
                         </div>
                     </div>
                 </div>
+            </div>
+
+            <div className="max-w-6xl mx-auto px-6 pt-8 pb-0">
+                <Breadcrumbs country={country} city={city} tourTitle={data.title} />
             </div>
 
             <div className="max-w-6xl mx-auto px-6 py-12">

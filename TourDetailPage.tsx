@@ -4581,23 +4581,30 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
         {!['Agra', 'Delhi', 'Jaipur', 'Phuket'].includes(city || '') && (
           <meta name="robots" content="noindex, follow" />
         )}
-        {/* Dynamic Canonical Link for SEO */}
-        <link rel="canonical" href={`https://www.asiabylocals.com/${country?.toLowerCase().replace(/\s+/g, '-')}/${city?.toLowerCase().replace(/\s+/g, '-')}/${tour?.slug}`} />
+        {/* Dynamic Canonical — only rendered once tour slug is confirmed to prevent /undefined/undefined */}
+        {tour?.slug && country && city && (
+          <link rel="canonical" href={`https://www.asiabylocals.com/${country.toLowerCase().replace(/\s+/g, '-')}/${city.toLowerCase().replace(/\s+/g, '-')}/${tour.slug}`} />
+        )}
         <meta name="language" content="en" />
         {/* Open Graph */}
         <meta property="og:title" content={tour?.title} />
         <meta property="og:description" content={tour?.shortDescription} />
-        <meta property="og:url" content={`https://www.asiabylocals.com/${country?.toLowerCase().replace(/\s+/g, '-')}/${city?.toLowerCase().replace(/\s+/g, '-')}/${tour?.slug}`} />
+        {tour?.slug && country && city && (
+          <meta property="og:url" content={`https://www.asiabylocals.com/${country.toLowerCase().replace(/\s+/g, '-')}/${city.toLowerCase().replace(/\s+/g, '-')}/${tour.slug}`} />
+        )}
         <meta property="og:type" content="product" />
         <meta property="og:site_name" content="AsiaByLocals" />
         <meta property="og:locale" content="en_US" />
         {tour?.images?.[0] && <meta property="og:image" content={tour.images[0]} />}
+        {tour?.images?.[0] && <meta property="og:image:width" content="1200" />}
+        {tour?.images?.[0] && <meta property="og:image:height" content="630" />}
         {tour?.images?.[0] && <meta property="og:image:alt" content={tour?.title} />}
         {/* Twitter Card */}
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content={tour?.title} />
         <meta name="twitter:description" content={tour?.shortDescription} />
         {tour?.images?.[0] && <meta name="twitter:image" content={tour.images[0]} />}
+        {tour?.images?.[0] && <meta name="twitter:image:alt" content={tour?.title} />}
         <meta name="twitter:site" content="@asiabylocals" />
         <script type="application/ld+json">
           {JSON.stringify(structuredData)}
