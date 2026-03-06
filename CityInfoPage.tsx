@@ -93,10 +93,23 @@ const CityInfoPage: React.FC<CityInfoPageProps> = ({ country, city, slug }) => {
                     ],
                     jsonLd: {
                         "@context": "https://schema.org",
-                        "@type": "Article",
-                        "headline": "The Ultimate Guide: In-Depth Exploration of Agra (2026 Edition)",
-                        "description": "Agra is much more than just the Taj Mahal. Discover the most comprehensive, 3000+ word guide to exploring Agra’s hidden Mughal monuments, authentic street food alleys, bustling bazaars, and unforgettable sunrise viewpoints that most tourists miss.",
-                        "author": { "@type": "Organization", "name": "AsiaByLocals" }
+                        "@graph": [
+                            {
+                                "@type": "Article",
+                                "headline": "The Ultimate Guide: In-Depth Exploration of Agra (2026 Edition)",
+                                "description": "Agra is much more than just the Taj Mahal. Discover the most comprehensive, 3000+ word guide to exploring Agra’s hidden Mughal monuments, authentic street food alleys, bustling bazaars, and unforgettable sunrise viewpoints that most tourists miss.",
+                                "datePublished": "2026-01-01T08:00:00+05:30",
+                                "dateModified": "2026-03-01T10:00:00+05:30",
+                                "author": { "@type": "Organization", "name": "AsiaByLocals" }
+                            },
+                            {
+                                "@type": "FAQPage",
+                                "mainEntity": [
+                                    { "@type": "Question", "name": "How many days should I realistically spend in Agra?", "acceptedAnswer": { "@type": "Answer", "text": "To truly experience the items on this list, you need 3 days and 2 nights. Most tourists only do a 1-day trip, which means they only see the Taj Mahal and Agra Fort. A 3-day itinerary allows you to explore the local food, the ghost city of Fatehpur Sikri, and the peaceful gardens without severe fatigue." } },
+                                    { "@type": "Question", "name": "Are female guides available for Taj Mahal tours?", "acceptedAnswer": { "@type": "Answer", "text": "Yes, licensed female historian guides are available and highly recommended, especially for groups interested in the history of the Mughal women and the Zenana politics." } }
+                                ]
+                            }
+                        ]
                     },
                     fastFacts: [
                         { icon: 'Ticket', label: 'Ticket Info', value: 'Digital Pre-Booking Required' },
@@ -145,9 +158,24 @@ const CityInfoPage: React.FC<CityInfoPageProps> = ({ country, city, slug }) => {
                     ],
                     jsonLd: {
                         "@context": "https://schema.org",
-                        "@type": "Article",
-                        "headline": "Strategic Places to Visit in Agra: A Deep-Dive Directory (2026)",
-                        "author": { "@type": "Organization", "name": "AsiaByLocals" }
+                        "@graph": [
+                            {
+                                "@type": "Article",
+                                "headline": "Strategic Places to Visit in Agra: A Deep-Dive Directory (2026)",
+                                "datePublished": "2026-01-01T08:00:00+05:30",
+                                "dateModified": "2026-03-01T10:00:00+05:30",
+                                "author": { "@type": "Organization", "name": "AsiaByLocals" }
+                            },
+                            {
+                                "@type": "FAQPage",
+                                "mainEntity": [
+                                    { "@type": "Question", "name": "What is the best order to visit these monuments?", "acceptedAnswer": { "@type": "Answer", "text": "Start at the Taj Mahal at dawn (06:00 AM), move to the Agra Fort by 09:30 AM before the heat builds, and save the riverside sites like the Baby Taj and Mehtab Bagh for the late afternoon." } },
+                                    { "@type": "Question", "name": "Are these sites open every day?", "acceptedAnswer": { "@type": "Answer", "text": "Most monuments are open from sunrise to sunset daily. However, the Taj Mahal is strictly CLOSED every Friday for regular tourists." } },
+                                    { "@type": "Question", "name": "Can I walk between these places?", "acceptedAnswer": { "@type": "Answer", "text": "Walking is not recommended for the main circuit. The distance between the Taj and Agra Fort is 2.5km, and the Baby Taj is on the opposite side of the river. Use app-based taxis or e-rickshaws for efficiency." } },
+                                    { "@type": "Question", "name": "Do I need separate tickets for each site?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. Every monument requires its own entrance fee. As of 2026, most ticket sales have transitioned to digital-only formats." } }
+                                ]
+                            }
+                        ]
                     },
                     fastFacts: [
                         { icon: 'Ticket', label: 'Ticket Plan', value: 'Book Taj & Fort Together' },
@@ -215,10 +243,24 @@ const CityInfoPage: React.FC<CityInfoPageProps> = ({ country, city, slug }) => {
                     ],
                     jsonLd: {
                         "@context": "https://schema.org",
-                        "@type": "Article",
-                        "headline": "Agra Fort: The Imperial Red Fortress - Ultimate 2026 Guide",
-                        "description": "Comprehensive authority guide for visiting Agra Fort in 2026. Includes history, architectural details, and travel strategies.",
-                        "author": { "@type": "Organization", "name": "AsiaByLocals" }
+                        "@graph": [
+                            {
+                                "@type": "Article",
+                                "headline": "Agra Fort: The Imperial Red Fortress - Ultimate 2026 Guide",
+                                "description": "Comprehensive authority guide for visiting Agra Fort in 2026. Includes history, architectural details, and travel strategies.",
+                                "datePublished": "2026-01-01T08:00:00+05:30",
+                                "dateModified": "2026-03-01T10:00:00+05:30",
+                                "author": { "@type": "Organization", "name": "AsiaByLocals" }
+                            },
+                            {
+                                "@type": "FAQPage",
+                                "mainEntity": [
+                                    { "@type": "Question", "name": "Is Agra Fort worth visiting if I've seen the Taj Mahal?", "acceptedAnswer": { "@type": "Answer", "text": "Absolutely. Most travelers find the interior of the Fort more architecturally diverse and fascinating than the Taj. It provides the 'human' side of the Mughal story." } },
+                                    { "@type": "Question", "name": "Is Agra Fort open on Fridays?", "acceptedAnswer": { "@type": "Answer", "text": "Yes, Agra Fort is open every day of the week, including Fridays." } },
+                                    { "@type": "Question", "name": "What is the Agra Fort entry fee?", "acceptedAnswer": { "@type": "Answer", "text": "For 2026, the fee is ₹600 for foreigners and ₹50 for locals. A small additional fee applies for online booking." } }
+                                ]
+                            }
+                        ]
                     }
                 };
 
@@ -261,12 +303,26 @@ const CityInfoPage: React.FC<CityInfoPageProps> = ({ country, city, slug }) => {
                     ],
                     jsonLd: {
                         "@context": "https://schema.org",
-                        "@type": "HowTo",
-                        "name": "1-Day Agra Itinerary",
-                        "step": [
-                            { "@type": "HowToStep", "text": "Sunrise at Taj Mahal" },
-                            { "@type": "HowToStep", "text": "Morning at Agra Fort" },
-                            { "@type": "HowToStep", "text": "Sunset at Mehtab Bagh" }
+                        "@graph": [
+                            {
+                                "@type": "HowTo",
+                                "name": "1-Day Agra Itinerary",
+                                "datePublished": "2026-01-01T08:00:00+05:30",
+                                "dateModified": "2026-03-01T10:00:00+05:30",
+                                "step": [
+                                    { "@type": "HowToStep", "text": "Sunrise at Taj Mahal" },
+                                    { "@type": "HowToStep", "text": "Morning at Agra Fort" },
+                                    { "@type": "HowToStep", "text": "Sunset at Mehtab Bagh" }
+                                ]
+                            },
+                            {
+                                "@type": "FAQPage",
+                                "mainEntity": [
+                                    { "@type": "Question", "name": "Is 1 day honestly enough for Agra?", "acceptedAnswer": { "@type": "Answer", "text": "Yes, it is enough to see the 'Big Three' (Taj, Fort, Baby Taj) and catch a sunset at Mehtab Bagh. However, you will be on your feet for 10-12 hours. If you want a relaxed pace, we recommend extending to 2 days." } },
+                                    { "@type": "Question", "name": "What is the best order to visit Taj and Fort?", "acceptedAnswer": { "@type": "Answer", "text": "Always Taj Mahal first at sunrise. The experience at 06:00 AM compared to 11:00 AM is night and day. Once the heat kicks in, the shade of the Fort's stone corridors is more welcome." } },
+                                    { "@type": "Question", "name": "Is it possible to do a day trip from Delhi?", "acceptedAnswer": { "@type": "Answer", "text": "Absolutely. Take the Gatimaan Express (08:10 AM departure) and return by evening. If you use the Yamuna Expressway by car, leave Delhi by 05:00 AM to maximize your time." } }
+                                ]
+                            }
                         ]
                     },
                     fastFacts: [
@@ -377,15 +433,6 @@ const CityInfoPage: React.FC<CityInfoPageProps> = ({ country, city, slug }) => {
                                         "name": "What is the Taj Mahal entry ticket price in 2026?",
                                         "acceptedAnswer": { "@type": "Answer", "text": "For 2026, foreign tourists pay ₹1,300 and Indian citizens pay ₹250 for full entry including the mausoleum." }
                                     }
-                                ]
-                            },
-                            {
-                                "@type": "BreadcrumbList",
-                                "itemListElement": [
-                                    { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://www.asiabylocals.com" },
-                                    { "@type": "ListItem", "position": 2, "name": "India", "item": "https://www.asiabylocals.com/india" },
-                                    { "@type": "ListItem", "position": 3, "name": "Agra", "item": "https://www.asiabylocals.com/india/agra" },
-                                    { "@type": "ListItem", "position": 4, "name": "Taj Mahal Ticket Price 2026", "item": "https://www.asiabylocals.com/india/agra/taj-mahal-ticket-price-2026" }
                                 ]
                             }
                         ]
@@ -615,9 +662,22 @@ const CityInfoPage: React.FC<CityInfoPageProps> = ({ country, city, slug }) => {
                     ],
                     jsonLd: {
                         "@context": "https://schema.org",
-                        "@type": "Article",
-                        "headline": "Agra Travel Guide 2026",
-                        "author": { "@type": "Organization", "name": "AsiaByLocals" }
+                        "@graph": [
+                            {
+                                "@type": "Article",
+                                "headline": "Agra Travel Guide 2026",
+                                "datePublished": "2026-01-01T08:00:00+05:30",
+                                "dateModified": "2026-03-01T10:00:00+05:30",
+                                "author": { "@type": "Organization", "name": "AsiaByLocals" }
+                            },
+                            {
+                                "@type": "FAQPage",
+                                "mainEntity": [
+                                    { "@type": "Question", "name": "Is Agra safe for tourists?", "acceptedAnswer": { "@type": "Answer", "text": "Yes, Agra is generally safe. Use common sense, use app-based taxis for night travel, and stay in well-reviewed areas like Taj East Gate Road." } },
+                                    { "@type": "Question", "name": "What is the best way to avoid Taj Mahal crowds?", "acceptedAnswer": { "@type": "Answer", "text": "Arrive at the West or East gate by 5:30 AM. The first 30 minutes after opening provide the only window for crowd-free photography." } }
+                                ]
+                            }
+                        ]
                     },
                     fastFacts: [
                         { icon: 'Map', label: 'Total Duration', value: '3 Days (Recommended)' },
@@ -2023,11 +2083,11 @@ const CityInfoPage: React.FC<CityInfoPageProps> = ({ country, city, slug }) => {
                     <meta name="robots" content="noindex, follow" />
                 )}
                 {/* Canonical */}
-                <link rel="canonical" href={`https://www.asiabylocals.com/${country.toLowerCase()}/${city.toLowerCase()}/${slug}`} />
+                <link rel="canonical" href={`https://www.asiabylocals.com/${country.toLowerCase().replace(/\s+/g, '-')}/${city.toLowerCase().replace(/\s+/g, '-')}/${slug}`} />
                 {/* Open Graph */}
                 <meta property="og:title" content={`${data.title} | AsiaByLocals Official Guide`} />
                 <meta property="og:description" content={data.description} />
-                <meta property="og:url" content={`https://www.asiabylocals.com/${country.toLowerCase()}/${city.toLowerCase()}/${slug}`} />
+                <meta property="og:url" content={`https://www.asiabylocals.com/${country.toLowerCase().replace(/\s+/g, '-')}/${city.toLowerCase().replace(/\s+/g, '-')}/${slug}`} />
                 <meta property="og:type" content="article" />
                 <meta property="og:image" content={data.heroImage || 'https://www.asiabylocals.com/og-social.jpg'} />
                 <meta property="og:image:width" content="1200" />
@@ -2090,7 +2150,7 @@ const CityInfoPage: React.FC<CityInfoPageProps> = ({ country, city, slug }) => {
             </div>
 
             <div className="max-w-6xl mx-auto px-6 pt-8 pb-0">
-                <Breadcrumbs country={country} city={city} tourTitle={data.title} />
+                <Breadcrumbs country={country} city={city} tourTitle={data.title} slug={slug} />
             </div>
 
             <div className="max-w-6xl mx-auto px-6 py-12">

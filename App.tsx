@@ -915,8 +915,18 @@ const App: React.FC = () => {
         <meta name="language" content="en" />
         <meta property="og:title" content="AsiaByLocals - Authentic Local Tours & Cultural Experiences Across Asia" />
         <meta property="og:description" content="Discover authentic local tours and cultural experiences across Asia. Book tours with verified local guides in India, Japan, Thailand, Vietnam, Indonesia, and more." />
+        <meta property="og:image" content="https://www.asiabylocals.com/og-social.jpg" />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        <meta property="og:image:alt" content="AsiaByLocals - Authentic Local Tours Across Asia" />
+        <meta property="og:site_name" content="AsiaByLocals" />
         <meta property="og:url" content="https://www.asiabylocals.com/" />
         <meta property="og:type" content="website" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="AsiaByLocals - Authentic Local Tours & Cultural Experiences Across Asia" />
+        <meta name="twitter:description" content="Discover authentic local tours and cultural experiences across Asia." />
+        <meta name="twitter:image" content="https://www.asiabylocals.com/og-social.jpg" />
+        <meta name="twitter:image:alt" content="AsiaByLocals - Authentic Local Tours Across Asia" />
         <script type="application/ld+json">
           {JSON.stringify({
             "@context": "https://schema.org",

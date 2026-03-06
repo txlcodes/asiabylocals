@@ -3441,13 +3441,6 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
         return 'PT3H';
       };
 
-      // Generate consistent rating/review count between 4.0-5.0 based on tour ID
-      const seed = parseInt(tour.id) || 0;
-      const random = (seed * 9301 + 49297) % 233280;
-      const normalized = random / 233280;
-      const ratingValue = (4.0 + (normalized * 1.0)).toFixed(1);
-      const reviewCount = Math.floor(normalized * 100) + 20; // 20-120 reviews
-
       // Structured Data (JSON-LD) - Tour schema with multiple types for better visibility
       const existingSchema = document.querySelector('script[type="application/ld+json"][data-tour-schema]');
       if (existingSchema) existingSchema.remove();
@@ -3515,43 +3508,6 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
             "addressCountry": country || ""
           }
         },
-        "aggregateRating": {
-          "@type": "AggregateRating",
-          "ratingValue": ratingValue,
-          "reviewCount": reviewCount
-        }
-      };
-
-      // Add BreadcrumbList schema for better navigation understanding
-      const breadcrumbData = {
-        "@context": "https://schema.org",
-        "@type": "BreadcrumbList",
-        "itemListElement": [
-          {
-            "@type": "ListItem",
-            "position": 1,
-            "name": "Home",
-            "item": "https://www.asiabylocals.com"
-          },
-          {
-            "@type": "ListItem",
-            "position": 2,
-            "name": country || "Country",
-            "item": `https://www.asiabylocals.com/${country?.toLowerCase() || ''}`
-          },
-          {
-            "@type": "ListItem",
-            "position": 3,
-            "name": city || "City",
-            "item": `https://www.asiabylocals.com/${country?.toLowerCase() || ''}/${city?.toLowerCase() || ''}`
-          },
-          {
-            "@type": "ListItem",
-            "position": 4,
-            "name": tour.title,
-            "item": tourUrl
-          }
-        ]
       };
 
       // Remove undefined fields
@@ -3564,22 +3520,13 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
       // Remove existing schemas if any
       const existingTourSchemas = document.querySelectorAll('script[type="application/ld+json"][data-tour-schema]');
       existingTourSchemas.forEach(schema => schema.remove());
-      const existingBreadcrumbSchemas = document.querySelectorAll('script[type="application/ld+json"][data-breadcrumb-schema]');
-      existingBreadcrumbSchemas.forEach(schema => schema.remove());
 
-      // Add TouristTrip schema
+      // Add TouristTrip/Product schema
       const tourScript = document.createElement('script');
       tourScript.type = 'application/ld+json';
       tourScript.setAttribute('data-tour-schema', 'true');
       tourScript.textContent = JSON.stringify(structuredData);
       document.head.appendChild(tourScript);
-
-      // Add BreadcrumbList schema
-      const breadcrumbScript = document.createElement('script');
-      breadcrumbScript.type = 'application/ld+json';
-      breadcrumbScript.setAttribute('data-breadcrumb-schema', 'true');
-      breadcrumbScript.textContent = JSON.stringify(breadcrumbData);
-      document.head.appendChild(breadcrumbScript);
 
       // FAQ Schema (JSON-LD)
       const tourTitle = tour.title || 'this tour';
@@ -4660,6 +4607,7 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
             country={country}
             city={city}
             tourTitle={tour?.title}
+            slug={tourSlug}
           />
 
           {loading ? (
@@ -5464,15 +5412,15 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
                               );
                             }
 
-                            // Handle Headings
+                            // Handle Headings — shifted down one level (page H1 is the tour title)
                             if (trimmed.startsWith('# ')) {
-                              return <h1 key={i} className="text-2xl sm:text-3xl font-black text-[#001A33] mb-8 mt-12 border-b-2 border-gray-50 pb-4">{trimmed.replace('# ', '')}</h1>;
+                              return <h2 key={i} className="text-2xl sm:text-3xl font-black text-[#001A33] mb-8 mt-12 border-b-2 border-gray-50 pb-4">{trimmed.replace('# ', '')}</h2>;
                             }
                             if (trimmed.startsWith('## ')) {
-                              return <h2 key={i} className="text-xl sm:text-2xl font-black text-[#001A33] mb-6 mt-10">{trimmed.replace('## ', '')}</h2>;
+                              return <h3 key={i} className="text-xl sm:text-2xl font-black text-[#001A33] mb-6 mt-10">{trimmed.replace('## ', '')}</h3>;
                             }
                             if (trimmed.startsWith('### ')) {
-                              return <h3 key={i} className="text-[18px] sm:text-xl font-black text-[#001A33] mb-4 mt-8">{trimmed.replace('### ', '')}</h3>;
+                              return <h4 key={i} className="text-[18px] sm:text-xl font-black text-[#001A33] mb-4 mt-8">{trimmed.replace('### ', '')}</h4>;
                             }
 
                             // Handle Separators

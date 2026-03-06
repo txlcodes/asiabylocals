@@ -5,9 +5,10 @@ interface BreadcrumbsProps {
     country?: string;
     city?: string;
     tourTitle?: string;
+    slug?: string;
 }
 
-const Breadcrumbs: React.FC<BreadcrumbsProps> = ({ country, city, tourTitle }) => {
+const Breadcrumbs: React.FC<BreadcrumbsProps> = ({ country, city, tourTitle, slug }) => {
     const countrySlug = country?.toLowerCase().replace(/\s+/g, '-');
     const citySlug = city?.toLowerCase().replace(/\s+/g, '-');
 
@@ -25,7 +26,9 @@ const Breadcrumbs: React.FC<BreadcrumbsProps> = ({ country, city, tourTitle }) =
         items.push({
             position: items.length + 1,
             name: tourTitle,
-            item: `https://www.asiabylocals.com/${countrySlug}/${citySlug}`
+            item: slug
+                ? `https://www.asiabylocals.com/${countrySlug}/${citySlug}/${slug}`
+                : `https://www.asiabylocals.com/${countrySlug}/${citySlug}`
         });
     }
 

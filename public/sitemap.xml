@@ -105,6 +105,27 @@
     <priority>0.8</priority>
   </url>
 
+  <!-- Agra Authority: taj-mahal -->
+  <url>
+    <loc>https://www.asiabylocals.com/india/agra/taj-mahal</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Agra Authority: agra-fort -->
+  <url>
+    <loc>https://www.asiabylocals.com/india/agra/agra-fort</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Agra Authority: fatehpur-sikri -->
+  <url>
+    <loc>https://www.asiabylocals.com/india/agra/fatehpur-sikri</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
   <!-- Layer 3: Jaipur, India -->
   <url>
     <loc>https://www.asiabylocals.com/india/jaipur</loc>

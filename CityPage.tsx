@@ -2052,14 +2052,6 @@ const CityPage: React.FC<CityPageProps> = ({ country, city }) => {
         }
       },
       {
-        "@type": "BreadcrumbList",
-        "itemListElement": [
-          { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://www.asiabylocals.com" },
-          { "@type": "ListItem", "position": 2, "name": country, "item": `https://www.asiabylocals.com/${countrySlug}` },
-          { "@type": "ListItem", "position": 3, "name": city, "item": cityPageUrl }
-        ]
-      },
-      {
         "@type": "FAQPage",
         "mainEntity": cityInfo.faqs.map(faq => ({
           "@type": "Question",
