@@ -8,7 +8,7 @@ const Footer: React.FC = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 mb-12">
                     <div className="col-span-1 lg:col-span-1">
                         <a href="/" className="inline-block mb-4">
-                            <img src="/logo.png" alt="AsiaByLocals Logo" className="h-32 w-auto invert brightness-0" />
+                            <img src="/logo.png" alt="AsiaByLocals Logo" className="h-32 w-auto invert brightness-0" width={240} height={128} loading="lazy" />
                         </a>
                         <p className="text-gray-400 text-[13px] leading-relaxed">
                             Empowering local experts across Asia to share their heritage directly with curious travelers.
@@ -51,7 +51,7 @@ const Footer: React.FC = () => {
                     <div className="flex flex-wrap justify-center items-center gap-4">
                         {/* Visa */}
                         <div className="bg-white rounded-md px-2.5 py-1.5 flex items-center justify-center shadow-sm hover:shadow-md transition-shadow" title="Visa">
-                            <img src="/visa-logo.png" alt="Visa" className="h-6 w-auto object-contain" />
+                            <img src="/visa-logo.png" alt="Visa" className="h-6 w-auto object-contain" loading="lazy" />
                         </div>
                         {/* Mastercard */}
                         <div className="bg-white rounded-md px-2.5 py-1.5 flex items-center justify-center shadow-sm hover:shadow-md transition-shadow" title="Mastercard">

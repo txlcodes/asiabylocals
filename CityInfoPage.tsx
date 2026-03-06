@@ -1992,7 +1992,7 @@ const CityInfoPage: React.FC<CityInfoPageProps> = ({ country, city, slug }) => {
         return (
             <div className="min-h-screen bg-white flex items-center justify-center p-6 text-center">
                 <div>
-                    <h1 className="text-2xl font-black text-[#001A33] mb-4">Content Not Identified</h1>
+                    <h2 className="text-2xl font-black text-[#001A33] mb-4">Content Not Identified</h2>
                     <button onClick={handleBack} className="text-[#10B981] font-bold">Back to Search</button>
                 </div>
             </div>
@@ -2055,6 +2055,9 @@ const CityInfoPage: React.FC<CityInfoPageProps> = ({ country, city, slug }) => {
                     src={data.heroImage}
                     alt={data.title}
                     className="w-full h-full object-cover"
+                    width={1400}
+                    height={600}
+                    fetchPriority="high"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-[#001A33] via-[#001A33]/40 to-transparent"></div>
 
@@ -2150,7 +2153,7 @@ const CityInfoPage: React.FC<CityInfoPageProps> = ({ country, city, slug }) => {
                                             <div className="relative z-10 flex flex-col md:flex-row items-center gap-12">
                                                 {section.image && (
                                                     <div className="w-full md:w-[280px] aspect-[4/3] shrink-0 rounded-3xl overflow-hidden shadow-2xl border-4 border-white/10 group-hover:scale-[1.02] transition-transform duration-700">
-                                                        <img src={section.image} alt={section.title} className="w-full h-full object-cover" />
+                                                        <img src={section.image} alt={section.title} className="w-full h-full object-cover" loading="lazy" />
                                                     </div>
                                                 )}
                                                 <div className="flex-1 text-center md:text-left">
@@ -2197,6 +2200,7 @@ const CityInfoPage: React.FC<CityInfoPageProps> = ({ country, city, slug }) => {
                                                     src={section.image}
                                                     alt={section.title}
                                                     className="w-full h-auto object-cover max-h-[400px]"
+                                                    loading="lazy"
                                                 />
                                             </div>
                                         )}

@@ -1467,6 +1467,9 @@ const ThingsToDoSection: React.FC<ThingsToDoSectionProps> = ({ city }) => {
                     alt={`${item.title} in ${city} `}
                     className="w-full h-52 md:h-52 object-cover"
                     style={{ objectFit: 'cover', objectPosition: 'center' }}
+                    loading="lazy"
+                    width={400}
+                    height={208}
                     onError={(e) => {
                       // Fallback to placeholder if image not found
                       const target = e.target as HTMLImageElement;
@@ -2146,6 +2149,8 @@ const CityPage: React.FC<CityPageProps> = ({ country, city }) => {
                 alt="Asia By Locals"
                 className="h-[120px] sm:h-[130px] md:h-[140px] lg:h-[150px] xl:h-[160px] w-auto object-contain"
                 style={{ transform: 'translateY(3px)' }}
+                width={240}
+                height={120}
               />
             </a>
           </div>
@@ -2337,6 +2342,8 @@ const CityPage: React.FC<CityPageProps> = ({ country, city }) => {
                           alt={`${tour.title} in ${city} - ${cityInfo.description}`}
                           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                           loading="lazy"
+                          width={400}
+                          height={208}
                         />
                         {/* Brand Logo Overlay */}
 

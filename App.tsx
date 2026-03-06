@@ -30,6 +30,7 @@ const CityInfoPage = React.lazy(() => import('./CityInfoPage'));
 const AdminDashboard = React.lazy(() => import('./AdminDashboard'));
 const BookingPage = React.lazy(() => import('./BookingPage'));
 const SupplierPage = React.lazy(() => import('./SupplierPage'));
+const NotFound = React.lazy(() => import('./NotFound'));
 
 // Lighter pages — kept as static imports
 import VerifyEmail from './VerifyEmail';
@@ -892,6 +893,11 @@ const App: React.FC = () => {
     }} />;
   }
 
+  // Catch-all: if the URL isn't "/" and no route above matched, show 404
+  if (window.location.pathname !== '/') {
+    return <NotFound />;
+  }
+
   return (
     <React.Suspense fallback={
       <div className="min-h-screen flex items-center justify-center bg-white">
@@ -964,6 +970,8 @@ const App: React.FC = () => {
                 alt="Asia By Locals"
                 className="w-auto object-contain"
                 style={{ height: '120px', maxHeight: '120px' }}
+                width={240}
+                height={120}
               />
             </div>
 
@@ -1316,6 +1324,9 @@ const App: React.FC = () => {
               objectFit: 'cover',
               objectPosition: 'center'
             }}
+            width={1920}
+            height={1080}
+            fetchPriority={index === 0 ? 'high' : undefined}
             loading={index === 0 ? 'eager' : 'lazy'}
           />
         ))}
@@ -1475,7 +1486,7 @@ const App: React.FC = () => {
           <div className="flex gap-4 overflow-x-auto no-scrollbar pb-4">
             {ATTRACTIONS.map((attr) => (
               <div key={attr.id} className="group flex-shrink-0 w-72 md:w-[380px] h-48 rounded-2xl overflow-hidden relative cursor-pointer shadow-sm hover:shadow-lg transition-all">
-                <img src={attr.image} alt={`${attr.title} - Top attraction in ${attr.location} - Book tours and experiences`} className="absolute inset-0 w-full h-full object-cover brightness-75 group-hover:scale-105 transition-transform duration-700" />
+                <img src={attr.image} alt={`${attr.title} - Top attraction in ${attr.location} - Book tours and experiences`} className="absolute inset-0 w-full h-full object-cover brightness-75 group-hover:scale-105 transition-transform duration-700" loading="lazy" />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent"></div>
                 <div className="absolute bottom-4 left-4 right-4">
                   <h4 className="text-white font-black text-xl leading-tight mb-1">{attr.title}</h4>

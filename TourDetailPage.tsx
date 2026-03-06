@@ -4645,6 +4645,8 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
                 alt="Asia By Locals"
                 className="h-[120px] sm:h-[130px] md:h-[140px] lg:h-[150px] xl:h-[160px] w-auto object-contain"
                 style={{ transform: 'translateY(3px)' }}
+                width={240}
+                height={120}
               />
             </a>
           </div>
@@ -4828,6 +4830,9 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
                           src={mainImage}
                           alt={tour.title}
                           className="w-full h-[500px] object-cover rounded-2xl"
+                          width={1200}
+                          height={500}
+                          fetchPriority="high"
                         />
                         <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors rounded-2xl pointer-events-none"></div>
                       </div>
@@ -4848,6 +4853,7 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
                             alt={`${tour.title} ${index + 2}`}
                             className={`w-full object-cover rounded-2xl ${index === 0 ? 'h-[246px]' : 'h-[246px]'
                               }`}
+                            loading="lazy"
                           />
                           {index === 1 && remainingImages > 0 && (
                             <div className="absolute inset-0 bg-black/60 rounded-2xl flex items-center justify-center pointer-events-none z-10">
