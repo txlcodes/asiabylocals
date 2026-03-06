@@ -33,11 +33,8 @@ export default defineConfig(({ mode }) => {
         output: {
           // Split vendor libraries into separate cacheable chunks
           manualChunks: (id) => {
-            if (id.includes('node_modules/react/') || id.includes('node_modules/react-dom/')) {
+            if (id.includes('node_modules/react/') || id.includes('node_modules/react-dom/') || id.includes('node_modules/react-helmet-async')) {
               return 'vendor-react';
-            }
-            if (id.includes('node_modules/react-helmet-async')) {
-              return 'vendor-helmet';
             }
             if (id.includes('node_modules/lucide-react')) {
               return 'vendor-icons';
