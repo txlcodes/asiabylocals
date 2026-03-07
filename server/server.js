@@ -9462,6 +9462,44 @@ if (process.env.NODE_ENV === 'production') {
       }
     });
 
+    // ─── 301 Redirects: Old slugs → New SEO-friendly slugs ───
+    const slugRedirects = {
+      // Agra
+      'agra-walking-sunrise-tour': 'taj-mahal-sunrise-skip-the-line-tour',
+      'taj-mahal-sunrise-sunrise-tour': 'private-sunrise-taj-mahal-agra-fort-tour',
+      'agra-gatimaan-entry-ticket': 'delhi-agra-round-trip-gatimaan-train',
+      'agra-same-guided-tour': 'same-day-delhi-to-agra-tour',
+      'taj-mahal-delhi-guided-tour': 'taj-mahal-same-day-tour-from-delhi',
+      'female-guide-for-taj-mahal': 'taj-mahal-tour-with-female-guide',
+      // Delhi
+      'agra-fort-sunrise-tour': 'taj-mahal-sunrise-elephant-conservation-tour',
+      'agra-fort-express-tour': 'taj-mahal-same-day-express-train-tour',
+      'india-gate-inclusive-guided-tour': 'golden-triangle-tour-delhi-agra-jaipur',
+      'india-gate-guided-tour-heritage': 'old-new-delhi-guided-tour',
+      'india-gate-triangle-guided-tour': '6-days-golden-triangle-tour-from-delhi',
+      'delhi-luxury-premium-tour': 'taj-mahal-agra-day-trip-luxury-car',
+      'delhi-golden-guided-tour': '5-days-golden-triangle-tour-from-delhi',
+      'agra-overnight-tour': 'delhi-to-agra-overnight-tour',
+      // Jaipur
+      'elepahnt-village-walking-tour': 'elephant-village-tour-jaipur',
+      'hawa-mahal-food-tour': 'jaipur-heritage-walk-street-food-tour',
+      'hawa-mahal-full-day-tour': 'jaipur-private-full-day-sightseeing-tour',
+      'hawa-mahal-private-tour': 'jaipur-full-day-sightseeing-tour-by-car',
+      'amber-fort-guided-tour': 'jaipur-city-tour-with-official-guide',
+      'jaipur-enjoy-private-tour': 'jaipur-to-agra-taj-mahal-day-trip',
+    };
+
+    app.use((req, res, next) => {
+      // Extract the last segment of the URL path as the potential slug
+      const segments = req.path.split('/').filter(Boolean);
+      const lastSegment = segments[segments.length - 1];
+      if (lastSegment && slugRedirects[lastSegment]) {
+        const newPath = req.path.replace(lastSegment, slugRedirects[lastSegment]);
+        return res.redirect(301, newPath);
+      }
+      next();
+    });
+
     // Serve static assets (JS, CSS, images, etc.) - AFTER SEO routes
     app.use(express.static(distPath));
 
