@@ -3929,12 +3929,11 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
     const groupPrice = calculateGroupPrice(tourData, currentParticipants);
 
     if (groupPrice !== null && groupPrice > 0) {
-      totalAmount = groupPrice;
+      totalAmount = groupPrice * currentParticipants;
     } else {
-      // DO NOT use groupPrice fallback - it's the LAST tier price (wrong)
-      // Fallback: use pricePerPerson (should be first tier price)
+      // Fallback: use pricePerPerson multiplied by participants
       const pricePerPerson = selectedOption?.price || tour.pricePerPerson || 0;
-      totalAmount = pricePerPerson;
+      totalAmount = pricePerPerson * currentParticipants;
     }
 
     // Store booking data and show booking form
@@ -4925,13 +4924,14 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
                             currentParticipants >= (t.minPeople || 1) && currentParticipants <= (t.maxPeople || 999)
                           ) || optTiers[optTiers.length - 1];
                           const tierPrice = parseFloat(matchingTier?.price || optTiers[0]?.price || option.price || 0);
-                          return `${currencySymbol}${toDisplayPrice(tierPrice).toLocaleString()}`;
+                          const totalPrice = tierPrice * currentParticipants;
+                          return `${currencySymbol}${toDisplayPrice(totalPrice).toLocaleString()}`;
                         }
                         const groupPrice = calculateGroupPrice(option, currentParticipants);
                         if (groupPrice !== null) {
-                          return `${currencySymbol}${toDisplayPrice(groupPrice).toLocaleString()}`;
+                          return `${currencySymbol}${toDisplayPrice(groupPrice * currentParticipants).toLocaleString()}`;
                         }
-                        return `${currencySymbol}${toDisplayPrice(option.price || 0).toLocaleString()}`;
+                        return `${currencySymbol}${toDisplayPrice((option.price || 0) * currentParticipants).toLocaleString()}`;
                       };
 
                       // Extract max guests from option title (e.g. "Up to 15 Guests")
@@ -5280,17 +5280,18 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
                                                 currentParticipants >= (t.minPeople || 1) && currentParticipants <= (t.maxPeople || 999)
                                               ) || optTiers[optTiers.length - 1];
                                               const tierPrice = parseFloat(matchingTier?.price || optTiers[0]?.price || option.price || 0);
-                                              return `${currencySymbol}${toDisplayPrice(tierPrice).toLocaleString()}`;
+                                              const totalPrice = tierPrice * currentParticipants;
+                                              return `${currencySymbol}${toDisplayPrice(totalPrice).toLocaleString()}`;
                                             }
 
                                             // No own tiers — fall back to main tour tiers (which are in tour.currency)
                                             const groupPrice = calculateGroupPrice(option, currentParticipants);
                                             if (groupPrice !== null) {
-                                              return `${currencySymbol}${toDisplayPrice(groupPrice).toLocaleString()}`;
+                                              return `${currencySymbol}${toDisplayPrice(groupPrice * currentParticipants).toLocaleString()}`;
                                             }
 
                                             // Last fallback: option.price
-                                            return `${currencySymbol}${toDisplayPrice(option.price || 0).toLocaleString()}`;
+                                            return `${currencySymbol}${toDisplayPrice((option.price || 0) * currentParticipants).toLocaleString()}`;
                                           })()}
                                         </div>
                                       </div>
@@ -5876,9 +5877,10 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
                                 const sidebarConvertDynamic = (p: number) => tour.currency === 'INR' ? Math.round(p / 85) : p;
 
                                 if (groupPrice !== null && groupPrice > 0) {
-                                  console.log('✅ Using calculated group price:', groupPrice);
+                                  const totalPrice = groupPrice * currentParticipants;
+                                  console.log('✅ Using calculated group price:', groupPrice, '× ', currentParticipants, '=', totalPrice);
                                   console.log('═══════════════════════════════════════════════════════════');
-                                  return sidebarConvertDynamic(groupPrice).toLocaleString();
+                                  return sidebarConvertDynamic(totalPrice).toLocaleString();
                                 }
 
                                 // Check main tour option for group pricing
@@ -5888,18 +5890,18 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
                                   if (mainTourOption && mainTourOption.groupPricingTiers) {
                                     const optionGroupPrice = calculateGroupPrice(mainTourOption, currentParticipants);
                                     if (optionGroupPrice !== null && optionGroupPrice > 0) {
-                                      console.log('✅ Using main tour option price:', optionGroupPrice);
+                                      const totalPrice = optionGroupPrice * currentParticipants;
+                                      console.log('✅ Using main tour option price:', optionGroupPrice, '×', currentParticipants, '=', totalPrice);
                                       console.log('═══════════════════════════════════════════════════════════════');
-                                      return sidebarConvertDynamic(optionGroupPrice).toLocaleString();
+                                      return sidebarConvertDynamic(totalPrice).toLocaleString();
                                     }
                                   }
-                                  // DO NOT use groupPrice - it's the LAST tier price (wrong)
                                 }
 
-                                // Fallback: use pricePerPerson (should be first tier price)
+                                // Fallback: use pricePerPerson multiplied by participants
                                 console.warn('⚠️ Using fallback pricePerPerson:', tour.pricePerPerson);
                                 console.log('═══════════════════════════════════════════════════════════');
-                                return sidebarConvertDynamic(tour.pricePerPerson || 0).toLocaleString();
+                                return sidebarConvertDynamic((tour.pricePerPerson || 0) * currentParticipants).toLocaleString();
                               })()}
                             </div>
                           </div>
@@ -5948,17 +5950,18 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
                                     currentParticipants >= (t.minPeople || 1) && currentParticipants <= (t.maxPeople || 999)
                                   ) || selOptTiers[selOptTiers.length - 1];
                                   const tierPrice = parseFloat(matchingTier?.price || selOptTiers[0]?.price || selectedOption.price || 0);
-                                  return convertOpt(tierPrice).toLocaleString();
+                                  const totalPrice = tierPrice * currentParticipants;
+                                  return convertOpt(totalPrice).toLocaleString();
                                 }
 
                                 // No own tiers — fall back to main tour tiers (INR)
                                 const groupPrice = calculateGroupPrice(selectedOption, currentParticipants);
                                 if (groupPrice !== null && groupPrice > 0) {
-                                  return convertOpt(groupPrice).toLocaleString();
+                                  return convertOpt(groupPrice * currentParticipants).toLocaleString();
                                 }
 
                                 // Last resort: option.price
-                                return convertOpt(selectedOption.price || 0).toLocaleString();
+                                return convertOpt((selectedOption.price || 0) * currentParticipants).toLocaleString();
                               })()}
                             </div>
                           </div>
