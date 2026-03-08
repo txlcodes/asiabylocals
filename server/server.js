@@ -9464,14 +9464,17 @@ if (process.env.NODE_ENV === 'production') {
 
     // ─── 301 Redirects: Old slugs → New SEO-friendly slugs ───
     const slugRedirects = {
-      // Agra
+      // Agra — Round 1
       'agra-walking-sunrise-tour': 'taj-mahal-sunrise-skip-the-line-tour',
-      'taj-mahal-sunrise-sunrise-tour': 'private-sunrise-taj-mahal-agra-fort-tour',
       'agra-gatimaan-entry-ticket': 'delhi-agra-round-trip-gatimaan-train',
       'agra-same-guided-tour': 'same-day-delhi-to-agra-tour',
       'taj-mahal-delhi-guided-tour': 'taj-mahal-same-day-tour-from-delhi',
       'female-guide-for-taj-mahal': 'taj-mahal-tour-with-female-guide',
-      // Delhi
+      // Agra — Round 2
+      'taj-mahal-sunrise-sunrise-tour': 'taj-mahal-sunrise-tour-from-agra',
+      'taj-mahal-mahal-private-tour': 'taj-mahal-agra-private-day-tour-with-lunch',
+      'shri-mankameshwar-temple-guided-tour': 'mysteries-of-agra-local-tour',
+      // Delhi — Round 1
       'agra-fort-sunrise-tour': 'taj-mahal-sunrise-elephant-conservation-tour',
       'agra-fort-express-tour': 'taj-mahal-same-day-express-train-tour',
       'india-gate-inclusive-guided-tour': 'golden-triangle-tour-delhi-agra-jaipur',
@@ -9480,13 +9483,18 @@ if (process.env.NODE_ENV === 'production') {
       'delhi-luxury-premium-tour': 'taj-mahal-agra-day-trip-luxury-car',
       'delhi-golden-guided-tour': '5-days-golden-triangle-tour-from-delhi',
       'agra-overnight-tour': 'delhi-to-agra-overnight-tour',
-      // Jaipur
+      // Delhi — Round 2
+      'india-gate-guided-tour': 'delhi-full-day-guided-tour',
+      'india-gate-half-day-tour': 'old-new-delhi-private-half-day-tour',
+      'golden-triangle-3-day-tour': 'golden-triangle-3-day-tour-from-delhi',
+      // Jaipur — Round 1
       'elepahnt-village-walking-tour': 'elephant-village-tour-jaipur',
       'hawa-mahal-food-tour': 'jaipur-heritage-walk-street-food-tour',
       'hawa-mahal-full-day-tour': 'jaipur-private-full-day-sightseeing-tour',
       'hawa-mahal-private-tour': 'jaipur-full-day-sightseeing-tour-by-car',
-      'amber-fort-guided-tour': 'jaipur-city-tour-with-official-guide',
       'jaipur-enjoy-private-tour': 'jaipur-to-agra-taj-mahal-day-trip',
+      // Jaipur — Round 2
+      'amber-fort-guided-tour': 'jaipur-same-day-tour-from-delhi',
     };
 
     app.use((req, res, next) => {
