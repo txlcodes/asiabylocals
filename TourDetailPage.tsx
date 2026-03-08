@@ -4651,16 +4651,16 @@ const TourDetailPage: React.FC<TourDetailPageProps> = ({ tourId, tourSlug, count
             <>
               {/* Internal Link: Explore More Tours in City (SEO Cluster) */}
               {country && city && (
-                <div className="mb-8 p-6 bg-[#10B981]/5 rounded-2xl border border-[#10B981]/10">
-                  <p className="text-[16px] text-gray-700 font-semibold mb-3">
+                <div className="mb-8 p-6 bg-[#10B981]/10 rounded-2xl border border-[#10B981]/20">
+                  <p className="text-[18px] text-gray-800 font-bold mb-3">
                     Explore more curated experiences in <a href={`/${country.toLowerCase().replace(/\s+/g, '-')}/${city.toLowerCase().replace(/\s+/g, '-')}`} className="text-[#10B981] font-black hover:underline">{city}</a>
                   </p>
                   <a
                     href={`/${country.toLowerCase().replace(/\s+/g, '-')}/${city.toLowerCase().replace(/\s+/g, '-')}`}
-                    className="inline-flex items-center gap-2 text-[#10B981] font-black hover:text-[#059669] transition-colors"
+                    className="inline-flex items-center gap-2 text-[17px] text-[#10B981] font-bold hover:text-[#059669] transition-colors"
                   >
                     View all {city} tours
-                    <ChevronRight size={18} />
+                    <ChevronRight size={20} />
                   </a>
                 </div>
               )}
