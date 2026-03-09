@@ -1267,17 +1267,6 @@ export const sendAdminPaymentNotificationEmail = async (bookingDetails) => {
                         </table>
                       </div>
                       
-                      <!-- CTA Button -->
-                      <table role="presentation" style="width: 100%; border-collapse: collapse; margin: 30px 0;">
-                        <tr>
-                          <td align="center" style="padding: 0;">
-                            <a href="${process.env.FRONTEND_URL || 'http://localhost:3000'}/secure-panel-abl" style="display: inline-block; background-color: #10B981; color: #ffffff; text-decoration: none; padding: 16px 40px; border-radius: 6px; font-size: 16px; font-weight: 600; text-align: center;">
-                              View in Admin Dashboard
-                            </a>
-                          </td>
-                        </tr>
-                      </table>
-                      
                       <p style="margin: 30px 0 0 0; font-size: 16px; line-height: 1.6; color: #001A33;">
                         Best regards,<br>
                         <strong>AsiaByLocals Payment System</strong>
@@ -2423,10 +2412,6 @@ export const sendGuideReminderEmail = async (supplierEmail, supplierName, bookin
                   <p style="margin:8px 0 0;font-size:14px;color:#666;"><strong>Guests:</strong> ${numberOfGuests}</p>
                   <p style="margin:8px 0 0;font-size:14px;color:#666;"><strong>Customer:</strong> ${customerName} (<a href="mailto:${customerEmail}" style="color:#10B981;">${customerEmail}</a>${customerPhone ? `, <a href="tel:${customerPhone}" style="color:#10B981;">${customerPhone}</a>` : ''})</p>
                   <p style="margin:8px 0 0;font-size:14px;color:#666;"><strong>Amount:</strong> ${currency === 'INR' ? '₹' : '$'}${totalAmount?.toLocaleString()}</p>
-                </div>
-
-                <div style="text-align:center;margin:30px 0;">
-                  <a href="${confirmUrl}" style="display:inline-block;padding:16px 48px;background-color:${urgency.color};color:#ffffff;font-size:18px;font-weight:800;text-decoration:none;border-radius:12px;">Confirm This Booking</a>
                 </div>
 
                 <p style="margin:30px 0 0;font-size:16px;line-height:1.6;color:#001A33;">Best regards,<br><strong>The AsiaByLocals Team</strong></p>
