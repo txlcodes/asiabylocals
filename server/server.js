@@ -6444,6 +6444,9 @@ app.put('/api/tours/:id', async (req, res) => {
     const totalUpdateTime = Date.now() - updateStartTime;
     console.log(`✅ Tour updated successfully: ${tourId} (took ${totalUpdateTime}ms)`);
 
+    // Clear tours cache so edits show up immediately
+    toursCache.clear();
+
     res.json({
       success: true,
       message: 'Tour updated successfully',
@@ -6700,6 +6703,10 @@ app.post('/api/admin/tours/:id/approve', verifyAdmin, async (req, res) => {
         }
       }
     });
+
+    // Clear tours cache so the new approved tour shows up immediately
+    toursCache.clear();
+    console.log('🗑️  Tours cache cleared after tour approval');
 
     // Regenerate sitemap after tour approval (non-blocking)
     // This ensures new tours are automatically added to sitemap for Google indexing
@@ -8667,6 +8674,15 @@ app.get('/api/debug/tours', async (req, res) => {
   }
 });
 
+// ==================== IN-MEMORY CACHE FOR PUBLIC TOURS ====================
+// Caches tour results to avoid hitting the slow Render free-tier DB on every request
+const toursCache = new Map(); // key: "city:country:category" → { data, timestamp }
+const CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes
+
+function getCacheKey(city, country, category) {
+  return `${(city || '').toLowerCase()}:${(country || '').toLowerCase()}:${(category || '').toLowerCase()}`;
+}
+
 // Get public tours by city (for public site)
 app.get('/api/public/tours', async (req, res) => {
   const startTime = Date.now();
@@ -8680,6 +8696,22 @@ app.get('/api/public/tours', async (req, res) => {
 
     console.log('📋 Fetching public tours:', { city, country, category, status });
     console.log('   Request received at:', new Date().toISOString());
+
+    // Check in-memory cache first
+    const cacheKey = getCacheKey(city, country, category);
+    const cached = toursCache.get(cacheKey);
+    if (cached && (Date.now() - cached.timestamp) < CACHE_TTL_MS) {
+      console.log(`   ⚡ CACHE HIT for "${cacheKey}" (${cached.data.length} tours, age: ${Math.round((Date.now() - cached.timestamp) / 1000)}s)`);
+      const totalTime = Date.now() - startTime;
+      console.log(`   ✅ Response sent in ${totalTime}ms (cached)`);
+      return res.json({
+        success: true,
+        tours: cached.data,
+        count: cached.data.length,
+        cached: true
+      });
+    }
+    console.log(`   📡 CACHE MISS for "${cacheKey}" - fetching from database...`);
 
     // ALWAYS fetch only approved tours for public API (ignore status param for security)
     // Build where clause - fetch all approved tours, then filter in memory for case-insensitive matching
@@ -9086,6 +9118,13 @@ app.get('/api/public/tours', async (req, res) => {
       count: formattedTours?.length || 0
     };
 
+    // Store in cache for next request
+    toursCache.set(cacheKey, {
+      data: response.tours,
+      timestamp: Date.now()
+    });
+    console.log(`   💾 Cached ${response.tours.length} tours for key "${cacheKey}" (TTL: ${CACHE_TTL_MS / 1000}s)`);
+
     const responseTime = Date.now() - startTime;
     console.log(`   📤 Sending response with ${response.tours.length} tours (took ${responseTime}ms)`);
     res.json(response);
@@ -9103,6 +9142,14 @@ app.get('/api/public/tours', async (req, res) => {
       message: 'Tours temporarily unavailable. Please try again in a moment.'
     });
   }
+});
+
+// Clear tours cache (call after tour approval/edit/delete)
+app.post('/api/cache/clear-tours', (req, res) => {
+  const size = toursCache.size;
+  toursCache.clear();
+  console.log(`🗑️  Tours cache cleared (${size} entries removed)`);
+  res.json({ success: true, message: `Cache cleared (${size} entries)` });
 });
 
 // Diagnostic endpoint to check tours for a city (for debugging)
