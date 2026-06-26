@@ -18,6 +18,14 @@ cloudinary.config({
  */
 export async function uploadImage(base64Image, folder = 'asiabylocals', publicId = null) {
   try {
+    // Already-hosted image (e.g. an existing Cloudinary URL when a supplier edits
+    // a tour or changes the cover): return it unchanged. Without this, the URL gets
+    // mangled into invalid base64 below, Cloudinary rejects it, and the whole
+    // upload (and the tour save) fails — so cover/image edits never persist.
+    if (typeof base64Image === 'string' && /^https?:\/\//i.test(base64Image.trim())) {
+      return base64Image.trim();
+    }
+
     // Remove data URL prefix if present (data:image/jpeg;base64,)
     const base64Data = base64Image.includes(',')
       ? base64Image.split(',')[1]
