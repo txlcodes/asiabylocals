@@ -6,7 +6,7 @@
 // Setup: set NTFY_TOPIC in server/.env to a private, hard-to-guess value and
 // subscribe to that exact topic in the ntfy iOS app.
 const NTFY_URL = process.env.NTFY_URL || 'https://ntfy.sh';
-const NTFY_TOPIC = process.env.NTFY_TOPIC || 'abl-bookings-talha-7x9k2q'; // change me + subscribe in app
+const NTFY_TOPIC = process.env.NTFY_TOPIC || 'abl-bookings-405fc07d8bff'; // change me + subscribe in app
 
 export async function sendBookingAlert(b) {
   if (!NTFY_TOPIC) return;
