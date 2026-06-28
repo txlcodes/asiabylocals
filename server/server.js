@@ -9,6 +9,7 @@ import { randomBytes, createHmac } from 'crypto';
 import Razorpay from 'razorpay';
 import { sendVerificationEmail, sendWelcomeEmail, sendBookingNotificationEmail, sendBookingConfirmationEmail, sendAdminPaymentNotificationEmail, sendTourApprovalEmail, sendTourRejectionEmail, sendGuideBookingNotificationEmail } from './utils/email.js';
 import { startBookingCrons } from './cron/bookingReminders.js';
+import { sendBookingAlert } from './bookingPush.js';
 import { uploadMultipleImages } from './utils/cloudinary.js';
 import { generateInvoicePDF } from './utils/invoice.js';
 import { generateSitemap } from './generate-sitemap.js';
@@ -7872,6 +7873,19 @@ app.post('/api/bookings', async (req, res) => {
 
     // Generate booking reference number
     const bookingReference = `ABL-${booking.id.toString().padStart(6, '0')}-${new Date().getFullYear()}`;
+
+    // Instant phone push alert (non-blocking) — new booking (pending payment)
+    sendBookingAlert({
+      reference: bookingReference,
+      tourTitle: tourDetails?.title,
+      customerName,
+      customerPhone,
+      customerEmail,
+      guests: numberOfGuests,
+      amount: totalAmount,
+      currency: currency || 'USD',
+      specialRequests,
+    });
 
     // WhatsApp link generation remains for the response
     let whatsappLink = null;
