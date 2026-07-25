@@ -7058,8 +7058,9 @@ app.post('/api/admin/sitemap/regenerate', verifyAdmin, async (req, res) => {
     const { promisify } = await import('util');
     const execAsync = promisify(exec);
 
-    // Run sitemap generation script
-    const { stdout, stderr } = await execAsync('node server/generate-sitemap.js');
+    // Run sitemap generation script (path relative to this file's directory,
+    // since process.cwd() here is already server/, not the repo root)
+    const { stdout, stderr } = await execAsync('node generate-sitemap.js', { cwd: __dirname });
 
     console.log('✅ Sitemap regenerated successfully');
     console.log('   Output:', stdout);
