@@ -214,11 +214,10 @@ async function generateSitemap() {
     });
 
     // 5. Layer 3: Live Cities
+    // Include every city with at least one approved tour (matches the
+    // "Only from approved tours = Live" discovery above) instead of a
+    // hardcoded allowlist that silently excluded new cities from Google.
     liveCities.forEach(({ name: city, country }) => {
-      // Only include cities that are explicitly indexed
-      const isIndexed = ['Agra', 'Delhi', 'Jaipur'].includes(city);
-      if (!isIndexed) return;
-
       const countrySlug = getCountrySlug(country);
       const citySlug = toSlug(city);
 
@@ -235,12 +234,9 @@ async function generateSitemap() {
     });
 
     // 6. Layer 4: Live Tours
+    // Every approved tour gets a sitemap entry — same reasoning as Layer 3.
     tours.forEach(tour => {
       if (!tour.slug) return;
-
-      // Only include tours from indexed cities
-      const isIndexed = ['Agra', 'Delhi', 'Jaipur'].includes(tour.city);
-      if (!isIndexed) return;
 
       const countrySlug = getCountrySlug(tour.country);
       const citySlug = toSlug(tour.city);
