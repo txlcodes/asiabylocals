@@ -100,6 +100,7 @@ model Tour {
   miniTours        Tour[]       @relation("TourMiniTours")
   bookings         Booking[]
   options          TourOption[]
+  reviewsList      Review[]
 
   @@index([supplierId])
   @@index([status])
@@ -171,7 +172,14 @@ model Booking {
   adminEscalatedAt         DateTime? @map("admin_escalated_at")
   preTourReminderSentAt    DateTime? @map("pre_tour_reminder_sent_at")
 
+  // Guest review workflow (day-of-tour email + next-day reminder)
+  reviewToken            String?   @unique @map("review_token")
+  reviewTokenExpiresAt   DateTime? @map("review_token_expires_at")
+  reviewRequestSentAt    DateTime? @map("review_request_sent_at")
+  reviewReminderSentAt   DateTime? @map("review_reminder_sent_at")
+
   messages Message[]
+  review   Review?
 
   @@index([tourId])
   @@index([tourOptionId])
@@ -179,6 +187,32 @@ model Booking {
   @@index([customerEmail])
   @@index([status, guideConfirmedAt])
   @@map("bookings")
+}
+
+model Review {
+  id             Int      @id @default(autoincrement())
+  tourId         Int      @map("tour_id")
+  tour           Tour     @relation(fields: [tourId], references: [id], onDelete: Cascade)
+  bookingId      Int      @unique @map("booking_id")
+  booking        Booking  @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  customerName   String   @map("customer_name")
+  customerEmail  String   @map("customer_email")
+  country        String?
+  rating         Int      // 1-5
+  guideRating    Int?     @map("guide_rating") // 1-5
+  valueRating    Int?     @map("value_rating") // 1-5
+  text           String
+  photos         String?  // JSON array of Cloudinary URLs
+  reviewToken    String   @unique @map("review_token")
+  tokenExpiresAt DateTime @map("token_expires_at")
+  verified       Boolean  @default(true) // Always true since link is sent to booking email
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  @@index([tourId])
+  @@index([bookingId])
+  @@index([reviewToken])
+  @@map("reviews_table")
 }
 
 model Message {

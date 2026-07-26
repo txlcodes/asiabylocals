@@ -2695,5 +2695,144 @@ export const sendPreTourReminderEmail = async (recipientEmail, recipientName, bo
   }
 };
 
+// Send review request email to customer after their tour
+export const sendReviewRequestEmail = async (customerEmail, customerName, details) => {
+  if (!customerEmail || typeof customerEmail !== 'string' || !customerEmail.includes('@')) {
+    console.error('❌ Invalid email address for review request:', customerEmail);
+    throw new Error('Invalid email address');
+  }
+
+  console.log(`📧 Sending review request email to: ${customerEmail}`);
+
+  const { tourTitle, tourCity, tourCountry, bookingDate, reviewUrl, isReminder } = details;
+
+  const formattedDate = new Date(bookingDate).toLocaleDateString('en-US', {
+    weekday: 'long',
+    month: 'long',
+    day: 'numeric',
+    year: 'numeric'
+  });
+
+  const fromEmail = (resendApiKey || sendGridApiKey) ? 'info@asiabylocals.com' : (process.env.EMAIL_USER || 'asiabylocals@gmail.com');
+  const mailOptions = {
+    from: `"AsiaByLocals" <${fromEmail}>`,
+    to: customerEmail,
+    subject: isReminder
+      ? `A quick reminder — share your ${tourTitle} experience`
+      : `How was your ${tourTitle} experience?`,
+    html: `
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <meta charset="utf-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        </head>
+        <body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #f5f5f5;">
+          <table role="presentation" style="width: 100%; border-collapse: collapse; background-color: #f5f5f5;">
+            <tr>
+              <td align="center" style="padding: 40px 20px;">
+                <table role="presentation" style="width: 100%; max-width: 600px; background-color: #ffffff; border-collapse: collapse; border-radius: 12px; overflow: hidden;">
+                  <!-- Header -->
+                  <tr>
+                    <td style="padding: 40px 40px 30px 40px; text-align: center; background-color: #10B981;">
+                      <h1 style="margin: 0; font-size: 28px; font-weight: 800; color: #ffffff; letter-spacing: -0.5px;">
+                        How was your experience?
+                      </h1>
+                      <p style="margin: 10px 0 0 0; font-size: 16px; color: #ffffff; opacity: 0.9;">
+                        We'd love to hear about your tour
+                      </p>
+                    </td>
+                  </tr>
+
+                  <!-- Body -->
+                  <tr>
+                    <td style="padding: 40px;">
+                      <p style="margin: 0 0 20px 0; font-size: 16px; line-height: 1.6; color: #001A33;">
+                        Hi ${customerName},
+                      </p>
+
+                      <p style="margin: 0 0 20px 0; font-size: 16px; line-height: 1.6; color: #001A33;">
+                        ${isReminder
+                          ? `Just a gentle reminder about your recent tour <strong>${tourTitle}</strong> in ${tourCity}, ${tourCountry} on ${formattedDate} — we'd still love to hear how it went!`
+                          : `Thank you for booking <strong>${tourTitle}</strong> in ${tourCity}, ${tourCountry} on ${formattedDate}.`}
+                      </p>
+
+                      <p style="margin: 0 0 30px 0; font-size: 16px; line-height: 1.6; color: #001A33;">
+                        ${isReminder
+                          ? `It only takes a minute, and your feedback makes a real difference to other travelers and our local guides. You can also upload photos from your tour!`
+                          : `Your feedback helps other travelers and our local guides. Please take a moment to share your experience — you can also upload photos from your tour!`}
+                      </p>
+
+                      <!-- CTA Button -->
+                      <table role="presentation" style="width: 100%; border-collapse: collapse;">
+                        <tr>
+                          <td align="center" style="padding: 10px 0 30px 0;">
+                            <a href="${reviewUrl}" style="display: inline-block; padding: 16px 40px; background-color: #10B981; color: #ffffff; text-decoration: none; font-size: 18px; font-weight: 700; border-radius: 8px; letter-spacing: 0.5px;">
+                              Write Your Review
+                            </a>
+                          </td>
+                        </tr>
+                      </table>
+
+                      <p style="margin: 0 0 10px 0; font-size: 14px; color: #666; text-align: center;">
+                        Or copy and paste this link in your browser:
+                      </p>
+                      <p style="margin: 0 0 30px 0; font-size: 13px; color: #10B981; word-break: break-all; text-align: center;">
+                        ${reviewUrl}
+                      </p>
+
+                      <div style="border-top: 1px solid #e5e7eb; padding-top: 20px; margin-top: 20px;">
+                        <p style="margin: 0; font-size: 14px; color: #666; line-height: 1.5;">
+                          This link is unique to your booking and will expire in 90 days. Your review will be displayed on the tour page to help future travelers.
+                        </p>
+                      </div>
+                    </td>
+                  </tr>
+
+                  <!-- Footer -->
+                  <tr>
+                    <td style="padding: 24px 40px; background-color: #f8f9fa; text-align: center;">
+                      <p style="margin: 0; font-size: 13px; color: #999;">
+                        AsiaByLocals — Authentic Local Experiences Across Asia
+                      </p>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+          </table>
+        </body>
+      </html>
+    `
+  };
+
+  try {
+    if (resendClient) {
+      console.log(`📧 Sending review request email via Resend SDK`);
+      const result = await resendClient.emails.send({
+        from: `AsiaByLocals <${fromEmail}>`,
+        to: customerEmail,
+        subject: mailOptions.subject,
+        html: mailOptions.html
+      });
+
+      if (result.error) {
+        console.error(`❌ Resend API Error:`, result.error);
+        throw new Error(`Resend API Error: ${JSON.stringify(result.error)}`);
+      }
+
+      console.log(`✅ Review request email sent successfully`);
+      return { success: true, messageId: result.data?.id };
+    }
+
+    const info = await transporter.sendMail(mailOptions);
+    console.log(`✅ Review request email sent successfully`);
+    return { success: true, messageId: info.messageId };
+  } catch (error) {
+    console.error(`❌ Error sending review request email:`, error);
+    throw error;
+  }
+};
+
 export default transporter;
 
