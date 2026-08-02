@@ -49,7 +49,12 @@ export async function sendDueReviewRequests() {
 
     try {
       const token = await ensureToken(b, now);
-      const reviewUrl = `${process.env.FRONTEND_URL || 'https://www.asiabylocals.com'}/review/${token}`;
+      // FRONTEND_URL on Render points at this backend's own onrender.com URL,
+      // which serves the legacy SPA — review links must go to the Next.js site.
+      const siteBase = (process.env.FRONTEND_URL || '').includes('onrender.com') || !process.env.FRONTEND_URL
+        ? 'https://www.asiabylocals.com'
+        : process.env.FRONTEND_URL.replace(/\/$/, '');
+      const reviewUrl = `${siteBase}/review/${token}`;
       await sendReviewRequestEmail(b.customerEmail, b.customerName, {
         tourTitle: b.tour.title, tourCity: b.tour.city, tourCountry: b.tour.country,
         bookingDate: b.bookingDate, reviewUrl,

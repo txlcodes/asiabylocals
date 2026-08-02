@@ -8057,12 +8057,92 @@ app.get('/api/bookings/:bookingId/confirmation', async (req, res) => {
   }
 });
 
+// Review links in already-sent emails point at this backend's onrender.com URL
+// (bad FRONTEND_URL) — forward them to the real review page on the Next.js site.
+app.get('/review/:token', (req, res) => {
+  res.redirect(302, `https://www.asiabylocals.com/review/${req.params.token}`);
+});
+
 // ==================== PAYMENT ENDPOINTS ====================
+
+/**
+ * Create a Razorpay order.
+ *
+ * Razorpay's edge returns HTTP 406 to requests from our Render (US) server IP.
+ * When RAZORPAY_PROXY_URL is set, we route the order-creation request through a
+ * Cloudflare Worker (a non-blocked origin) instead of calling Razorpay directly.
+ * When it is NOT set, we fall back to the normal SDK call — so this change is a
+ * no-op until the proxy env vars are configured.
+ */
+async function createRazorpayOrder({ amount, currency, receipt, notes, keyId, keySecret }) {
+  const proxyUrl = process.env.RAZORPAY_PROXY_URL;
+
+  if (proxyUrl) {
+    const auth = Buffer.from(`${keyId}:${keySecret}`).toString('base64');
+    const resp = await fetch(`${proxyUrl.replace(/\/$/, '')}/v1/orders`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Basic ${auth}`,
+        'Content-Type': 'application/json',
+        'x-proxy-secret': process.env.RAZORPAY_PROXY_SECRET || ''
+      },
+      body: JSON.stringify({ amount, currency, receipt, notes })
+    });
+
+    const data = await resp.json().catch(() => ({}));
+    if (!resp.ok) {
+      // Re-shape so the caller's catch block logs/surfaces it like an SDK error.
+      const err = new Error(data?.error?.description || `Razorpay proxy returned HTTP ${resp.status}`);
+      err.statusCode = resp.status;
+      err.error = data?.error;
+      throw err;
+    }
+    console.log('✅ Razorpay order created via proxy:', data.id);
+    return data;
+  }
+
+  // Fallback: direct SDK call (original behaviour)
+  const razorpay = new Razorpay({ key_id: keyId, key_secret: keySecret });
+  return razorpay.orders.create({ amount, currency, receipt, notes });
+}
+
+// Currencies guests can pay in (all 2-decimal minor units — JPY etc. excluded on purpose)
+const SUPPORTED_PAY_CURRENCIES = ['USD', 'EUR', 'GBP', 'CAD', 'AUD', 'SGD', 'AED', 'CHF', 'NZD', 'INR'];
+
+// USD-based FX rates, cached 6h; serves stale rates if the feed is down
+let fxCache = { rates: null, fetchedAt: 0 };
+async function getFxRates() {
+  if (fxCache.rates && Date.now() - fxCache.fetchedAt < 6 * 3600 * 1000) return fxCache.rates;
+  try {
+    const resp = await fetch('https://open.er-api.com/v6/latest/USD');
+    const data = await resp.json();
+    if (data && data.result === 'success' && data.rates) {
+      fxCache = { rates: data.rates, fetchedAt: Date.now() };
+      return data.rates;
+    }
+  } catch (e) {
+    console.error('FX rate fetch failed:', e.message);
+  }
+  if (fxCache.rates) return fxCache.rates;
+  throw new Error('FX rates unavailable');
+}
+
+// Rates for the checkout currency dropdown
+app.get('/api/payments/fx-rates', async (req, res) => {
+  try {
+    const rates = await getFxRates();
+    const out = {};
+    for (const c of SUPPORTED_PAY_CURRENCIES) if (rates[c]) out[c] = rates[c];
+    res.json({ success: true, base: 'USD', currencies: SUPPORTED_PAY_CURRENCIES, rates: out });
+  } catch (e) {
+    res.status(503).json({ success: false, error: 'FX rates unavailable' });
+  }
+});
 
 // Create Razorpay order
 app.post('/api/payments/create-order', async (req, res) => {
   try {
-    const { bookingId, amount, currency } = req.body;
+    const { bookingId, amount, currency, payCurrency } = req.body;
 
     if (!bookingId || !amount) {
       return res.status(400).json({
@@ -8093,27 +8173,43 @@ app.post('/api/payments/create-order', async (req, res) => {
       });
     }
 
-    const razorpay = new Razorpay({
-      key_id: razorpayKeyId,
-      key_secret: razorpayKeySecret
-    });
+    // Convert to the guest's chosen payment currency (amount arrives in the
+    // booking's base currency, minor units). Falls back to the base currency
+    // untouched if the rate lookup fails — payment must not block on FX.
+    let orderAmount = amount;
+    let orderCurrency = currency || 'USD';
+    if (payCurrency && payCurrency !== orderCurrency && SUPPORTED_PAY_CURRENCIES.includes(payCurrency)) {
+      try {
+        const rates = await getFxRates();
+        const from = rates[orderCurrency];
+        const to = rates[payCurrency];
+        if (from && to) {
+          orderAmount = Math.round(amount * (to / from));
+          orderCurrency = payCurrency;
+        }
+      } catch (e) {
+        console.error('FX conversion failed, charging in base currency:', e.message);
+      }
+    }
 
     // Create Razorpay order
     console.log('Creating Razorpay order with:', {
-      amount,
-      currency: currency || 'INR',
+      amount: orderAmount,
+      currency: orderCurrency,
       bookingId
     });
 
     let order;
     try {
-      order = await razorpay.orders.create({
-        amount: amount, // Amount in paise (smallest currency unit)
-        currency: currency || 'INR',
+      order = await createRazorpayOrder({
+        amount: orderAmount, // Amount in minor units (cents/paise)
+        currency: orderCurrency,
         receipt: `booking_${bookingId}`,
         notes: {
           bookingId: bookingId.toString()
-        }
+        },
+        keyId: razorpayKeyId,
+        keySecret: razorpayKeySecret
       });
       console.log('✅ Razorpay order created:', order.id);
     } catch (orderError) {
