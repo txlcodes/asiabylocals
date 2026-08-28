@@ -77,3 +77,42 @@ export async function sendPaymentAlert(b) {
     console.error('Payment push failed (non-fatal):', e.message);
   }
 }
+
+// ❌ Payment failed — customer tried to pay and it didn't go through.
+// Fires so a stuck customer can be rescued in minutes instead of discovered
+// days later in the Razorpay dashboard (2026-08-28: a US customer failed 8
+// times over 2 days with nobody notified).
+export async function sendPaymentFailedAlert(b) {
+  if (!NTFY_TOPIC) return;
+  try {
+    const wa = (b.customerPhone || '').replace(/[^\d+]/g, '');
+    const lines = [
+      `${b.customerName || 'Unknown'} · ${b.currency || 'USD'} ${b.amount ?? '?'}`,
+      `📞 ${b.customerPhone || 'no phone'}${b.customerEmail ? ` · ${b.customerEmail}` : ''}`,
+      b.reason ? `⚠️ ${b.reason}` : null,
+      b.reference ? `Ref ${b.reference}` : null,
+    ].filter(Boolean);
+
+    const payload = {
+      topic: NTFY_TOPIC,
+      title: `❌ PAYMENT FAILED — ${b.tourTitle || 'Tour'}`,
+      message: lines.join('\n'),
+      priority: 5,
+      tags: ['x', 'credit_card'],
+    };
+    if (wa) {
+      payload.click = `https://wa.me/${wa}`;
+      payload.actions = [
+        { action: 'view', label: `💬 Rescue ${b.customerName?.split(' ')[0] || 'customer'}`, url: `https://wa.me/${wa}` },
+      ];
+    }
+    await fetch(NTFY_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    console.log(`🔔 Payment-failed push sent (topic: ${NTFY_TOPIC})`);
+  } catch (e) {
+    console.error('Payment-failed push failed (non-fatal):', e.message);
+  }
+}

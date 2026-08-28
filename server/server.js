@@ -10,7 +10,7 @@ import Razorpay from 'razorpay';
 import { sendVerificationEmail, sendWelcomeEmail, sendBookingNotificationEmail, sendBookingConfirmationEmail, sendAdminPaymentNotificationEmail, sendTourApprovalEmail, sendTourRejectionEmail, sendGuideBookingNotificationEmail, sendReviewRequestEmail } from './utils/email.js';
 import { startBookingCrons } from './cron/bookingReminders.js';
 import { startReviewScheduler, sendDueReviewRequests } from './reviewScheduler.js';
-import { sendBookingAlert } from './bookingPush.js';
+import { sendBookingAlert, sendPaymentFailedAlert } from './bookingPush.js';
 import { uploadMultipleImages } from './utils/cloudinary.js';
 import { generateInvoicePDF } from './utils/invoice.js';
 import { generateSitemap } from './generate-sitemap.js';
@@ -8611,7 +8611,14 @@ app.post('/api/bookings/:bookingId/mark-payment-failed', async (req, res) => {
       select: {
         id: true,
         paymentStatus: true,
-        status: true
+        status: true,
+        customerName: true,
+        customerPhone: true,
+        customerEmail: true,
+        totalAmount: true,
+        currency: true,
+        createdAt: true,
+        tour: { select: { title: true } }
       }
     });
 
@@ -8634,6 +8641,18 @@ app.post('/api/bookings/:bookingId/mark-payment-failed', async (req, res) => {
         }
       });
       console.log('✅ Booking marked as payment_failed:', bookingId);
+      // Alert immediately so a stuck customer can be rescued while they're
+      // still trying — not discovered days later in the Razorpay dashboard.
+      sendPaymentFailedAlert({
+        customerName: booking.customerName,
+        customerPhone: booking.customerPhone,
+        customerEmail: booking.customerEmail,
+        amount: booking.totalAmount,
+        currency: booking.currency,
+        tourTitle: booking.tour?.title,
+        reference: `ABL-${booking.id.toString().padStart(6, '0')}-${new Date(booking.createdAt).getFullYear()}`,
+        reason: 'Customer payment did not complete (modal closed or failed)',
+      });
     } else {
       console.log('⚠️ Booking already processed, not updating:', {
         bookingId,
