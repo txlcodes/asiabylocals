@@ -1,4 +1,5 @@
 import cron from 'node-cron';
+import { createHmac } from 'crypto';
 import {
   sendPreTourReminderEmail,
 } from '../utils/email.js';
@@ -98,10 +99,110 @@ function schedulePreTourReminders(prisma) {
 }
 
 /**
+ * Payment reconciler — runs every 5 minutes.
+ *
+ * A booking is only marked paid when the customer's browser calls
+ * /api/verify-payment after checkout. If that never happens — tab closed,
+ * network dropped, redirect failed — Razorpay has the money and the booking
+ * sits on pending_payment with no invoice and no emails. Booking 124 was
+ * exactly that: $32 captured, never recorded, found only because someone
+ * noticed it by hand.
+ *
+ * The webhook covers this too, but only once its secret is configured on both
+ * sides. This job needs no configuration at all: it asks Razorpay directly
+ * whether any recent unpaid booking actually has a captured payment, and hands
+ * the ones that do to verify-payment — the same path the browser would have
+ * used, so the invoice, the customer/guide/admin emails and the push alert all
+ * still happen. Whichever gets there first wins; verify-payment refuses to
+ * confirm the same booking twice.
+ */
+function schedulePaymentReconciler(prisma) {
+  const RAZORPAY_KEY_ID = process.env.RAZORPAY_KEY_ID;
+  const RAZORPAY_KEY_SECRET = process.env.RAZORPAY_KEY_SECRET;
+
+  if (!RAZORPAY_KEY_ID || !RAZORPAY_KEY_SECRET) {
+    console.warn('⚠️  [Cron] Payment reconciler NOT scheduled — Razorpay keys missing');
+    return;
+  }
+
+  const authHeader = 'Basic ' + Buffer.from(`${RAZORPAY_KEY_ID}:${RAZORPAY_KEY_SECRET}`).toString('base64');
+  const PORT = process.env.PORT || 3001;
+
+  cron.schedule('*/5 * * * *', async () => {
+    try {
+      // Only look back a week. Older stragglers are a manual decision, not
+      // something a background job should silently start charging people for.
+      const since = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+
+      const candidates = await prisma.booking.findMany({
+        where: {
+          createdAt: { gte: since },
+          razorpayOrderId: { not: null },
+          razorpayPaymentId: null,
+          paymentStatus: { not: 'paid' },
+        },
+        select: { id: true, razorpayOrderId: true },
+      });
+
+      if (candidates.length === 0) return;
+      console.log(`⏰ [Cron] Reconciling ${candidates.length} unpaid booking(s) against Razorpay...`);
+
+      for (const booking of candidates) {
+        try {
+          const resp = await fetch(
+            `https://api.razorpay.com/v1/orders/${booking.razorpayOrderId}/payments`,
+            { headers: { Authorization: authHeader } }
+          );
+          if (!resp.ok) {
+            console.error(`   ❌ Razorpay lookup failed for booking #${booking.id}: ${resp.status}`);
+            continue;
+          }
+
+          const captured = (await resp.json())?.items?.find(p => p.status === 'captured');
+          if (!captured) continue; // genuinely unpaid — customer abandoned checkout
+
+          console.log(`   💰 Booking #${booking.id} was paid (${captured.id}) but never recorded — confirming`);
+
+          // Same signature Razorpay hands the browser: HMAC(order|payment).
+          const signature = createHmac('sha256', RAZORPAY_KEY_SECRET)
+            .update(`${booking.razorpayOrderId}|${captured.id}`)
+            .digest('hex');
+
+          const verify = await fetch(`http://127.0.0.1:${PORT}/api/verify-payment`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              razorpay_order_id: booking.razorpayOrderId,
+              razorpay_payment_id: captured.id,
+              razorpay_signature: signature,
+              bookingId: booking.id,
+            }),
+          });
+
+          if (verify.ok) {
+            console.log(`   ✅ Recovered booking #${booking.id}`);
+          } else {
+            console.error(`   ❌ Could not confirm booking #${booking.id}: ${verify.status}`);
+          }
+        } catch (err) {
+          // One bad booking must not stop the rest of the sweep.
+          console.error(`   ❌ Reconcile failed for booking #${booking.id}:`, err.message);
+        }
+      }
+    } catch (err) {
+      console.error('❌ [Cron] Payment reconciler failed:', err.message);
+    }
+  });
+
+  console.log('✅ [Cron] Payment reconciler scheduled (every 5 minutes)');
+}
+
+/**
  * Start all booking-related cron jobs.
  * Call this once from server.js after app.listen().
  */
 export function startBookingCrons(prisma) {
   console.log('🕐 Starting booking cron jobs...');
   schedulePreTourReminders(prisma);
+  schedulePaymentReconciler(prisma);
 }
