@@ -104,7 +104,13 @@ if (process.env.NODE_ENV === 'production' && allowedOrigins.length > 0) {
   }));
 }
 // Increase body size limit to 50MB for PDF uploads (base64 encoded files are larger)
-app.use(express.json({ limit: '50mb' }));
+// `verify` keeps the untouched request bytes on req.rawBody. Razorpay signs the raw
+// payload, so the webhook below has to hash exactly what was sent — re-serialising
+// the parsed object would change key order/spacing and break the signature.
+app.use(express.json({
+  limit: '50mb',
+  verify: (req, res, buf) => { req.rawBody = buf; }
+}));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
 // Health check endpoint
@@ -8256,6 +8262,101 @@ app.post('/api/payments/create-order', async (req, res) => {
   }
 });
 
+// Razorpay webhook — server-to-server safety net for /api/verify-payment.
+//
+// verify-payment is only ever called by the customer's browser after checkout.
+// If that call never happens — tab closed, network dropped, redirect failed —
+// Razorpay has captured the money but the booking sits on pending_payment
+// forever, with no invoice and no emails to anyone. That happened to booking
+// 124 (order_TW0LOMxRV4bczR, $32 captured, never recorded).
+//
+// Razorpay posts here directly and retries on failure, so it does not depend on
+// the customer's browser at all. On payment.captured we look the booking up by
+// order id and hand it to verify-payment, which already does the invoice, the
+// customer/guide/admin emails and the push alert. Re-using that route rather
+// than repeating it here keeps a single confirmation path — and verify-payment
+// already refuses to confirm the same booking twice, so a browser callback and
+// a webhook arriving together is harmless.
+app.post('/api/razorpay-webhook', async (req, res) => {
+  try {
+    const webhookSecret = process.env.RAZORPAY_WEBHOOK_SECRET;
+    if (!webhookSecret) {
+      console.error('❌ WEBHOOK: RAZORPAY_WEBHOOK_SECRET is not set — rejecting');
+      return res.status(500).json({ success: false, error: 'Webhook not configured' });
+    }
+
+    // Signature must be checked against the raw bytes Razorpay signed.
+    const signature = req.headers['x-razorpay-signature'];
+    if (!signature || !req.rawBody) {
+      console.error('❌ WEBHOOK: missing signature header or raw body');
+      return res.status(400).json({ success: false, error: 'Missing signature' });
+    }
+
+    const expected = createHmac('sha256', webhookSecret).update(req.rawBody).digest('hex');
+    if (expected !== signature) {
+      console.error('❌ WEBHOOK: signature mismatch — ignoring request');
+      return res.status(400).json({ success: false, error: 'Invalid signature' });
+    }
+
+    const event = req.body?.event;
+    const payment = req.body?.payload?.payment?.entity;
+    console.log('🔔 WEBHOOK received:', { event, paymentId: payment?.id, orderId: payment?.order_id });
+
+    // Only captured payments confirm a booking. Everything else is acknowledged
+    // so Razorpay stops retrying, but changes nothing.
+    if (event !== 'payment.captured' || !payment?.order_id || !payment?.id) {
+      return res.json({ success: true, ignored: true });
+    }
+
+    const booking = await prisma.booking.findFirst({
+      where: { razorpayOrderId: payment.order_id },
+      select: { id: true, paymentStatus: true, razorpayPaymentId: true }
+    });
+
+    if (!booking) {
+      // Acknowledge anyway: retrying will not make a missing booking appear.
+      console.error('❌ WEBHOOK: no booking for order', payment.order_id);
+      return res.json({ success: true, ignored: true, reason: 'booking not found' });
+    }
+
+    if (booking.paymentStatus === 'paid' && booking.razorpayPaymentId) {
+      console.log('ℹ️ WEBHOOK: booking already confirmed, nothing to do:', booking.id);
+      return res.json({ success: true, alreadyConfirmed: true });
+    }
+
+    // verify-payment re-checks this signature against the same key secret, so it
+    // validates exactly as the browser's would have.
+    const paymentSignature = createHmac('sha256', process.env.RAZORPAY_KEY_SECRET)
+      .update(`${payment.order_id}|${payment.id}`)
+      .digest('hex');
+
+    const verifyResponse = await fetch(`http://127.0.0.1:${PORT}/api/verify-payment`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        razorpay_order_id: payment.order_id,
+        razorpay_payment_id: payment.id,
+        razorpay_signature: paymentSignature,
+        bookingId: booking.id
+      })
+    });
+    const verifyResult = await verifyResponse.json().catch(() => ({}));
+
+    if (!verifyResponse.ok || !verifyResult.success) {
+      // Return 500 so Razorpay retries — the payment is real and still unrecorded.
+      console.error('❌ WEBHOOK: verify-payment failed for booking', booking.id, verifyResult);
+      return res.status(500).json({ success: false, error: 'Confirmation failed' });
+    }
+
+    console.log('✅ WEBHOOK: recovered booking', booking.id, 'from payment', payment.id);
+    return res.json({ success: true, bookingId: booking.id, recovered: true });
+  } catch (error) {
+    console.error('❌ WEBHOOK error:', error);
+    // 500 makes Razorpay retry rather than drop the event.
+    return res.status(500).json({ success: false, error: 'Webhook processing failed' });
+  }
+});
+
 // Verify Razorpay payment (Production Marketplace Standard)
 app.post('/api/verify-payment', async (req, res) => {
   try {
@@ -8916,12 +9017,23 @@ app.get('/api/public/tours', async (req, res) => {
           },
           orderBy: {
             createdAt: 'desc'
-          },
-          take: 50 // Limit to 50 for performance
+          }
+          // No `take` here on purpose. This query is already narrowed to one
+          // city, so the result is small — but a cap of 50 silently dropped the
+          // 51st tour with nothing in the response to say so. Agra crossed 50
+          // and the oldest listing (taj-mahal-official-guided-tour, a champion)
+          // vanished from its own city page while still returning 200 on its
+          // detail URL, so nothing looked broken. A city page must show every
+          // approved tour it has; if this ever needs limiting, it needs real
+          // pagination that tells the caller there is more.
         });
 
         const queryTime = Date.now() - queryStartTime;
         console.log(`   ✅ Fetched ${tours.length} tours in ${queryTime}ms`);
+        // Loud warning rather than silent truncation, if a city ever gets huge.
+        if (tours.length > 300) {
+          console.warn(`   ⚠️  ${tours.length} tours returned for "${cacheKey}" — consider real pagination`);
+        }
 
         // Step 2: Fetch suppliers and options in parallel (FAST)
         if (tours.length > 0) {
