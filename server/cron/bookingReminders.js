@@ -130,9 +130,12 @@ function schedulePaymentReconciler(prisma) {
 
   cron.schedule('*/5 * * * *', async () => {
     try {
-      // Only look back a week. Older stragglers are a manual decision, not
-      // something a background job should silently start charging people for.
-      const since = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+      // Only look back 24 hours. This exists to catch a payment whose browser
+      // callback failed minutes ago, which it does on the next 5-minute pass.
+      // A longer window would mean firing a confirmation email at someone who
+      // booked days ago and has long since moved on — that reads as a mistake,
+      // not a fix. Anything older is a deliberate, manual decision.
+      const since = new Date(Date.now() - 24 * 60 * 60 * 1000);
 
       const candidates = await prisma.booking.findMany({
         where: {
@@ -145,7 +148,7 @@ function schedulePaymentReconciler(prisma) {
       });
 
       if (candidates.length === 0) return;
-      console.log(`⏰ [Cron] Reconciling ${candidates.length} unpaid booking(s) against Razorpay...`);
+      console.log(`⏰ [Cron] Reconciling ${candidates.length} recent unpaid booking(s) against Razorpay...`);
 
       for (const booking of candidates) {
         try {
