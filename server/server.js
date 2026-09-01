@@ -10,7 +10,7 @@ import Razorpay from 'razorpay';
 import { sendVerificationEmail, sendWelcomeEmail, sendBookingNotificationEmail, sendBookingConfirmationEmail, sendAdminPaymentNotificationEmail, sendTourApprovalEmail, sendTourRejectionEmail, sendGuideBookingNotificationEmail, sendReviewRequestEmail } from './utils/email.js';
 import { startBookingCrons } from './cron/bookingReminders.js';
 import { startReviewScheduler, sendDueReviewRequests } from './reviewScheduler.js';
-import { sendBookingAlert, sendPaymentFailedAlert } from './bookingPush.js';
+import { sendBookingAlert, sendPaymentFailedAlert, sendInquiryAlert, logAlertConfig } from './bookingPush.js';
 import { uploadMultipleImages } from './utils/cloudinary.js';
 import { generateInvoicePDF } from './utils/invoice.js';
 import { generateSitemap } from './generate-sitemap.js';
@@ -7806,6 +7806,67 @@ app.post('/api/tours/:id/submit', async (req, res) => {
 
 // ==================== BOOKING ENDPOINTS ====================
 
+/**
+ * Someone is filling in the booking form.
+ *
+ * A booking row only exists once the form is submitted, so every visitor who
+ * types their details and then hesitates, closes the tab, or gets stuck at the
+ * card step used to be invisible to us. They are the warmest leads we get —
+ * they have a tour, a date and a phone number — so they get a push the moment
+ * they are reachable, long before any money is involved.
+ *
+ * Fire-and-forget by design: this must never slow down or break the form.
+ */
+const inquiryAlerted = new Map(); // key -> timestamp, so one person alerts once
+
+app.post('/api/booking-inquiry', async (req, res) => {
+  // Answer first. An alert is never worth making the customer wait.
+  res.json({ success: true });
+
+  try {
+    const { tourId, tourTitle, bookingDate, numberOfGuests, customerName, customerEmail, customerPhone, totalAmount, currency, specialRequests } = req.body || {};
+
+    // Nothing to act on without a way to reach them.
+    if (!customerEmail && !customerPhone) return;
+
+    // One alert per person per tour per hour — a form fires this on every
+    // keystroke pause, and 30 pushes for one customer is the same as none.
+    const key = `${tourId || '?'}:${(customerEmail || customerPhone).toLowerCase()}`;
+    const last = inquiryAlerted.get(key);
+    if (last && Date.now() - last < 60 * 60 * 1000) return;
+    inquiryAlerted.set(key, Date.now());
+
+    // Keep the map from growing forever on a long-lived process.
+    if (inquiryAlerted.size > 500) {
+      const cutoff = Date.now() - 60 * 60 * 1000;
+      for (const [k, t] of inquiryAlerted) if (t < cutoff) inquiryAlerted.delete(k);
+    }
+
+    let title = tourTitle;
+    if (!title && tourId) {
+      const tour = await prisma.tour.findUnique({
+        where: { id: parseInt(tourId) },
+        select: { title: true },
+      });
+      title = tour?.title;
+    }
+
+    await sendInquiryAlert({
+      tourTitle: title,
+      customerName: customerName || 'Someone',
+      customerEmail,
+      customerPhone,
+      guests: numberOfGuests,
+      amount: totalAmount,
+      currency: currency || 'USD',
+      bookingDate,
+      specialRequests,
+    });
+  } catch (error) {
+    console.error('Booking inquiry alert failed (non-fatal):', error.message);
+  }
+});
+
 // Create a new booking
 app.post('/api/bookings', async (req, res) => {
   try {
@@ -10142,6 +10203,11 @@ app.listen(PORT, () => {
   if (process.env.NODE_ENV === 'production') {
     console.log(`🌐 Frontend served from: ${path.join(__dirname, '../dist')}`);
   }
+
+  // Say out loud where alerts are going. A booking alert pointing at the wrong
+  // ntfy topic looks exactly like no bookings at all, and that silence cost us
+  // a $340 lead for 20 hours on 2026-08-31.
+  logAlertConfig();
 
   // Start booking reminder cron jobs
   startBookingCrons(prisma);

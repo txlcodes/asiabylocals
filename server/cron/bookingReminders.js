@@ -3,6 +3,11 @@ import { createHmac } from 'crypto';
 import {
   sendPreTourReminderEmail,
 } from '../utils/email.js';
+import {
+  sendLeadRescueAlert,
+  sendAbandonedCheckoutAlert,
+  sendHeartbeat,
+} from '../bookingPush.js';
 
 /**
  * Pre-Tour Reminder — runs every hour
@@ -116,6 +121,68 @@ function schedulePreTourReminders(prisma) {
  * still happen. Whichever gets there first wins; verify-payment refuses to
  * confirm the same booking twice.
  */
+// Bookings we have already nudged about an abandoned checkout, so a customer
+// who walks away does not generate a push every five minutes. Failed-payment
+// alerts dedupe on the booking's own paymentStatus instead, which survives a
+// restart; this only guards the softer "no attempt yet" nudge.
+const abandonedAlerted = new Set();
+
+/**
+ * An unpaid booking that Razorpay has no captured payment for. Decide whether
+ * a human needs to hear about it right now, and say so if they do.
+ *
+ * Two very different situations hide behind "unpaid":
+ *   - cards were tried and declined → the customer wants to buy and is stuck.
+ *     Highest-value alert there is; they are still at their laptop.
+ *   - no attempt at all → they filled the form and left. Worth a nudge, but
+ *     only once, and only after giving them a few minutes to come back.
+ */
+async function alertOnStuckCustomer(prisma, booking, attempts) {
+  const base = {
+    reference: `ABL-${booking.id.toString().padStart(6, '0')}-${new Date(booking.createdAt).getFullYear()}`,
+    tourTitle: booking.tour?.title,
+    customerName: booking.customerName,
+    customerPhone: booking.customerPhone,
+    customerEmail: booking.customerEmail,
+    guests: booking.numberOfGuests,
+    amount: booking.totalAmount,
+    currency: booking.currency,
+    specialRequests: booking.specialRequests,
+  };
+
+  const failed = attempts.filter(p => p.status === 'failed');
+
+  if (failed.length > 0) {
+    // paymentStatus is the dedupe flag: once it reads 'failed' we have already
+    // raised this customer, and marking it is also just true.
+    if (booking.paymentStatus === 'failed') return;
+
+    const latest = failed[failed.length - 1];
+    console.log(`   🚨 Booking #${booking.id}: ${failed.length} failed payment attempt(s) — alerting`);
+
+    await sendLeadRescueAlert({
+      ...base,
+      attempts: failed.length,
+      reason: latest.error_description || latest.error_reason || 'Card declined',
+    });
+
+    await prisma.booking.update({
+      where: { id: booking.id },
+      data: { status: 'payment_failed', paymentStatus: 'failed', updatedAt: new Date() },
+    });
+    return;
+  }
+
+  // No attempt at all. Give them 15 minutes to finish before calling it
+  // abandoned, and never nudge about the same booking twice.
+  const ageMinutes = (Date.now() - new Date(booking.createdAt).getTime()) / 60000;
+  if (ageMinutes < 15 || abandonedAlerted.has(booking.id)) return;
+
+  abandonedAlerted.add(booking.id);
+  console.log(`   🛒 Booking #${booking.id}: form filled, no payment attempted — alerting`);
+  await sendAbandonedCheckoutAlert(base);
+}
+
 function schedulePaymentReconciler(prisma) {
   const RAZORPAY_KEY_ID = process.env.RAZORPAY_KEY_ID;
   const RAZORPAY_KEY_SECRET = process.env.RAZORPAY_KEY_SECRET;
@@ -144,7 +211,20 @@ function schedulePaymentReconciler(prisma) {
           razorpayPaymentId: null,
           paymentStatus: { not: 'paid' },
         },
-        select: { id: true, razorpayOrderId: true },
+        select: {
+          id: true,
+          razorpayOrderId: true,
+          customerName: true,
+          customerEmail: true,
+          customerPhone: true,
+          totalAmount: true,
+          currency: true,
+          numberOfGuests: true,
+          specialRequests: true,
+          paymentStatus: true,
+          createdAt: true,
+          tour: { select: { title: true } },
+        },
       });
 
       if (candidates.length === 0) return;
@@ -161,8 +241,18 @@ function schedulePaymentReconciler(prisma) {
             continue;
           }
 
-          const captured = (await resp.json())?.items?.find(p => p.status === 'captured');
-          if (!captured) continue; // genuinely unpaid — customer abandoned checkout
+          const attempts = (await resp.json())?.items || [];
+          const captured = attempts.find(p => p.status === 'captured');
+
+          // Nothing captured. This is where a real customer used to disappear:
+          // the sweep saw failed attempts and moved on without a word, so a
+          // $340 booking that failed three times went unnoticed for 20 hours.
+          // An unpaid booking is not a dead end — it is a lead who is actively
+          // trying to give us money and needs a human within minutes.
+          if (!captured) {
+            await alertOnStuckCustomer(prisma, booking, attempts);
+            continue;
+          }
 
           console.log(`   💰 Booking #${booking.id} was paid (${captured.id}) but never recorded — confirming`);
 
@@ -204,8 +294,42 @@ function schedulePaymentReconciler(prisma) {
  * Start all booking-related cron jobs.
  * Call this once from server.js after app.listen().
  */
+/**
+ * Daily proof that alerting still works.
+ *
+ * The 2026-08-31 failure was silent: the phone simply stopped receiving, and
+ * nothing about a quiet phone looks different from a quiet day of no bookings.
+ * One deliberate ping a day makes the difference visible — if it stops
+ * arriving, alerting is broken and there is something to go fix.
+ */
+function scheduleAlertHeartbeat(prisma) {
+  // 09:00 UTC ≈ 2:30 PM IST — a time he is awake to notice its absence.
+  cron.schedule('0 9 * * *', async () => {
+    try {
+      const since = new Date(Date.now() - 24 * 60 * 60 * 1000);
+      const [created, paid] = await Promise.all([
+        prisma.booking.count({ where: { createdAt: { gte: since } } }),
+        prisma.booking.count({ where: { createdAt: { gte: since }, paymentStatus: 'paid' } }),
+      ]);
+      await sendHeartbeat(
+        `Last 24h: ${created} booking form(s) filled, ${paid} paid.\n` +
+        `If this message ever stops arriving, alerts are broken — check the server.`
+      );
+    } catch (err) {
+      console.error('❌ [Cron] Alert heartbeat failed:', err.message);
+    }
+  });
+
+  console.log('✅ [Cron] Alert heartbeat scheduled (daily 09:00 UTC)');
+}
+
+/**
+ * Start all booking-related cron jobs.
+ * Call this once from server.js after app.listen().
+ */
 export function startBookingCrons(prisma) {
   console.log('🕐 Starting booking cron jobs...');
   schedulePreTourReminders(prisma);
   schedulePaymentReconciler(prisma);
+  scheduleAlertHeartbeat(prisma);
 }
