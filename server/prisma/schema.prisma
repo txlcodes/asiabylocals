@@ -95,6 +95,10 @@ model Tour {
   pickupIncluded     Boolean      @default(false) @map("pickup_included")
   visitorInfo        String?      @map("visitor_info")
   checklistItems     String?      @map("checklist_items") // JSON array of {label, value, iconType}
+  // The operator who actually runs the tour, shown to travellers. The column has
+  // existed in the database all along but was missing from this model, so every
+  // import silently dropped it and every tour launched with a blank provider.
+  activityProvider   String?      @map("activity_provider")
   supplier         Supplier     @relation(fields: [supplierId], references: [id], onDelete: Cascade)
   parentTour       Tour?        @relation("TourMiniTours", fields: [parentTourId], references: [id], onDelete: SetNull)
   miniTours        Tour[]       @relation("TourMiniTours")

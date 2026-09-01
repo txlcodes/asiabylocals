@@ -3187,7 +3187,8 @@ app.post('/api/tours', async (req, res) => {
       locationEntryTickets,
       guideType,
       currency,
-      pickupIncluded
+      pickupIncluded,
+      activityProvider
     } = finalCleanedBody; // Use final cleaned body (IDs and pricingType removed)
 
     // #region agent log
@@ -4296,6 +4297,9 @@ app.post('/api/tours', async (req, res) => {
       languages: JSON.stringify(languagesArray || ['English']),
       reviews: null,
       status: 'draft',
+      // Who actually runs the tour. Travellers book us and are handed to this
+      // operator, so a blank provider is a real gap, not a cosmetic one.
+      activityProvider: activityProvider || null,
       // Save simplified pricing fields
       maxGroupSize: isPerGroupPricing && maxGroupSize ? parseInt(maxGroupSize) : null,
       groupPrice: isPerGroupPricing && groupPrice ? parseFloat(groupPrice) : null,
@@ -4739,7 +4743,7 @@ app.post('/api/tours', async (req, res) => {
           'highlights', 'included', 'notIncluded', 'meetingPoint', 'guideType', 'tourTypes',
           'images', 'languages', 'reviews', 'status', 'options',
           'itineraryItems', 'detailedItinerary', 'visitorInfo', 'checklistItems', 'pickupIncluded',
-          'groupPricingTiers', 'groupPrice', 'maxGroupSize'
+          'groupPricingTiers', 'groupPrice', 'maxGroupSize', 'activityProvider'
         ];
 
         // Create a completely clean object with ONLY valid Tour model fields
@@ -4773,7 +4777,8 @@ app.post('/api/tours', async (req, res) => {
           checklistItems: finalTourData.checklistItems || null,
           groupPricingTiers: finalTourData.groupPricingTiers ? (typeof finalTourData.groupPricingTiers === 'string' ? finalTourData.groupPricingTiers : JSON.stringify(finalTourData.groupPricingTiers)) : null,
           groupPrice: finalTourData.groupPrice || null,
-          maxGroupSize: finalTourData.maxGroupSize || null
+          maxGroupSize: finalTourData.maxGroupSize || null,
+          activityProvider: finalTourData.activityProvider || null
         };
 
         // Only add options if they exist and are properly formatted
