@@ -183,12 +183,26 @@ export function toWhatsAppNumber(raw) {
 
 // 🆕 New booking created — customer has reached checkout but not paid yet.
 export async function sendBookingAlert(b) {
+  // A filled form is a live person waiting to pay, so this rings the phone too
+  // — the whole point is to reach them while they are still at the checkout.
+  //
+  // WAKE_CALL_MIN_AMOUNT exists so a 3am ring can be reserved for bookings
+  // worth waking up for; unset means every booking calls.
+  const min = Number(process.env.WAKE_CALL_MIN_AMOUNT || 0);
+  const worthACall = Number(b.amount || 0) >= min;
+
   return deliver(contactPayload({
     title: '🆕 New booking (pending)',
     tags: ['bell', 'moneybag'],
     b,
     actionLabel: '💬 WhatsApp',
-  }), { critical: true });
+  }), {
+    critical: true,
+    wake: worthACall
+      ? { bookingId: b.reference || b.id || '?', reason: 'Someone just filled the booking form',
+          amount: b.amount, currency: b.currency, tourTitle: b.tourTitle }
+      : null,
+  });
 }
 
 // ✅ Payment received — money actually landed for a booking.

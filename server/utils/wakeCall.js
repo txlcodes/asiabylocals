@@ -37,6 +37,16 @@ function provider() {
   return null;
 }
 
+/** Say out loud at boot whether the phone will actually ring. */
+export function describeWakeCall() {
+  const p = provider();
+  const to = (process.env.OWNER_PHONE || '').trim();
+  if (!p) return 'no provider configured — the phone will NOT ring';
+  if (!to) return `provider ${p} set but OWNER_PHONE is missing — the phone will NOT ring`;
+  const min = Number(process.env.WAKE_CALL_MIN_AMOUNT || 0);
+  return `${p} -> ${to.slice(0, 4)}…${to.slice(-3)}${min ? ` (only above ${min})` : ' (every booking)'}`;
+}
+
 export function isWakeCallConfigured() {
   return Boolean(provider() && (process.env.OWNER_PHONE || '').trim());
 }

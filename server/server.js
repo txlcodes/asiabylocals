@@ -11,7 +11,7 @@ import { sendVerificationEmail, sendWelcomeEmail, sendBookingNotificationEmail, 
 import { startBookingCrons } from './cron/bookingReminders.js';
 import { startReviewScheduler, sendDueReviewRequests } from './reviewScheduler.js';
 import { startCheckoutRecovery, runCheckoutRecovery, sendInstantRecovery } from './checkoutRecovery.js';
-import { wakeCall, isWakeCallConfigured } from './utils/wakeCall.js';
+import { wakeCall, isWakeCallConfigured, describeWakeCall } from './utils/wakeCall.js';
 import { sendBookingAlert, sendPaymentFailedAlert, sendInquiryAlert, logAlertConfig } from './bookingPush.js';
 import { uploadMultipleImages } from './utils/cloudinary.js';
 import { generateInvoicePDF } from './utils/invoice.js';
@@ -10275,4 +10275,7 @@ app.listen(PORT, () => {
 
   // Start abandoned/failed checkout recovery (guest-facing, not just an alert)
   startCheckoutRecovery();
+
+  // A silent phone looks exactly like no bookings, so say which it is.
+  console.log(`☎️  Wake call: ${describeWakeCall()}`);
 });
