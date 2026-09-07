@@ -125,7 +125,6 @@ function schedulePreTourReminders(prisma) {
 // who walks away does not generate a push every five minutes. Failed-payment
 // alerts dedupe on the booking's own paymentStatus instead, which survives a
 // restart; this only guards the softer "no attempt yet" nudge.
-const abandonedAlerted = new Set();
 
 /**
  * An unpaid booking that Razorpay has no captured payment for. Decide whether
@@ -174,11 +173,29 @@ async function alertOnStuckCustomer(prisma, booking, attempts) {
   }
 
   // No attempt at all. Give them 15 minutes to finish before calling it
-  // abandoned, and never nudge about the same booking twice.
+  // abandoned, and alert about it exactly once, ever.
+  //
+  // The dedupe used to be a process-local Set, which Render empties on every
+  // deploy — so on 2026-09-07 the same abandoned checkout alerted again after
+  // each of the day's restarts and buried the alerts that mattered. The flag
+  // now lives in the database, where a restart cannot forget it.
+  //
+  // It is also skipped once checkoutRecovery has emailed the guest: the lead is
+  // being worked automatically, and an alert asking a human to do it again is
+  // noise, not information.
   const ageMinutes = (Date.now() - new Date(booking.createdAt).getTime()) / 60000;
-  if (ageMinutes < 15 || abandonedAlerted.has(booking.id)) return;
+  if (ageMinutes < 15) return;
 
-  abandonedAlerted.add(booking.id);
+  const flags = await prisma.booking.findUnique({
+    where: { id: booking.id },
+    select: { abandonedAlertedAt: true, recoveryNudge1SentAt: true, recoveredAt: true },
+  });
+  if (!flags || flags.abandonedAlertedAt || flags.recoveryNudge1SentAt || flags.recoveredAt) return;
+
+  await prisma.booking.update({
+    where: { id: booking.id },
+    data: { abandonedAlertedAt: new Date() },
+  });
   console.log(`   🛒 Booking #${booking.id}: form filled, no payment attempted — alerting`);
   await sendAbandonedCheckoutAlert(base);
 }

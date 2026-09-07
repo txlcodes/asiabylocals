@@ -190,6 +190,10 @@ model Booking {
   recoveryWhatsappSentAt DateTime? @map("recovery_whatsapp_sent_at")
   recoveryEscalatedAt    DateTime? @map("recovery_escalated_at")
   recoveredAt            DateTime? @map("recovered_at")
+  // Admin "checkout abandoned" alert, stamped in the database rather than a
+  // process-local Set: Render restarts on every deploy, which emptied the Set
+  // and re-alerted the same guest all day on 2026-09-07.
+  abandonedAlertedAt     DateTime? @map("abandoned_alerted_at")
 
   messages Message[]
   review   Review?
