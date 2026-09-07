@@ -2845,6 +2845,12 @@ export default transporter;
  * blame them. The alert that triggers this cannot tell a closed modal from a
  * declined card, so the copy stays neutral and simply offers a way back.
  */
+// Support WhatsApp shown on guest-facing recovery emails. Defaults to the
+// number on the AsiaByLocals supplier record; SUPPORT_WHATSAPP overrides it
+// without a deploy.
+const SUPPORT_WA_DISPLAY = process.env.SUPPORT_WHATSAPP || '+91 8449538716';
+const SUPPORT_WA_DIGITS = SUPPORT_WA_DISPLAY.replace(/\D/g, '');
+
 export const sendCheckoutRecoveryEmail = async (customerEmail, customerName, details) => {
   const { tourTitle, tourCity, bookingDate, numberOfGuests, bookingRef, resumeUrl, isSecondNudge } = details;
   const fromEmail = (resendApiKey || sendGridApiKey) ? 'info@asiabylocals.com' : (emailUser || 'asiabylocals@gmail.com');
@@ -2864,8 +2870,12 @@ export const sendCheckoutRecoveryEmail = async (customerEmail, customerName, det
 <tr><td style="font-size:20px;font-weight:600;padding-bottom:14px;">AsiaByLocals</td></tr>
 <tr><td style="font-size:15px;line-height:1.65;">${lead}</td></tr>
 <tr><td style="padding:24px 0 6px;"><a href="${resumeUrl}" style="display:inline-block;background:#10B981;color:#fff;text-decoration:none;padding:13px 24px;border-radius:8px;font-weight:600;font-size:15px;">Complete your booking</a></td></tr>
-<tr><td style="font-size:13px;color:#6b7280;padding-top:24px;line-height:1.6;">
-${bookingRef ? `Reference ${bookingRef}<br>` : ''}Reply to this email if anything is unclear — it reaches us directly.<br>Talha · AsiaByLocals</td></tr>
+<tr><td style="font-size:14px;line-height:1.6;padding-top:22px;border-top:1px solid #e5e7eb;">
+<strong>Need help?</strong> Reply to this email, or message us on WhatsApp at
+<a href="https://wa.me/${SUPPORT_WA_DIGITS}" style="color:#10B981;text-decoration:none;font-weight:600;">${SUPPORT_WA_DISPLAY}</a> —
+we answer questions about dates, meeting points and payment.</td></tr>
+<tr><td style="font-size:13px;color:#6b7280;padding-top:18px;line-height:1.6;">
+${bookingRef ? `Reference ${bookingRef}<br>` : ''}Talha · AsiaByLocals</td></tr>
 </table></td></tr></table></body></html>`;
 
   const text = `Hi ${firstName},
@@ -2875,8 +2885,11 @@ ${isSecondNudge
   : `You started a booking for ${tourTitle} in ${tourCity} on ${bookingDate} for ${numberOfGuests} guest(s), but the payment did not complete. Nothing has been charged to you.`}
 
 Complete your booking: ${resumeUrl}
-${bookingRef ? `Reference ${bookingRef}\n` : ''}
-Reply to this email if anything is unclear.
+
+Need help? Reply to this email, or message us on WhatsApp at ${SUPPORT_WA_DISPLAY}
+(https://wa.me/${SUPPORT_WA_DIGITS}) — we answer questions about dates, meeting
+points and payment.
+${bookingRef ? `\nReference ${bookingRef}` : ''}
 Talha · AsiaByLocals`;
 
   if (resendClient) {
