@@ -13,6 +13,7 @@
 // actually accepted the message, and it falls back to email when ntfy is
 // unreachable. Losing a lead because one HTTP call failed is not acceptable.
 import { Resend } from 'resend';
+import { wakeCall, isWakeCallConfigured } from './utils/wakeCall.js';
 
 const NTFY_URL = process.env.NTFY_URL || 'https://ntfy.sh';
 const NTFY_TOPIC = process.env.NTFY_TOPIC || 'abl-bookings-405fc07d8bff'; // change me + subscribe in app
@@ -103,13 +104,21 @@ async function emailFallback(payload, reason) {
  * failure mode we cannot detect is a push that is accepted and never shown —
  * so the money-carrying alerts always travel two independent paths.
  */
-async function deliver(payload, { critical = false } = {}) {
+async function deliver(payload, { critical = false, wake = null } = {}) {
   if (!NTFY_TOPIC) return false;
   try {
     const [id, emailed] = await Promise.all([
       postToNtfy(payload),
       critical ? emailFallback(payload, 'Second delivery channel for a booking alert.') : Promise.resolve(false),
     ]);
+
+    // A push obeys silent mode and Focus; a ringing phone does not. On
+    // 2026-09-07 a payment failed at 02:55 and was seen hours later, which is
+    // why money-critical alerts also ring the owner's phone. No-op unless a
+    // call provider is configured.
+    if (wake && isWakeCallConfigured()) {
+      wakeCall(wake).catch((e) => console.error('wake call failed:', e.message));
+    }
 
     if (id) {
       console.log(`🔔 Alert delivered (topic: ${NTFY_TOPIC}, id: ${id}): ${payload.title}`);
@@ -203,7 +212,11 @@ export async function sendPaymentFailedAlert(b) {
     b,
     extraLines: b.reason ? [`⚠️ ${b.reason}`] : [],
     actionLabel: '💬 Rescue',
-  }), { critical: true });
+  }), {
+    critical: true,
+    wake: { bookingId: b.reference || b.id || '?', reason: 'A payment just failed',
+            amount: b.amount, currency: b.currency, tourTitle: b.tourTitle },
+  });
 }
 
 /**
@@ -221,7 +234,11 @@ export async function sendLeadRescueAlert(b) {
     b,
     extraLines: [b.reason ? `⚠️ ${b.reason}` : null, '👉 Contact them NOW — they want to buy'].filter(Boolean),
     actionLabel: '💬 Rescue',
-  }), { critical: true });
+  }), {
+    critical: true,
+    wake: { bookingId: b.reference || b.id || '?', reason: 'A customer is stuck trying to pay',
+            amount: b.amount, currency: b.currency, tourTitle: b.tourTitle },
+  });
 }
 
 /**
