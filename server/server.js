@@ -11,6 +11,7 @@ import { sendVerificationEmail, sendWelcomeEmail, sendBookingNotificationEmail, 
 import { startBookingCrons } from './cron/bookingReminders.js';
 import { startReviewScheduler, sendDueReviewRequests } from './reviewScheduler.js';
 import { startCheckoutRecovery, runCheckoutRecovery, sendInstantRecovery } from './checkoutRecovery.js';
+import { wakeCall, isWakeCallConfigured } from './utils/wakeCall.js';
 import { sendBookingAlert, sendPaymentFailedAlert, sendInquiryAlert, logAlertConfig } from './bookingPush.js';
 import { uploadMultipleImages } from './utils/cloudinary.js';
 import { generateInvoicePDF } from './utils/invoice.js';
@@ -10192,6 +10193,35 @@ app.post('/api/bookings/:bookingId/send-review-link', async (req, res) => {
   } catch (error) {
     console.error('Error sending review link:', error);
     res.status(500).json({ success: false, error: 'Failed to send review request' });
+  }
+});
+
+// Fire one test wake call, so the phone-ringing path can be proven the day it
+// is configured instead of the next time a payment fails at 3am.
+//
+// Unlike the other cron routes this ALWAYS requires the secret: an open
+// endpoint that places phone calls is a toll-fraud invitation, so with no
+// CRON_SECRET set it refuses rather than running unprotected.
+app.post('/api/cron/test-wake-call', async (req, res) => {
+  try {
+    if (!process.env.CRON_SECRET) {
+      return res.status(503).json({ success: false, error: 'CRON_SECRET not set — refusing to expose a call endpoint' });
+    }
+    if (req.headers['x-cron-secret'] !== process.env.CRON_SECRET) {
+      return res.status(401).json({ success: false, error: 'Unauthorized' });
+    }
+    if (!isWakeCallConfigured()) {
+      return res.json({ success: false, configured: false, error: 'No call provider configured (set OWNER_PHONE plus a provider)' });
+    }
+    const result = await wakeCall({
+      bookingId: 'TEST',
+      reason: 'This is a test alert from Asia by Locals',
+      amount: 0, currency: 'USD', tourTitle: 'a test booking',
+    });
+    res.json({ success: !!result.ok, ...result });
+  } catch (error) {
+    console.error('Test wake call failed:', error);
+    res.status(500).json({ success: false, error: error.message });
   }
 });
 
