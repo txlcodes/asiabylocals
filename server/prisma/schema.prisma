@@ -182,6 +182,15 @@ model Booking {
   reviewRequestSentAt    DateTime? @map("review_request_sent_at")
   reviewReminderSentAt   DateTime? @map("review_reminder_sent_at")
 
+  // Abandoned-checkout recovery ladder. Every step is stamped so a sweep that
+  // runs twice, or a restart mid-sweep, can never message the same guest twice.
+  recoveryToken          String?   @unique @map("recovery_token")
+  recoveryNudge1SentAt   DateTime? @map("recovery_nudge1_sent_at")
+  recoveryNudge2SentAt   DateTime? @map("recovery_nudge2_sent_at")
+  recoveryWhatsappSentAt DateTime? @map("recovery_whatsapp_sent_at")
+  recoveryEscalatedAt    DateTime? @map("recovery_escalated_at")
+  recoveredAt            DateTime? @map("recovered_at")
+
   messages Message[]
   review   Review?
 

@@ -2836,3 +2836,56 @@ export const sendReviewRequestEmail = async (customerEmail, customerName, detail
 
 export default transporter;
 
+
+/**
+ * Abandoned / failed checkout recovery email.
+ *
+ * Sent by checkoutRecovery.js when a booking is still unpaid a while after it
+ * was created. Two things it must never do: claim the guest was charged, and
+ * blame them. The alert that triggers this cannot tell a closed modal from a
+ * declined card, so the copy stays neutral and simply offers a way back.
+ */
+export const sendCheckoutRecoveryEmail = async (customerEmail, customerName, details) => {
+  const { tourTitle, tourCity, bookingDate, numberOfGuests, bookingRef, resumeUrl, isSecondNudge } = details;
+  const fromEmail = (resendApiKey || sendGridApiKey) ? 'info@asiabylocals.com' : (emailUser || 'asiabylocals@gmail.com');
+  const firstName = (customerName || '').split(' ')[0] || 'there';
+
+  const subject = isSecondNudge
+    ? `Still holding your ${tourCity} booking — ${tourTitle}`
+    : `Your booking did not go through — ${tourTitle}`;
+
+  const lead = isSecondNudge
+    ? `<p>Hi ${firstName},</p><p>Your place on <strong>${tourTitle}</strong> for <strong>${bookingDate}</strong> is still open, and still unpaid. If the card did not work, reply to this email and we will send a different payment link — some international cards need a second route.</p>`
+    : `<p>Hi ${firstName},</p><p>You started a booking for <strong>${tourTitle}</strong> in ${tourCity} on <strong>${bookingDate}</strong> for ${numberOfGuests} ${numberOfGuests === 1 ? 'guest' : 'guests'}, but the payment did not complete. <strong>Nothing has been charged to you.</strong></p><p>Your date is still available:</p>`;
+
+  const html = `<!doctype html><html><body style="margin:0;padding:0;background:#f6f7f9;">
+<table width="100%" cellpadding="0" cellspacing="0" style="background:#f6f7f9;padding:28px 12px;"><tr><td align="center">
+<table width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;background:#fff;border-radius:12px;padding:32px;font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;color:#1f2937;">
+<tr><td style="font-size:20px;font-weight:600;padding-bottom:14px;">AsiaByLocals</td></tr>
+<tr><td style="font-size:15px;line-height:1.65;">${lead}</td></tr>
+<tr><td style="padding:24px 0 6px;"><a href="${resumeUrl}" style="display:inline-block;background:#10B981;color:#fff;text-decoration:none;padding:13px 24px;border-radius:8px;font-weight:600;font-size:15px;">Complete your booking</a></td></tr>
+<tr><td style="font-size:13px;color:#6b7280;padding-top:24px;line-height:1.6;">
+${bookingRef ? `Reference ${bookingRef}<br>` : ''}Reply to this email if anything is unclear — it reaches us directly.<br>Talha · AsiaByLocals</td></tr>
+</table></td></tr></table></body></html>`;
+
+  const text = `Hi ${firstName},
+
+${isSecondNudge
+  ? `Your place on ${tourTitle} for ${bookingDate} is still open and still unpaid. If the card did not work, reply and we will send a different payment link.`
+  : `You started a booking for ${tourTitle} in ${tourCity} on ${bookingDate} for ${numberOfGuests} guest(s), but the payment did not complete. Nothing has been charged to you.`}
+
+Complete your booking: ${resumeUrl}
+${bookingRef ? `Reference ${bookingRef}\n` : ''}
+Reply to this email if anything is unclear.
+Talha · AsiaByLocals`;
+
+  if (resendClient) {
+    const result = await resendClient.emails.send({
+      from: `AsiaByLocals <${fromEmail}>`,
+      to: customerEmail, subject, html, text, replyTo: 'info@asiabylocals.com',
+    });
+    if (result.error) throw new Error(JSON.stringify(result.error));
+    return result;
+  }
+  throw new Error('No email provider configured for checkout recovery');
+};

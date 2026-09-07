@@ -10,6 +10,7 @@ import Razorpay from 'razorpay';
 import { sendVerificationEmail, sendWelcomeEmail, sendBookingNotificationEmail, sendBookingConfirmationEmail, sendAdminPaymentNotificationEmail, sendTourApprovalEmail, sendTourRejectionEmail, sendGuideBookingNotificationEmail, sendReviewRequestEmail } from './utils/email.js';
 import { startBookingCrons } from './cron/bookingReminders.js';
 import { startReviewScheduler, sendDueReviewRequests } from './reviewScheduler.js';
+import { startCheckoutRecovery, runCheckoutRecovery, sendInstantRecovery } from './checkoutRecovery.js';
 import { sendBookingAlert, sendPaymentFailedAlert, sendInquiryAlert, logAlertConfig } from './bookingPush.js';
 import { uploadMultipleImages } from './utils/cloudinary.js';
 import { generateInvoicePDF } from './utils/invoice.js';
@@ -8603,6 +8604,9 @@ app.post('/api/verify-payment', async (req, res) => {
         status: 'confirmed',
         confirmedAt: new Date(),
         invoiceUrl: invoiceUrl,
+        // Stamped here rather than by the sweeper so a guest who pays between
+        // two sweeps can never receive a "you didn't pay" nudge afterwards.
+        recoveredAt: new Date(),
         updatedAt: new Date()
       },
       include: {
@@ -8820,6 +8824,11 @@ app.post('/api/bookings/:bookingId/mark-payment-failed', async (req, res) => {
         reference: `ABL-${booking.id.toString().padStart(6, '0')}-${new Date(booking.createdAt).getFullYear()}`,
         reason: 'Customer payment did not complete (modal closed or failed)',
       });
+
+      // Reach the guest too, not just the admin. A ten-hour gap between a
+      // failed checkout and a message is long enough for them to book the same
+      // tour somewhere else — which is exactly what happened on 2026-09-07.
+      sendInstantRecovery(booking.id);
     } else {
       console.log('⚠️ Booking already processed, not updating:', {
         bookingId,
@@ -10186,6 +10195,20 @@ app.post('/api/bookings/:bookingId/send-review-link', async (req, res) => {
   }
 });
 
+// Manual/cron trigger for the abandoned-checkout recovery sweep
+app.post('/api/cron/run-checkout-recovery', async (req, res) => {
+  try {
+    if (process.env.CRON_SECRET && req.headers['x-cron-secret'] !== process.env.CRON_SECRET) {
+      return res.status(401).json({ success: false, error: 'Unauthorized' });
+    }
+    const summary = await runCheckoutRecovery();
+    res.json({ success: true, ...summary });
+  } catch (error) {
+    console.error('Checkout recovery sweep failed:', error);
+    res.status(500).json({ success: false, error: 'Recovery sweep failed' });
+  }
+});
+
 // Manual/cron trigger for the review email sweep
 app.post('/api/cron/send-review-requests', async (req, res) => {
   try {
@@ -10219,4 +10242,7 @@ app.listen(PORT, () => {
 
   // Start guest review email scheduler (day-of-tour email + next-day reminder)
   startReviewScheduler();
+
+  // Start abandoned/failed checkout recovery (guest-facing, not just an alert)
+  startCheckoutRecovery();
 });
