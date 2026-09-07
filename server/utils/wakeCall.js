@@ -16,12 +16,13 @@
 //            Left here ready, but it must be proven with one real call before
 //            anyone relies on it; do not assume it is available.
 //
-//   callmebot — free, no account, rings your own WhatsApp. Worth having because
-//            it costs nothing, but it reaches WhatsApp through a route Meta does
-//            not sanction, so the service can stop working without warning. It
-//            is therefore never the only channel: the response body is checked
-//            for an explicit success, and anything else is treated as a failure
-//            so the caller can fall through to the next provider.
+//   callmebot — free, no account. Note what this actually does: it sends a
+//            WhatsApp *message* to your own number, not a call. That is barely
+//            louder than the ntfy push already being sent, so it does not solve
+//            the asleep-at-03:00 problem on its own — only a real ring does.
+//            It also reaches WhatsApp through a route Meta does not sanction and
+//            can stop working without warning, so its response body is checked
+//            for explicit success rather than trusting a 200.
 //
 // Neither is required for the system to run. With nothing configured this is a
 // no-op and the existing ntfy + email alerts are unchanged.
@@ -80,7 +81,7 @@ async function placeWhatsAppCall(to) {
 }
 
 /**
- * CallMeBot: free WhatsApp ping to your own number.
+ * CallMeBot: free WhatsApp *message* to your own number — not a voice call.
  *
  * Their endpoint answers 200 with an HTML page even for some failures, so a
  * 200 alone proves nothing. The body is checked for their success wording and
