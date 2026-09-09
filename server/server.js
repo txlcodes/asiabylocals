@@ -7900,6 +7900,30 @@ app.post('/api/bookings', async (req, res) => {
       });
     }
 
+    // Minimum notice, enforced here as well as in the calendar.
+    //
+    // India runs on our own operations and can confirm same-day. Everywhere
+    // else we are an agent: the operator has to be told and has to confirm,
+    // and a few hours is not enough. On 9 September a guest booked a Kyoto
+    // workshop at 02:29 for that same morning, the studio was never notified,
+    // and she was left with no address and no session. The calendar now hides
+    // those dates; this stops anything that skips the calendar.
+    const leadDays = String(tour.country || '').trim().toLowerCase() === 'india' ? 0 : 2;
+    if (leadDays > 0) {
+      const today = new Date(); today.setHours(0, 0, 0, 0);
+      const earliest = new Date(today); earliest.setDate(earliest.getDate() + leadDays);
+      const [by, bm, bd] = String(bookingDate).slice(0, 10).split('-').map(Number);
+      const wanted = new Date(by, (bm || 1) - 1, bd || 1);
+      if (wanted < earliest) {
+        return res.status(400).json({
+          success: false,
+          error: 'Too soon to book',
+          message: `This tour needs at least ${leadDays} days' notice so the local operator can confirm your place. The earliest date we can take is ${earliest.toISOString().slice(0, 10)}.`,
+          earliestDate: earliest.toISOString().slice(0, 10)
+        });
+      }
+    }
+
     // Get supplier contact info
     const supplier = await prisma.supplier.findUnique({
       where: { id: tour.supplierId },
