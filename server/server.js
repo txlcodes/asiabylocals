@@ -7903,24 +7903,37 @@ app.post('/api/bookings', async (req, res) => {
     // Minimum notice, enforced here as well as in the calendar.
     //
     // India runs on our own operations and can confirm same-day. Everywhere
-    // else we are an agent and the operator has to be told first.
+    // else we are an agent and the operator has to be told first. One day
+    // blocks the same-day booking that caused the Kyoto failure.
     //
-    // One day, not two: the failure this guards against was a same-day booking
-    // (a Kyoto workshop booked at 02:29 for that same morning, which the studio
-    // was never told about), and one day blocks it. Two days would also block
-    // tomorrow, which costs twice as many bookings for no extra safety.
-    const leadDays = String(tour.country || '').trim().toLowerCase() === 'india' ? 0 : 1;
+    // "Today" is computed in the TOUR's timezone, not the server's. Render runs
+    // in UTC and Japan is nine hours ahead: at 06:00 in Tokyo on the 9th it is
+    // still 21:00 on the 8th here, so a UTC "today" would read a Japanese
+    // same-day booking as next-day and let it through — exactly the case this
+    // exists to stop.
+    const TOUR_TZ = {
+      india: 'Asia/Kolkata', japan: 'Asia/Tokyo', thailand: 'Asia/Bangkok',
+      'sri lanka': 'Asia/Colombo', uae: 'Asia/Dubai', nepal: 'Asia/Kathmandu',
+    };
+    const tourCountry = String(tour.country || '').trim().toLowerCase();
+    const leadDays = tourCountry === 'india' ? 0 : 1;
     if (leadDays > 0) {
-      const today = new Date(); today.setHours(0, 0, 0, 0);
-      const earliest = new Date(today); earliest.setDate(earliest.getDate() + leadDays);
+      const tz = TOUR_TZ[tourCountry] || 'Asia/Dubai';
+      // en-CA gives YYYY-MM-DD
+      const [ty, tm, td] = new Intl.DateTimeFormat('en-CA', {
+        timeZone: tz, year: 'numeric', month: '2-digit', day: '2-digit',
+      }).format(new Date()).split('-').map(Number);
+      const earliest = new Date(Date.UTC(ty, tm - 1, td));
+      earliest.setUTCDate(earliest.getUTCDate() + leadDays);
       const [by, bm, bd] = String(bookingDate).slice(0, 10).split('-').map(Number);
-      const wanted = new Date(by, (bm || 1) - 1, bd || 1);
+      const wanted = new Date(Date.UTC(by, (bm || 1) - 1, bd || 1));
       if (wanted < earliest) {
+        const earliestStr = earliest.toISOString().slice(0, 10);
         return res.status(400).json({
           success: false,
           error: 'Too soon to book',
-          message: `This tour needs at least ${leadDays} days' notice so the local operator can confirm your place. The earliest date we can take is ${earliest.toISOString().slice(0, 10)}.`,
-          earliestDate: earliest.toISOString().slice(0, 10)
+          message: `This tour needs at least ${leadDays} day's notice so the local operator can confirm your place. The earliest date we can take is ${earliestStr}.`,
+          earliestDate: earliestStr
         });
       }
     }
