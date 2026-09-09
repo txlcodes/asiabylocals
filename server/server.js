@@ -7903,12 +7903,13 @@ app.post('/api/bookings', async (req, res) => {
     // Minimum notice, enforced here as well as in the calendar.
     //
     // India runs on our own operations and can confirm same-day. Everywhere
-    // else we are an agent: the operator has to be told and has to confirm,
-    // and a few hours is not enough. On 9 September a guest booked a Kyoto
-    // workshop at 02:29 for that same morning, the studio was never notified,
-    // and she was left with no address and no session. The calendar now hides
-    // those dates; this stops anything that skips the calendar.
-    const leadDays = String(tour.country || '').trim().toLowerCase() === 'india' ? 0 : 2;
+    // else we are an agent and the operator has to be told first.
+    //
+    // One day, not two: the failure this guards against was a same-day booking
+    // (a Kyoto workshop booked at 02:29 for that same morning, which the studio
+    // was never told about), and one day blocks it. Two days would also block
+    // tomorrow, which costs twice as many bookings for no extra safety.
+    const leadDays = String(tour.country || '').trim().toLowerCase() === 'india' ? 0 : 1;
     if (leadDays > 0) {
       const today = new Date(); today.setHours(0, 0, 0, 0);
       const earliest = new Date(today); earliest.setDate(earliest.getDate() + leadDays);
