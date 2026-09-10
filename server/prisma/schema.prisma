@@ -31,25 +31,25 @@ model Supplier {
   status                   String    @default("pending")
   createdAt                DateTime  @default(now()) @map("created_at")
   updatedAt                DateTime  @updatedAt @map("updated_at")
-  
+
   // Payment Details
-  paymentMethod            String?   @map("payment_method") // "bank_transfer", "paypal", "credit_card", "upi"
-  paymentMethodDetails     String?   @map("payment_method_details") // JSON string with method-specific details
-  paymentCurrency          String?   @map("payment_currency") // Currency for payouts (INR, USD, etc.)
-  paymentFrequency         String    @default("monthly") @map("payment_frequency") // "monthly", "biweekly"
-  
+  paymentMethod        String? @map("payment_method") // "bank_transfer", "paypal", "credit_card", "upi"
+  paymentMethodDetails String? @map("payment_method_details") // JSON string with method-specific details
+  paymentCurrency      String? @map("payment_currency") // Currency for payouts (INR, USD, etc.)
+  paymentFrequency     String  @default("monthly") @map("payment_frequency") // "monthly", "biweekly"
+
   // Tax Details (Optional)
-  taxId                    String?   @map("tax_id") // GSTIN, PAN, VAT number, etc.
-  taxIdType                String?   @map("tax_id_type") // "GSTIN", "PAN", "VAT", "EIN", etc.
-  taxCountry               String?   @map("tax_country") // Country of tax registration
-  taxVerified              Boolean   @default(false) @map("tax_verified")
-  
+  taxId       String? @map("tax_id") // GSTIN, PAN, VAT number, etc.
+  taxIdType   String? @map("tax_id_type") // "GSTIN", "PAN", "VAT", "EIN", etc.
+  taxCountry  String? @map("tax_country") // Country of tax registration
+  taxVerified Boolean @default(false) @map("tax_verified")
+
   // Payment Status
   paymentDetailsVerified   Boolean   @default(false) @map("payment_details_verified")
   paymentDetailsVerifiedAt DateTime? @map("payment_details_verified_at")
-  
-  tours                    Tour[]
-  bookings                 Booking[]
+
+  tours    Tour[]
+  bookings Booking[]
 
   @@index([email])
   @@index([emailVerificationToken])
@@ -57,54 +57,58 @@ model Supplier {
 }
 
 model Tour {
-  id               Int          @id @default(autoincrement())
-  supplierId       Int          @map("supplier_id")
-  parentTourId     Int?         @map("parent_tour_id") // For mini tours linked to parent tours
-  title            String
-  slug             String       @unique
-  country          String
-  city             String
-  category         String
-  locations        String
-  duration         String
-  pricePerPerson   Float        @map("price_per_person") // Legacy field - use tour_options for pricing
-  currency         String       @default("INR")
-  shortDescription String?      @map("short_description")
-  fullDescription  String       @map("full_description")
-  highlights       String?      @map("highlights")
-  included         String
-  notIncluded      String?      @map("not_included")
-  meetingPoint     String?      @map("meeting_point")
-  guideType        String?      @map("guide_type")
-  tourTypes        String?      @map("tour_types") // JSON array of tour types/tags
-  images           String
-  languages        String
-  reviews          String? // JSON array of fake reviews
-  status           String       @default("draft")
-  rejectionReason  String?      @map("rejection_reason")
+  id                    Int          @id @default(autoincrement())
+  supplierId            Int          @map("supplier_id")
+  parentTourId          Int?         @map("parent_tour_id") // For mini tours linked to parent tours
+  title                 String
+  slug                  String       @unique
+  country               String
+  city                  String
+  category              String
+  locations             String
+  duration              String
+  pricePerPerson        Float        @map("price_per_person") // Legacy field - use tour_options for pricing
+  currency              String       @default("INR")
+  shortDescription      String?      @map("short_description")
+  fullDescription       String       @map("full_description")
+  highlights            String?      @map("highlights")
+  included              String
+  notIncluded           String?      @map("not_included")
+  meetingPoint          String?      @map("meeting_point")
+  guideType             String?      @map("guide_type")
+  tourTypes             String?      @map("tour_types") // JSON array of tour types/tags
+  images                String
+  languages             String
+  reviews               String? // JSON array of fake reviews
+  status                String       @default("draft")
+  rejectionReason       String?      @map("rejection_reason")
   maxGroupSize          Int?         @map("max_group_size") // Maximum number of people guide can handle
   groupPrice            Float?       @map("group_price") // Single price for max group size
   groupPricingTiers     String?      @map("group_pricing_tiers") // JSON array of {minPeople, maxPeople, price} objects for tiered group pricing
-  unavailableDates     String?      @map("unavailable_dates") // Legacy - JSON array of dates guide is not available (ISO date strings)
-  unavailableDaysOfWeek String?     @map("unavailable_days_of_week") // JSON array of days of week guide is not available (0=Sunday, 1=Monday, ..., 6=Saturday)
-  createdAt        DateTime     @default(now()) @map("created_at")
-  updatedAt        DateTime     @updatedAt @map("updated_at")
-  approvedAt       DateTime?    @map("approved_at")
-  itineraryItems     String?      @map("itinerary_items") // JSON array of {title, time, duration, description, type, optional}
-  detailedItinerary  String?      @map("detailed_itinerary") // Long-form text itinerary (300+ words)
-  pickupIncluded     Boolean      @default(false) @map("pickup_included")
-  visitorInfo        String?      @map("visitor_info")
-  checklistItems     String?      @map("checklist_items") // JSON array of {label, value, iconType}
+  unavailableDates      String?      @map("unavailable_dates") // Legacy - JSON array of dates guide is not available (ISO date strings)
+  unavailableDaysOfWeek String?      @map("unavailable_days_of_week") // JSON array of days of week guide is not available (0=Sunday, 1=Monday, ..., 6=Saturday)
+  createdAt             DateTime     @default(now()) @map("created_at")
+  updatedAt             DateTime     @updatedAt @map("updated_at")
+  approvedAt            DateTime?    @map("approved_at")
+  itineraryItems        String?      @map("itinerary_items") // JSON array of {title, time, duration, description, type, optional}
+  detailedItinerary     String?      @map("detailed_itinerary") // Long-form text itinerary (300+ words)
+  pickupIncluded        Boolean      @default(false) @map("pickup_included")
+  visitorInfo           String?      @map("visitor_info")
+  checklistItems        String?      @map("checklist_items") // JSON array of {label, value, iconType}
   // The operator who actually runs the tour, shown to travellers. The column has
   // existed in the database all along but was missing from this model, so every
   // import silently dropped it and every tour launched with a blank provider.
-  activityProvider   String?      @map("activity_provider")
-  supplier         Supplier     @relation(fields: [supplierId], references: [id], onDelete: Cascade)
-  parentTour       Tour?        @relation("TourMiniTours", fields: [parentTourId], references: [id], onDelete: SetNull)
-  miniTours        Tour[]       @relation("TourMiniTours")
-  bookings         Booking[]
-  options          TourOption[]
-  reviewsList      Review[]
+  activityProvider      String?      @map("activity_provider")
+  // Source listing this tour was built from. Without it a tour cannot be
+  // checked against the operator's own public rate, which is how 108 tours
+  // ended up quoting up to 5x the correct price before 2026-09-10.
+  gygActivityId         String?      @map("gyg_activity_id")
+  supplier              Supplier     @relation(fields: [supplierId], references: [id], onDelete: Cascade)
+  parentTour            Tour?        @relation("TourMiniTours", fields: [parentTourId], references: [id], onDelete: SetNull)
+  miniTours             Tour[]       @relation("TourMiniTours")
+  bookings              Booking[]
+  options               TourOption[]
+  reviewsList           Review[]
 
   @@index([supplierId])
   @@index([status])
@@ -169,18 +173,18 @@ model Booking {
   updatedAt         DateTime    @updatedAt @map("updated_at")
 
   // Guide confirmation workflow
-  guideConfirmationToken   String?   @unique @map("guide_confirmation_token")
-  guideConfirmedAt         DateTime? @map("guide_confirmed_at")
-  guideReminderCount       Int       @default(0) @map("guide_reminder_count")
-  guideLastRemindedAt      DateTime? @map("guide_last_reminded_at")
-  adminEscalatedAt         DateTime? @map("admin_escalated_at")
-  preTourReminderSentAt    DateTime? @map("pre_tour_reminder_sent_at")
+  guideConfirmationToken String?   @unique @map("guide_confirmation_token")
+  guideConfirmedAt       DateTime? @map("guide_confirmed_at")
+  guideReminderCount     Int       @default(0) @map("guide_reminder_count")
+  guideLastRemindedAt    DateTime? @map("guide_last_reminded_at")
+  adminEscalatedAt       DateTime? @map("admin_escalated_at")
+  preTourReminderSentAt  DateTime? @map("pre_tour_reminder_sent_at")
 
   // Guest review workflow (day-of-tour email + next-day reminder)
-  reviewToken            String?   @unique @map("review_token")
-  reviewTokenExpiresAt   DateTime? @map("review_token_expires_at")
-  reviewRequestSentAt    DateTime? @map("review_request_sent_at")
-  reviewReminderSentAt   DateTime? @map("review_reminder_sent_at")
+  reviewToken          String?   @unique @map("review_token")
+  reviewTokenExpiresAt DateTime? @map("review_token_expires_at")
+  reviewRequestSentAt  DateTime? @map("review_request_sent_at")
+  reviewReminderSentAt DateTime? @map("review_reminder_sent_at")
 
   // Abandoned-checkout recovery ladder. Every step is stamped so a sweep that
   // runs twice, or a restart mid-sweep, can never message the same guest twice.
@@ -215,11 +219,11 @@ model Review {
   customerName   String   @map("customer_name")
   customerEmail  String   @map("customer_email")
   country        String?
-  rating         Int      // 1-5
+  rating         Int // 1-5
   guideRating    Int?     @map("guide_rating") // 1-5
   valueRating    Int?     @map("value_rating") // 1-5
   text           String
-  photos         String?  // JSON array of Cloudinary URLs
+  photos         String? // JSON array of Cloudinary URLs
   reviewToken    String   @unique @map("review_token")
   tokenExpiresAt DateTime @map("token_expires_at")
   verified       Boolean  @default(true) // Always true since link is sent to booking email
@@ -261,16 +265,16 @@ model Tourist {
 }
 
 model EmailSubscription {
-  id               Int       @id @default(autoincrement())
-  email            String
-  city             String?   // City name (e.g., "Agra", "Delhi", "Jaipur")
-  country          String?   // Country name (e.g., "India")
-  subscriptionType String    @default("itinerary") // "itinerary" or "newsletter"
-  verified         Boolean   @default(false)
-  verificationToken String?  @map("verification_token")
-  verifiedAt       DateTime? @map("verified_at")
-  createdAt        DateTime  @default(now()) @map("created_at")
-  updatedAt        DateTime  @updatedAt @map("updated_at")
+  id                Int       @id @default(autoincrement())
+  email             String
+  city              String? // City name (e.g., "Agra", "Delhi", "Jaipur")
+  country           String? // Country name (e.g., "India")
+  subscriptionType  String    @default("itinerary") // "itinerary" or "newsletter"
+  verified          Boolean   @default(false)
+  verificationToken String?   @map("verification_token")
+  verifiedAt        DateTime? @map("verified_at")
+  createdAt         DateTime  @default(now()) @map("created_at")
+  updatedAt         DateTime  @updatedAt @map("updated_at")
 
   @@unique([email, city, subscriptionType])
   @@index([email])
