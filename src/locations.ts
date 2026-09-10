@@ -1,78 +1,50 @@
+// GENERATED to match lib/cityCountryMap.ts in the frontend repo.
+//
+// A supplier used to be able to pick a city the site cannot route (Yokohama,
+// Nikko, Hoi An, Ubud and 71 others). An unmapped city publishes under /india/,
+// so a Japanese operator's Nikko tour would have gone live as an India tour.
+// UAE was missing entirely despite 101 live tours, and Hakone and Mount Fuji
+// were missing from Japan.
+//
+// Every city name here slugifies exactly to its CITY_URL_MAP key. If you add a
+// city, add it to CITY_URL_MAP first, or it will not route.
 
 export const COUNTRIES = [
+    { name: 'Japan', code: 'JP' },
+    { name: 'Sri Lanka', code: 'LK' },
     { name: 'India', code: 'IN' },
     { name: 'Thailand', code: 'TH' },
-    { name: 'Japan', code: 'JP' },
-    { name: 'Singapore', code: 'SG' },
-    { name: 'Indonesia', code: 'ID' },
-    { name: 'Malaysia', code: 'MY' },
-    { name: 'Vietnam', code: 'VN' },
-    { name: 'South Korea', code: 'KR' },
-    { name: 'Philippines', code: 'PH' },
-    { name: 'China', code: 'CN' },
-    { name: 'Taiwan', code: 'TW' },
-    { name: 'Hong Kong', code: 'HK' },
-    { name: 'Sri Lanka', code: 'LK' },
+    { name: 'UAE', code: 'AE' },
     { name: 'Nepal', code: 'NP' },
     { name: 'Cambodia', code: 'KH' },
+    { name: 'China', code: 'CN' },
+    { name: 'Hong Kong', code: 'HK' },
+    { name: 'Indonesia', code: 'ID' },
+    { name: 'Malaysia', code: 'MY' },
     { name: 'Myanmar', code: 'MM' },
-    { name: 'Laos', code: 'LA' },
-    { name: 'Bangladesh', code: 'BD' }
+    { name: 'Philippines', code: 'PH' },
+    { name: 'Singapore', code: 'SG' },
+    { name: 'South Korea', code: 'KR' },
+    { name: 'Taiwan', code: 'TW' },
+    { name: 'Vietnam', code: 'VN' },
 ];
 
 export const COUNTRY_CITIES: Record<string, string[]> = {
-    'India': [
-        'Delhi', 'Mumbai', 'Agra', 'Jaipur', 'Jodhpur', 'Jaisalmer', 'Udaipur',
-        'Varanasi', 'Goa', 'Kerala', 'Rishikesh', 'Darjeeling', 'Amritsar',
-        'Bikaner', 'Mathura', 'Khajuraho', 'Gwalior', 'Aurangabad', 'Mysore', 'Bengaluru'
-    ],
-    'Thailand': [
-        'Bangkok', 'Chiang Mai', 'Phuket', 'Pattaya', 'Krabi', 'Ayutthaya',
-        'Sukhothai', 'Hua Hin', 'Ko Samui', 'Ko Phangan', 'Ko Lanta', 'Phi Phi Islands'
-    ],
-    'Japan': [
-        'Tokyo', 'Kyoto', 'Osaka', 'Hiroshima', 'Nara', 'Sapporo', 'Yokohama',
-        'Fukuoka', 'Nagoya', 'Okinawa', 'Nikko', 'Takayama', 'Kanazawa'
-    ],
+    'Japan': ['Hakone', 'Hiroshima', 'Kyoto', 'Mount Fuji', 'Nagoya', 'Nara', 'Osaka', 'Sapporo', 'Tokyo'],
+    'Sri Lanka': ['Bentota', 'Colombo', 'Ella', 'Galle', 'Kandy', 'Mirissa', 'Negombo', 'Nuwara Eliya', 'Sigiriya'],
+    'India': ['Agra', 'Amritsar', 'Aurangabad', 'Bengaluru', 'Bikaner', 'Delhi', 'Goa', 'Gwalior', 'Jaipur', 'Jaisalmer', 'Jodhpur', 'Kashmir', 'Khajuraho', 'Kolkata', 'Leh Ladakh', 'Mathura', 'Mumbai', 'Mysore', 'Rishikesh', 'Udaipur', 'Varanasi'],
+    'Thailand': ['Bangkok', 'Chiang Mai', 'Krabi', 'Pattaya', 'Phuket'],
+    'UAE': ['Abu Dhabi', 'Dubai'],
+    'Nepal': ['Bhaktapur', 'Chitwan', 'Kathmandu', 'Lumbini', 'Pokhara'],
+    'Cambodia': ['Siem Reap'],
+    'China': ['Beijing', 'Shanghai'],
+    'Hong Kong': ['Hongkong'],
+    'Indonesia': ['Bali', 'Yogyakarta'],
+    'Malaysia': ['Kuala Lumpur', 'Penang'],
+    'Myanmar': ['Yangon'],
+    'Philippines': ['Cebu', 'Manila'],
     'Singapore': ['Singapore'],
-    'Indonesia': [
-        'Bali', 'Jakarta', 'Yogyakarta', 'Bandung', 'Lombok', 'Surabaya', 'Ubud', 'Gili Islands'
-    ],
-    'Malaysia': [
-        'Kuala Lumpur', 'Penang', 'Malacca', 'Langkawi', 'Cameron Highlands', 'Kota Kinabalu', 'Borneo'
-    ],
-    'Vietnam': [
-        'Hanoi', 'Ho Chi Minh City', 'Hoi An', 'Hue', 'Da Nang', 'Nha Trang', 'Sapa', 'Ha Long Bay', 'Mui Ne'
-    ],
-    'South Korea': [
-        'Seoul', 'Busan', 'Jeju', 'Gyeongju', 'Incheon', 'Daegu', 'Jeonju'
-    ],
-    'Philippines': [
-        'Manila', 'Cebu', 'Boracay', 'Palawan', 'Davao', 'Baguio', 'El Nido', 'Coron', 'Bohol'
-    ],
-    'China': [
-        'Beijing', 'Shanghai', 'Guilin', "Xi'an", 'Chengdu', 'Hangzhou', 'Suzhou', 'Guangzhou', 'Shenzhen'
-    ],
-    'Taiwan': [
-        'Taipei', 'Kaohsiung', 'Taichung', 'Tainan', 'Hualien'
-    ],
-    'Hong Kong': ['Hong Kong'],
-    'Sri Lanka': [
-        'Colombo', 'Kandy', 'Galle', 'Sigiriya', 'Anuradhapura', 'Ella'
-    ],
-    'Nepal': [
-        'Kathmandu', 'Pokhara', 'Chitwan', 'Lumbini', 'Nagarkot'
-    ],
-    'Cambodia': [
-        'Siem Reap', 'Phnom Penh', 'Battambang', 'Kampot', 'Kep'
-    ],
-    'Myanmar': [
-        'Yangon', 'Bagan', 'Mandalay', 'Inle Lake', 'Mawlamyine'
-    ],
-    'Laos': [
-        'Vientiane', 'Luang Prabang', 'Vang Vieng', 'Pakse', 'Phonsavan'
-    ],
-    'Bangladesh': [
-        'Dhaka', 'Chittagong', "Cox's Bazar", 'Sylhet', 'Rajshahi'
-    ]
+    'South Korea': ['Busan', 'Seoul'],
+    'Taiwan': ['Taipei'],
+    'Vietnam': ['Hanoi', 'Ho Chi Minh City'],
 };
