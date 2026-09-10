@@ -1805,7 +1805,11 @@ const SupplierDashboard: React.FC<SupplierDashboardProps> = ({ supplier, onLogou
 
       <div className="max-w-7xl mx-auto px-6 py-8">
         {/* Status Banner */}
-        {(currentSupplier?.status === 'pending' || supplier.status === 'pending') && (
+        {/* Read the refreshed record only. `supplier` is the prop captured at login
+            and never updates, so ORing it in kept the "Account Under Review"
+            banner on screen after approval until the supplier logged out and
+            back in - which is exactly what our first Japan-facing signup hit. */}
+        {(currentSupplier ?? supplier)?.status === 'pending' && (
           <div className="bg-yellow-50 border border-yellow-200 rounded-2xl p-6 mb-8">
             <div className="flex items-start gap-4">
               <Clock className="text-yellow-600 shrink-0 mt-1" size={24} />
@@ -1936,7 +1940,7 @@ const SupplierDashboard: React.FC<SupplierDashboardProps> = ({ supplier, onLogou
                     }`}
                 >
                   <Plus size={18} />
-                  {supplier.status === 'approved' ? 'Create New Tour' : 'Awaiting Approval'}
+                  {(currentSupplier ?? supplier)?.status === 'approved' ? 'Create New Tour' : 'Awaiting Approval'}
                 </button>
               </div>
 
@@ -2013,7 +2017,7 @@ const SupplierDashboard: React.FC<SupplierDashboardProps> = ({ supplier, onLogou
                         }`}
                     >
                       <Plus size={18} />
-                      {supplier.status === 'approved' ? 'Create Your First Tour' : 'Awaiting Approval'}
+                      {(currentSupplier ?? supplier)?.status === 'approved' ? 'Create Your First Tour' : 'Awaiting Approval'}
                     </button>
                   )}
                 </div>
