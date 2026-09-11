@@ -29,6 +29,13 @@ export async function sendDueReviewRequests() {
   const candidates = await prisma.booking.findMany({
     where: {
       status: { in: ['confirmed', 'completed'] },
+      // A refunded booking never ran, so never ask its guest to review it.
+      // On 2026-09-11 a Tokyo e-bike tour was called off for rain at 04:07 and
+      // this job emailed the guest asking how it went at 05:54, because the
+      // cancellation had happened over WhatsApp and the row still said
+      // 'confirmed'. Status alone is not enough when the cancellation lands
+      // outside the system; the refund is the more reliable signal.
+      NOT: { paymentStatus: 'refunded' },
       review: { is: null },
       OR: [{ reviewRequestSentAt: null }, { reviewReminderSentAt: null }],
     },
