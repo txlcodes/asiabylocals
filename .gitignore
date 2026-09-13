@@ -30,3 +30,6 @@ npm-debug.log*
 *.db-journal
 server/dev.db
 server/dev.db-journal
+
+# One-off maintenance scripts run against the live database from the CLI.
+server/*.mjs

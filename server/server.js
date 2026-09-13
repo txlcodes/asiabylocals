@@ -3089,6 +3089,30 @@ app.post('/api/tours/upload-images', async (req, res) => {
 });
 
 // Create a new tour
+
+/**
+ * The operator name to print for a supplier's own tour.
+ *
+ * Deliberately not restricted to Latin characters: a filter that required
+ * [A-Za-z] once read valid Thai and Japanese company names as junk and
+ * replaced three live operators with our own brand.
+ *
+ * The bar is low on purpose. Rejecting a name here means falling back to null,
+ * and a null provider makes the page print our own brand as the operator of
+ * someone else's tour. A supplier's odd-looking entry is merely odd; our name
+ * on their tour is wrong. So anything with two real characters is kept, and a
+ * genuinely broken profile is fixed by asking the supplier, not by a regex.
+ */
+function supplierDisplayName(supplier) {
+  const clean = (v) => (typeof v === 'string' ? v.trim() : '');
+  const usable = (v) => clean(v).replace(/[\s\p{P}\p{S}]/gu, '').length >= 2;
+  const company = clean(supplier?.companyName);
+  const person = clean(supplier?.fullName);
+  if (usable(company)) return company;
+  if (usable(person)) return person;
+  return null;
+}
+
 app.post('/api/tours', async (req, res) => {
   const createStartTime = Date.now();
   try {
@@ -4301,7 +4325,12 @@ app.post('/api/tours', async (req, res) => {
       status: 'draft',
       // Who actually runs the tour. Travellers book us and are handed to this
       // operator, so a blank provider is a real gap, not a cosmetic one.
-      activityProvider: activityProvider || null,
+      //
+      // The supplier form does not ask for this field, so it always arrived
+      // empty and the tour page fell back to printing our own brand as the
+      // operator of somebody else's tour. A supplier who submits a tour IS the
+      // operator, so their own business name is the correct default.
+      activityProvider: activityProvider || supplierDisplayName(supplierCheck) || null,
       // Save simplified pricing fields
       maxGroupSize: isPerGroupPricing && maxGroupSize ? parseInt(maxGroupSize) : null,
       groupPrice: isPerGroupPricing && groupPrice ? parseFloat(groupPrice) : null,
