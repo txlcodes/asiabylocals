@@ -3841,9 +3841,21 @@ app.post('/api/tours', async (req, res) => {
     // Extract keywords AFTER we have locationSlug and citySlug
     const titleKeywords = extractKeywords(title, locationSlug, citySlug);
 
-    // Build intelligent base slug with SEO optimization
+    // The title is the most reliable description of a tour, so it comes first.
+    //
+    // The landmark-and-keyword machinery below invents a subject: it gave
+    // "Mumbai Sightseeing Tour - No Shopping Stops" the slug
+    // gateway-of-india-shopping-tour, matching the word "shopping" while
+    // ignoring the "No", and filed "Delhi to Agra: Taj Mahal Day Trip" under
+    // agra-fort. A URL that contradicts the tour is worse than a plain one.
+    const titleSlug = slugify(title);
     let baseSlug = '';
+    if (titleSlug && titleSlug.split('-').filter(Boolean).length >= 3) {
+      baseSlug = titleSlug.split('-').slice(0, 9).join('-');
+    }
+
     const isGenericLocation = locationSlug === citySlug || locationSlug.length < 5;
+    if (!baseSlug) {
 
     // Strategy 1: If location is well-known and specific, use: location-tour-type
     if (!isGenericLocation && locationSlug.length >= 5) {
@@ -3856,6 +3868,7 @@ app.post('/api/tours', async (req, res) => {
     // Strategy 3: Fallback to city-tour-type
     else {
       baseSlug = `${citySlug}-${typeSlug}`;
+    }
     }
 
     // SEO Enhancement: Add keyword if slug is too short or generic
