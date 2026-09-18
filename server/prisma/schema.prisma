@@ -281,3 +281,54 @@ model EmailSubscription {
   @@index([city])
   @@map("email_subscriptions")
 }
+
+// ---- Agent API (2026-09): AI agents search tours and open holds ----
+// Keys are issued by hand; every request is counted here so quotas survive a
+// Render restart (a process-local counter would reset on each deploy).
+model AgentKey {
+  id          Int       @id @default(autoincrement())
+  key         String    @unique
+  name        String                              // who holds it (agent / company)
+  contact     String?                             // email of the key holder
+  dailyQuota  Int       @default(300) @map("daily_quota")
+  holdQuota   Int       @default(20)  @map("hold_quota")
+  active      Boolean   @default(true)
+  createdAt   DateTime  @default(now()) @map("created_at")
+  lastUsedAt  DateTime? @map("last_used_at")
+  requests    AgentRequest[]
+  holds       AgentHold[]
+
+  @@map("agent_keys")
+}
+
+model AgentRequest {
+  id        Int      @id @default(autoincrement())
+  keyId     Int      @map("key_id")
+  key       AgentKey @relation(fields: [keyId], references: [id], onDelete: Cascade)
+  kind      String                                // search | tour | hold
+  day       String                                // YYYY-MM-DD in UTC, for the daily count
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@index([keyId, day, kind])
+  @@map("agent_requests")
+}
+
+// A hold is a pending booking opened by an agent on a traveller's behalf. It
+// points at the normal Booking row (status pending_payment); the traveller
+// pays on /booking/<id> and only then does the operator hear about it.
+model AgentHold {
+  id         Int       @id @default(autoincrement())
+  holdId     String    @unique @map("hold_id")     // opaque id returned to the agent
+  keyId      Int       @map("key_id")
+  key        AgentKey  @relation(fields: [keyId], references: [id], onDelete: Cascade)
+  bookingId  Int       @map("booking_id")
+  tourId     Int       @map("tour_id")
+  pax        Int
+  date       String                                // YYYY-MM-DD
+  amountUsd  Float     @map("amount_usd")
+  expiresAt  DateTime  @map("expires_at")
+  createdAt  DateTime  @default(now()) @map("created_at")
+
+  @@index([keyId])
+  @@map("agent_holds")
+}

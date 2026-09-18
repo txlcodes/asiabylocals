@@ -16,6 +16,7 @@ import { sendBookingAlert, sendPaymentFailedAlert, sendInquiryAlert, logAlertCon
 import { uploadMultipleImages } from './utils/cloudinary.js';
 import { generateInvoicePDF } from './utils/invoice.js';
 import { generateSitemap } from './generate-sitemap.js';
+import mountAgentApi from './agent_api.js';
 import { GoogleAuth } from 'google-auth-library';
 
 // ==================== GOOGLE INDEXING API ====================
@@ -10331,6 +10332,9 @@ app.post('/api/cron/send-review-requests', async (req, res) => {
     res.status(500).json({ success: false, error: e.message });
   }
 });
+
+// Agent API: AI agents search tours and open holds (see agent_api.js).
+mountAgentApi(app, prisma, { sendBookingAlert });
 
 app.listen(PORT, () => {
   console.log(`🚀 Server running on http://localhost:${PORT}`);
