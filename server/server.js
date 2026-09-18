@@ -17,6 +17,7 @@ import { uploadMultipleImages } from './utils/cloudinary.js';
 import { generateInvoicePDF } from './utils/invoice.js';
 import { generateSitemap } from './generate-sitemap.js';
 import mountAgentApi from './agent_api.js';
+import mountMcp from './mcp_server.js';
 import { GoogleAuth } from 'google-auth-library';
 
 // ==================== GOOGLE INDEXING API ====================
@@ -10335,6 +10336,7 @@ app.post('/api/cron/send-review-requests', async (req, res) => {
 
 // Agent API: AI agents search tours and open holds (see agent_api.js).
 mountAgentApi(app, prisma, { sendBookingAlert });
+mountMcp(app, { port: PORT });   // MCP endpoint for Claude/ChatGPT connectors (mcp_server.js)
 
 app.listen(PORT, () => {
   console.log(`🚀 Server running on http://localhost:${PORT}`);

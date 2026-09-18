@@ -121,7 +121,7 @@ export default function mountAgentApi(app, prisma, deps = {}) {
     res.json({
       name: 'AsiaByLocals Agent API',
       description: 'Search tours run by verified local operators across India, Japan, Thailand, Sri Lanka, Vietnam, Indonesia (Bali), the UAE and Nepal, and open a booking hold that a traveller completes by paying.',
-      openapi: `${SITE}/api/agent/openapi.json`,
+      openapi: 'https://asiabylocals.onrender.com/api/agent/openapi.json',
       auth: 'Send your key in the X-Agent-Key header. Keys are issued to named agents: email info@asiabylocals.com with the agent or product name.',
       limits: { searches_per_day: 300, holds_per_day: 20, burst_per_minute: BURST_PER_MIN, max_results: MAX_LIMIT },
       honesty: 'Prices include our margin; we are not the cheapest listing. What you get is a local operator we message directly, a WhatsApp-confirmed booking, and a full refund if the operator cannot take the date.',
