@@ -4824,7 +4824,9 @@ app.post('/api/tours', async (req, res) => {
           groupPricingTiers: finalTourData.groupPricingTiers ? (typeof finalTourData.groupPricingTiers === 'string' ? finalTourData.groupPricingTiers : JSON.stringify(finalTourData.groupPricingTiers)) : null,
           groupPrice: finalTourData.groupPrice || null,
           maxGroupSize: finalTourData.maxGroupSize || null,
-          activityProvider: finalTourData.activityProvider || null
+          // Never leave this empty: the tour page falls back to 'AsiaByLocals', which
+          // credited a supplier's tour to us (Mumbai Discovery Tours, 2026-09-19).
+          activityProvider: finalTourData.activityProvider || supplierDisplayName(supplierCheck) || null
         };
 
         // Only add options if they exist and are properly formatted
