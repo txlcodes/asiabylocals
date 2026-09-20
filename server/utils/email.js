@@ -2902,3 +2902,34 @@ Talha · AsiaByLocals`;
   }
   throw new Error('No email provider configured for checkout recovery');
 };
+
+// Password reset for supplier accounts. Same providers as the verification
+// email; the link carries a one-hour token stored on the supplier row.
+export const sendPasswordResetEmail = async (email, fullName, resetToken) => {
+  if (!resendApiKey && !sendGridApiKey && (!emailUser || !emailPassword)) throw new Error('Email not configured');
+  const fromEmail = (resendApiKey || sendGridApiKey) ? 'info@asiabylocals.com' : (emailUser || 'asiabylocals@gmail.com');
+  const base = process.env.FRONTEND_URL || process.env.VITE_FRONTEND_URL || 'https://www.asiabylocals.com';
+  const url = `${base}/supplier/reset-password?token=${encodeURIComponent(resetToken)}`;
+  const name = (fullName || '').trim() || 'there';
+  const html = `<!DOCTYPE html><html><body style="margin:0;padding:0;background:#f4f4f4;font-family:Arial,sans-serif">
+  <table role="presentation" style="width:100%;border-collapse:collapse"><tr><td align="center" style="padding:40px 20px">
+  <table role="presentation" style="max-width:560px;width:100%;background:#fff;border-radius:8px;overflow:hidden">
+  <tr><td style="background:#001A33;padding:28px 40px;color:#fff;font-size:22px;font-weight:800">AsiaByLocals Partner Portal</td></tr>
+  <tr><td style="padding:36px 40px;color:#001A33;font-size:16px;line-height:1.6">
+  <p style="margin:0 0 16px">Hi ${name},</p>
+  <p style="margin:0 0 24px">We received a request to reset the password for your partner account (${email}). Click the button below to choose a new password. The link is valid for 1 hour.</p>
+  <p style="margin:0 0 28px"><a href="${url}" style="display:inline-block;background:#0071EB;color:#fff;text-decoration:none;padding:14px 28px;border-radius:999px;font-weight:700">Reset my password</a></p>
+  <p style="margin:0 0 8px;font-size:14px;color:#666">If the button does not work, copy this link into your browser:</p>
+  <p style="margin:0 0 24px;font-size:12px;color:#0071EB;word-break:break-all;background:#f8f9fa;padding:12px;border-radius:4px">${url}</p>
+  <p style="margin:0;font-size:14px;color:#666">If you did not request this, you can ignore this email. Your password will not change.</p>
+  </td></tr></table></td></tr></table></body></html>`;
+  const text = `Hi ${name},\n\nReset the password for your AsiaByLocals partner account (${email}) using this link (valid 1 hour):\n${url}\n\nIf you did not request this, ignore this email.`;
+  const subject = 'Reset your AsiaByLocals partner password';
+  if (resendClient) {
+    const result = await resendClient.emails.send({ from: `AsiaByLocals <${fromEmail}>`, to: email, subject, html, text });
+    if (result.error) throw new Error(`Resend API Error: ${JSON.stringify(result.error)}`);
+    return { success: true, messageId: result.data?.id };
+  }
+  const info = await transporter.sendMail({ from: `"AsiaByLocals" <${fromEmail}>`, to: email, subject, html, text });
+  return { success: true, messageId: info.messageId };
+};

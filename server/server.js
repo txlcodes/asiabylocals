@@ -7,7 +7,7 @@ import prisma from './db.js';
 import bcrypt from 'bcrypt';
 import { randomBytes, createHmac } from 'crypto';
 import Razorpay from 'razorpay';
-import { sendVerificationEmail, sendWelcomeEmail, sendBookingNotificationEmail, sendBookingConfirmationEmail, sendAdminPaymentNotificationEmail, sendTourApprovalEmail, sendTourRejectionEmail, sendGuideBookingNotificationEmail, sendReviewRequestEmail } from './utils/email.js';
+import { sendVerificationEmail, sendPasswordResetEmail, sendWelcomeEmail, sendBookingNotificationEmail, sendBookingConfirmationEmail, sendAdminPaymentNotificationEmail, sendTourApprovalEmail, sendTourRejectionEmail, sendGuideBookingNotificationEmail, sendReviewRequestEmail } from './utils/email.js';
 import { startBookingCrons } from './cron/bookingReminders.js';
 import { startReviewScheduler, sendDueReviewRequests } from './reviewScheduler.js';
 import { startCheckoutRecovery, runCheckoutRecovery, sendInstantRecovery } from './checkoutRecovery.js';
@@ -912,6 +912,47 @@ app.post('/api/suppliers/register', async (req, res) => {
       message: errorMessage,
       details: errorDetails
     });
+  }
+});
+
+// ---- Supplier password reset (the login page's "Forgot password?" was a dead button until 2026-09-20) ----
+// Reuses the email-verification token columns; a reset token is prefixed so it
+// can never be mistaken for a verification token.
+app.post('/api/suppliers/forgot-password', async (req, res) => {
+  const email = String(req.body?.email || '').trim().toLowerCase();
+  // Always answer the same way so the endpoint cannot be used to probe which emails exist.
+  const ok = () => res.json({ success: true, message: 'If that email has a partner account, a reset link is on its way.' });
+  if (!email || !email.includes('@')) return ok();
+  try {
+    const supplier = await prisma.supplier.findFirst({ where: { email: { equals: email, mode: 'insensitive' } }, select: { id: true, email: true, fullName: true } });
+    if (!supplier) return ok();
+    const token = 'pr_' + randomBytes(24).toString('hex');
+    await prisma.supplier.update({ where: { id: supplier.id }, data: { emailVerificationToken: token, emailVerificationExpires: new Date(Date.now() + 60 * 60 * 1000) } });
+    await sendPasswordResetEmail(supplier.email, supplier.fullName, token);
+    console.log(`🔑 Password reset email sent to supplier ${supplier.id}`);
+  } catch (e) {
+    console.error('forgot-password error:', e.message);
+  }
+  return ok();
+});
+
+app.post('/api/suppliers/reset-password', async (req, res) => {
+  const token = String(req.body?.token || '').trim();
+  const password = String(req.body?.password || '');
+  if (!token.startsWith('pr_')) return res.status(400).json({ success: false, error: 'Invalid or expired reset link' });
+  if (password.length < 8) return res.status(400).json({ success: false, error: 'Password must be at least 8 characters' });
+  try {
+    const supplier = await prisma.supplier.findFirst({ where: { emailVerificationToken: token }, select: { id: true, emailVerificationExpires: true } });
+    if (!supplier || !supplier.emailVerificationExpires || supplier.emailVerificationExpires < new Date()) {
+      return res.status(400).json({ success: false, error: 'Invalid or expired reset link' });
+    }
+    const passwordHash = await bcrypt.hash(password, 10);
+    await prisma.supplier.update({ where: { id: supplier.id }, data: { passwordHash, emailVerificationToken: null, emailVerificationExpires: null } });
+    console.log(`🔑 Password reset completed for supplier ${supplier.id}`);
+    return res.json({ success: true, message: 'Password updated. You can sign in now.' });
+  } catch (e) {
+    console.error('reset-password error:', e.message);
+    return res.status(500).json({ success: false, error: 'Could not reset password' });
   }
 });
 
