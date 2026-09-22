@@ -8740,7 +8740,9 @@ app.post('/api/verify-payment', async (req, res) => {
           select: {
             title: true,
             city: true,
-            country: true
+            country: true,
+            meetingPoint: true,
+            activityProvider: true
           }
         },
         supplier: {
@@ -8799,7 +8801,56 @@ app.post('/api/verify-payment', async (req, res) => {
       // Don't fail payment verification if email fails
     }
 
-    // Send notification email to supplier/guide
+    // Send notification email to supplier/guide.
+    //
+    // 96% of live tours sit under supplier 1 (AsiaByLocals acting as agent), so
+    // booking.supplier.email is our own inbox and this mail never reached the
+    // person who has to show up: that is how a Kyoto guest ended up 40 minutes
+    // from a start time with no address and no operator expecting her. Where we
+    // know how to reach the real operator, send it to them and keep the copy to
+    // ourselves; where we do not, say so loudly rather than pretending it went.
+    let operatorContact = null;
+    try {
+      if (booking.tour?.activityProvider) {
+        operatorContact = await prisma.operatorContact.findUnique({
+          where: { provider: booking.tour.activityProvider }
+        });
+      }
+    } catch (e) {
+      console.error('operator contact lookup failed:', e?.message);
+    }
+    const operatorEmail = operatorContact?.email || null;
+    if (operatorEmail) {
+      try {
+        await sendGuideBookingNotificationEmail(
+          operatorEmail,
+          operatorContact.provider,
+          {
+            bookingReference,
+            bookingId: booking.id,
+            tourTitle: booking.tour.title,
+            customerName: booking.customerName,
+            customerEmail: booking.customerEmail,
+            customerPhone: booking.customerPhone,
+            bookingDate: booking.bookingDate,
+            numberOfGuests: booking.numberOfGuests,
+            totalAmount: booking.totalAmount,
+            currency: booking.currency,
+            specialRequests: existingBooking.specialRequests,
+            meetingPoint: booking.tour.meetingPoint,
+            invoiceUrl: invoiceUrl
+          }
+        );
+        console.log(`✅ Operator notified directly: ${operatorContact.provider} <${operatorEmail}>`);
+        await new Promise(resolve => setTimeout(resolve, 1000));
+      } catch (emailError) {
+        console.error(`❌ OPERATOR NOT NOTIFIED (${operatorContact.provider}):`, emailError);
+      }
+    } else if (booking.tour?.activityProvider) {
+      console.error(`⚠️ NO OPERATOR CONTACT ON FILE for "${booking.tour.activityProvider}" ` +
+        `(booking ${bookingReference}) — this booking must be forwarded by hand.`);
+    }
+
     try {
       await sendGuideBookingNotificationEmail(
         booking.supplier.email,

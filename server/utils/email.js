@@ -2277,7 +2277,7 @@ export const sendGuideBookingNotificationEmail = async (supplierEmail, supplierN
 
   console.log(`📧 Sending guide booking notification email to: ${supplierEmail}`);
 
-  const { bookingReference, tourTitle, customerName, customerEmail, customerPhone, bookingDate, numberOfGuests, totalAmount, currency, specialRequests } = bookingDetails;
+  const { bookingReference, tourTitle, customerName, customerEmail, customerPhone, bookingDate, numberOfGuests, totalAmount, currency, specialRequests, meetingPoint } = bookingDetails;
   const formattedDate = new Date(bookingDate).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
   const fromEmail = (resendApiKey || sendGridApiKey) ? 'info@asiabylocals.com' : (process.env.EMAIL_USER || 'asiabylocals@gmail.com');
 
@@ -2319,6 +2319,7 @@ export const sendGuideBookingNotificationEmail = async (supplierEmail, supplierN
                     <tr><td style="padding:8px 0;font-size:14px;color:#666;">Email</td><td style="padding:8px 0;font-size:14px;font-weight:700;color:#001A33;text-align:right;"><a href="mailto:${customerEmail}" style="color:#10B981;">${customerEmail}</a></td></tr>
                     ${customerPhone ? `<tr><td style="padding:8px 0;font-size:14px;color:#666;">Phone</td><td style="padding:8px 0;font-size:14px;font-weight:700;color:#001A33;text-align:right;"><a href="tel:${customerPhone}" style="color:#10B981;">${customerPhone}</a></td></tr>` : ''}
                     ${specialRequests ? `<tr><td style="padding:8px 0;font-size:14px;color:#666;">Requests</td><td style="padding:8px 0;font-size:14px;font-weight:600;color:#001A33;text-align:right;">${specialRequests}</td></tr>` : ''}
+                    ${meetingPoint ? `<tr><td style="padding:8px 0;font-size:14px;color:#666;">Meeting point</td><td style="padding:8px 0;font-size:14px;font-weight:600;color:#001A33;text-align:right;">${meetingPoint}</td></tr>` : ''}
                   </table>
                 </div>
 
@@ -2332,7 +2333,7 @@ export const sendGuideBookingNotificationEmail = async (supplierEmail, supplierN
         </table>
       </body></html>
     `,
-    text: `New Booking Confirmed: ${tourTitle}\n\nDear ${supplierName},\n\nGreat news! You have a new confirmed booking. The customer has already paid.\n\nBooking Details:\n- Reference: ${bookingReference || 'N/A'}\n- Tour: ${tourTitle}\n- Date: ${formattedDate}\n- Guests: ${numberOfGuests}\n- Amount: ${currency === 'INR' ? 'INR' : 'USD'} ${totalAmount}\n\nCustomer:\n- Name: ${customerName}\n- Email: ${customerEmail}\n${customerPhone ? `- Phone: ${customerPhone}\n` : ''}${specialRequests ? `- Requests: ${specialRequests}\n` : ''}\nPlease reach out to the customer to coordinate.\n\nBest regards,\nThe AsiaByLocals Team`
+    text: `New Booking Confirmed: ${tourTitle}\n\nDear ${supplierName},\n\nGreat news! You have a new confirmed booking. The customer has already paid.\n\nBooking Details:\n- Reference: ${bookingReference || 'N/A'}\n- Tour: ${tourTitle}\n- Date: ${formattedDate}\n- Guests: ${numberOfGuests}\n- Amount: ${currency === 'INR' ? 'INR' : 'USD'} ${totalAmount}\n\nCustomer:\n- Name: ${customerName}\n- Email: ${customerEmail}\n${customerPhone ? `- Phone: ${customerPhone}\n` : ''}${specialRequests ? `- Requests: ${specialRequests}\n` : ''}${meetingPoint ? `- Meeting point: ${meetingPoint}\n` : ''}\nPlease reach out to the customer to coordinate.\n\nBest regards,\nThe AsiaByLocals Team`
   };
 
   try {

@@ -332,3 +332,25 @@ model AgentHold {
   @@index([keyId])
   @@map("agent_holds")
 }
+
+/// Where to actually reach the operator who runs an agent-model tour.
+/// Keyed by the operator name already stored on every tour
+/// (Tour.activityProvider), because one operator runs many tours and
+/// booking.supplier.email is our own inbox for all of them.
+model OperatorContact {
+  id               Int       @id @default(autoincrement())
+  provider         String    @unique
+  email            String?
+  whatsapp         String?
+  phone            String?
+  website          String?
+  /// 'email' or 'whatsapp': the channel the operator actually answers on.
+  preferredChannel String?   @map("preferred_channel")
+  verifiedAt       DateTime? @map("verified_at")
+  source           String?
+  notes            String?
+  createdAt        DateTime  @default(now()) @map("created_at")
+  updatedAt        DateTime  @updatedAt @map("updated_at")
+
+  @@map("operator_contacts")
+}
