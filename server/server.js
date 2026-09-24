@@ -124,7 +124,10 @@ app.get('/api/health', async (req, res) => {
     res.json({
       status: 'ok',
       message: 'AsiaByLocals API is running',
-      database: 'connected'
+      database: 'connected',
+      // Lets a deploy be confirmed without POSTing a throwaway booking.
+      commit: process.env.RENDER_GIT_COMMIT || 'local',
+      priceGuard: true
     });
   } catch (error) {
     res.status(500).json({
