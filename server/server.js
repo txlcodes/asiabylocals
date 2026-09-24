@@ -8038,6 +8038,68 @@ app.post('/api/bookings', async (req, res) => {
       }
     });
 
+    // The quoted total arrives from the browser, and until now it was trusted
+    // exactly as sent. A page cached before a price correction would let a
+    // guest pay the old, lower figure, and a hand-edited request would let them
+    // pay anything at all. So recompute what this tour can legitimately cost
+    // for this party size and refuse anything below it.
+    //
+    // This is a floor, not an exact match: a guest is free to pick a dearer
+    // option than the cheapest one.
+    try {
+      const guests = parseInt(numberOfGuests);
+      const opts = await prisma.tourOption.findMany({
+        where: { tourId: parseInt(tourId) },
+        select: { price: true, groupPricingTiers: true },
+      });
+      const totals = [];
+      for (const o of opts) {
+        let tiers = null;
+        try {
+          tiers = o.groupPricingTiers
+            ? (typeof o.groupPricingTiers === 'string' ? JSON.parse(o.groupPricingTiers) : o.groupPricingTiers)
+            : null;
+        } catch (e) { tiers = null; }
+        if (Array.isArray(tiers) && tiers.length) {
+          // A per-group price covers the whole party. Multiplying it by heads
+          // is the bug that quoted four times the real price on private tours.
+          const tier = tiers.find(t => guests >= (Number(t.minPeople) || 1) && guests <= (Number(t.maxPeople) || 9999))
+                     || tiers[tiers.length - 1];
+          const p = parseFloat(tier?.price);
+          if (isFinite(p) && p > 0) totals.push(p);
+        } else if (isFinite(o.price) && o.price > 0) {
+          totals.push(o.price * guests);
+        }
+      }
+      if (!totals.length && tour.pricePerPerson > 0) totals.push(tour.pricePerPerson * guests);
+
+      if (totals.length) {
+        let floor = Math.min(...totals);           // in USD, the catalogue currency
+        const cur = String(currency || 'USD').toUpperCase();
+        if (cur !== 'USD') {
+          try {
+            const rates = await getFxRates();
+            floor = rates[cur] ? floor * rates[cur] : null;
+          } catch (e) { floor = null; }
+        }
+        // Five percent of slack absorbs rounding, tier edges and FX drift. The
+        // point is to catch a materially wrong total, not to argue over a dollar.
+        if (floor != null && parseFloat(totalAmount) < floor * 0.95) {
+          console.warn(`Underpriced booking refused: tour ${tourId}, ${guests} guests, sent ${totalAmount} ${cur}, floor ${floor}`);
+          return res.status(409).json({
+            success: false,
+            error: 'Price out of date',
+            message: 'The price for this tour has been updated since this page loaded. Please refresh and book again so you see the current total.',
+            correctAmount: Math.round(floor * 100) / 100,
+            currency: cur,
+          });
+        }
+      }
+    } catch (e) {
+      // A guard that throws must not block a real booking.
+      console.error('Price floor check failed (non-fatal):', e.message);
+    }
+
     // Create booking
     const booking = await prisma.booking.create({
       data: {
