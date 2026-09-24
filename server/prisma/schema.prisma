@@ -348,6 +348,10 @@ model OperatorContact {
   preferredChannel String?   @map("preferred_channel")
   verifiedAt       DateTime? @map("verified_at")
   source           String?
+  /// A contact is verified only when a human has had a reply from it. Search
+  /// results are guesses, and this record decides where a guest's name, email
+  /// and phone are sent.
+  verified         Boolean   @default(false)
   notes            String?
   createdAt        DateTime  @default(now()) @map("created_at")
   updatedAt        DateTime  @updatedAt @map("updated_at")

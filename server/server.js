@@ -8812,8 +8812,13 @@ app.post('/api/verify-payment', async (req, res) => {
     let operatorContact = null;
     try {
       if (booking.tour?.activityProvider) {
-        operatorContact = await prisma.operatorContact.findUnique({
-          where: { provider: booking.tour.activityProvider }
+        // verified only. A contact found by search is a guess until a human has
+        // had a reply from it, and this mail carries the guest's name, email and
+        // phone. On 2026-09-24 a booking went to rsv.gorillaadventures@gmail.com
+        // because a domain check matched the wrong one of two Bali companies
+        // called Gorilla; they replied that they had never heard of us.
+        operatorContact = await prisma.operatorContact.findFirst({
+          where: { provider: booking.tour.activityProvider, verified: true }
         });
       }
     } catch (e) {
@@ -8847,8 +8852,8 @@ app.post('/api/verify-payment', async (req, res) => {
         console.error(`❌ OPERATOR NOT NOTIFIED (${operatorContact.provider}):`, emailError);
       }
     } else if (booking.tour?.activityProvider) {
-      console.error(`⚠️ NO OPERATOR CONTACT ON FILE for "${booking.tour.activityProvider}" ` +
-        `(booking ${bookingReference}) — this booking must be forwarded by hand.`);
+      console.error(`⚠️ NO VERIFIED OPERATOR CONTACT for "${booking.tour.activityProvider}" ` +
+        `(booking ${bookingReference}) — forward this booking by hand.`);
     }
 
     try {
