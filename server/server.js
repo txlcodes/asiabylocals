@@ -3151,7 +3151,14 @@ app.post('/api/tours/upload-images', async (req, res) => {
  */
 function supplierDisplayName(supplier) {
   const clean = (v) => (typeof v === 'string' ? v.trim() : '');
-  const usable = (v) => clean(v).replace(/[\s\p{P}\p{S}]/gu, '').length >= 2;
+  // ',nm' used to pass this: stripping punctuation left 'nm', which is two
+  // characters, so it was treated as a real company name and was written onto
+  // every tour created under supplier 1. Require a bit more than two stray
+  // letters before treating a value as a usable trading name.
+  const usable = (v) => {
+    const bare = clean(v).replace(/[\s\p{P}\p{S}]/gu, '');
+    return bare.length >= 4 && /[A-Za-z]{3}/.test(bare);
+  };
   const company = clean(supplier?.companyName);
   const person = clean(supplier?.fullName);
   if (usable(company)) return company;
@@ -6249,6 +6256,21 @@ app.put('/api/tours/:id', async (req, res) => {
     // Allows backfilling the source-listing link on tours imported before the
     // POST handler learned to store it.
     if (updateData.gygActivityId) dataToUpdate.gygActivityId = String(updateData.gygActivityId);
+    // Who actually runs the tour. Create could not set this: supplier 1's
+    // companyName holds the string ',nm', supplierDisplayName() accepts it
+    // (two letters survive the punctuation strip) and it overwrote every
+    // operator name we sent - verified 2026-09-25 by posting the sentinel
+    // 'ZZZ_SENTINEL_OPERATOR' and reading back ',nm'. Booking notifications
+    // look the operator up by this exact string
+    // (where: { provider: booking.tour.activityProvider }), so a junk value
+    // means no operator is ever notified. Allowing it on update lets the
+    // Cambodia batch and the older Nara/Nagoya/Sapporo tours be repaired in
+    // place.
+    if (updateData.activityProvider !== undefined) {
+      const ap = typeof updateData.activityProvider === 'string'
+        ? updateData.activityProvider.trim() : '';
+      if (ap) dataToUpdate.activityProvider = ap;
+    }
     if (updateData.category) dataToUpdate.category = updateData.category;
     if (updateData.locations) dataToUpdate.locations = JSON.stringify(
       typeof updateData.locations === 'string' ? JSON.parse(updateData.locations) : updateData.locations
