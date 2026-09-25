@@ -1,0 +1,81 @@
+[
+ {
+  "title": "Rafting Adventure meet at Venue (No Zip-Line & Rice Terrace)",
+  "duration": "2.5 hours",
+  "hours": 2.5,
+  "cost_per_person": 21.54,
+  "cost_per_group": null,
+  "per_group": false,
+  "languages": [
+   {
+    "id": 29,
+    "isoCode": "en",
+    "name": "English",
+    "messages": [],
+    "type": "live"
+   }
+  ],
+  "start_address": "G6JX+VJ6, Jl. Raya Kedewatan, Kedewatan, Kecamatan Ubud, Kabupaten Gianyar, Bali 80571, Indonesia",
+  "start_note": "Search “Graha Adventure Rafting” on Google Maps or use the location link provided after booking.\nPlease arrive at the meeting point 15 minutes before your selected time. Late arrival may shorten the Rafting experience.",
+  "times": [
+   "8:30 AM",
+   "9:00 AM",
+   "9:30 AM",
+   "10:00 AM",
+   "10:30 AM",
+   "11:00 AM"
+  ]
+ },
+ {
+  "title": "Zip-line & Rice Terraces Tour (No Rafting)",
+  "duration": "6 hours",
+  "hours": 6.0,
+  "cost_per_person": 55.3,
+  "cost_per_group": null,
+  "per_group": false,
+  "languages": [
+   {
+    "id": 29,
+    "isoCode": "en",
+    "name": "English",
+    "messages": [],
+    "type": "live"
+   }
+  ],
+  "start_address": null,
+  "start_note": null,
+  "times": [
+   "7:00 AM",
+   "7:30 AM",
+   "8:00 AM",
+   "8:30 AM",
+   "9:00 AM"
+  ]
+ },
+ {
+  "title": "Zip-line Adventure, River Rafting & Rice Terraces Tour",
+  "duration": "8 hours",
+  "hours": 8.0,
+  "cost_per_person": 72.76,
+  "cost_per_group": null,
+  "per_group": false,
+  "languages": [
+   {
+    "id": 29,
+    "isoCode": "en",
+    "name": "English",
+    "messages": [],
+    "type": "live"
+   }
+  ],
+  "start_address": null,
+  "start_note": null,
+  "times": [
+   "7:00 AM",
+   "7:30 AM",
+   "8:00 AM",
+   "8:30 AM",
+   "9:00 AM"
+  ]
+ }
+]

@@ -3260,7 +3260,11 @@ app.post('/api/tours', async (req, res) => {
       guideType,
       currency,
       pickupIncluded,
-      activityProvider
+      activityProvider,
+      // Link back to the source listing. The column existed in the schema but was
+      // never read here, so every import silently lost it -- which is why a later
+      // bulk price audit could only map 159 of 939 tours back to their source.
+      gygActivityId
     } = finalCleanedBody; // Use final cleaned body (IDs and pricingType removed)
 
     // #region agent log
@@ -4390,6 +4394,7 @@ app.post('/api/tours', async (req, res) => {
       // operator of somebody else's tour. A supplier who submits a tour IS the
       // operator, so their own business name is the correct default.
       activityProvider: activityProvider || supplierDisplayName(supplierCheck) || null,
+      gygActivityId: gygActivityId ? String(gygActivityId) : null,
       // Save simplified pricing fields
       maxGroupSize: isPerGroupPricing && maxGroupSize ? parseInt(maxGroupSize) : null,
       groupPrice: isPerGroupPricing && groupPrice ? parseFloat(groupPrice) : null,
@@ -6216,6 +6221,9 @@ app.put('/api/tours/:id', async (req, res) => {
 
     if (updateData.title) dataToUpdate.title = updateData.title;
     if (updateData.city) dataToUpdate.city = updateData.city;
+    // Allows backfilling the source-listing link on tours imported before the
+    // POST handler learned to store it.
+    if (updateData.gygActivityId) dataToUpdate.gygActivityId = String(updateData.gygActivityId);
     if (updateData.category) dataToUpdate.category = updateData.category;
     if (updateData.locations) dataToUpdate.locations = JSON.stringify(
       typeof updateData.locations === 'string' ? JSON.parse(updateData.locations) : updateData.locations
