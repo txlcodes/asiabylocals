@@ -8945,7 +8945,28 @@ app.post('/api/verify-payment', async (req, res) => {
       console.error('operator contact lookup failed:', e?.message);
     }
     const operatorEmail = operatorContact?.email || null;
+    // Operators are NOT emailed automatically. Talha, 2026-09-25: "supplier ko
+    // koi emails mat bhejo, wo confuse hoga." On the agent model most operators
+    // have never been told we list their tours, so a system mail about a
+    // booking arrives from a company they do not recognise. First contact has
+    // to be a human message. See memory no-auto-operator-booking-email.
+    //
+    // The lookup above still runs, because the Kyoto guest who stood 40 minutes
+    // from her start time was stranded by nobody knowing who to call. We now
+    // print who to contact instead of mailing them, so the booking is forwarded
+    // by hand within the alert window rather than silently not at all.
     if (operatorEmail) {
+      console.log(
+        `📣 FORWARD THIS BOOKING BY HAND — booking ${bookingReference}\n` +
+        `   operator : ${operatorContact.provider} <${operatorEmail}>\n` +
+        `   tour     : ${booking.tour.title}\n` +
+        `   date     : ${booking.bookingDate}  guests: ${booking.numberOfGuests}\n` +
+        `   guest    : ${booking.customerName} <${booking.customerEmail}> ${booking.customerPhone || ''}\n` +
+        `   (automatic operator email is intentionally disabled)`
+      );
+    }
+    const NEVER_EMAIL_OPERATORS = true;
+    if (operatorEmail && !NEVER_EMAIL_OPERATORS) {
       try {
         await sendGuideBookingNotificationEmail(
           operatorEmail,
@@ -8971,9 +8992,9 @@ app.post('/api/verify-payment', async (req, res) => {
       } catch (emailError) {
         console.error(`❌ OPERATOR NOT NOTIFIED (${operatorContact.provider}):`, emailError);
       }
-    } else if (booking.tour?.activityProvider) {
+    } else if (booking.tour?.activityProvider && !operatorEmail) {
       console.error(`⚠️ NO VERIFIED OPERATOR CONTACT for "${booking.tour.activityProvider}" ` +
-        `(booking ${bookingReference}) — forward this booking by hand.`);
+        `(booking ${bookingReference}) — nobody to forward this to. Check agent_tours.json.`);
     }
 
     try {
