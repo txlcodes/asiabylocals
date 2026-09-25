@@ -5269,6 +5269,31 @@ app.post('/api/tours', async (req, res) => {
               const retryDelay = createAttempts * 1000; // 1s, 2s, 3s
               console.log(`   Connection error detected, retrying in ${retryDelay}ms...`);
               await new Promise(resolve => setTimeout(resolve, retryDelay));
+
+              // A dropped connection does NOT mean the write failed -- the row may
+              // already be in the database with only the response lost. Retrying
+              // blindly then creates a second copy, and because options are attached
+              // after the successful attempt, the orphan is left with none. That is
+              // exactly what produced 6 option-less duplicate drafts on 2026-09-25.
+              // So: look before writing again.
+              try {
+                const already = await prisma.tour.findFirst({
+                  where: {
+                    supplierId: tourDataWithoutOptions.supplierId,
+                    title: tourDataWithoutOptions.title,
+                    createdAt: { gte: new Date(Date.now() - 120000) }
+                  },
+                  orderBy: { createdAt: 'desc' }
+                });
+                if (already) {
+                  console.log(`   Previous attempt actually landed as tour ${already.id} - reusing it instead of creating a duplicate`);
+                  tour = already;
+                  tourCreated = true;
+                  break;
+                }
+              } catch (lookupError) {
+                console.warn('   Duplicate check failed, proceeding with retry:', lookupError.message);
+              }
               continue; // Retry
             }
 
