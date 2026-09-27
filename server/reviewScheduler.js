@@ -4,6 +4,7 @@
 //   Email 2 — reminder sent the next day if the guest still hasn't written a review.
 // Runs on a timer; stamps reviewRequestSentAt / reviewReminderSentAt so it never double-sends.
 import { PrismaClient } from '@prisma/client';
+import { removeSuppressed } from './utils/suppression.js';
 import { randomBytes } from 'crypto';
 import { sendReviewRequestEmail } from './utils/email.js';
 
@@ -42,8 +43,15 @@ export async function sendDueReviewRequests() {
     include: { tour: { select: { title: true, city: true, country: true } } },
   });
 
+  // Never ask a guest who has asked us to stop. Same list the recovery ladder
+  // uses; see utils/suppression.js.
+  const mutedReviews = await removeSuppressed(candidates.map(b => b.customerEmail));
+  const contactable = candidates.filter(b => !mutedReviews.has(String(b.customerEmail || '').toLowerCase()));
+  if (contactable.length !== candidates.length)
+    console.log(`🔕 Review requests skipped for ${candidates.length - contactable.length} suppressed guest(s)`);
+
   let sent = 0, reminders = 0, skipped = 0, failed = 0;
-  for (const b of candidates) {
+  for (const b of contactable) {
     const td = new Date(b.bookingDate).getTime();
     if (isNaN(td) || td < minCutoff) { skipped++; continue; }
 
@@ -81,7 +89,7 @@ export async function sendDueReviewRequests() {
       console.error(`❌ Review email failed for booking ${b.id}:`, e.message);
     }
   }
-  const summary = { candidates: candidates.length, sent, reminders, skipped, failed };
+  const summary = { candidates: candidates.length, suppressed: candidates.length - contactable.length, sent, reminders, skipped, failed };
   console.log('📨 Review request sweep:', JSON.stringify(summary));
   return summary;
 }

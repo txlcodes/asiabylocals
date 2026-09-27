@@ -15,6 +15,7 @@ import { PrismaClient } from '@prisma/client';
 import { sendCheckoutRecoveryEmail } from './utils/email.js';
 import { isWhatsAppConfigured, toE164, sendWhatsAppTemplate } from './utils/whatsapp.js';
 import { sendLeadRescueAlert } from './bookingPush.js';
+import { removeSuppressed } from './utils/suppression.js';
 
 const prisma = new PrismaClient();
 
@@ -81,6 +82,49 @@ export async function runCheckoutRecovery() {
     if (!prev || new Date(b.createdAt) > new Date(prev.createdAt)) newestPerGuest.set(key, b);
   }
   const duplicates = candidates.length - newestPerGuest.size;
+
+  // The filter above reads one row at a time, so a guest who failed once and then
+  // paid still has a failed row that looks abandoned. Senka Asceric was emailed
+  // "complete your booking" for the Tokyo sumo tour two hours after that booking
+  // had been cancelled and refunded, because the refunded row and the failed row
+  // are different records. Drop a candidate if the same guest has any other
+  // booking on the same tour that was paid, cancelled or refunded.
+  const settled = await prisma.booking.findMany({
+    where: {
+      customerEmail: { in: [...new Set([...newestPerGuest.values()].map(b => b.customerEmail).filter(Boolean))] },
+      OR: [
+        { paymentStatus: { in: ['paid', 'refunded'] } },
+        { status: { in: ['confirmed', 'completed', 'cancelled'] } },
+      ],
+    },
+    select: { customerEmail: true, tourId: true },
+  });
+  const settledKeys = new Set(settled.map(b => `${(b.customerEmail || '').toLowerCase()}|${b.tourId}`));
+  let alreadySettled = 0;
+  for (const key of [...newestPerGuest.keys()]) {
+    if (settledKeys.has(key)) {
+      const b = newestPerGuest.get(key);
+      await prisma.booking.update({ where: { id: b.id }, data: { recoveredAt: new Date() } });
+      newestPerGuest.delete(key);
+      alreadySettled++;
+      console.log(`⏭️  Recovery skipped booking ${b.id}: this guest already has a settled booking on tour ${b.tourId}`);
+    }
+  }
+
+  // A guest who has told us to stop drops out here, before any send. Without
+  // this the ladder keeps running on its own timers even after the guest has
+  // said no somewhere we cannot see, which is exactly what happened on
+  // 2026-09-27.
+  const muted = await removeSuppressed([...newestPerGuest.values()].map(b => b.customerEmail));
+  let suppressed = 0;
+  for (const [key, b] of [...newestPerGuest.entries()]) {
+    if (muted.has(String(b.customerEmail || '').toLowerCase())) {
+      await prisma.booking.update({ where: { id: b.id }, data: { recoveredAt: new Date() } });
+      newestPerGuest.delete(key);
+      suppressed++;
+      console.log(`🔕 Recovery skipped booking ${b.id}: guest asked not to be contacted`);
+    }
+  }
 
   let nudge1 = 0, nudge2 = 0, escalated = 0, whatsapp = 0, failed = 0, skipped = 0, tooOld = 0;
 
@@ -164,7 +208,7 @@ export async function runCheckoutRecovery() {
     }
   }
 
-  const summary = { candidates: candidates.length, duplicates, nudge1, nudge2, whatsapp, escalated, tooOld, skipped, failed };
+  const summary = { candidates: candidates.length, duplicates, alreadySettled, nudge1, nudge2, whatsapp, escalated, tooOld, skipped, failed };
   console.log('💸 Checkout recovery sweep:', JSON.stringify(summary));
   return summary;
 }
@@ -195,6 +239,30 @@ export function sendInstantRecovery(bookingId, { delayMs = INSTANT_DELAY_MS } = 
       if (b.recoveredAt) return;                                 // already paid
       if (['paid', 'refunded'].includes(b.paymentStatus)) return;
       if (['confirmed', 'completed', 'cancelled'].includes(b.status)) return;
+
+      // The checks above only look at this row. A guest who fails a card and then
+      // pays a minute later has two rows, and the failed one still looks
+      // abandoned: Senka Asceric was emailed "complete your booking" seven
+      // minutes after her payment went through, because the paid booking was a
+      // different record. Stop if this guest already has a settled booking on the
+      // same tour.
+      const sibling = await prisma.booking.findFirst({
+        where: {
+          id: { not: b.id },
+          customerEmail: b.customerEmail,
+          tourId: b.tourId,
+          OR: [
+            { paymentStatus: { in: ['paid', 'refunded'] } },
+            { status: { in: ['confirmed', 'completed', 'cancelled'] } },
+          ],
+        },
+        select: { id: true },
+      });
+      if (sibling) {
+        await prisma.booking.update({ where: { id: b.id }, data: { recoveredAt: new Date() } });
+        console.log(`⏭️  Instant recovery skipped booking ${b.id}: guest already settled on booking ${sibling.id}`);
+        return;
+      }
 
       const details = {
         tourTitle: b.tour?.title || 'your tour',
