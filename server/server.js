@@ -3569,7 +3569,7 @@ app.post('/api/tours', async (req, res) => {
     // Enhanced slugify function - handles edge cases and special characters
     const slugify = (text) => {
       if (!text) return '';
-      return text
+      const out = text
         .toLowerCase()
         .trim()
         .normalize('NFD') // Normalize unicode characters (é -> e)
@@ -3577,7 +3577,21 @@ app.post('/api/tours', async (req, res) => {
         .replace(/[^\w\s-]/g, '') // Remove special characters
         .replace(/[\s_-]+/g, '-') // Replace spaces and underscores with hyphens
         .replace(/^-+|-+$/g, '') // Remove leading/trailing hyphens
-        .substring(0, 50); // Max length for individual parts
+        .replace(/^-+|-+$/g, '');
+      // Cut to 50 characters, but never through the middle of a word. A blind
+      // substring produced 213 live slugs ending in fragments:
+      // ...elephant-conservat, ...by-superfas, ...fatehpur-sikri-stepwel.
+      // They read as broken in a search result and lose the tail keyword.
+      //
+      // Hard cut first, then step back to the last hyphen. Doing it with one
+      // regex let a single word longer than 50 characters through untouched,
+      // because the pattern simply failed to match and replace left it alone.
+      // If there is no hyphen to step back to, the hard cut stands: a long
+      // unbroken word has no boundary to respect.
+      if (out.length <= 50) return out;
+      const cut = out.substring(0, 50);
+      const lastDash = cut.lastIndexOf('-');
+      return (lastDash > 0 ? cut.substring(0, lastDash) : cut).replace(/-+$/g, '');
     };
 
     // World-class tour type extraction with priority-based matching
@@ -8059,9 +8073,22 @@ app.post('/api/bookings', async (req, res) => {
     const TOUR_TZ = {
       india: 'Asia/Kolkata', japan: 'Asia/Tokyo', thailand: 'Asia/Bangkok',
       'sri lanka': 'Asia/Colombo', uae: 'Asia/Dubai', nepal: 'Asia/Kathmandu',
+      // Missing until 2026-09-28, so these three fell through to the Dubai
+      // default three to four hours behind the tour, which quietly made their
+      // cutoff looser than everyone else's.
+      cambodia: 'Asia/Phnom_Penh', vietnam: 'Asia/Ho_Chi_Minh',
+      indonesia: 'Asia/Jakarta',
     };
     const tourCountry = String(tour.country || '').trim().toLowerCase();
-    const leadDays = tourCountry === 'india' ? 0 : 1;
+    // One day is clock time, not working time. On 2026-09-28 a guest paid at
+    // 16:54 JST for a Tokyo walk the next morning: every Japanese operator was
+    // closing, the tour turned out not to run that date at all, and placing a
+    // replacement took eleven operators and a whole evening. Japanese suppliers
+    // answer a company inbox on office hours, so a booking landing after they
+    // go home has no working hours left before the tour. Two days gives one
+    // clear business day. India stays zero because we are the operator there.
+    const LEAD_DAYS_BY_COUNTRY = { india: 0, japan: 2 };
+    const leadDays = LEAD_DAYS_BY_COUNTRY[tourCountry] ?? 1;
     if (leadDays > 0) {
       const tz = TOUR_TZ[tourCountry] || 'Asia/Dubai';
       // en-CA gives YYYY-MM-DD
@@ -8077,7 +8104,7 @@ app.post('/api/bookings', async (req, res) => {
         return res.status(400).json({
           success: false,
           error: 'Too soon to book',
-          message: `This tour needs at least ${leadDays} day's notice so the local operator can confirm your place. The earliest date we can take is ${earliestStr}.`,
+          message: `This tour needs at least ${leadDays} day${leadDays > 1 ? 's' : ''} of notice so the local operator can confirm your place. The earliest date we can take is ${earliestStr}.`,
           earliestDate: earliestStr
         });
       }
