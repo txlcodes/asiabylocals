@@ -10232,6 +10232,10 @@ if (process.env.NODE_ENV === 'production') {
       if (req.path.startsWith('/api')) {
         return next();
       }
+      // Don't serve index.html for the MCP agent endpoint
+      if (req.path.startsWith('/mcp')) {
+        return next();
+      }
       // Don't serve index.html for SEO files (already handled above)
       if (req.path === '/sitemap.xml' || req.path === '/robots.txt') {
         return next();
