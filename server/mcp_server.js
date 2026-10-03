@@ -26,7 +26,7 @@ function buildServer(callApi) {
     pax: z.number().int().min(1).max(20).default(2).describe('Number of travellers'),
     limit: z.number().int().min(1).max(20).default(10),
     offset: z.number().int().min(0).max(100).default(0),
-  }, async ({ city, query, date, pax, limit, offset }) => {
+  }, { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false }, async ({ city, query, date, pax, limit, offset }) => {
     const qs = new URLSearchParams({ city, pax: String(pax), limit: String(limit), offset: String(offset) });
     if (query) qs.set('q', query); if (date) qs.set('date', date);
     return text(await callApi('GET', `/api/agent/tours?${qs}`));
@@ -35,7 +35,8 @@ function buildServer(callApi) {
   server.tool('get_tour', 'Full detail of one tour: description, highlights, what is and is not included, meeting point, options, and the total for the party size.', {
     tour_id: z.number().int(),
     pax: z.number().int().min(1).max(20).default(2),
-  }, async ({ tour_id, pax }) => text(await callApi('GET', `/api/agent/tours/${tour_id}?pax=${pax}`)));
+  }, { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
+    async ({ tour_id, pax }) => text(await callApi('GET', `/api/agent/tours/${tour_id}?pax=${pax}`)));
 
   server.tool('request_booking', 'Open a 24-hour booking hold for a traveller. Returns a payment_url the traveller must open and pay themselves; never collect card details. The operator is contacted only after payment.', {
     tour_id: z.number().int(),
@@ -45,12 +46,14 @@ function buildServer(callApi) {
     traveller_email: z.string().email(),
     traveller_phone: z.string().optional(),
     notes: z.string().optional().describe('Pickup hotel, dietary needs, anything the operator should know'),
-  }, async ({ tour_id, date, pax, traveller_name, traveller_email, traveller_phone, notes }) =>
+  }, { readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: false },
+    async ({ tour_id, date, pax, traveller_name, traveller_email, traveller_phone, notes }) =>
     text(await callApi('POST', '/api/agent/holds', { tour_id, date, pax, traveller: { name: traveller_name, email: traveller_email, phone: traveller_phone }, notes })));
 
   server.tool('hold_status', 'Check a hold: awaiting_payment, confirmed, cancelled or expired.', {
     hold_id: z.string(),
-  }, async ({ hold_id }) => text(await callApi('GET', `/api/agent/holds/${encodeURIComponent(hold_id)}`)));
+  }, { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
+    async ({ hold_id }) => text(await callApi('GET', `/api/agent/holds/${encodeURIComponent(hold_id)}`)));
 
   return server;
 }

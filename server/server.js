@@ -18,6 +18,7 @@ import { generateInvoicePDF } from './utils/invoice.js';
 import { generateSitemap } from './generate-sitemap.js';
 import mountAgentApi from './agent_api.js';
 import mountMcp from './mcp_server.js';
+import mountOAuth from './oauth.js';
 import { GoogleAuth } from 'google-auth-library';
 
 // ==================== GOOGLE INDEXING API ====================
@@ -10236,6 +10237,10 @@ if (process.env.NODE_ENV === 'production') {
       if (req.path.startsWith('/mcp')) {
         return next();
       }
+      // Don't serve index.html for the OAuth server (ChatGPT Apps Directory auth) or its discovery doc
+      if (req.path.startsWith('/oauth') || req.path.startsWith('/.well-known/oauth-authorization-server') || req.path.startsWith('/.well-known/openai-apps')) {
+        return next();
+      }
       // Don't serve index.html for SEO files (already handled above)
       if (req.path === '/sitemap.xml' || req.path === '/robots.txt') {
         return next();
@@ -10608,6 +10613,15 @@ app.post('/api/cron/send-review-requests', async (req, res) => {
 // Agent API: AI agents search tours and open holds (see agent_api.js).
 mountAgentApi(app, prisma, { sendBookingAlert });
 mountMcp(app, { port: PORT });   // MCP endpoint for Claude/ChatGPT connectors (mcp_server.js)
+mountOAuth(app, prisma);          // OAuth 2.1 (PKCE) server for the ChatGPT Apps Directory (oauth.js)
+
+// Domain-verification file OpenAI gives us during Apps Directory submission.
+// Placeholder until Talha has the real token from platform.openai.com.
+app.get('/.well-known/openai-apps/:token', (req, res) => {
+  const expected = process.env.OPENAI_APPS_VERIFICATION_TOKEN;
+  if (!expected || req.params.token !== expected) return res.status(404).end();
+  res.type('text/plain').send(expected);
+});
 
 app.listen(PORT, () => {
   console.log(`🚀 Server running on http://localhost:${PORT}`);
