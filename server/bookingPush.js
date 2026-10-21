@@ -20,7 +20,7 @@ const NTFY_TOPIC = process.env.NTFY_TOPIC || 'abl-bookings-405fc07d8bff'; // cha
 // Deliberately not ADMIN_EMAIL: that is info@asiabylocals.com, the shared
 // company inbox this very alert is sent *from*. An alert nobody opens is the
 // same as no alert, so it goes to a personal inbox that gets read.
-const ADMIN_ALERT_EMAIL = process.env.ADMIN_ALERT_EMAIL || 'mb9400900@gmail.com';
+const ADMIN_ALERT_EMAIL = process.env.ADMIN_ALERT_EMAIL || 'txlweb3@gmail.com';
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
