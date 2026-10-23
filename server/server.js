@@ -8078,7 +8078,7 @@ app.post('/api/bookings', async (req, res) => {
       // default three to four hours behind the tour, which quietly made their
       // cutoff looser than everyone else's.
       cambodia: 'Asia/Phnom_Penh', vietnam: 'Asia/Ho_Chi_Minh',
-      indonesia: 'Asia/Jakarta',
+      indonesia: 'Asia/Jakarta', china: 'Asia/Shanghai',
     };
     const tourCountry = String(tour.country || '').trim().toLowerCase();
     // One day is clock time, not working time. On 2026-09-28 a guest paid at
@@ -8088,8 +8088,8 @@ app.post('/api/bookings', async (req, res) => {
     // answer a company inbox on office hours, so a booking landing after they
     // go home has no working hours left before the tour. Two days gives one
     // clear business day. India stays zero because we are the operator there.
-    const LEAD_DAYS_BY_COUNTRY = { india: 0, japan: 2 };
-    const leadDays = LEAD_DAYS_BY_COUNTRY[tourCountry] ?? 1;
+    const LEAD_DAYS_BY_COUNTRY = { india: 0, japan: 2, china: 3 };
+    const leadDays = LEAD_DAYS_BY_COUNTRY[tourCountry] ?? 2;
     if (leadDays > 0) {
       const tz = TOUR_TZ[tourCountry] || 'Asia/Dubai';
       // en-CA gives YYYY-MM-DD
