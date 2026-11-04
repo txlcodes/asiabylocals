@@ -8384,14 +8384,49 @@ app.get('/api/bookings/:bookingId/confirmation', async (req, res) => {
 
     const bookingReference = `ABL-${booking.id.toString().padStart(6, '0')}-${new Date(booking.createdAt).getFullYear()}`;
 
+    // This endpoint is public and booking ids are sequential, so anyone could
+    // walk /api/bookings/1..N. It used to return the whole row: guest name,
+    // email, phone, hotel, the Razorpay signature and the guide/review/recovery
+    // tokens. Return an allowlist instead, with the guest's details masked.
+    const maskEmail = (e) => {
+      if (!e || !e.includes('@')) return '';
+      const [u, d] = e.split('@');
+      return `${u.slice(0, 1)}***@${d}`;
+    };
+    const maskPhone = (p) => {
+      const digits = String(p || '').replace(/\D/g, '');
+      return digits.length > 3 ? `***${digits.slice(-3)}` : '';
+    };
+    const maskName = (n) => {
+      const parts = String(n || '').trim().split(/\s+/).filter(Boolean);
+      if (!parts.length) return '';
+      return parts.length === 1 ? parts[0] : `${parts[0]} ${parts[parts.length - 1].slice(0, 1)}.`;
+    };
+    const maskId = (v) => (v ? `${String(v).slice(0, 4)}***${String(v).slice(-4)}` : null);
+
     res.json({
       success: true,
       booking: {
-        ...booking,
         id: String(booking.id),
         tourId: String(booking.tourId),
         supplierId: String(booking.supplierId),
-        bookingReference
+        bookingReference,
+        bookingDate: booking.bookingDate,
+        numberOfGuests: booking.numberOfGuests,
+        totalAmount: booking.totalAmount,
+        currency: booking.currency,
+        status: booking.status,
+        paymentStatus: booking.paymentStatus,
+        createdAt: booking.createdAt,
+        confirmedAt: booking.confirmedAt,
+        customerName: maskName(booking.customerName),
+        customerEmail: maskEmail(booking.customerEmail),
+        customerPhone: maskPhone(booking.customerPhone),
+        specialRequests: null,
+        razorpayOrderId: maskId(booking.razorpayOrderId),
+        razorpayPaymentId: maskId(booking.razorpayPaymentId),
+        tour: booking.tour,
+        supplier: booking.supplier
       }
     });
   } catch (error) {
