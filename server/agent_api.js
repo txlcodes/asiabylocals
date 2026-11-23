@@ -60,11 +60,20 @@ function rotate(obj, n) {
 
 const CANCELLATION = 'Free cancellation up to 24 hours before the start for most tours; the tour page states any exception. We confirm every booking with the local operator before treating it as final and refund in full if the operator cannot take the date.';
 
+/** Real rating + review count from this tour's own verified guest reviews (reviews_table), never fabricated. */
+function ratingFor(tour) {
+  const list = Array.isArray(tour.reviewsList) ? tour.reviewsList : [];
+  if (!list.length) return { rating: null, review_count: 0 };
+  const sum = list.reduce((acc, r) => acc + (Number(r.rating) || 0), 0);
+  return { rating: Math.round((sum / list.length) * 10) / 10, review_count: list.length };
+}
+
 function tourCard(tour, pax, key) {
   const country = slugify(tour.country);
   const city = slugify(tour.city);
   const price = priceFor(tour, pax);
   const included = parseJson(tour.included, []);
+  const { rating, review_count } = ratingFor(tour);
   const card = {
     tour_id: tour.id,
     title: tour.title,
@@ -81,6 +90,8 @@ function tourCard(tour, pax, key) {
     operator: 'verified local operator, booked directly',
     operator_ref: opRef(tour.activityProvider),
     summary: tour.shortDescription || null,
+    rating,
+    review_count,
     cancellation: CANCELLATION,
     booking: 'POST /api/agent/holds with tour_id, date, pax and traveller details; the traveller then pays on the returned payment_url.',
   };
@@ -113,8 +124,19 @@ export default function mountAgentApi(app, prisma, deps = {}) {
     id: true, title: true, slug: true, city: true, country: true, category: true, duration: true,
     currency: true, pricePerPerson: true, groupPricingTiers: true, shortDescription: true, included: true,
     pickupIncluded: true, activityProvider: true,
+    reviewsList: { select: { rating: true } },
     options: { select: { optionTitle: true, price: true, groupPricingTiers: true, durationHours: true }, orderBy: { sortOrder: 'asc' }, take: 6 },
   };
+
+  /** Best/top-rated first: real-rated tours (desc by rating, then review count) ahead of unrated ones. */
+  function byBestFirst(a, b) {
+    const ra = ratingFor(a), rb = ratingFor(b);
+    if (ra.rating == null && rb.rating == null) return a.id - b.id;
+    if (ra.rating == null) return 1;
+    if (rb.rating == null) return -1;
+    if (rb.rating !== ra.rating) return rb.rating - ra.rating;
+    return rb.review_count - ra.review_count;
+  }
 
   // ---- discovery ----------------------------------------------------------
   app.get('/api/agent', (_req, res) => {
@@ -176,10 +198,15 @@ export default function mountAgentApi(app, prisma, deps = {}) {
         { highlights: { contains: w, mode: 'insensitive' } },
       ] }));
     }
-    const [rows, total] = await Promise.all([
-      prisma.tour.findMany({ where, select: TOUR_SELECT, orderBy: [{ id: 'asc' }], skip: offset, take: limit }),
+    // Best-rated tours first: Prisma can't ORDER BY a computed review average,
+    // so pull every match up to the page-depth cap we already enforce, sort by
+    // real rating in JS, then slice the requested page out of that order.
+    const [allMatches, total] = await Promise.all([
+      prisma.tour.findMany({ where, select: TOUR_SELECT, orderBy: [{ id: 'asc' }], take: MAX_OFFSET + MAX_LIMIT }),
       prisma.tour.count({ where }),
     ]);
+    allMatches.sort(byBestFirst);
+    const rows = allMatches.slice(offset, offset + limit);
     res.json({
       city, query: q || null, date: date || null, pax,
       count: rows.length, total_matches: total,
